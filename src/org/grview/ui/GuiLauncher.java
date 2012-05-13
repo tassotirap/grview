@@ -2,9 +2,9 @@ package org.grview.ui;
 
 public class GuiLauncher
 {
-	private final String SPLASH_SCREEN_PNG = "splash_screen.png";
-	private final String WORKSPACE_CHOOSER = "org.grview.ui.WorkspaceChooser";
-	private final String MAIN_WINDOW = "org.grview.ui.MainWindow";
+	private final static String SPLASH_SCREEN_PNG = "splash_screen.png";
+	private final static String WORKSPACE_CHOOSER = "org.grview.ui.WorkspaceChooser";
+	private final static String MAIN_WINDOW = "org.grview.ui.MainWindow";
 	private final String[] args;
 
 	private GuiLauncher(String[] args)

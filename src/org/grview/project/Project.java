@@ -22,13 +22,13 @@ import org.grview.syntax.command.AsinEditor;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
 
-
 /**
- * This class represents a projects and deals with the
- * management of a project.
+ * This class represents a projects and deals with the management of a project.
+ * 
  * @author Gustavo H. Braga
  */
-public class Project implements Serializable {
+public class Project implements Serializable
+{
 
 	private static final long serialVersionUID = -6812190878328950994L;
 	private ArrayList<File> openedFiles;
@@ -42,81 +42,102 @@ public class Project implements Serializable {
 	private File propertiesFile;
 	private File metadataFile;
 	private HashMap<String, String> codeByRoutine = new HashMap<String, String>();
-	
+
 	public static final String GRAM_EXT = FileExtension.GRAM_FILE;
 	public static final String SEM_EXT = FileExtension.SEM_FILE;
 	public static final String XML_EXT = FileExtension.XML_FILE;
 	public static final String LEX_EXT = FileExtension.LEX_FILE;
-	
+
 	public final static String METADATA_FILENAME = ".METADATA";
 	public final static String PROPERTIES_FILENAME = "properties.xml";
-	
+
 	/** this project's name **/
 	private String name;
 	public final static String DEFAULT_NAME = "Untitled";
 	public final static String DEFAULT_DESCRIPTION = "New project";
 	public final static String DEFAULT_SEMANTIC_ROUTINE_CLASS = "org.grview.semantics.SemanticRoutines";
-	
+
 	/** this project's version **/
 	private Version version;
-	
+
 	/** this project's properties **/
 	private Properties properties;
-	
-	/** the AsinEditor instance, that holds a representation of the current grammar **/
+
+	/**
+	 * the AsinEditor instance, that holds a representation of the current
+	 * grammar
+	 **/
 	private AsinEditor asinEditor;
-	
+
 	private transient static HashMap<String, Project> projectByRootPath = new HashMap<String, Project>();
-	
-	public Project(String projectsRootPath) { 
+
+	public Project(String projectsRootPath)
+	{
 		this(projectsRootPath, null);
 	}
 
-	private Project(String projectsRootPath, ArrayList<File> openedFiles) {
+	private Project(String projectsRootPath, ArrayList<File> openedFiles)
+	{
 		this.projectsRootPath = projectsRootPath;
 		baseDir = new File(projectsRootPath);
-		try {
-			if (openedFiles == null) {
+		try
+		{
+			if (openedFiles == null)
+			{
 				this.openedFiles = new ArrayList<File>();
 			}
-			else {
+			else
+			{
 				this.openedFiles = openedFiles;
 			}
 			projectByRootPath.put(projectsRootPath, this);
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	/** Here goes stuff that needs to be done anyway,
-	 * no matter if you have a project serialized or a new one
+	/**
+	 * Here goes stuff that needs to be done anyway, no matter if you have a
+	 * project serialized or a new one
 	 */
-	private void init() {
-		try {
+	private void init()
+	{
+		try
+		{
 			new SemanticRoutinesIvoker(this);
 			SemanticRoutinesRepo.setRoutineCode(codeByRoutine);
 		}
-		catch(MalformedURLException e) {
+		catch (MalformedURLException e)
+		{
 			Log.log(Log.ERROR, this, "Could not find path to semantic file!", e);
 		}
 	}
+
 	/**
 	 * Restores a project stored in a METADATA file
-	 * @param projectsRootPath the root path of the project
-	 * @return true if a serialized project was found 
+	 * 
+	 * @param projectsRootPath
+	 *            the root path of the project
+	 * @return true if a serialized project was found
 	 */
-	public static Project restoreProject(String projectsRootPath) {
-		try {
-			if (!(projectsRootPath.endsWith("/") || projectsRootPath.endsWith("\\"))) {
+	public static Project restoreProject(String projectsRootPath)
+	{
+		try
+		{
+			if (!(projectsRootPath.endsWith("/") || projectsRootPath.endsWith("\\")))
+			{
 				projectsRootPath += "/";
 			}
 			File file = new File(projectsRootPath + METADATA_FILENAME);
 			FileInputStream fis = new FileInputStream(file);
-			if (file.length() > 0) {
+			if (file.length() > 0)
+			{
 				ObjectInputStream ois = new ObjectInputStream(fis);
 				Object object = ois.readObject();
-				if (object instanceof Project){
+				if (object instanceof Project)
+				{
 					Project result = (Project) object;
 					AsinEditor.setInstance(result.asinEditor);
 					projectByRootPath.put(projectsRootPath, result);
@@ -126,45 +147,50 @@ public class Project implements Serializable {
 			}
 			return null;
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 		return null;
 	}
-	
+
 	/**
-	 * Saves this project to disk. This project instance will
-	 * be serialized and all its info will be saved
-	 * on METADATA_FILENAME;
+	 * Saves this project to disk. This project instance will be serialized and
+	 * all its info will be saved on METADATA_FILENAME;
+	 * 
 	 * @return true if successfully saved the project, false otherwise
 	 */
-	public boolean writeProject() {
-		try {
+	public boolean writeProject()
+	{
+		try
+		{
 			this.codeByRoutine = SemanticRoutinesRepo.getRoutineCode();
 			this.asinEditor = AsinEditor.getInstance();
 			FileOutputStream fos = new FileOutputStream(metadataFile);
 			new ObjectOutputStream(fos).writeObject(this);
 			return true;
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 			return false;
 		}
 	}
-	
+
 	/**
 	 * Puts all properties to a file.
+	 * 
 	 * @param propertiesFile
 	 */
-	public void putPropertiesToFile(String propertiesFile) {
-		final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-		"<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n" +
-		"<properties>\n" +
-		"\t<comment>Self generated properties</comment>\n";
+	public void putPropertiesToFile(String propertiesFile)
+	{
+		final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n" + "<properties>\n" + "\t<comment>Self generated properties</comment>\n";
 		final String tail = "</properties>";
 		String body = "";
-		try {
-			for (Object key : properties.keySet()) {
+		try
+		{
+			for (Object key : properties.keySet())
+			{
 				body += "\t<entry key=\"" + key.toString() + "\">" + properties.get(key).toString() + "</entry>\n";
 			}
 			File pf = new File(propertiesFile);
@@ -172,39 +198,42 @@ public class Project implements Serializable {
 			fw.write(header + body + tail);
 			fw.close();
 		}
-		catch (Exception e) {
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
 	 * Creates a new project
-	 * @param baseDir the absolute path to the new project
+	 * 
+	 * @param baseDir
+	 *            the absolute path to the new project
 	 * @return an instance of a new project
 	 */
-	public static Project createProject(File baseDir, String name, String description) throws IOException{
+	public static Project createProject(File baseDir, String name, String description) throws IOException
+	{
 		Project project = null;
 		final Properties props = new Properties();
-		if (name == null) { 
+		if (name == null)
+		{
 			name = DEFAULT_NAME;
 		}
-		if (description == null) {
+		if (description == null)
+		{
 			description = DEFAULT_DESCRIPTION;
 		}
-		props.put("name", name); 
-		props.put("description", description); 
+		props.put("name", name);
+		props.put("description", description);
 		props.put("baseDir", baseDir);
 		props.put("semanticRoutineClass", DEFAULT_SEMANTIC_ROUTINE_CLASS);
 		File gf = new File(baseDir.getAbsoluteFile() + "/" + name + GRAM_EXT);
-		File sf = new File(baseDir.getAbsoluteFile() + "/" +name + SEM_EXT);
-		File lf = new File(baseDir.getAbsoluteFile() + "/" +name + LEX_EXT);
-		File pf = new File(baseDir.getAbsoluteFile() + "/" +PROPERTIES_FILENAME);
-		File mdf = new File(baseDir.getAbsoluteFile() + "/" +METADATA_FILENAME);
-		if ((!gf.exists() && !gf.createNewFile()) ||
-				(!sf.exists() && !sf.createNewFile()) ||
-				(!lf.exists() && !lf.createNewFile()) ||
-				(!pf.exists() && !pf.createNewFile()) ||
-				(!mdf.exists() && !mdf.createNewFile())) {
+		File sf = new File(baseDir.getAbsoluteFile() + "/" + name + SEM_EXT);
+		File lf = new File(baseDir.getAbsoluteFile() + "/" + name + LEX_EXT);
+		File pf = new File(baseDir.getAbsoluteFile() + "/" + PROPERTIES_FILENAME);
+		File mdf = new File(baseDir.getAbsoluteFile() + "/" + METADATA_FILENAME);
+		if ((!gf.exists() && !gf.createNewFile()) || (!sf.exists() && !sf.createNewFile()) || (!lf.exists() && !lf.createNewFile()) || (!pf.exists() && !pf.createNewFile()) || (!mdf.exists() && !mdf.createNewFile()))
+		{
 			throw new IOException("Could not create files");
 		}
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_grammar"), gf);
@@ -212,8 +241,8 @@ public class Project implements Serializable {
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_lex"), lf);
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/default_properties.xml"), pf);
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/new_metadata"), mdf);
-		//make sure I have the correct routines.dtd
-		//props.putAll(loadProperties(pf.getAbsolutePath(), true));
+		// make sure I have the correct routines.dtd
+		// props.putAll(loadProperties(pf.getAbsolutePath(), true));
 		project = new Project(baseDir.getAbsolutePath(), null);
 		Version nv = new Version();
 		nv.setCreationDate(Calendar.getInstance().getTime());
@@ -232,31 +261,39 @@ public class Project implements Serializable {
 		YyFactory.createYylex(baseDir.getAbsolutePath(), "generated_code", lf.getAbsolutePath());
 		project.setYyLexFile(new File(baseDir.getAbsoluteFile() + "/generated_code", "Yylex.java"));
 		project.init();
-		return project; 
+		return project;
 	}
-	
-	public static boolean isProject(File dir) {
+
+	public static boolean isProject(File dir)
+	{
 		boolean gramfile = false;
 		boolean semfile = false;
 		boolean lexfile = false;
 		boolean propertiesfile = false;
 		boolean metadatafile = false;
-		
-		while (dir != null) {
-			for (File f : dir.listFiles()) {
-				if (f.getName().endsWith(GRAM_EXT)) {
+
+		while (dir != null)
+		{
+			for (File f : dir.listFiles())
+			{
+				if (f.getName().endsWith(GRAM_EXT))
+				{
 					gramfile = true;
 				}
-				else if (f.getName().endsWith(SEM_EXT)) {
+				else if (f.getName().endsWith(SEM_EXT))
+				{
 					semfile = true;
 				}
-				else if (f.getName().endsWith(LEX_EXT)) {
+				else if (f.getName().endsWith(LEX_EXT))
+				{
 					lexfile = true;
 				}
-				else if (f.getName().equals(PROPERTIES_FILENAME)) {
-					propertiesfile  = true;
+				else if (f.getName().equals(PROPERTIES_FILENAME))
+				{
+					propertiesfile = true;
 				}
-				else if (f.getName().equals(METADATA_FILENAME)) {
+				else if (f.getName().equals(METADATA_FILENAME))
+				{
 					metadatafile = true;
 				}
 			}
@@ -264,115 +301,144 @@ public class Project implements Serializable {
 		}
 		return gramfile && semfile && lexfile && propertiesfile && metadatafile;
 	}
-	
-	public static Project getProjectByPath(String rootPath) {
-		if (rootPath == null) {
+
+	public static Project getProjectByPath(String rootPath)
+	{
+		if (rootPath == null)
+		{
 			return null;
 		}
-		if (projectByRootPath.containsKey(rootPath)) {
+		if (projectByRootPath.containsKey(rootPath))
+		{
 			return projectByRootPath.get(rootPath);
 		}
-		else if (projectByRootPath.containsKey(rootPath.replace("\\", "/"))) {
+		else if (projectByRootPath.containsKey(rootPath.replace("\\", "/")))
+		{
 			return projectByRootPath.get(rootPath.replace("\\", "/"));
 		}
-		else if (rootPath.endsWith("/") || rootPath.endsWith("\\")) {
+		else if (rootPath.endsWith("/") || rootPath.endsWith("\\"))
+		{
 			if (projectByRootPath.containsKey(rootPath.substring(0, rootPath.length() - 1)))
 				return projectByRootPath.get(rootPath.substring(0, rootPath.length() - 1));
 		}
-		else if (projectByRootPath.containsKey(rootPath + "/")) {
-				return projectByRootPath.get(rootPath + "/");
+		else if (projectByRootPath.containsKey(rootPath + "/"))
+		{
+			return projectByRootPath.get(rootPath + "/");
 		}
-		else if (projectByRootPath.containsKey(rootPath + "\\")) {
-				return projectByRootPath.get(rootPath + "\\");
+		else if (projectByRootPath.containsKey(rootPath + "\\"))
+		{
+			return projectByRootPath.get(rootPath + "\\");
 		}
 		File parent = new File(rootPath).getParentFile();
-		if (parent != null) {
+		if (parent != null)
+		{
 			return getProjectByPath(parent.getAbsolutePath());
 		}
 		return null;
 	}
-	
-	public ArrayList<File> getOpenedFiles() {
+
+	public ArrayList<File> getOpenedFiles()
+	{
 		return openedFiles;
 	}
 
-	public String getProjectsRootPath() {
+	public String getProjectsRootPath()
+	{
 		return projectsRootPath;
 	}
 
-	public File getBaseDir() {
+	public File getBaseDir()
+	{
 		return baseDir;
 	}
 
-	public HashMap<Version, File> getGrammarFile() {
+	public HashMap<Version, File> getGrammarFile()
+	{
 		return grammarFile;
 	}
 
-	public void setGrammarFile(HashMap<Version, File> grammarFile) {
+	public void setGrammarFile(HashMap<Version, File> grammarFile)
+	{
 		this.grammarFile = grammarFile;
 	}
 
-	public HashMap<Version, File> getLexFile() {
+	public HashMap<Version, File> getLexFile()
+	{
 		return lexFile;
 	}
 
-	public void setLexFile(HashMap<Version, File> lexFile) {
+	public void setLexFile(HashMap<Version, File> lexFile)
+	{
 		this.lexFile = lexFile;
 	}
 
-	public HashMap<Version, File> getSemFile() {
+	public HashMap<Version, File> getSemFile()
+	{
 		return semFile;
 	}
 
-	public void setSemFile(HashMap<Version, File> semFile) {
+	public void setSemFile(HashMap<Version, File> semFile)
+	{
 		this.semFile = semFile;
 	}
 
-	public File getPropertiesFile() {
+	public File getPropertiesFile()
+	{
 		return propertiesFile;
 	}
 
-	public void setPropertiesFile(File propertiesFile) {
+	public void setPropertiesFile(File propertiesFile)
+	{
 		this.propertiesFile = propertiesFile;
 	}
 
-	public File getMetadataFile() {
+	public File getMetadataFile()
+	{
 		return metadataFile;
 	}
 
-	public void setMetadataFile(File metadataFile) {
+	public void setMetadataFile(File metadataFile)
+	{
 		this.metadataFile = metadataFile;
 	}
 
-	public String getName() {
+	public String getName()
+	{
 		return name;
 	}
 
-	public void setName(String name) {
+	public void setName(String name)
+	{
 		this.name = name;
 	}
 
-	public Version getVersion() {
+	public Version getVersion()
+	{
 		return version;
 	}
 
-	public void setVersion(Version version) {
+	public void setVersion(Version version)
+	{
 		this.version = version;
 	}
 
-	public void setOpenedFiles(ArrayList<File> openedFiles) {
+	public void setOpenedFiles(ArrayList<File> openedFiles)
+	{
 		this.openedFiles = openedFiles;
 	}
-	
-	public String getProperty(String propertyName) {
+
+	public String getProperty(String propertyName)
+	{
 		return properties.getProperty(propertyName);
 	}
 
-	public void setYyLexFile(File yyLexFile) {
+	public void setYyLexFile(File yyLexFile)
+	{
 		this.yyLexFile = yyLexFile;
 	}
 
-	public File getYyLexFile() {
+	public File getYyLexFile()
+	{
 		return yyLexFile;
 	}
 }
