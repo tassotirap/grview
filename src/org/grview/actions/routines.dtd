@@ -1,0 +1,16 @@
+<!ENTITY % att-bool '( TRUE | FALSE )' >
+
+<!-- ROUTINES element -->
+<!ELEMENT ROUTINES ( ROUTINE+ ) >
+
+<!-- ACTION element -->
+<!ELEMENT ROUTINE ( CODE, (IS_SELECTED?) ) >
+<!ATTLIST ROUTINE
+	NAME ID #REQUIRED
+	NO_REPEAT %att-bool; "FALSE"
+	NO_RECORD %att-bool; "FALSE"
+	NO_REMEMBER_LAST %att-bool; "FALSE" >
+
+<!-- ROUTINE children -->
+<!ELEMENT CODE ( #PCDATA ) >
+<!ELEMENT IS_SELECTED ( #PCDATA ) >
