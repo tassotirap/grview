@@ -1,5 +1,14 @@
 package org.grview.ui;
+import org.grview.ui.lib.SplashWindow;
 
+/**
+ * 
+ * @author Tasso Tirapani Silva Pinto
+ *
+ * GuiLancher class is the Starter class of GrView
+ * First is loaded WorkspaceChooser followed by MainWindow
+ * 
+ */
 public class GuiLauncher
 {
 	private final static String SPLASH_SCREEN_PNG = "splash_screen.png";
@@ -12,6 +21,9 @@ public class GuiLauncher
 		this.args = args;
 	}
 
+	/**
+	 * Start a WorkspaceChooser Class
+	 */
 	private void startWorkspaceChooser()
 	{
 		WorkspaceChooser workspaceChooser = WorkspaceChooser.getInstance();
