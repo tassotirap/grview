@@ -75,22 +75,22 @@ public class WorkspaceChooser extends JFrame
 
 	private void addDirToList(String filename)
 	{
-		File f = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
+		File file = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
 		StringBuffer oldText = new StringBuffer();
 		try
 		{
-			if (!f.exists())
+			if (!file.exists())
 			{
-				f.createNewFile();
+				file.createNewFile();
 			}
-			FileReader fr = new FileReader(f);
-			BufferedReader br = new BufferedReader(fr);
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			String line = "";
-			while ((line = br.readLine()) != null)
+			while ((line = bufferedReader.readLine()) != null)
 				oldText.append(line + "\n");
-			br.close();
-			PrintWriter pw = new PrintWriter(f);
-			pw.println(oldText.toString());
+			bufferedReader.close();
+			PrintWriter pw = new PrintWriter(file);
+			pw.print(oldText.toString());
 			pw.print(filename);
 			pw.close();
 		}
@@ -173,7 +173,7 @@ public class WorkspaceChooser extends JFrame
 				}
 				return;
 			}
-			for (int i = 1; i < ckbWorkspace.getItemCount(); i++)
+			for (int i = 0; i < ckbWorkspace.getItemCount(); i++)
 			{
 				if (ckbWorkspace.getItemAt(i).toString().equals(dir))
 				{
@@ -240,21 +240,22 @@ public class WorkspaceChooser extends JFrame
 
 	private void readDirsFromList()
 	{
-		File f = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
+		File file = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
 		try
 		{
-			if (!f.exists())
+			if (!file.exists())
 			{
-				f.createNewFile();
+				file.createNewFile();
 			}
-			FileReader fr = new FileReader(f);
-			BufferedReader br = new BufferedReader(fr);
+			FileReader fileReader = new FileReader(file);
+			BufferedReader bufferedReader = new BufferedReader(fileReader);
 			String line = "";
-			while ((line = br.readLine()) != null)
+			while ((line = bufferedReader.readLine()) != null)
 			{
 				if (!line.equals(""))
 					ckbWorkspace.addItem(line);
 			}
+			bufferedReader.close();
 		}
 		catch (IOException e)
 		{

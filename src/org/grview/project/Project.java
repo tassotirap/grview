@@ -134,16 +134,18 @@ public class Project implements Serializable
 			FileInputStream fis = new FileInputStream(file);
 			if (file.length() > 0)
 			{
-				ObjectInputStream ois = new ObjectInputStream(fis);
-				Object object = ois.readObject();
+				ObjectInputStream objectInputStream = new ObjectInputStream(fis);
+				Object object = objectInputStream.readObject();
 				if (object instanceof Project)
 				{
 					Project result = (Project) object;
 					AsinEditor.setInstance(result.asinEditor);
 					projectByRootPath.put(projectsRootPath, result);
 					result.init();
+					objectInputStream.close();
 					return result;
 				}
+				objectInputStream.close();
 			}
 			return null;
 		}
@@ -166,8 +168,9 @@ public class Project implements Serializable
 		{
 			this.codeByRoutine = SemanticRoutinesRepo.getRoutineCode();
 			this.asinEditor = AsinEditor.getInstance();
-			FileOutputStream fos = new FileOutputStream(metadataFile);
-			new ObjectOutputStream(fos).writeObject(this);
+			FileOutputStream fileOutputStream = new FileOutputStream(metadataFile);
+			new ObjectOutputStream(fileOutputStream).writeObject(this);
+			fileOutputStream.close();
 			return true;
 		}
 		catch (Exception e)
@@ -214,7 +217,7 @@ public class Project implements Serializable
 	public static Project createProject(File baseDir, String name, String description) throws IOException
 	{
 		Project project = null;
-		final Properties props = new Properties();
+		final Properties properties = new Properties();
 		if (name == null)
 		{
 			name = DEFAULT_NAME;
@@ -223,24 +226,24 @@ public class Project implements Serializable
 		{
 			description = DEFAULT_DESCRIPTION;
 		}
-		props.put("name", name);
-		props.put("description", description);
-		props.put("baseDir", baseDir);
-		props.put("semanticRoutineClass", DEFAULT_SEMANTIC_ROUTINE_CLASS);
-		File gf = new File(baseDir.getAbsoluteFile() + "/" + name + GRAM_EXT);
-		File sf = new File(baseDir.getAbsoluteFile() + "/" + name + SEM_EXT);
-		File lf = new File(baseDir.getAbsoluteFile() + "/" + name + LEX_EXT);
-		File pf = new File(baseDir.getAbsoluteFile() + "/" + PROPERTIES_FILENAME);
-		File mdf = new File(baseDir.getAbsoluteFile() + "/" + METADATA_FILENAME);
-		if ((!gf.exists() && !gf.createNewFile()) || (!sf.exists() && !sf.createNewFile()) || (!lf.exists() && !lf.createNewFile()) || (!pf.exists() && !pf.createNewFile()) || (!mdf.exists() && !mdf.createNewFile()))
+		properties.put("name", name);
+		properties.put("description", description);
+		properties.put("baseDir", baseDir);
+		properties.put("semanticRoutineClass", DEFAULT_SEMANTIC_ROUTINE_CLASS);
+		File gramFile = new File(baseDir.getAbsoluteFile() + "/" + name + GRAM_EXT);
+		File semFile = new File(baseDir.getAbsoluteFile() + "/" + name + SEM_EXT);
+		File lexFile = new File(baseDir.getAbsoluteFile() + "/" + name + LEX_EXT);
+		File propertiesFile = new File(baseDir.getAbsoluteFile() + "/" + PROPERTIES_FILENAME);
+		File metadataFile = new File(baseDir.getAbsoluteFile() + "/" + METADATA_FILENAME);
+		if ((!gramFile.exists() && !gramFile.createNewFile()) || (!semFile.exists() && !semFile.createNewFile()) || (!lexFile.exists() && !lexFile.createNewFile()) || (!propertiesFile.exists() && !propertiesFile.createNewFile()) || (!metadataFile.exists() && !metadataFile.createNewFile()))
 		{
 			throw new IOException("Could not create files");
 		}
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_grammar"), gf);
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_semmantic"), sf);
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_lex"), lf);
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/default_properties.xml"), pf);
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/new_metadata"), mdf);
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_grammar"), gramFile);
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_semmantic"), semFile);
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_lex"), lexFile);
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/default_properties.xml"), propertiesFile);
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/new_metadata"), metadataFile);
 		// make sure I have the correct routines.dtd
 		// props.putAll(loadProperties(pf.getAbsolutePath(), true));
 		project = new Project(baseDir.getAbsolutePath(), null);
@@ -250,15 +253,15 @@ public class Project implements Serializable
 		nv.setVersionName("1");
 		nv.setDescription("new project -" + name);
 		project.setVersion(nv);
-		project.grammarFile.put(nv, gf);
-		project.semFile.put(nv, sf);
-		project.lexFile.put(nv, lf);
-		project.propertiesFile = pf;
-		project.metadataFile = mdf;
-		project.properties = props;
-		project.openedFiles.add(gf);
-		project.putPropertiesToFile(pf.getAbsolutePath());
-		YyFactory.createYylex(baseDir.getAbsolutePath(), "generated_code", lf.getAbsolutePath());
+		project.grammarFile.put(nv, gramFile);
+		project.semFile.put(nv, semFile);
+		project.lexFile.put(nv, lexFile);
+		project.propertiesFile = propertiesFile;
+		project.metadataFile = metadataFile;
+		project.properties = properties;
+		project.openedFiles.add(gramFile);
+		project.putPropertiesToFile(propertiesFile.getAbsolutePath());
+		YyFactory.createYylex(baseDir.getAbsolutePath(), "generated_code", lexFile.getAbsolutePath());
 		project.setYyLexFile(new File(baseDir.getAbsoluteFile() + "/generated_code", "Yylex.java"));
 		project.init();
 		return project;
@@ -272,32 +275,28 @@ public class Project implements Serializable
 		boolean propertiesfile = false;
 		boolean metadatafile = false;
 
-		while (dir != null)
+		for (File f : dir.listFiles())
 		{
-			for (File f : dir.listFiles())
+			if (f.getName().endsWith(GRAM_EXT))
 			{
-				if (f.getName().endsWith(GRAM_EXT))
-				{
-					gramfile = true;
-				}
-				else if (f.getName().endsWith(SEM_EXT))
-				{
-					semfile = true;
-				}
-				else if (f.getName().endsWith(LEX_EXT))
-				{
-					lexfile = true;
-				}
-				else if (f.getName().equals(PROPERTIES_FILENAME))
-				{
-					propertiesfile = true;
-				}
-				else if (f.getName().equals(METADATA_FILENAME))
-				{
-					metadatafile = true;
-				}
+				gramfile = true;
 			}
-			dir = dir.getParentFile();
+			else if (f.getName().endsWith(SEM_EXT))
+			{
+				semfile = true;
+			}
+			else if (f.getName().endsWith(LEX_EXT))
+			{
+				lexfile = true;
+			}
+			else if (f.getName().equals(PROPERTIES_FILENAME))
+			{
+				propertiesfile = true;
+			}
+			else if (f.getName().equals(METADATA_FILENAME))
+			{
+				metadatafile = true;
+			}
 		}
 		return gramfile && semfile && lexfile && propertiesfile && metadatafile;
 	}
