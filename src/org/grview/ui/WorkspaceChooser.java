@@ -31,19 +31,24 @@ public class WorkspaceChooser extends JFrame
 	private static final String PROJECTS_SCREEN_PNG = "projects_screen.png";
 	private static final long serialVersionUID = 1L;
 	private static final String LIST_FILE = "workspace";
+	private static WorkspaceChooser instance;private String workspaceDir;
 
-	private static WorkspaceChooser instance;
-
-	private String workspaceDir;
 	private boolean canceled;
 	private boolean done;
-
 	private JButton btnBrowse;
 	private JButton btnOk;
 	private JButton btnCancel;
 	private JLabel imgWorkspace;
 	private JLabel lblWorkspace;
 	private JComboBox<String> ckbWorkspace;
+
+	private WorkspaceChooser()
+	{
+		setPanelProperties();
+		setPanelLocation();
+		initComponents();
+		readDirsFromList();
+	}
 
 	public static WorkspaceChooser getInstance()
 	{
@@ -65,38 +70,42 @@ public class WorkspaceChooser extends JFrame
 		});
 	}
 
-	private WorkspaceChooser()
-	{
-		setPanelProperties();
-		setPanelLocation();
-		initComponents();
-		readDirsFromList();
-	}
-
 	private void addDirToList(String filename)
 	{
-		File file = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
-		StringBuffer oldText = new StringBuffer();
-		try
+		boolean exists = false;
+		for (int i = 0; i < ckbWorkspace.getItemCount(); i++)
 		{
-			if (!file.exists())
+			if (ckbWorkspace.getItemAt(i).toString().equals(filename))
 			{
-				file.createNewFile();
+				exists = true;
+				break;
 			}
-			FileReader fileReader = new FileReader(file);
-			BufferedReader bufferedReader = new BufferedReader(fileReader);
-			String line = "";
-			while ((line = bufferedReader.readLine()) != null)
-				oldText.append(line + "\n");
-			bufferedReader.close();
-			PrintWriter pw = new PrintWriter(file);
-			pw.print(oldText.toString());
-			pw.print(filename);
-			pw.close();
 		}
-		catch (IOException e)
+		if (!exists)
 		{
-			Log.log(Log.ERROR, this, "Could not load workspace list!", e);
+			File file = new File(System.getProperty("java.io.tmpdir"), LIST_FILE);
+			StringBuffer oldText = new StringBuffer();
+			try
+			{
+				if (!file.exists())
+				{
+					file.createNewFile();
+				}
+				FileReader fileReader = new FileReader(file);
+				BufferedReader bufferedReader = new BufferedReader(fileReader);
+				String line = "";
+				while ((line = bufferedReader.readLine()) != null)
+					oldText.append(line + "\n");
+				bufferedReader.close();
+				PrintWriter pw = new PrintWriter(file);
+				pw.print(oldText.toString());
+				pw.print(filename);
+				pw.close();
+			}
+			catch (IOException e)
+			{
+				Log.log(Log.ERROR, this, "Could not load workspace list!", e);
+			}
 		}
 	}
 
@@ -123,70 +132,54 @@ public class WorkspaceChooser extends JFrame
 
 	private void btnOkActionPerformed()
 	{
-		String dir = ckbWorkspace.getSelectedItem().toString();
-		File file = new File(dir);
-		boolean newFile = false;
-		if (!dir.equals(""))
+		String directory = ckbWorkspace.getSelectedItem().toString();
+		File file = new File(directory);
+		boolean newDirectory = false;
+		try
 		{
-			boolean exists = false;
-			if (file.exists())
+			if (!directory.equals(""))
 			{
-				workspaceDir = dir;
-			}
-			else
-			{
-				int option = JOptionPane.showConfirmDialog(this, "This directory does not exist.\nIf you continue this directory will be created and a new project will be created on this directory.\nProceed?", "Directory not found", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
-				if (option == JOptionPane.NO_OPTION)
+				if (file.exists())
 				{
-					return;
-				}
-				if (file.mkdir())
-				{
-					newFile = true;
-					workspaceDir = dir;
+					setupProject(directory, file);
 				}
 				else
 				{
-					JOptionPane.showMessageDialog(this, "Could not find or create this directory in disk!", "Workspace Loader", JOptionPane.ERROR_MESSAGE);
-					return;
-				}
-			}
-			try
-			{
-				if (!Project.isProject(file))
-				{
-					if (file.listFiles().length > 0)
+					newDirectory = createDirectory(directory, file);
+					if (newDirectory)
 					{
-						JOptionPane.showMessageDialog(this, "Must be a new, empty, or existing project directory!", "Workspace Loader", JOptionPane.ERROR_MESSAGE);
-						return;
+						setupProject(directory, file);
 					}
-					Project.createProject(file, null, null).writeProject();
 				}
+
 			}
-			catch (Exception e)
+		}
+		catch (Exception e)
+		{
+			JOptionPane.showMessageDialog(this, e.getMessage(), "Worksapce Loader", JOptionPane.ERROR_MESSAGE);
+
+			if (newDirectory && !file.delete())
 			{
-				JOptionPane.showMessageDialog(this, "Could not create a new project!", "Worksapce Loader", JOptionPane.ERROR_MESSAGE);
-				e.printStackTrace();
-				if (newFile && !file.delete())
-				{
-					JOptionPane.showMessageDialog(this, "Could not delete the created directory!", "Workspace Loader", JOptionPane.ERROR_MESSAGE);
-				}
-				return;
+				JOptionPane.showMessageDialog(this, "Could not delete the create directory!", "Workspace Loader", JOptionPane.ERROR_MESSAGE);
 			}
-			for (int i = 0; i < ckbWorkspace.getItemCount(); i++)
-			{
-				if (ckbWorkspace.getItemAt(i).toString().equals(dir))
-				{
-					exists = true;
-					break;
-				}
-			}
-			if (!exists)
-			{
-				addDirToList(dir);
-			}
-			this.setVisible(false);
-			done = true;
+		}
+	}
+
+	private boolean createDirectory(String directory, File file) throws Exception
+	{
+		int option = JOptionPane.showConfirmDialog(this, "This directory does not exist.\nIf you continue this directory will be created and a new project will be created on this directory.\nProceed?", "Directory not found", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		if (option == JOptionPane.NO_OPTION)
+		{
+			return false;
+		}
+
+		if (file.mkdir())
+		{
+			return true;
+		}
+		else
+		{
+			throw new Exception("Could not find or create this directory in disk!");
 		}
 	}
 
@@ -202,7 +195,7 @@ public class WorkspaceChooser extends JFrame
 		imgWorkspace.setIcon(new ImageIcon(getClass().getResource(PROJECTS_SCREEN_PNG))); // NOI18N
 		lblWorkspace.setText("Please inform a workspace to continue:");
 		btnBrowse.setText("Browse");
-		
+
 		btnBrowse.addActionListener(new java.awt.event.ActionListener()
 		{
 			public void actionPerformed(java.awt.event.ActionEvent evt)
@@ -276,6 +269,29 @@ public class WorkspaceChooser extends JFrame
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 		setAlwaysOnTop(true);
 		setSize(428, 230);
+	}
+
+	private void setupProject(String directory, File file) throws Exception
+	{
+		workspaceDir = directory;
+		verifyOrCreateProject(file);
+		addDirToList(directory);
+		this.setVisible(false);
+		done = true;
+	}
+
+	private boolean verifyOrCreateProject(File file) throws Exception
+	{
+		if (!Project.isProject(file))
+		{
+			if (file.listFiles().length > 0)
+			{
+				throw new Exception("Must be a new, empty, or existing project directory!");
+			}
+			Project.createProject(file, null, null).writeProject();
+			return true;
+		}
+		return false;
 	}
 
 	public String getWorkspaceDir()
