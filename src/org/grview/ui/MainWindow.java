@@ -62,13 +62,15 @@ import net.infonode.docking.util.MixedViewHandler;
 import net.infonode.docking.util.ViewMap;
 import net.infonode.util.Direction;
 
-public class MainWindow extends Window implements ComponentListener {
+public class MainWindow extends Window implements ComponentListener
+{
 
-	/** constructor 
-	 * sets all project paths, create a new default window, 
-	 * gets an id, and says hello on the volatile state manager
+	/**
+	 * constructor sets all project paths, create a new default window, gets an
+	 * id, and says hello on the volatile state manager
 	 * **/
-	private MainWindow(String projectsRootPath) {
+	private MainWindow(String projectsRootPath)
+	{
 		this.projectsRootPath = projectsRootPath;
 		this.project = Project.restoreProject(projectsRootPath);
 		this.projectManager = new ProjectManager(this, project);
@@ -83,8 +85,11 @@ public class MainWindow extends Window implements ComponentListener {
 
 	/**
 	 * gets an instance depending on the project path
-	 * @param projectsRootPath the root directory containing the projects and possibly others
-	 * @param projectPath the path exclusively to the current active project
+	 * 
+	 * @param projectsRootPath
+	 *            the root directory containing the projects and possibly others
+	 * @param projectPath
+	 *            the path exclusively to the current active project
 	 * @return
 	 */
 	public static MainWindow getInstance(String projectsRootPath)
@@ -94,67 +99,47 @@ public class MainWindow extends Window implements ComponentListener {
 			instances = new HashMap<String, MainWindow>();
 			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
 		}
-		else if (!instances.keySet().contains(projectsRootPath)){
+		else if (!instances.keySet().contains(projectsRootPath))
+		{
 			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
 		}
 		return instances.get(projectsRootPath);
 	}
 
-	
 	/**
 	 * Creates the default views
 	 */
-	private void createDefaultViews() {
+	private void createDefaultViews()
+	{
 		int nextId;
 		activeScene = CanvasFactory.createCanvas(project.getGrammarFile().get(project.getVersion()));
-		try {
-			String titles[] = new String[] { "Project",
-					"Outline",
-					"Console",
-					"Grammar",
-					"Syntax Stack",
-					"Sem. Stack",
-					"Output",
-					"Parser"};
-			JComponent components[] = new JComponent[] {
-					new ProjectsComponent().create(project),
-					new OutlineComponent().create(activeScene),
-					new ConsoleComponent().create(null),
-					new GeneratedGrammarComponent().create(activeScene),
-					new SyntaxStackComponent().create(activeScene),
-					new SemanticStackComponent().create(activeScene),
-					new OutputComponent().create(activeScene),
-					new ParserComponent().create(project.getProjectsRootPath())};
+		try
+		{
+			ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
 			
-			int layoutOrder[] = new int[] {RIGHT_BOTTOM_TABS,
-											RIGHT_TOP_TABS,
-											BOTTOM_LEFT_TABS,
-											BOTTOM_LEFT_TABS,
-											BOTTOM_LEFT_TABS,
-											BOTTOM_LEFT_TABS,
-											BOTTOM_LEFT_TABS,
-											BOTTOM_RIGHT_TABS};
-
-			Icon viewIcon[] = new Icon[] { IconRepository.getInstance().PROJECT_ICON,
-											IconRepository.getInstance().OVERVIEW_CON,
-											IconRepository.getInstance().CONSOLE_ICON,
-											IconRepository.getInstance().GRAMMAR_ICON,
-											IconRepository.getInstance().SYNTACTIC_STACK_ICON,
-											IconRepository.getInstance().SEMANTIC_STACK_ICON,
-											IconRepository.getInstance().ACTIVE_OUTPUT_ICON,
-											IconRepository.getInstance().PARSER_ICON};
+			tabItems.add(new TabItem("Project", new ProjectsComponent().create(project), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+			tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
+			//tabItems.add(new TabItem("Console", new ConsoleComponent().create(null), BOTTOM_LEFT_TABS, IconRepository.getInstance().CONSOLE_ICON));
+			tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
+			tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
+			tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
+			tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
+			tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 			
-			for (int i = 0; i < defaultLayout.length; i++) 
+			
+			
+			for (int i = 0; i < defaultLayout.length; i++)
 				defaultLayout[i] = new Vector<DynamicView>();
-			
-			for (int i = 0; i < components.length; i++) {
+
+			for (int i = 0; i < tabItems.size(); i++)
+			{
 				nextId = getDynamicViewId();
-				DynamicView view = new DynamicView(titles[i], viewIcon[i], components[i], null, null, nextId);
-				defaultLayout[layoutOrder[i]].add(view);
+				DynamicView view = new DynamicView(tabItems.get(i).getTitle(), tabItems.get(i).getViewIcon(), tabItems.get(i).getComponent(), null, null, nextId);
+				defaultLayout[tabItems.get(i).getLayoutOrder()].add(view);
 				perspectiveMap.addView(i, view);
 				windowAdapter.updateViews(view, true);
 			}
-			
+
 			HashMap<String, org.grview.ui.component.Component> fileComponents = new HashMap<String, org.grview.ui.component.Component>();
 			fileComponents.put(FileExtension.GRAM_FILE, new GramComponent());
 			fileComponents.put(FileExtension.LEX_FILE, new LexComponent());
@@ -163,12 +148,14 @@ public class MainWindow extends Window implements ComponentListener {
 			fileComponents.put(FileExtension.TXT_FILE, new SimpleTextAreaComponent());
 			fileComponents.put(FileExtension.JAVA_FILE, new JavaComponent());
 			fileComponents.put(FileExtension.IN_FILE, new InputAdapterComponent());
-			
+
 			ArrayList<File> files = project.getOpenedFiles();
-			if (files.size() == 0) {
+			if (files.size() == 0)
+			{
 				project.getOpenedFiles().add(project.getGrammarFile().get(project.getVersion()));
 			}
-			for (int i = 0; i < files.size(); i++) {
+			for (int i = 0; i < files.size(); i++)
+			{
 				String name = files.get(i).getName();
 				org.grview.ui.component.Component component = fileComponents.get(name.substring(name.lastIndexOf(".")));
 				nextId = getDynamicViewId();
@@ -178,7 +165,8 @@ public class MainWindow extends Window implements ComponentListener {
 				defaultLayout[CENTER_TABS].add(view);
 				perspectiveMap.addView(i + perspectiveMap.getViewCount(), view);
 				windowAdapter.updateViews(view, true);
-				if (i == files.size() - 1) {
+				if (i == files.size() - 1)
+				{
 					MenuModel model = new MenuModel();
 					model.save = true;
 					model.saveAs = true;
@@ -190,162 +178,180 @@ public class MainWindow extends Window implements ComponentListener {
 					model.undo = true;
 					model.redo = true;
 					model.find = true;
-					if (name.endsWith(FileExtension.GRAM_FILE)) {
+					if (name.endsWith(FileExtension.GRAM_FILE))
+					{
 						model.zoomIn = true;
 						model.zoomOut = true;
 						addToolBar(createToolBar(activeScene, true, true), false, false);
 						addMenuBar(createMenuBar(activeScene, model), false, false);
 					}
-					else {
+					else
+					{
 						addToolBar(createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
 						addMenuBar(createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
 					}
 				}
 			}
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
+
 	/**
 	 * Creates the root window and the views.
 	 */
-	private void createRootWindow() {
-		
-		// The mixed view map makes it easy to mix static and dynamic views inside the same root window
-		MixedViewHandler handler = new MixedViewHandler(perspectiveMap, new ViewSerializer() {
-			public void writeView(View view, ObjectOutputStream out) throws IOException {
+	private void createRootWindow()
+	{
+
+		// The mixed view map makes it easy to mix static and dynamic views
+		// inside the same root window
+		MixedViewHandler handler = new MixedViewHandler(perspectiveMap, new ViewSerializer()
+		{
+			public void writeView(View view, ObjectOutputStream out) throws IOException
+			{
 				out.writeInt(((DynamicView) view).getId());
 			}
 
-			public View readView(ObjectInputStream in) throws IOException {
+			public View readView(ObjectInputStream in) throws IOException
+			{
 				return getDynamicView(in.readInt());
 			}
 		});
 
-		//rootWindow = DockingUtil.createHeavyweightSupportedRootWindow(viewMap, handler, true);
+		// rootWindow =
+		// DockingUtil.createHeavyweightSupportedRootWindow(viewMap, handler,
+		// true);
 		rootWindow = DockingUtil.createRootWindow(perspectiveMap, handler, true);
 
-		// Set gradient theme. The theme properties object is the super object of our properties object, which
+		// Set gradient theme. The theme properties object is the super object
+		// of our properties object, which
 		// means our property value settings will override the theme values
 		properties.addSuperObject(currentTheme.getRootWindowProperties());
 
-		// Our properties object is the super object of the root window properties object, so all property values of the
+		// Our properties object is the super object of the root window
+		// properties object, so all property values of the
 		// theme and in our property object will be used by the root window
 		rootWindow.getRootWindowProperties().addSuperObject(properties);
 
 		// Enable the bottom window bar
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
 
-		// Add a listener which shows dialogs when a window is closing or closed.
+		// Add a listener which shows dialogs when a window is closing or
+		// closed.
 		rootWindow.addListener(new WindowAdapter(this));
 
-		// Add a mouse button listener that closes a window when it's clicked with the middle mouse button.
+		// Add a mouse button listener that closes a window when it's clicked
+		// with the middle mouse button.
 		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);
 
-		////////////////////// CREATE THE VIEWS ////////////////////////////////
+		// //////////////////// CREATE THE VIEWS
+		// ////////////////////////////////
 		createDefaultViews();
-		////////////////////////////////////////////////////////////////////////////
+		// //////////////////////////////////////////////////////////////////////////
 	}
 
 	/**
 	 * Sets the default window layout.
 	 */
-	private void setDefaultLayout() {
+	private void setDefaultLayout()
+	{
 		DynamicView views[];
-		for (int i = 0; i < tabPage.length; i++) {
-			if (defaultLayout.length > i) {
+		for (int i = 0; i < tabPage.length; i++)
+		{
+			if (defaultLayout.length > i)
+			{
 				views = new DynamicView[defaultLayout[i].size()];
 				tabPage[i] = new TabWindow(defaultLayout[i].toArray(views));
 				tabPage[i].getTabWindowProperties().getCloseButtonProperties().setVisible(false);
 			}
 		}
-		rootWindow.setWindow(new SplitWindow(false,
-											0.75f,
-											new SplitWindow(true, 
-													0.8f,
-													tabPage[CENTER_TABS],
-													new SplitWindow(false,
-															0.5f,
-															tabPage[RIGHT_TOP_TABS],
-															tabPage[RIGHT_BOTTOM_TABS])),
-											new SplitWindow(true,
-															0.7f,
-															tabPage[BOTTOM_LEFT_TABS], 
-															tabPage[BOTTOM_RIGHT_TABS])));
+		rootWindow.setWindow(new SplitWindow(false, 0.75f, new SplitWindow(true, 0.8f, tabPage[CENTER_TABS], new SplitWindow(false, 0.5f, tabPage[RIGHT_TOP_TABS], tabPage[RIGHT_BOTTOM_TABS])), new SplitWindow(true, 0.7f, tabPage[BOTTOM_LEFT_TABS], tabPage[BOTTOM_RIGHT_TABS])));
 
 		WindowBar windowBar = rootWindow.getWindowBar(Direction.DOWN);
-
 
 		while (windowBar.getChildWindowCount() > 0)
 			windowBar.getChildWindow(0).close();
 	}
 
-	
 	@Override
-	public DynamicView addComponent(Component component, org.grview.ui.component.Component componentModel, String title, String fileName, Icon icon, int place) {
+	public DynamicView addComponent(Component component, org.grview.ui.component.Component componentModel, String title, String fileName, Icon icon, int place)
+	{
 		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, getDynamicViewId());
-		if (componentModel != null) componentModel.addComponentListener(this);
+		if (componentModel != null)
+			componentModel.addComponentListener(this);
 		tabPage[place].addTab(view);
-		if (componentModel != null) updateFocusedComponent(componentModel);
+		if (componentModel != null)
+			updateFocusedComponent(componentModel);
 		return view;
-		// not necessary for now project.getOpenedFiles().add(new File(fileName));
+		// not necessary for now project.getOpenedFiles().add(new
+		// File(fileName));
 	}
-	
-	
-	public void setSaved(String path) {
-		if (dynamicViewsByPath.containsKey(path)) {
+
+	public void setSaved(String path)
+	{
+		if (dynamicViewsByPath.containsKey(path))
+		{
 			DynamicView dv = dynamicViewsByPath.get(path);
-			if (unsavedViews.contains(dv)) {
+			if (unsavedViews.contains(dv))
+			{
 				unsavedViews.remove(dv);
-				if (dv.getTitle().startsWith(UNSAVED_PREFIX)) {
+				if (dv.getTitle().startsWith(UNSAVED_PREFIX))
+				{
 					dv.getViewProperties().setTitle(dv.getTitle().substring(UNSAVED_PREFIX.length()));
 				}
 			}
 		}
 	}
-	
+
 	@Override
-	public void removeFileFromProject(String fileName) {
+	public void removeFileFromProject(String fileName)
+	{
 		projectManager.closeFile(fileName);
 	}
-	
+
 	@Override
-	public void renameFile(String oldName, String newName) {
-		String oldTitle = oldName.replace(projectsRootPath,"").replace("\\", "").replace("/", "");
+	public void renameFile(String oldName, String newName)
+	{
+		String oldTitle = oldName.replace(projectsRootPath, "").replace("\\", "").replace("/", "");
 		String newTitle = newName.replace(projectsRootPath, "").replace("\\", "").replace("/", "");
-		for (DynamicView view : dynamicViewsById.values()) {
-			if (view.getTitle().equals(oldTitle)) {
+		for (DynamicView view : dynamicViewsById.values())
+		{
+			if (view.getTitle().equals(oldTitle))
+			{
 				view.getViewProperties().setTitle(newTitle);
 				break;
 			}
 		}
 		projectManager.renameFile(oldName, newName);
 	}
-	
+
 	/**
 	 * Initializes the frame and shows it.
 	 */
 	@Override
-	protected void showFrame() {
+	protected void showFrame()
+	{
 		frame.getContentPane().add(rootWindow, BorderLayout.CENTER);
 		frame.setSize(900, 700);
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation(
-				(screenDim.width - 900) / 2,
-				(screenDim.height - 700) / 2
-		);
+		frame.setLocation((screenDim.width - 900) / 2, (screenDim.height - 700) / 2);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
 
 	@Override
-	protected ToolBar.CommandBar<ProjectManager> getProjectToolBar() {
+	protected ToolBar.CommandBar<ProjectManager> getProjectToolBar()
+	{
 		ToolBar tb = ToolBar.getInstance();
-		ToolBar.T0<ProjectManager> t0 = tb.new T0<ProjectManager>(projectManager) {
+		ToolBar.T0<ProjectManager> t0 = tb.new T0<ProjectManager>(projectManager)
+		{
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public AbstractEditAction<ProjectManager> getAction(String action)  {
+			public AbstractEditAction<ProjectManager> getAction(String action)
+			{
 				return projectManager.getActionContext().getAction(action);
 			}
 		};
@@ -354,68 +360,80 @@ public class MainWindow extends Window implements ComponentListener {
 		t0.setLayout(new BoxLayout(t0, BoxLayout.LINE_AXIS));
 		return t0;
 	}
-	
+
 	@Override
-	public RootWindow getRootWindow() {
+	public RootWindow getRootWindow()
+	{
 		return rootWindow;
 	}
 
 	@Override
-	public void ContentChanged(org.grview.ui.component.Component source,
-			Object oldValue, Object newValue) {
-		if (dynamicViewsByComponent.containsKey(source)) {
+	public void ContentChanged(org.grview.ui.component.Component source, Object oldValue, Object newValue)
+	{
+		if (dynamicViewsByComponent.containsKey(source))
+		{
 			DynamicView view = dynamicViewsByComponent.get(source);
 			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
 				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
 			unsavedViews.add(view);
-			if (source instanceof FileComponent) {
+			if (source instanceof FileComponent)
+			{
 				projectManager.setUnsaved(((FileComponent) source).getPath());
 			}
 		}
-		
-	}
-	
-	public void propertyChange(PropertyChangeEvent event) {		
 
 	}
 
-	private synchronized String getNewID() {
+	public void propertyChange(PropertyChangeEvent event)
+	{
+
+	}
+
+	private synchronized String getNewID()
+	{
 		return String.valueOf(lastID++);
 	}
-	
-	public static void main(String[] args) throws Exception {
+
+	public static void main(String[] args) throws Exception
+	{
 		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		final String projectRootPath = (args.length >= 1)?args[0]:".";
+		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
 		final ArrayList<String> projectsPath;
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			public void run()
+			{
 				Project project = Project.restoreProject(projectRootPath);
 				new MainWindow(projectRootPath);
-				//MainWindow.getInstance(projectsPath);
+				// MainWindow.getInstance(projectsPath);
 			}
 		});
 	}
-	
+
 	@Override
-	public ProjectManager getProjectManager(){
+	public ProjectManager getProjectManager()
+	{
 		return projectManager;
 	}
 
 	@Override
-	public Project getProject() {
+	public Project getProject()
+	{
 		return project;
 	}
-	
+
 	@Override
-	public TabWindow[] getTabPage() {
+	public TabWindow[] getTabPage()
+	{
 		return tabPage;
 	}
-	//############################# VARS ##################################
-	
+
+	// ############################# VARS ##################################
+
 	private static int lastID;
-	
+
 	private TabWindow tabPage[] = new TabWindow[6];
-	
+
 	private String id;
 	/**
 	 * Sets the path to the root directory of the current projects
@@ -449,8 +467,8 @@ public class MainWindow extends Window implements ComponentListener {
 
 	private Vector<DynamicView> defaultLayout[] = new Vector[6];
 	/**
-	 * In this properties object the modified property values for close buttons etc. are stored. This object is cleared
-	 * when the theme is changed.
+	 * In this properties object the modified property values for close buttons
+	 * etc. are stored. This object is cleared when the theme is changed.
 	 */
 	private RootWindowProperties properties = new RootWindowProperties();
 
@@ -459,12 +477,11 @@ public class MainWindow extends Window implements ComponentListener {
 	 */
 	private byte[][] layouts = new byte[3][];
 
+	private static HashMap<String, MainWindow> instances;
 
-	private static HashMap<String,MainWindow> instances;
-	
 	/** the current project **/
 	private Project project;
-	
+
 	/** the current project manager **/
 	private ProjectManager projectManager;
 }

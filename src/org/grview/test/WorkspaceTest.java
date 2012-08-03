@@ -1,6 +1,9 @@
 package org.grview.test;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import javax.swing.JComboBox;
 
 import junit.framework.Assert;
 
@@ -38,24 +41,37 @@ public class WorkspaceTest
 
 	}
 
+	
 	@Test
-	public void okClick()
+	public void addAndLoadDirectory()
 	{
-		Method method;
+		Method addDirToList, readDirsFromList;
+		Field field;
+		
 		try
 		{
-			method = WorkspaceChooser.class.getDeclaredMethod("btnOkActionPerformed");
-			method.setAccessible(true);
-			method.invoke(workspaceChooser);
+			addDirToList = WorkspaceChooser.class.getDeclaredMethod("addDirToList", String.class);
+			addDirToList.setAccessible(true);
+			addDirToList.invoke(workspaceChooser, "C:/TESTE");
 
-			Assert.assertEquals(workspaceChooser.isDone(), true);
-			Assert.assertNotNull(workspaceChooser.getWorkspaceDir());
+			field = WorkspaceChooser.class.getDeclaredField("ckbWorkspace");
+			field.setAccessible(true);
+			JComboBox<String> ckbWorkspace = (JComboBox<String>)field.get(workspaceChooser);
+			
+			ckbWorkspace.removeAllItems();
+			
+			readDirsFromList = WorkspaceChooser.class.getDeclaredMethod("readDirsFromList");
+			readDirsFromList.setAccessible(true);
+			readDirsFromList.invoke(workspaceChooser);
+			ckbWorkspace.setSelectedItem("C:/TESTE");
+			
+			
+			Assert.assertTrue(ckbWorkspace.getSelectedIndex() != -1);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-
 	}
 
 }

@@ -24,7 +24,7 @@ import org.jdesktop.layout.LayoutStyle;
 /**
  * 
  * @author Gusga
- * @author Tasso
+ * @author Tasso Tirapani Silva Pinto
  */
 public class WorkspaceChooser extends JFrame
 {
