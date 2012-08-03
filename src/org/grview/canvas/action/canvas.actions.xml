@@ -97,9 +97,9 @@
 		ProjectManager.saveFile(canvas);
 	</CODE>
 </ACTION>
-<ACTION NAME="save_all">
+<ACTION NAME="saveall">
 	<CODE>
-	
+		ProjectManager.saveAllFiles(canvas);
 	</CODE>
 </ACTION>
 <ACTION NAME="undo">

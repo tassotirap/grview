@@ -127,7 +127,6 @@ public class MainWindow extends Window implements ComponentListener
 			tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 			
 			
-			
 			for (int i = 0; i < defaultLayout.length; i++)
 				defaultLayout[i] = new Vector<DynamicView>();
 
@@ -304,6 +303,7 @@ public class MainWindow extends Window implements ComponentListener
 			}
 		}
 	}
+
 
 	@Override
 	public void removeFileFromProject(String fileName)

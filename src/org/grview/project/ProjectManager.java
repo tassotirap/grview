@@ -90,6 +90,11 @@ public class ProjectManager implements ActionContextHolder {
 	public static void saveFile(Canvas canvas) {
 		saveFileExt(canvas);
 	}
+	
+	public static void saveAllFiles(Canvas canvas)
+	{
+		
+	}
 
 	public static void saveFileExt(Object... params) {
 		String path = null;
