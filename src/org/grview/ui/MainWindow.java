@@ -15,11 +15,24 @@ import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+
+import net.infonode.docking.RootWindow;
+import net.infonode.docking.SplitWindow;
+import net.infonode.docking.TabWindow;
+import net.infonode.docking.View;
+import net.infonode.docking.ViewSerializer;
+import net.infonode.docking.WindowBar;
+import net.infonode.docking.mouse.DockingWindowActionMouseButtonListener;
+import net.infonode.docking.properties.RootWindowProperties;
+import net.infonode.docking.theme.DockingWindowsTheme;
+import net.infonode.docking.theme.ShapedGradientDockingTheme;
+import net.infonode.docking.util.DockingUtil;
+import net.infonode.docking.util.MixedViewHandler;
+import net.infonode.docking.util.ViewMap;
+import net.infonode.util.Direction;
 
 import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.CanvasFactory;
@@ -29,7 +42,6 @@ import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.component.ComponentListener;
-import org.grview.ui.component.ConsoleComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GeneratedGrammarComponent;
 import org.grview.ui.component.GramComponent;
@@ -47,23 +59,50 @@ import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
 
-import net.infonode.docking.RootWindow;
-import net.infonode.docking.SplitWindow;
-import net.infonode.docking.TabWindow;
-import net.infonode.docking.View;
-import net.infonode.docking.ViewSerializer;
-import net.infonode.docking.WindowBar;
-import net.infonode.docking.mouse.DockingWindowActionMouseButtonListener;
-import net.infonode.docking.properties.RootWindowProperties;
-import net.infonode.docking.theme.DockingWindowsTheme;
-import net.infonode.docking.theme.ShapedGradientDockingTheme;
-import net.infonode.docking.util.DockingUtil;
-import net.infonode.docking.util.MixedViewHandler;
-import net.infonode.docking.util.ViewMap;
-import net.infonode.util.Direction;
-
 public class MainWindow extends Window implements ComponentListener
 {
+
+	private static int lastID;
+
+	private TabWindow tabPage[] = new TabWindow[6];
+
+	private String id;
+
+	/**
+	 * Sets the path to the root directory of the current projects
+	 */
+	private String projectsRootPath = "Projects";
+
+	/**
+	 * The one and only root window
+	 */
+	private RootWindow rootWindow;
+
+	/**
+	 * Contains all the static views
+	 */
+	private ViewMap perspectiveMap = new ViewMap();
+
+	/**
+	 * The currently applied docking windows theme
+	 */
+	private DockingWindowsTheme currentTheme = new ShapedGradientDockingTheme();
+
+	private Vector<DynamicView> defaultLayout[] = new Vector[6];
+
+	/**
+	 * In this properties object the modified property values for close buttons
+	 * etc. are stored. This object is cleared when the theme is changed.
+	 */
+	private RootWindowProperties properties = new RootWindowProperties();
+
+	private static HashMap<String, MainWindow> instances;
+
+	/** the current project **/
+	private Project project;
+
+	/** the current project manager **/
+	private ProjectManager projectManager;
 
 	/**
 	 * constructor sets all project paths, create a new default window, gets an
@@ -106,6 +145,22 @@ public class MainWindow extends Window implements ComponentListener
 		return instances.get(projectsRootPath);
 	}
 
+	public static void main(String[] args) throws Exception
+	{
+		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
+		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				// Project project = Project.restoreProject(projectRootPath);
+				new MainWindow(projectRootPath);
+				// MainWindow.getInstance(projectsPath);
+			}
+		});
+	}
+
 	/**
 	 * Creates the default views
 	 */
@@ -116,17 +171,18 @@ public class MainWindow extends Window implements ComponentListener
 		try
 		{
 			ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-			
+
 			tabItems.add(new TabItem("Project", new ProjectsComponent().create(project), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
 			tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
-			//tabItems.add(new TabItem("Console", new ConsoleComponent().create(null), BOTTOM_LEFT_TABS, IconRepository.getInstance().CONSOLE_ICON));
+			// tabItems.add(new TabItem("Console", new
+			// ConsoleComponent().create(null), BOTTOM_LEFT_TABS,
+			// IconRepository.getInstance().CONSOLE_ICON));
 			tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
 			tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
 			tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
 			tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
 			tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
-			
-			
+
 			for (int i = 0; i < defaultLayout.length; i++)
 				defaultLayout[i] = new Vector<DynamicView>();
 
@@ -198,6 +254,8 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
+	// ############################# VARS ##################################
+
 	/**
 	 * Creates the root window and the views.
 	 */
@@ -208,14 +266,16 @@ public class MainWindow extends Window implements ComponentListener
 		// inside the same root window
 		MixedViewHandler handler = new MixedViewHandler(perspectiveMap, new ViewSerializer()
 		{
-			public void writeView(View view, ObjectOutputStream out) throws IOException
-			{
-				out.writeInt(((DynamicView) view).getId());
-			}
-
+			@Override
 			public View readView(ObjectInputStream in) throws IOException
 			{
 				return getDynamicView(in.readInt());
+			}
+
+			@Override
+			public void writeView(View view, ObjectOutputStream out) throws IOException
+			{
+				out.writeInt(((DynamicView) view).getId());
 			}
 		});
 
@@ -251,6 +311,11 @@ public class MainWindow extends Window implements ComponentListener
 		// //////////////////////////////////////////////////////////////////////////
 	}
 
+	private synchronized String getNewID()
+	{
+		return String.valueOf(lastID++);
+	}
+
 	/**
 	 * Sets the default window layout.
 	 */
@@ -273,6 +338,39 @@ public class MainWindow extends Window implements ComponentListener
 		while (windowBar.getChildWindowCount() > 0)
 			windowBar.getChildWindow(0).close();
 	}
+	@Override
+	protected ToolBar.CommandBar<ProjectManager> getProjectToolBar()
+	{
+		ToolBar tb = ToolBar.getInstance();
+		ToolBar.T0<ProjectManager> t0 = tb.new T0<ProjectManager>(projectManager)
+		{
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public AbstractEditAction<ProjectManager> getAction(String action)
+			{
+				return projectManager.getActionContext().getAction(action);
+			}
+		};
+		t0.initLayout();
+		t0.initActions();
+		t0.setLayout(new BoxLayout(t0, BoxLayout.LINE_AXIS));
+		return t0;
+	}
+
+	/**
+	 * Initializes the frame and shows it.
+	 */
+	@Override
+	protected void showFrame()
+	{
+		frame.getContentPane().add(rootWindow, BorderLayout.CENTER);
+		frame.setSize(900, 700);
+		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation((screenDim.width - 900) / 2, (screenDim.height - 700) / 2);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		frame.setVisible(true);
+	}
 
 	@Override
 	public DynamicView addComponent(Component component, org.grview.ui.component.Component componentModel, String title, String fileName, Icon icon, int place)
@@ -288,22 +386,51 @@ public class MainWindow extends Window implements ComponentListener
 		// File(fileName));
 	}
 
-	public void setSaved(String path)
+	@Override
+	public void ContentChanged(org.grview.ui.component.Component source, Object oldValue, Object newValue)
 	{
-		if (dynamicViewsByPath.containsKey(path))
+		if (dynamicViewsByComponent.containsKey(source))
 		{
-			DynamicView dv = dynamicViewsByPath.get(path);
-			if (unsavedViews.contains(dv))
+			DynamicView view = dynamicViewsByComponent.get(source);
+			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
+				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
+			unsavedViews.add(view);
+			if (source instanceof FileComponent)
 			{
-				unsavedViews.remove(dv);
-				if (dv.getTitle().startsWith(UNSAVED_PREFIX))
-				{
-					dv.getViewProperties().setTitle(dv.getTitle().substring(UNSAVED_PREFIX.length()));
-				}
+				projectManager.setUnsaved(((FileComponent) source).getPath());
 			}
 		}
+
 	}
 
+	@Override
+	public Project getProject()
+	{
+		return project;
+	}
+
+	@Override
+	public ProjectManager getProjectManager()
+	{
+		return projectManager;
+	}
+
+	@Override
+	public RootWindow getRootWindow()
+	{
+		return rootWindow;
+	}
+	@Override
+	public TabWindow[] getTabPage()
+	{
+		return tabPage;
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event)
+	{
+
+	}
 
 	@Override
 	public void removeFileFromProject(String fileName)
@@ -327,161 +454,19 @@ public class MainWindow extends Window implements ComponentListener
 		projectManager.renameFile(oldName, newName);
 	}
 
-	/**
-	 * Initializes the frame and shows it.
-	 */
-	@Override
-	protected void showFrame()
+	public void setSaved(String path)
 	{
-		frame.getContentPane().add(rootWindow, BorderLayout.CENTER);
-		frame.setSize(900, 700);
-		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation((screenDim.width - 900) / 2, (screenDim.height - 700) / 2);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setVisible(true);
-	}
-
-	@Override
-	protected ToolBar.CommandBar<ProjectManager> getProjectToolBar()
-	{
-		ToolBar tb = ToolBar.getInstance();
-		ToolBar.T0<ProjectManager> t0 = tb.new T0<ProjectManager>(projectManager)
+		if (dynamicViewsByPath.containsKey(path))
 		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public AbstractEditAction<ProjectManager> getAction(String action)
+			DynamicView dv = dynamicViewsByPath.get(path);
+			if (unsavedViews.contains(dv))
 			{
-				return projectManager.getActionContext().getAction(action);
-			}
-		};
-		t0.initLayout();
-		t0.initActions();
-		t0.setLayout(new BoxLayout(t0, BoxLayout.LINE_AXIS));
-		return t0;
-	}
-
-	@Override
-	public RootWindow getRootWindow()
-	{
-		return rootWindow;
-	}
-
-	@Override
-	public void ContentChanged(org.grview.ui.component.Component source, Object oldValue, Object newValue)
-	{
-		if (dynamicViewsByComponent.containsKey(source))
-		{
-			DynamicView view = dynamicViewsByComponent.get(source);
-			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
-				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
-			unsavedViews.add(view);
-			if (source instanceof FileComponent)
-			{
-				projectManager.setUnsaved(((FileComponent) source).getPath());
+				unsavedViews.remove(dv);
+				if (dv.getTitle().startsWith(UNSAVED_PREFIX))
+				{
+					dv.getViewProperties().setTitle(dv.getTitle().substring(UNSAVED_PREFIX.length()));
+				}
 			}
 		}
-
 	}
-
-	public void propertyChange(PropertyChangeEvent event)
-	{
-
-	}
-
-	private synchronized String getNewID()
-	{
-		return String.valueOf(lastID++);
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
-		final ArrayList<String> projectsPath;
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			public void run()
-			{
-				Project project = Project.restoreProject(projectRootPath);
-				new MainWindow(projectRootPath);
-				// MainWindow.getInstance(projectsPath);
-			}
-		});
-	}
-
-	@Override
-	public ProjectManager getProjectManager()
-	{
-		return projectManager;
-	}
-
-	@Override
-	public Project getProject()
-	{
-		return project;
-	}
-
-	@Override
-	public TabWindow[] getTabPage()
-	{
-		return tabPage;
-	}
-
-	// ############################# VARS ##################################
-
-	private static int lastID;
-
-	private TabWindow tabPage[] = new TabWindow[6];
-
-	private String id;
-	/**
-	 * Sets the path to the root directory of the current projects
-	 */
-	private String projectsRootPath = "Projects";
-
-	/**
-	 * The one and only root window
-	 */
-	private RootWindow rootWindow;
-
-	/**
-	 * An array of the static views
-	 */
-	private View[] views = new View[7];
-
-	/**
-	 * Contains all the static views
-	 */
-	private ViewMap perspectiveMap = new ViewMap();
-
-	/**
-	 * The view menu items
-	 */
-	private JMenuItem[] viewItems = new JMenuItem[views.length];
-
-	/**
-	 * The currently applied docking windows theme
-	 */
-	private DockingWindowsTheme currentTheme = new ShapedGradientDockingTheme();
-
-	private Vector<DynamicView> defaultLayout[] = new Vector[6];
-	/**
-	 * In this properties object the modified property values for close buttons
-	 * etc. are stored. This object is cleared when the theme is changed.
-	 */
-	private RootWindowProperties properties = new RootWindowProperties();
-
-	/**
-	 * Where the layouts are stored.
-	 */
-	private byte[][] layouts = new byte[3][];
-
-	private static HashMap<String, MainWindow> instances;
-
-	/** the current project **/
-	private Project project;
-
-	/** the current project manager **/
-	private ProjectManager projectManager;
 }

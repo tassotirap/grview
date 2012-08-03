@@ -131,10 +131,10 @@ public class Project implements Serializable
 				projectsRootPath += "/";
 			}
 			File file = new File(projectsRootPath + METADATA_FILENAME);
-			FileInputStream fis = new FileInputStream(file);
+			FileInputStream fileInputStream = new FileInputStream(file);
 			if (file.length() > 0)
 			{
-				ObjectInputStream objectInputStream = new ObjectInputStream(fis);
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 				Object object = objectInputStream.readObject();
 				if (object instanceof Project)
 				{
