@@ -2,7 +2,7 @@ package org.grview.ui.component;
 
 import javax.swing.JComponent;
 
-import org.grview.bsh.BshConsole;
+import bsh.BshConsole;
 
 
 public class ConsoleComponent extends Component {

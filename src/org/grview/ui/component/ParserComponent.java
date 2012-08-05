@@ -38,7 +38,7 @@ public class ParserComponent extends Component
 	private JPanel btBarRight;
 	private JPanel main;
 	private JLabel modesLabel;
-	private JComboBox modes;
+	private JComboBox<String> modes;
 	private String rootPath;
 
 	public final static String ICONS_PATH = "/org/grview/images/";
@@ -56,50 +56,13 @@ public class ParserComponent extends Component
 			throw new BadParameterException("A string refering to the root path was expected");
 		}
 		modesLabel = new JLabel("Modes: ");
-		modes = new JComboBox(getModes());
-		modes.setSelectedItem("java");
-		modes.setEditable(false);
-		modes.setPreferredSize(new Dimension(120, 16));
-		modes.setFont(new Font("Arial", Font.PLAIN, 12));
-		modes.setBackground(Color.WHITE);
-		open = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-open.png")));
-		open.setOpaque(false);
-		open.setBorder(new EmptyBorder(0, 0, 0, 0));
-		open.setRolloverEnabled(true);
-		open.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setToolTipText("Open File With Expression");
-		save = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-save.png")));
-		save.setOpaque(false);
-		save.setBorder(new EmptyBorder(0, 0, 0, 0));
-		save.setRolloverEnabled(true);
-		save.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) save.getIcon()).getImage())));
-		save.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) save.getIcon()).getImage())));
-		save.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) save.getIcon()).getImage())));
-		save.setToolTipText("Save Parser Content on File");
-		parse = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-parse.png")));
-		parse.setOpaque(false);
-		parse.setBorder(new EmptyBorder(0, 0, 0, 0));
-		parse.setRolloverEnabled(true);
-		parse.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) parse.getIcon()).getImage())));
-		parse.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) parse.getIcon()).getImage())));
-		parse.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) parse.getIcon()).getImage())));
-		parse.setToolTipText("Parse Expression");
-		parse.setEnabled(false);
-		parseNextStep = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-step.png")));
-		parseNextStep.setOpaque(false);
-		parseNextStep.setBorder(new EmptyBorder(0, 0, 0, 0));
-		parseNextStep.setRolloverEnabled(true);
-		parseNextStep.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
-		parseNextStep.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
-		parseNextStep.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
-		parseNextStep.setToolTipText("Parse Next Step");
-		parseNextStep.setEnabled(false);
-		String modeDef = (String) modes.getSelectedItem();
-		Mode mode = new Mode(modeDef);
-		mode.setProperty("file", "modes/" + modeDef + ".xml");
-		ModeProvider.instance.addMode(mode);
+		createModelComboBox();
+		createOpenButton();
+		createSaveButton();
+		createParseButton();
+		createNextStepButton();
+		Mode mode = loadDefaultMode();
+		
 		if (ParsingEditor.getInstance() == null)
 		{
 			parser = new ParsingEditor(null, mode, rootPath);
@@ -109,6 +72,13 @@ public class ParserComponent extends Component
 			parser = ParsingEditor.getInstance();
 		}
 		parser.addParsingButtons(parse, parseNextStep);
+		createListener(parser);
+		createLayout(parser);
+		return main;
+	}
+
+	private void createListener(final ParsingEditor parser)
+	{
 		open.addActionListener(new ActionListener()
 		{
 
@@ -124,10 +94,7 @@ public class ParserComponent extends Component
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				String modeDef = (String) modes.getSelectedItem();
-				Mode mode = new Mode(modeDef);
-				mode.setProperty("file", "modes/" + modeDef + ".xml");
-				ModeProvider.instance.addMode(mode);
+				Mode mode = loadDefaultMode();
 				parser.setMode(mode);
 			}
 		});
@@ -158,6 +125,10 @@ public class ParserComponent extends Component
 				parser.stepRun();
 			}
 		});
+	}
+
+	private void createLayout(final ParsingEditor parser)
+	{
 		btBarLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
 		btBarLeft.add(modesLabel);
 		btBarLeft.add(modes);
@@ -172,10 +143,78 @@ public class ParserComponent extends Component
 		main = new JPanel(new BorderLayout());
 		main.add(btBar, BorderLayout.NORTH);
 		main.add(parser.getView(), BorderLayout.CENTER);
-		return main;
 	}
 
-	private Object[] getModes()
+	private Mode loadDefaultMode()
+	{	
+		String modeDef = (String) modes.getSelectedItem();
+		Mode mode = new Mode(modeDef);
+		mode.setProperty("file", "modes/" + modeDef + ".xml");
+		ModeProvider.instance.addMode(mode);
+		return mode;
+	}
+
+	private void createNextStepButton()
+	{
+		parseNextStep = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-step.png")));
+		parseNextStep.setOpaque(false);
+		parseNextStep.setBorder(new EmptyBorder(0, 0, 0, 0));
+		parseNextStep.setRolloverEnabled(true);
+		parseNextStep.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
+		parseNextStep.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
+		parseNextStep.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
+		parseNextStep.setToolTipText("Parse Next Step");
+		parseNextStep.setEnabled(false);
+	}
+
+	private void createParseButton()
+	{
+		parse = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-parse.png")));
+		parse.setOpaque(false);
+		parse.setBorder(new EmptyBorder(0, 0, 0, 0));
+		parse.setRolloverEnabled(true);
+		parse.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) parse.getIcon()).getImage())));
+		parse.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) parse.getIcon()).getImage())));
+		parse.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) parse.getIcon()).getImage())));
+		parse.setToolTipText("Parse Expression");
+		parse.setEnabled(false);
+	}
+
+	private void createSaveButton()
+	{
+		save = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-save.png")));
+		save.setOpaque(false);
+		save.setBorder(new EmptyBorder(0, 0, 0, 0));
+		save.setRolloverEnabled(true);
+		save.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) save.getIcon()).getImage())));
+		save.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) save.getIcon()).getImage())));
+		save.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) save.getIcon()).getImage())));
+		save.setToolTipText("Save Parser Content on File");
+	}
+
+	private void createOpenButton()
+	{
+		open = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-open.png")));
+		open.setOpaque(false);
+		open.setBorder(new EmptyBorder(0, 0, 0, 0));
+		open.setRolloverEnabled(true);
+		open.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setToolTipText("Open File With Expression");
+	}
+
+	private void createModelComboBox()
+	{
+		modes = new JComboBox<String>(getModeNames());
+		modes.setSelectedItem("java");
+		modes.setEditable(false);
+		modes.setPreferredSize(new Dimension(120, 16));
+		modes.setFont(new Font("Arial", Font.PLAIN, 12));
+		modes.setBackground(Color.WHITE);
+	}
+
+	private String[] getModeNames()
 	{
 		ArrayList<String> modes = new ArrayList<String>();
 		File file;
@@ -191,7 +230,7 @@ public class ParserComponent extends Component
 			}
 		}
 		Collections.sort(modes);
-		return modes.toArray();
+		return (String[]) modes.toArray(new String[modes.size()]);
 	}
 
 	@Override

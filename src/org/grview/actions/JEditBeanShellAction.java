@@ -25,9 +25,8 @@ package org.grview.actions;
 
 import java.awt.Component;
 
-import org.grview.bsh.BshMethod;
-import org.grview.bsh.NameSpace;
-import org.grview.bsh.UtilEvalError;
+import bsh.*;
+
 import org.grview.editor.TextArea;
 import org.grview.util.Log;
 

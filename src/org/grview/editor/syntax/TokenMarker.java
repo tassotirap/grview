@@ -46,7 +46,7 @@ import java.util.regex.Pattern;
  * @author Slava Pestov, mike dillon
  * @version $Id$
  *
- * @see org.grview.bsh.syntax.Token
+ * @see bsh.syntax.Token
  * @see org.grview.actions.syntax.TokenHandler
  */
 public class TokenMarker

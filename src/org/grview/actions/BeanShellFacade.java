@@ -25,15 +25,15 @@ package org.grview.actions;
 //{{{ Imports
 import java.lang.reflect.InvocationTargetException;
 
-import org.grview.bsh.BshClassManager;
-import org.grview.bsh.BshMethod;
-import org.grview.bsh.CallStack;
-import org.grview.bsh.Interpreter;
-import org.grview.bsh.NameSpace;
-import org.grview.bsh.Primitive;
-import org.grview.bsh.TargetError;
-import org.grview.bsh.UtilEvalError;
-import org.grview.bsh.classpath.ClassManagerImpl;
+import bsh.BshClassManager;
+import bsh.BshMethod;
+import bsh.CallStack;
+import bsh.Interpreter;
+import bsh.NameSpace;
+import bsh.Primitive;
+import bsh.TargetError;
+import bsh.UtilEvalError;
+import bsh.classpath.ClassManagerImpl;
 import org.grview.editor.TextArea;
 import org.grview.util.Log;
 //}}}

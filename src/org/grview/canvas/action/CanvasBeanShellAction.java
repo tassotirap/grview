@@ -3,9 +3,9 @@ package org.grview.canvas.action;
 import org.grview.actions.AbstractEditAction;
 import org.grview.actions.AsinActionSet;
 import org.grview.actions.BeanShellFacade;
-import org.grview.bsh.BshMethod;
-import org.grview.bsh.NameSpace;
-import org.grview.bsh.UtilEvalError;
+
+import bsh.*;
+
 import org.grview.canvas.Canvas;
 import org.grview.util.Log;
 

@@ -41,6 +41,7 @@ import org.grview.model.ui.IconRepository;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
+import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GeneratedGrammarComponent;
@@ -88,6 +89,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private DockingWindowsTheme currentTheme = new ShapedGradientDockingTheme();
 
+	@SuppressWarnings("unchecked")
 	private Vector<DynamicView> defaultLayout[] = new Vector[6];
 
 	/**
@@ -123,86 +125,26 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	/**
-	 * gets an instance depending on the project path
-	 * 
-	 * @param projectsRootPath
-	 *            the root directory containing the projects and possibly others
-	 * @param projectPath
-	 *            the path exclusively to the current active project
-	 * @return
-	 */
-	public static MainWindow getInstance(String projectsRootPath)
-	{
-		if (instances == null)
-		{
-			instances = new HashMap<String, MainWindow>();
-			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
-		}
-		else if (!instances.keySet().contains(projectsRootPath))
-		{
-			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
-		}
-		return instances.get(projectsRootPath);
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				// Project project = Project.restoreProject(projectRootPath);
-				new MainWindow(projectRootPath);
-				// MainWindow.getInstance(projectsPath);
-			}
-		});
-	}
-
-	/**
 	 * Creates the default views
 	 */
 	private void createDefaultViews()
 	{
-		int nextId;
 		activeScene = CanvasFactory.createCanvas(project.getGrammarFile().get(project.getVersion()));
 		try
 		{
-			ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-
-			tabItems.add(new TabItem("Project", new ProjectsComponent().create(project), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
-			tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
-			// tabItems.add(new TabItem("Console", new
-			// ConsoleComponent().create(null), BOTTOM_LEFT_TABS,
-			// IconRepository.getInstance().CONSOLE_ICON));
-			tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
-			tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
-			tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
-			tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-			tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+			ArrayList<TabItem> tabItems = createTabs();
 
 			for (int i = 0; i < defaultLayout.length; i++)
 				defaultLayout[i] = new Vector<DynamicView>();
 
 			for (int i = 0; i < tabItems.size(); i++)
 			{
-				nextId = getDynamicViewId();
+				int nextId = getDynamicViewId();
 				DynamicView view = new DynamicView(tabItems.get(i).getTitle(), tabItems.get(i).getViewIcon(), tabItems.get(i).getComponent(), null, null, nextId);
 				defaultLayout[tabItems.get(i).getLayoutOrder()].add(view);
 				perspectiveMap.addView(i, view);
 				windowAdapter.updateViews(view, true);
 			}
-
-			HashMap<String, org.grview.ui.component.Component> fileComponents = new HashMap<String, org.grview.ui.component.Component>();
-			fileComponents.put(FileExtension.GRAM_FILE, new GramComponent());
-			fileComponents.put(FileExtension.LEX_FILE, new LexComponent());
-			fileComponents.put(FileExtension.SEM_FILE, new SemComponent());
-			fileComponents.put(FileExtension.XML_FILE, new XMLComponent());
-			fileComponents.put(FileExtension.TXT_FILE, new SimpleTextAreaComponent());
-			fileComponents.put(FileExtension.JAVA_FILE, new JavaComponent());
-			fileComponents.put(FileExtension.IN_FILE, new InputAdapterComponent());
 
 			ArrayList<File> files = project.getOpenedFiles();
 			if (files.size() == 0)
@@ -212,38 +154,22 @@ public class MainWindow extends Window implements ComponentListener
 			for (int i = 0; i < files.size(); i++)
 			{
 				String name = files.get(i).getName();
-				org.grview.ui.component.Component component = fileComponents.get(name.substring(name.lastIndexOf(".")));
-				nextId = getDynamicViewId();
-				Icon icon = IconRepository.getIconByFileName(name);
-				DynamicView view = new DynamicView(name, icon, component.create(files.get(i).getAbsolutePath()), component, files.get(i).getAbsolutePath(), nextId);
-				component.addComponentListener(this);
-				defaultLayout[CENTER_TABS].add(view);
-				perspectiveMap.addView(i + perspectiveMap.getViewCount(), view);
-				windowAdapter.updateViews(view, true);
-				if (i == files.size() - 1)
+				org.grview.ui.component.Component component = createFileComponent(name.substring(name.lastIndexOf(".")));
+
+				if (component != null)
 				{
-					MenuModel model = new MenuModel();
-					model.save = true;
-					model.saveAs = true;
-					model.saveAll = true;
-					model.print = true;
-					model.copy = true;
-					model.cut = true;
-					model.paste = true;
-					model.undo = true;
-					model.redo = true;
-					model.find = true;
-					if (name.endsWith(FileExtension.GRAM_FILE))
+					component.addComponentListener(this);
+
+					int nextId = getDynamicViewId();
+					Icon icon = IconRepository.getIconByFileName(name);
+					DynamicView view = new DynamicView(name, icon, component.create(files.get(i).getAbsolutePath()), component, files.get(i).getAbsolutePath(), nextId);
+
+					defaultLayout[CENTER_TABS].add(view);
+					perspectiveMap.addView(i + perspectiveMap.getViewCount(), view);
+					windowAdapter.updateViews(view, true);
+					if (i == files.size() - 1)
 					{
-						model.zoomIn = true;
-						model.zoomOut = true;
-						addToolBar(createToolBar(activeScene, true, true), false, false);
-						addMenuBar(createMenuBar(activeScene, model), false, false);
-					}
-					else
-					{
-						addToolBar(createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
-						addMenuBar(createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
+						createMenuModel(name, component);
 					}
 				}
 			}
@@ -254,7 +180,51 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
-	// ############################# VARS ##################################
+	private void createMenuModel(String name, org.grview.ui.component.Component component)
+	{
+		MenuModel model = new MenuModel();
+		model.save = true;
+		model.saveAs = true;
+		model.saveAll = true;
+		model.print = true;
+		model.copy = true;
+		model.cut = true;
+		model.paste = true;
+		model.undo = true;
+		model.redo = true;
+		model.find = true;
+		if (name.endsWith(FileExtension.GRAM_FILE))
+		{
+			model.zoomIn = true;
+			model.zoomOut = true;
+			addToolBar(createToolBar(activeScene, true, true), false, false);
+			addMenuBar(createMenuBar(activeScene, model), false, false);
+		}
+		else
+		{
+			addToolBar(createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
+			addMenuBar(createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
+		}
+	}
+
+	private org.grview.ui.component.Component createFileComponent(String type)
+	{
+		if (type.equalsIgnoreCase(FileExtension.GRAM_FILE))
+			return new GramComponent();
+		if (type.equalsIgnoreCase(FileExtension.LEX_FILE))
+			return new LexComponent();
+		if (type.equalsIgnoreCase(FileExtension.SEM_FILE))
+			return new SemComponent();
+		if (type.equalsIgnoreCase(FileExtension.XML_FILE))
+			return new XMLComponent();
+		if (type.equalsIgnoreCase(FileExtension.TXT_FILE))
+			return new SimpleTextAreaComponent();
+		if (type.equalsIgnoreCase(FileExtension.JAVA_FILE))
+			return new JavaComponent();
+		if (type.equalsIgnoreCase(FileExtension.IN_FILE))
+			return new InputAdapterComponent();
+		return null;
+	}
 
 	/**
 	 * Creates the root window and the views.
@@ -311,6 +281,19 @@ public class MainWindow extends Window implements ComponentListener
 		// //////////////////////////////////////////////////////////////////////////
 	}
 
+	private ArrayList<TabItem> createTabs() throws BadParameterException
+	{
+		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(project), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
+		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
+		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
+		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
+		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		return tabItems;
+	}
+
 	private synchronized String getNewID()
 	{
 		return String.valueOf(lastID++);
@@ -338,11 +321,12 @@ public class MainWindow extends Window implements ComponentListener
 		while (windowBar.getChildWindowCount() > 0)
 			windowBar.getChildWindow(0).close();
 	}
+
 	@Override
-	protected ToolBar.CommandBar<ProjectManager> getProjectToolBar()
+	protected ToolBar.CommandBar<ProjectManager> getNewFileToolBar()
 	{
 		ToolBar tb = ToolBar.getInstance();
-		ToolBar.T0<ProjectManager> t0 = tb.new T0<ProjectManager>(projectManager)
+		ToolBar.ToolBarNewFile<ProjectManager> toolBarNewFile = tb.new ToolBarNewFile<ProjectManager>(projectManager)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -352,10 +336,10 @@ public class MainWindow extends Window implements ComponentListener
 				return projectManager.getActionContext().getAction(action);
 			}
 		};
-		t0.initLayout();
-		t0.initActions();
-		t0.setLayout(new BoxLayout(t0, BoxLayout.LINE_AXIS));
-		return t0;
+		toolBarNewFile.initLayout();
+		toolBarNewFile.initActions();
+		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
+		return toolBarNewFile;
 	}
 
 	/**
@@ -367,7 +351,7 @@ public class MainWindow extends Window implements ComponentListener
 		frame.getContentPane().add(rootWindow, BorderLayout.CENTER);
 		frame.setSize(900, 700);
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation((screenDim.width - 900) / 2, (screenDim.height - 700) / 2);
+		frame.setLocation((screenDim.width - frame.getWidth()) / 2, (screenDim.height - frame.getHeight()) / 2);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 	}
@@ -382,8 +366,6 @@ public class MainWindow extends Window implements ComponentListener
 		if (componentModel != null)
 			updateFocusedComponent(componentModel);
 		return view;
-		// not necessary for now project.getOpenedFiles().add(new
-		// File(fileName));
 	}
 
 	@Override
@@ -420,6 +402,7 @@ public class MainWindow extends Window implements ComponentListener
 	{
 		return rootWindow;
 	}
+
 	@Override
 	public TabWindow[] getTabPage()
 	{
@@ -468,5 +451,42 @@ public class MainWindow extends Window implements ComponentListener
 				}
 			}
 		}
+	}
+
+	/**
+	 * gets an instance depending on the project path
+	 * 
+	 * @param projectsRootPath
+	 *            the root directory containing the projects and possibly others
+	 * @param projectPath
+	 *            the path exclusively to the current active project
+	 * @return
+	 */
+	public static MainWindow getInstance(String projectsRootPath)
+	{
+		if (instances == null)
+		{
+			instances = new HashMap<String, MainWindow>();
+			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
+		}
+		else if (!instances.keySet().contains(projectsRootPath))
+		{
+			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
+		}
+		return instances.get(projectsRootPath);
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
+		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				new MainWindow(projectRootPath);
+			}
+		});
 	}
 }

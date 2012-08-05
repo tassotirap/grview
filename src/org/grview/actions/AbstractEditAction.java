@@ -22,87 +22,94 @@
 
 package org.grview.actions;
 
-
 /**
  * An action that can be bound to a menu item, tool bar button or keystroke.
- *
+ * 
  * @see jEdit#getAction(String)
  * @see jEdit#getActionNames()
  * @see AsinActionSet
- *
+ * 
  * @author Slava Pestov
  * @version $Id: EditAction.java 11177 2007-12-01 09:50:50Z k_satoda $
  * @since 4.3pre13
  */
 public abstract class AbstractEditAction<E>
 {
-	//{{{ Private members
+	// {{{ Private members
 	protected String name;
-	
+
 	protected Object[] args;
 
-	//}}}
-	
-	//{{{ EditAction constructors
+	// }}}
+
+	// {{{ EditAction constructors
 	/**
 	 * Creates a new edit action with the specified name.
-	 * @param name The action name
+	 * 
+	 * @param name
+	 *            The action name
 	 */
 	protected AbstractEditAction(String name)
 	{
 		this.name = name;
 	}
-	
+
 	protected AbstractEditAction(String name, Object[] newArgs)
 	{
 		this.name = name;
 		this.args = newArgs;
-	} //}}}
-		
-	//{{{ getName() method
+	} // }}}
+
+	// {{{ getName() method
 	/**
 	 * Returns the internal name of this action.
+	 * 
 	 * @return the action name
 	 */
 	public String getName()
 	{
 		return name;
-	} //}}}
-	
+	} // }}}
+
 	// {{{ setName() method
 	/**
 	 * Changes the name of an action
-	 * @param newName the new name of the action
+	 * 
+	 * @param newName
+	 *            the new name of the action
 	 * @since jEdit 4.3pre4
 	 */
-	public void setName(String newName) 
+	public void setName(String newName)
 	{
 		name = newName;
 	}// }}}
 
-	//{{{ invoke() method
+	// {{{ invoke() method
 	/**
-	 * Invokes the action. This is an implementation of the Command pattern,
-	 * and concrete actions should override this.
+	 * Invokes the action. This is an implementation of the Command pattern, and
+	 * concrete actions should override this.
 	 * 
-	 * @param arg the argument
+	 * @param arg
+	 *            the argument
 	 */
 	public abstract void invoke(E arg);
 
 	/**
-	 * @param arg the arguments of the action
-	 * @param newArgs new argument list
+	 * @param arg
+	 *            the arguments of the action
+	 * @param newArgs
+	 *            new argument list
 	 */
-	public final void invoke(E arg, Object[] newArgs) 
+	public final void invoke(E arg, Object[] newArgs)
 	{
 		args = newArgs;
 		invoke(arg);
-	} //}}}
-	
-	//{{{ toString() method
+	} // }}}
+
+	// {{{ toString() method
 	@Override
 	public String toString()
 	{
 		return name;
-	} //}}}
+	} // }}}
 }

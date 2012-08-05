@@ -58,17 +58,15 @@ import org.grview.util.IOUtilities;
 import org.grview.util.Log;
 import org.grview.util.SyntaxUtilities;
 
-
-
 //}}}
 
 /**
- * jEdit's standalone text component.<p>
- *
+ * jEdit's standalone text component.
+ * <p>
+ * 
  * Use this class to embed a jEdit text area into other applications.
  * 
- * Example:
- * <code>
+ * Example: <code>
  * class MyTextArea extends StandaloneTextArea
  * {
  *     static final Properties props = new Properties();
@@ -93,35 +91,40 @@ import org.grview.util.SyntaxUtilities;
  * </code>
  * 
  * See jedit.props for properties that can be set.
- *  
+ * 
  * @author Slava Pestov
  * @author John Gellene (API documentation)
- * @version $Id: JEditTextArea.java 7148 2006-09-29 23:09:06 +0200 (ven., 29 sept. 2006) kpouer $
+ * @version $Id: JEditTextArea.java 7148 2006-09-29 23:09:06 +0200 (ven., 29
+ *          sept. 2006) kpouer $
  */
 public class StandaloneTextArea extends TextArea
 {
 
-	//{{{ Instance variables
+	// {{{ Instance variables
 	private IPropertyManager propertyManager;
-	//}}}
 
-	//{{{ StandaloneTextArea constructor
+	// }}}
+
+	// {{{ StandaloneTextArea constructor
 	/**
-	 * Creates a new StandaloneTextArea. A reference to the propertyManager is saved and used to read the properties
-	 * when {@link StandaloneTextArea#propertiesChanged()} is called.
+	 * Creates a new StandaloneTextArea. A reference to the propertyManager is
+	 * saved and used to read the properties when
+	 * {@link StandaloneTextArea#propertiesChanged()} is called.
 	 * 
-	 * @param propertyManager the property manager that contains both shortcut bindings and UI information
+	 * @param propertyManager
+	 *            the property manager that contains both shortcut bindings and
+	 *            UI information
 	 */
 	public StandaloneTextArea(IPropertyManager propertyManager)
 	{
 		super(propertyManager, null);
 		this.propertyManager = propertyManager;
-		
+
 		initInputHandler();
-		
+
 		setMouseHandler(new TextAreaMouseHandler(this));
 		// todo : make TextareaTransferHandler standalone
-//		textArea.setTransferHandler(new TextAreaTransferHandler());
+		// textArea.setTransferHandler(new TextAreaTransferHandler());
 
 		StandaloneActionSet actionSet = new StandaloneActionSet(propertyManager, this);
 
@@ -129,12 +132,12 @@ public class StandaloneTextArea extends TextArea
 		actionSet.load();
 		actionSet.initKeyBindings();
 
-		//{{{ init Style property manager
+		// {{{ init Style property manager
 		if (SyntaxUtilities.propertyManager == null)
 		{
 			SyntaxUtilities.propertyManager = propertyManager;
 		}
-		//}}}
+		// }}}
 
 		initTextArea();
 
@@ -146,16 +149,19 @@ public class StandaloneTextArea extends TextArea
 		foldHandlerProvider.addFoldHandler(new DummyFoldHandler());
 		JEditBuffer buffer = new JEditBuffer();
 		TokenMarker tokenMarker = new TokenMarker();
-		tokenMarker.addRuleSet(new ParserRuleSet("text","MAIN"));
+		tokenMarker.addRuleSet(new ParserRuleSet("text", "MAIN"));
 		buffer.setTokenMarker(tokenMarker);
 		setBuffer(buffer);
 		String property = propertyManager.getProperty("buffer.undoCount");
 		int undoCount = 100;
 		if (property != null)
-			try {
+			try
+			{
 				undoCount = Integer.parseInt(property);
-			} catch (NumberFormatException e) {
-		}
+			}
+			catch (NumberFormatException e)
+			{
+			}
 		this.buffer.setUndoLimit(undoCount);
 		Mode mode = new Mode("text");
 		mode.setTokenMarker(tokenMarker);
@@ -163,64 +169,54 @@ public class StandaloneTextArea extends TextArea
 		KillRing.setInstance(new KillRing());
 		KillRing.getInstance().propertiesChanged(100);
 
-	} //}}}
+	} // }}}
 
-	//{{{ initTextArea() method
+	// {{{ initTextArea() method
 	/**
-	 * Initializes the text area by re-reading the properties from the property manager passed to the
-	 * constructor.
+	 * Initializes the text area by re-reading the properties from the property
+	 * manager passed to the constructor.
 	 */
 	private void initTextArea()
 	{
 		initPainter();
 		initGutter();
 
-		setCaretBlinkEnabled(getBooleanProperty(
-			"view.caretBlink"));
+		setCaretBlinkEnabled(getBooleanProperty("view.caretBlink"));
 
-		setElectricScroll(getIntegerProperty(
-			"view.electricBorders",0));
+		setElectricScroll(getIntegerProperty("view.electricBorders", 0));
 
 		if (this.buffer == null)
-			return ;
-		
+			return;
+
 		String property = propertyManager.getProperty("buffer.undoCount");
 		int undoCount = 100;
 		if (property != null)
-			try {
+			try
+			{
 				undoCount = Integer.parseInt(property);
-			} catch (NumberFormatException e) {
-		}
+			}
+			catch (NumberFormatException e)
+			{
+			}
 		this.buffer.setUndoLimit(undoCount);
-	} //}}}
+	} // }}}
 
-	//{{{ initGutter() method
+	// {{{ initGutter() method
 	private void initGutter()
 	{
 		Gutter gutter = getGutter();
-		gutter.setExpanded(getBooleanProperty(
-			"view.gutter.lineNumbers"));
-		int interval = getIntegerProperty(
-			"view.gutter.highlightInterval",5);
+		gutter.setExpanded(getBooleanProperty("view.gutter.lineNumbers"));
+		int interval = getIntegerProperty("view.gutter.highlightInterval", 5);
 		gutter.setHighlightInterval(interval);
-		gutter.setCurrentLineHighlightEnabled(getBooleanProperty(
-			"view.gutter.highlightCurrentLine"));
-		gutter.setStructureHighlightEnabled(getBooleanProperty(
-			"view.gutter.structureHighlight"));
-		gutter.setStructureHighlightColor(
-			getColorProperty("view.gutter.structureHighlightColor"));
-		gutter.setBackground(
-			getColorProperty("view.gutter.bgColor"));
-		gutter.setForeground(
-			getColorProperty("view.gutter.fgColor"));
-		gutter.setHighlightedForeground(
-			getColorProperty("view.gutter.highlightColor"));
-		gutter.setFoldColor(
-			getColorProperty("view.gutter.foldColor"));
-		gutter.setCurrentLineForeground(
-			getColorProperty("view.gutter.currentLineColor"));
-		String alignment = getProperty(
-			"view.gutter.numberAlignment");
+		gutter.setCurrentLineHighlightEnabled(getBooleanProperty("view.gutter.highlightCurrentLine"));
+		gutter.setStructureHighlightEnabled(getBooleanProperty("view.gutter.structureHighlight"));
+		gutter.setStructureHighlightColor(getColorProperty("view.gutter.structureHighlightColor"));
+		gutter.setBackground(getColorProperty("view.gutter.bgColor"));
+		gutter.setForeground(getColorProperty("view.gutter.fgColor"));
+		gutter.setHighlightedForeground(getColorProperty("view.gutter.highlightColor"));
+		gutter.setFoldColor(getColorProperty("view.gutter.foldColor"));
+		gutter.setCurrentLineForeground(getColorProperty("view.gutter.currentLineColor"));
+		String alignment = getProperty("view.gutter.numberAlignment");
 		if ("right".equals(alignment))
 		{
 			gutter.setLineNumberAlignment(SwingConstants.RIGHT);
@@ -229,25 +225,22 @@ public class StandaloneTextArea extends TextArea
 		{
 			gutter.setLineNumberAlignment(SwingConstants.CENTER);
 		}
-		else // left == default case
+		else
+		// left == default case
 		{
 			gutter.setLineNumberAlignment(SwingConstants.LEFT);
 		}
 
 		gutter.setFont(getFontProperty("view.gutter.font"));
 
-		int width = getIntegerProperty(
-			"view.gutter.borderWidth",3);
-		gutter.setBorder(width,
-			getColorProperty("view.gutter.focusBorderColor"),
-			getColorProperty("view.gutter.noFocusBorderColor"),
-			painter.getBackground());
-	} //}}}
+		int width = getIntegerProperty("view.gutter.borderWidth", 3);
+		gutter.setBorder(width, getColorProperty("view.gutter.focusBorderColor"), getColorProperty("view.gutter.noFocusBorderColor"), painter.getBackground());
+	} // }}}
 
-	//{{{ initPainter() method
+	// {{{ initPainter() method
 	/**
 	 * Init the painter of this textarea.
-	 *
+	 * 
 	 */
 	private void initPainter()
 	{
@@ -255,117 +248,108 @@ public class StandaloneTextArea extends TextArea
 		painter.setBlockCaretEnabled(false);
 
 		painter.setFont(getFontProperty("view.font"));
-		painter.setStructureHighlightEnabled(getBooleanProperty(
-			"view.structureHighlight"));
-		painter.setStructureHighlightColor(
-			getColorProperty("view.structureHighlightColor"));
-		painter.setEOLMarkersPainted(getBooleanProperty(
-			"view.eolMarkers"));
-		painter.setEOLMarkerColor(
-			getColorProperty("view.eolMarkerColor"));
-		painter.setWrapGuidePainted(getBooleanProperty(
-			"view.wrapGuide"));
-		painter.setWrapGuideColor(
-			getColorProperty("view.wrapGuideColor"));
-		painter.setCaretColor(
-			getColorProperty("view.caretColor"));
-		painter.setSelectionColor(
-			getColorProperty("view.selectionColor"));
-		painter.setMultipleSelectionColor(
-			getColorProperty("view.multipleSelectionColor"));
-		painter.setBackground(
-			getColorProperty("view.bgColor"));
-		painter.setForeground(
-			getColorProperty("view.fgColor"));
-		painter.setBlockCaretEnabled(getBooleanProperty(
-			"view.blockCaret"));
-		painter.setThickCaretEnabled(getBooleanProperty(
-			"view.thickCaret"));
-		painter.setLineHighlightEnabled(getBooleanProperty(
-			"view.lineHighlight"));
-		painter.setLineHighlightColor(
-			getColorProperty("view.lineHighlightColor"));
+		painter.setStructureHighlightEnabled(getBooleanProperty("view.structureHighlight"));
+		painter.setStructureHighlightColor(getColorProperty("view.structureHighlightColor"));
+		painter.setEOLMarkersPainted(getBooleanProperty("view.eolMarkers"));
+		painter.setEOLMarkerColor(getColorProperty("view.eolMarkerColor"));
+		painter.setWrapGuidePainted(getBooleanProperty("view.wrapGuide"));
+		painter.setWrapGuideColor(getColorProperty("view.wrapGuideColor"));
+		painter.setCaretColor(getColorProperty("view.caretColor"));
+		painter.setSelectionColor(getColorProperty("view.selectionColor"));
+		painter.setMultipleSelectionColor(getColorProperty("view.multipleSelectionColor"));
+		painter.setBackground(getColorProperty("view.bgColor"));
+		painter.setForeground(getColorProperty("view.fgColor"));
+		painter.setBlockCaretEnabled(getBooleanProperty("view.blockCaret"));
+		painter.setThickCaretEnabled(getBooleanProperty("view.thickCaret"));
+		painter.setLineHighlightEnabled(getBooleanProperty("view.lineHighlight"));
+		painter.setLineHighlightColor(getColorProperty("view.lineHighlightColor"));
 		painter.setAntiAlias(new AntiAlias(getProperty("view.antiAlias")));
-		painter.setFractionalFontMetricsEnabled(getBooleanProperty(
-			"view.fracFontMetrics"));
+		painter.setFractionalFontMetricsEnabled(getBooleanProperty("view.fracFontMetrics"));
 
 		String defaultFont = getProperty("view.font");
-		int defaultFontSize = getIntegerProperty("view.fontsize",12);
-		painter.setStyles(SyntaxUtilities.loadStyles(defaultFont,defaultFontSize));
+		int defaultFontSize = getIntegerProperty("view.fontsize", 12);
+		painter.setStyles(SyntaxUtilities.loadStyles(defaultFont, defaultFontSize));
 
 		SyntaxStyle[] foldLineStyle = new SyntaxStyle[4];
-		for(int i = 0; i <= 3; i++)
+		for (int i = 0; i <= 3; i++)
 		{
-			foldLineStyle[i] = SyntaxUtilities.parseStyle(
-				getProperty("view.style.foldLine." + i),
-				defaultFont,defaultFontSize,true);
+			foldLineStyle[i] = SyntaxUtilities.parseStyle(getProperty("view.style.foldLine." + i), defaultFont, defaultFontSize, true);
 		}
 		painter.setFoldLineStyle(foldLineStyle);
-	} //}}}
+	} // }}}
 
-	//{{{
-	// The following methods are copied from jEdit.java and refer to the propertyManager passed
+	// {{{
+	// The following methods are copied from jEdit.java and refer to the
+	// propertyManager passed
 	// to the constructor.
-	//}}}
-	
-	//{{{ getProperty() method
+	// }}}
+
+	// {{{ getProperty() method
 	public String getProperty(String name)
 	{
 		return propertyManager.getProperty(name);
-	} //}}}
+	} // }}}
 
-	//{{{ getBooleanProperty() method
+	// {{{ getBooleanProperty() method
 	/**
 	 * Returns the value of a boolean property.
-	 * @param name The property
+	 * 
+	 * @param name
+	 *            The property
 	 */
 	private boolean getBooleanProperty(String name)
 	{
-		return getBooleanProperty(name,false);
-	} //}}}
+		return getBooleanProperty(name, false);
+	} // }}}
 
-	//{{{ getBooleanProperty() method
+	// {{{ getBooleanProperty() method
 	/**
 	 * Returns the value of a boolean property.
-	 * @param name The property
-	 * @param def The default value
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
 	 */
 	private boolean getBooleanProperty(String name, boolean def)
 	{
 		String value = getProperty(name);
-		if(value == null)
+		if (value == null)
 			return def;
-		else if(value.equals("true") || value.equals("yes")
-			|| value.equals("on"))
+		else if (value.equals("true") || value.equals("yes") || value.equals("on"))
 			return true;
-		else if(value.equals("false") || value.equals("no")
-			|| value.equals("off"))
+		else if (value.equals("false") || value.equals("no") || value.equals("off"))
 			return false;
 		else
 			return def;
-	} //}}}
+	} // }}}
 
-	//{{{ getIntegerProperty() method
+	// {{{ getIntegerProperty() method
 	/**
 	 * Returns the value of an integer property.
-	 * @param name The property
+	 * 
+	 * @param name
+	 *            The property
 	 */
 	private int getIntegerProperty(String name)
 	{
-		return getIntegerProperty(name,0);
-	} //}}}
+		return getIntegerProperty(name, 0);
+	} // }}}
 
-	//{{{ getIntegerProperty() method
+	// {{{ getIntegerProperty() method
 	/**
 	 * Returns the value of an integer property.
-	 * @param name The property
-	 * @param def The default value
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
 	 * @since jEdit 4.0pre1
 	 */
 	private int getIntegerProperty(String name, int def)
 	{
 		String value = getProperty(name);
-		if(value == null)
+		if (value == null)
 			return def;
 		else
 		{
@@ -373,45 +357,45 @@ public class StandaloneTextArea extends TextArea
 			{
 				return Integer.parseInt(value.trim());
 			}
-			catch(NumberFormatException nf)
+			catch (NumberFormatException nf)
 			{
 				return def;
 			}
 		}
-	} //}}}
+	} // }}}
 
-
-	//{{{ getFontProperty() method
+	// {{{ getFontProperty() method
 	/**
-	 * Returns the value of a font property. The family is stored
-	 * in the <code><i>name</i></code> property, the font size is stored
-	 * in the <code><i>name</i>size</code> property, and the font style is
-	 * stored in <code><i>name</i>style</code>. For example, if
-	 * <code><i>name</i></code> is <code>view.gutter.font</code>, the
-	 * properties will be named <code>view.gutter.font</code>,
-	 * <code>view.gutter.fontsize</code>, and
+	 * Returns the value of a font property. The family is stored in the
+	 * <code><i>name</i></code> property, the font size is stored in the
+	 * <code><i>name</i>size</code> property, and the font style is stored in
+	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
+	 * is <code>view.gutter.font</code>, the properties will be named
+	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
 	 * <code>view.gutter.fontstyle</code>.
-	 *
-	 * @param name The property
+	 * 
+	 * @param name
+	 *            The property
 	 * @since jEdit 4.0pre1
 	 */
 	private Font getFontProperty(String name)
 	{
-		return getFontProperty(name,null);
-	} //}}}
+		return getFontProperty(name, null);
+	} // }}}
 
 	/**
-	 * Returns the value of a font property. The family is stored
-	 * in the <code><i>name</i></code> property, the font size is stored
-	 * in the <code><i>name</i>size</code> property, and the font style is
-	 * stored in <code><i>name</i>style</code>. For example, if
-	 * <code><i>name</i></code> is <code>view.gutter.font</code>, the
-	 * properties will be named <code>view.gutter.font</code>,
-	 * <code>view.gutter.fontsize</code>, and
+	 * Returns the value of a font property. The family is stored in the
+	 * <code><i>name</i></code> property, the font size is stored in the
+	 * <code><i>name</i>size</code> property, and the font style is stored in
+	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
+	 * is <code>view.gutter.font</code>, the properties will be named
+	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
 	 * <code>view.gutter.fontstyle</code>.
-	 *
-	 * @param name The property
-	 * @param def The default value
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
 	 * @since jEdit 4.0pre1
 	 */
 	private Font getFontProperty(String name, Font def)
@@ -420,7 +404,7 @@ public class StandaloneTextArea extends TextArea
 		String sizeString = getProperty(name + "size");
 		String styleString = getProperty(name + "style");
 
-		if(family == null || sizeString == null || styleString == null)
+		if (family == null || sizeString == null || styleString == null)
 			return def;
 		else
 		{
@@ -430,7 +414,7 @@ public class StandaloneTextArea extends TextArea
 			{
 				size = Integer.parseInt(sizeString);
 			}
-			catch(NumberFormatException nf)
+			catch (NumberFormatException nf)
 			{
 				return def;
 			}
@@ -439,57 +423,63 @@ public class StandaloneTextArea extends TextArea
 			{
 				style = Integer.parseInt(styleString);
 			}
-			catch(NumberFormatException nf)
+			catch (NumberFormatException nf)
 			{
 				return def;
 			}
 
-			return new Font(family,style,size);
+			return new Font(family, style, size);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ getColorProperty() method
+	// {{{ getColorProperty() method
 	/**
 	 * Returns the value of a color property.
-	 * @param name The property name
+	 * 
+	 * @param name
+	 *            The property name
 	 * @since jEdit 4.0pre1
 	 */
 	private Color getColorProperty(String name)
 	{
-		return getColorProperty(name,Color.black);
-	} //}}}
+		return getColorProperty(name, Color.black);
+	} // }}}
 
-	//{{{ getColorProperty() method
+	// {{{ getColorProperty() method
 	/**
 	 * Returns the value of a color property.
-	 * @param name The property name
-	 * @param def The default value
+	 * 
+	 * @param name
+	 *            The property name
+	 * @param def
+	 *            The default value
 	 * @since jEdit 4.0pre1
 	 */
 	private Color getColorProperty(String name, Color def)
 	{
 		String value = getProperty(name);
-		if(value == null)
+		if (value == null)
 			return def;
 		else
 			return SyntaxUtilities.parseColor(value, def);
-	} //}}}
+	} // }}}
 
-
-	//{{{ propertiesChanged() method
+	// {{{ propertiesChanged() method
 	/**
-	 * Reinitializes the textarea by reading the properties from the property manager
+	 * Reinitializes the textarea by reading the properties from the property
+	 * manager
 	 */
 	@Override
 	public void propertiesChanged()
 	{
 		initTextArea();
 		super.propertiesChanged();
-	} //}}}
+	} // }}}
 
-	//{{{ createPopupMenu() method
+	// {{{ createPopupMenu() method
 	/**
 	 * Creates the popup menu.
+	 * 
 	 * @since 4.3pre15
 	 */
 	@Override
@@ -502,18 +492,20 @@ public class StandaloneTextArea extends TextArea
 		addMenuItem("cut", "Cut");
 		addMenuItem("copy", "Copy");
 		addMenuItem("paste", "Paste");
-	} //}}}
+	} // }}}
 
-	//{{{ addMenuItem() method
+	// {{{ addMenuItem() method
 	/**
-	 * Adds a menu item from the action context to the popup menu and returns the item.
+	 * Adds a menu item from the action context to the popup menu and returns
+	 * the item.
+	 * 
 	 * @return the menu item added
 	 */
 	public JMenuItem addMenuItem(String action, String label)
 	{
 		final JEditBeanShellAction shellAction = getActionContext().getAction(action);
 		if (shellAction == null)
-			return null ;
+			return null;
 		JMenuItem item = new JMenuItem();
 		item.setAction(new AbstractAction(label)
 		{
@@ -524,13 +516,13 @@ public class StandaloneTextArea extends TextArea
 		});
 		popup.add(item);
 		return item;
-	} //}}}
+	} // }}}
 
-	//{{{ createTextArea() method
+	// {{{ createTextArea() method
 	/**
-	 * Create a standalone TextArea.
-	 * If you want to use it in jEdit, please use {@link org.grview.actions.jEdit#createTextArea()}
-	 *
+	 * Create a standalone TextArea. If you want to use it in jEdit, please use
+	 * {@link org.grview.actions.jEdit#createTextArea()}
+	 * 
 	 * @return a textarea
 	 * @since 4.3pre13
 	 */
@@ -550,7 +542,7 @@ public class StandaloneTextArea extends TextArea
 		return textArea;
 	} // }}}
 
-	//{{{ loadProperties() method
+	// {{{ loadProperties() method
 	private static Properties loadProperties(String fileName)
 	{
 		Properties props = new Properties();
@@ -568,20 +560,20 @@ public class StandaloneTextArea extends TextArea
 			IOUtilities.closeQuietly(in);
 		}
 		return props;
-	} //}}}
+	} // }}}
 
-	//{{{ main() method
+	// {{{ main() method
 	public static void main(String[] args)
 	{
 		JFrame frame = new JFrame();
 		TextArea text = createTextArea();
 		Mode mode = new Mode("xml");
-		mode.setProperty("file","/modes/java.xml");
+		mode.setProperty("file", "/modes/java.xml");
 		ModeProvider.instance.addMode(mode);
 		text.getBuffer().setMode(mode);
 		frame.getContentPane().add(text);
 		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 		frame.pack();
 		frame.setVisible(true);
-	} //}}}
+	} // }}}
 }

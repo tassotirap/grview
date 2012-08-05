@@ -23,40 +23,44 @@
 
 package org.grview.actions;
 
-
 import java.lang.reflect.Array;
 import java.util.*;
 
 import org.grview.util.StandardUtilities;
 
 /**
- * Manages a collection of action sets. There are two instances of this class
- * in jEdit:
+ * Manages a collection of action sets. There are two instances of this class in
+ * jEdit:
  * <ul>
  * <li>{@link org.grview.actions.jEdit#getActionContext()} - editor actions
- * <li>{@link org.grview.actions.browser.VFSBrowser#getActionContext()} - browser
- * actions
+ * <li>{@link org.grview.actions.browser.VFSBrowser#getActionContext()} -
+ * browser actions
  * </ul>
- *
+ * 
  * @since jEdit 4.3pre13
  * @author Slava Pestov
  * @version $Id: AsinActionContext.java 6884 2006-09-06 02:38:55Z ezust $
  */
 public abstract class AsinActionContext<F extends AbstractEditAction, E extends AsinActionSet<F>>
 {
-	//{{{ invokeAction() method
+	// {{{ invokeAction() method
 	/**
 	 * Invokes the given action in response to a user-generated event.
-	 * @param evt The event
-	 * @param action The action
+	 * 
+	 * @param evt
+	 *            The event
+	 * @param action
+	 *            The action
 	 * @since jEdit 4.3pre13
 	 */
 	public abstract void invokeAction(EventObject evt, F action);
-	//}}}
 
-	//{{{ addActionSet() method
+	// }}}
+
+	// {{{ addActionSet() method
 	/**
 	 * Adds a new action set to the context.
+	 * 
 	 * @since jEdit 4.3pre13
 	 */
 	public void addActionSet(E actionSet)
@@ -65,22 +69,23 @@ public abstract class AsinActionContext<F extends AbstractEditAction, E extends 
 		actionSets.addElement(actionSet);
 		actionSet.context = this;
 		String[] actions = actionSet.getActionNames();
-		for(int i = 0; i < actions.length; i++)
+		for (int i = 0; i < actions.length; i++)
 		{
 			/* Is it already there? */
-			if (actionHash.containsKey(actions[i])) 
+			if (actionHash.containsKey(actions[i]))
 			{
 				/* Save it for plugin unloading time */
 				E oldAction = actionHash.get(actions[i]);
 				overriddenActions.put(actions[i], oldAction);
 			}
-			actionHash.put(actions[i],actionSet);
+			actionHash.put(actions[i], actionSet);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ removeActionSet() method
+	// {{{ removeActionSet() method
 	/**
 	 * Removes an action set from the context.
+	 * 
 	 * @since jEdit 4.23pre13
 	 */
 	public void removeActionSet(E actionSet)
@@ -89,20 +94,21 @@ public abstract class AsinActionContext<F extends AbstractEditAction, E extends 
 		actionSets.removeElement(actionSet);
 		actionSet.context = null;
 		String[] actions = actionSet.getActionNames();
-		for(int i = 0; i < actions.length; i++)
+		for (int i = 0; i < actions.length; i++)
 		{
 			actionHash.remove(actions[i]);
-			if (overriddenActions.containsKey(actions[i])) 
+			if (overriddenActions.containsKey(actions[i]))
 			{
 				E oldAction = overriddenActions.remove(actions[i]);
 				actionHash.put(actions[i], oldAction);
 			}
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ getActionSets() method
+	// {{{ getActionSets() method
 	/**
 	 * Returns all registered action sets.
+	 * 
 	 * @since jEdit 4.3pre13
 	 */
 	public E[] getActionSets()
@@ -110,73 +116,75 @@ public abstract class AsinActionContext<F extends AbstractEditAction, E extends 
 		if (actionSets.isEmpty())
 			return null;
 		Class clazz = actionSets.get(0).getClass();
-		E[] retVal =(E[]) Array.newInstance(clazz, actionSets.size());
+		E[] retVal = (E[]) Array.newInstance(clazz, actionSets.size());
 		actionSets.copyInto(retVal);
 		return retVal;
-	} //}}}
+	} // }}}
 
-	//{{{ getAction() method
+	// {{{ getAction() method
 	/**
 	 * Returns the specified action.
-	 * @param name The action name
+	 * 
+	 * @param name
+	 *            The action name
 	 * @return a AbstractEditAction or null if it doesn't exist
 	 * @since jEdit 4.3pre13
 	 */
 	public F getAction(String name)
 	{
 		E set = actionHash.get(name);
-		if(set == null)
+		if (set == null)
 			return null;
 		else
 			return set.getAction(name);
-	} //}}}
+	} // }}}
 
-	//{{{ getActionSetForAction() method
+	// {{{ getActionSetForAction() method
 	/**
 	 * Returns the action set that contains the specified action.
-	 *
-	 * @param action The action
+	 * 
+	 * @param action
+	 *            The action
 	 * @return the actionSet that contains the given action
 	 * @since jEdit 4.3pre13
 	 */
 	public E getActionSetForAction(String action)
 	{
 		return actionHash.get(action);
-	} //}}}
+	} // }}}
 
-	//{{{ getActionNames() method
+	// {{{ getActionNames() method
 	/**
 	 * Returns all registered action names.
 	 */
 	public String[] getActionNames()
 	{
-		if(actionNames == null)
+		if (actionNames == null)
 		{
 			List<String> vec = new LinkedList<String>();
-			for(int i = 0; i < actionSets.size(); i++)
+			for (int i = 0; i < actionSets.size(); i++)
 				(actionSets.elementAt(i)).getActionNames(vec);
 
 			actionNames = vec.toArray(new String[vec.size()]);
-			Arrays.sort(actionNames,
-				new StandardUtilities.StringCompare(true));
+			Arrays.sort(actionNames, new StandardUtilities.StringCompare(true));
 		}
 
 		return actionNames;
-	} //}}}
+	} // }}}
 
-	//{{{ Package-private members
+	// {{{ Package-private members
 	String[] actionNames;
-	/** 
-	 * This map contains as key an action name, 
-	 * and as value the AsinActionSet that contains this action
+	/**
+	 * This map contains as key an action name, and as value the AsinActionSet
+	 * that contains this action
 	 */
 	Hashtable<String, E> actionHash = new Hashtable<String, E>();
-	
-	/** A map of built-in actions that were overridden by plugins. */
-	Hashtable<String, E> overriddenActions = new Hashtable<String, E>(); 
-	//}}}
 
-	//{{{ Private members
+	/** A map of built-in actions that were overridden by plugins. */
+	Hashtable<String, E> overriddenActions = new Hashtable<String, E>();
+	// }}}
+
+	// {{{ Private members
 	private final Vector<E> actionSets = new Vector<E>();
-	//}}}
+	// }}}
 }

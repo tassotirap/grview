@@ -9,55 +9,70 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
-public class StaticStateManager {
-	private static final long serialVersionUID = 1L;
+public class StaticStateManager
+{
 	private Object object;
-	
+
 	private PropertyChangeSupport monitor;
-	
+
 	private File file;
-	
-	public StaticStateManager() {
+
+	public StaticStateManager()
+	{
 		monitor = new PropertyChangeSupport(this);
 	}
-	
-	public Object read() throws IOException, ClassNotFoundException {
-		FileInputStream fis = new FileInputStream(file);
-		if (file.length() > 0) {
-			ObjectInputStream ois = new ObjectInputStream(fis);
-			object = ois.readObject();
+
+	public Object read() throws IOException, ClassNotFoundException
+	{
+		FileInputStream fileInputStream = new FileInputStream(file);
+		if (file.length() > 0)
+		{
+			ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+			object = objectInputStream.readObject();
+			objectInputStream.close();
+			fileInputStream.close();
 			return object;
 		}
+		fileInputStream.close();
 		return null;
 	}
-	
-	public void write() throws IOException{
+
+	public void write() throws IOException
+	{
 		monitor.firePropertyChange("writing", null, object);
 		FileOutputStream fos = new FileOutputStream(file);
-		new ObjectOutputStream(fos).writeObject(object);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
+		objectOutputStream.writeObject(object);
+		objectOutputStream.close();
 	}
-	
-	public String getParentDirectory() {
+
+	public String getParentDirectory()
+	{
 		return file.getParent();
 	}
-	
-	public String getAbsolutePath() {
+
+	public String getAbsolutePath()
+	{
 		return file.getAbsolutePath();
 	}
-	
-	public void setObject(Serializable object) {
+
+	public void setObject(Serializable object)
+	{
 		this.object = object;
 	}
-	
-	public Object getObject() {
+
+	public Object getObject()
+	{
 		return this.object;
 	}
-	
-	public void setFile(File file) {
+
+	public void setFile(File file)
+	{
 		this.file = file;
 	}
-	
-	public File getFile() {
+
+	public File getFile()
+	{
 		return this.file;
 	}
 }

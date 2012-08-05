@@ -1,49 +1,58 @@
 package org.grview.ui.component;
 
 import java.util.HashMap;
-
 import org.grview.editor.TextArea;
 
+public class TextAreaRepo
+{
+	private static HashMap<Component, TextArea> textAreaByComponent = new HashMap<Component, TextArea>();
+	private static HashMap<TextArea, FileComponent> componentByTextArea = new HashMap<TextArea, FileComponent>();
 
-public class TextAreaRepo {
+	public static void register(Component component, TextArea textArea)
+	{
+		textAreaByComponent.put(component, textArea);
+		if (component instanceof FileComponent)
+		{
+			componentByTextArea.put(textArea, (FileComponent) component);
+		}
+	}
 
-	private static HashMap<Component, TextArea> taByComp = new HashMap<Component, TextArea>();
-	private static HashMap<TextArea, FileComponent> compByTa = new HashMap<TextArea, FileComponent>();
-	
-	public static void register(Component comp, TextArea ta) {
-		taByComp.put(comp, ta);
-		if (comp instanceof FileComponent) {
-			compByTa.put(ta, (FileComponent) comp);
+	public static void remove(Component comp)
+	{
+		if (textAreaByComponent.containsKey(comp))
+		{
+			TextArea ta = textAreaByComponent.get(comp);
+			textAreaByComponent.remove(comp);
+			componentByTextArea.remove(ta);
 		}
 	}
-	
-	public static void remove(Component comp) {
-		if (taByComp.containsKey(comp)) {
-			TextArea ta = taByComp.get(comp);
-			taByComp.remove(comp);
-			compByTa.remove(ta);
+
+	public static void remove(TextArea ta)
+	{
+		if (componentByTextArea.containsKey(ta))
+		{
+			FileComponent comp = componentByTextArea.get(ta);
+			componentByTextArea.remove(ta);
+			textAreaByComponent.remove(comp);
 		}
 	}
-	
-	public static void remove(TextArea ta) {
-		if (compByTa.containsKey(ta)) {
-			FileComponent comp = compByTa.get(ta);
-			compByTa.remove(ta);
-			taByComp.remove(comp);
-		}
-	}
-	public static TextArea getTextArea(Component comp) {
-		if (taByComp.containsKey(comp)) {
-			return taByComp.get(comp);
+
+	public static TextArea getTextArea(Component comp)
+	{
+		if (textAreaByComponent.containsKey(comp))
+		{
+			return textAreaByComponent.get(comp);
 		}
 		return null;
 	}
-	
-	public static FileComponent getComponent(TextArea ta) {
-		if (compByTa.containsKey(ta)) {
-			return compByTa.get(ta);
+
+	public static FileComponent getComponent(TextArea ta)
+	{
+		if (componentByTextArea.containsKey(ta))
+		{
+			return componentByTextArea.get(ta);
 		}
 		return null;
 	}
-	
+
 }
