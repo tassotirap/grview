@@ -11,7 +11,7 @@ import java.io.StringReader;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class TabCreate {
+public class TableCreate {
 	
 	private String tab[][];
 	private BufferedReader in;
@@ -88,7 +88,7 @@ public class TabCreate {
 		}
 	}
 	
-	public TabCreate(String grammar, boolean isFile) {
+	public TableCreate(String grammar, boolean isFile) {
 		if (isFile) {
 			TabCreateFromFile(grammar);
 		}

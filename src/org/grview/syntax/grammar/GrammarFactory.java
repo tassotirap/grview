@@ -19,9 +19,9 @@ import org.grview.syntax.grammar.model.SyntaxSubpart;
 /** Compiles a grammar textual representation from the designed graph **/
 public class GrammarFactory {
 
-	private SyntaxModel ld;
+	private SyntaxModel syntaxModel;
 	private int cont;
-	private String hout; //html formated output
+	private String htmlOutput; //html formated output
 	private Grammar absGrammar;
 
 	/**
@@ -29,7 +29,7 @@ public class GrammarFactory {
 	 * @param part 
 	 */
 	public GrammarFactory(AsinEditor part) {
-		ld = part.getLogicDiagram();
+		syntaxModel = part.getLogicDiagram();
 	}
 
 	protected boolean calculateEnabled() {
@@ -63,7 +63,7 @@ public class GrammarFactory {
 		}
 		List children;
 		ArrayList start = new ArrayList();
-		children = ld.getChildrenNodes();
+		children = syntaxModel.getChildrenNodes();
 		Object o;
 		
 		AppOutput.clearGeneratedGrammar();
@@ -102,10 +102,10 @@ public class GrammarFactory {
 			
 			AppOutput.displayText("<a>>>Begining a new leftside..." + label.getLabelContents() + "</a><br>", TOPIC.Output);
 			/*preparando a string 'sout', que será escrita no arquivo*/
-			hout = "<table cellspacing=\"0\" cellpadding=\"0\" border=\"1px\" width=\"100%\">";
-			hout += "<tr style=\"background-color: #EEEEEE; font-weight: bold;\"><td></td><td>Node</td><td>Number</td><td>Alternative</td><td>Successor</td><td>Semantic Rout.</td></tr>";
+			htmlOutput = "<table cellspacing=\"0\" cellpadding=\"0\" border=\"1px\" width=\"100%\">";
+			htmlOutput += "<tr style=\"background-color: #EEEEEE; font-weight: bold;\"><td></td><td>Node</td><td>Number</td><td>Alternative</td><td>Successor</td><td>Semantic Rout.</td></tr>";
 			if (((AbstractNode)start.get(i)).getType().equals(AbstractNode.START)) {
-				hout += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_s2.png\" alt=\"Initial Node\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel)start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
+				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_s2.png\" alt=\"Initial Node\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel)start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
 				GrComp gh = new GrComp(label.getLabelContents(), ((SyntaxModel)start.get(i)).getID());
 				gh.setHead(true);
 				if (i == 0) //it's the first found
@@ -114,7 +114,7 @@ public class GrammarFactory {
 				absGrammar.setCurrent(gh);
 			}
 			else {
-				hout += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_H2.png\" alt=\"Left Side\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel)start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
+				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_H2.png\" alt=\"Left Side\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel)start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
 				GrComp gl = new GrComp(label.getLabelContents(), ((SyntaxModel)start.get(i)).getID());
 				gl.setLeftHand(true);
 				if (i == 0)
@@ -142,8 +142,8 @@ public class GrammarFactory {
 			}
 			absGrammar.addSuccessor(firstGuy);
 			grammar.append(dfs(isFile, first));
-			hout += "</table>";
-			AppOutput.displayGeneratedGrammar(hout);
+			htmlOutput += "</table>";
+			AppOutput.displayGeneratedGrammar(htmlOutput);
 		}
 		absGrammar.finalize();
 		return grammar.toString();
@@ -177,7 +177,7 @@ public class GrammarFactory {
 			}
 			/*inicializando a string que será utilizada para guardar os dados do nó atual*/
 			String sout = "";
-			hout = hout + "<tr>";
+			htmlOutput = htmlOutput + "<tr>";
 			
 			/*Nesse ponto temos que entrar no conteúdo do nó terminal ou não terminal,
 			 * para saber qual é a sua entrada. Com esse dado, preenchere-mos o campo 
@@ -188,54 +188,54 @@ public class GrammarFactory {
 			if (o instanceof AbstractNode 
 					&& ((AbstractNode)o).getType().equals(AbstractNode.NTERMINAL)) {
 				sout = sout + name_smRoutine[2] + " N";
-				hout = hout + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_nt2.png\" alt=\"Non-Terminal\"></td>";
+				htmlOutput = htmlOutput + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_nt2.png\" alt=\"Non-Terminal\"></td>";
 				thisGuy = new GrComp(name_smRoutine[0], name_smRoutine[2]);
 				thisGuy.setNonterminal(true);
 			}
 			else if (o instanceof AbstractNode 
 					&& ((AbstractNode)o).getType().equals(AbstractNode.TERMINAL)){
 				sout = sout + name_smRoutine[2] + " T";
-				hout = hout + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_t2.png\" alt=\"Terminal\"></td>";
+				htmlOutput = htmlOutput + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_t2.png\" alt=\"Terminal\"></td>";
 				thisGuy = new GrComp(name_smRoutine[0], name_smRoutine[2]);
 				thisGuy.setTerminal(true);
 			}
 			else if (o instanceof AbstractNode 
 					&& ((AbstractNode)o).getType().equals(AbstractNode.LAMBDA_ALTERNATIVE)) {
 				sout = sout + name_smRoutine[2] + " T";
-				hout = hout + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_l.png\" alt=\"Lambda Alternative\"></td>";
+				htmlOutput = htmlOutput + "<td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_l.png\" alt=\"Lambda Alternative\"></td>";
 				thisGuy = new GrComp(null, name_smRoutine[2]);
 				thisGuy.setLambda(true);
 			}
 			
 			sout = sout + " " + name_smRoutine[0];
-			hout = hout + "<td style=\"font-weight: bold;\"><a href=\"" + name_smRoutine[2] + "\">" + name_smRoutine[0] + "</a></td>";
+			htmlOutput = htmlOutput + "<td style=\"font-weight: bold;\"><a href=\"" + name_smRoutine[2] + "\">" + name_smRoutine[0] + "</a></td>";
 			
 			/*Agora está na hora de preencher o campo numno, que indica qual o número desse nó*/
 			sout = sout + " " + o.getNumber();
-			hout = hout + "<td align=\"center\">" + o.getNumber() + "</td>";
+			htmlOutput = htmlOutput + "<td align=\"center\">" + o.getNumber() + "</td>";
 			
 			/*Colocando um valor no campo Altr, que indica o nó alternativo ao nó "o".*/
 			if (alt == null ) {
 				sout = sout + " 0";
-				hout = hout + "<td align=\"center\">-</td>";
+				htmlOutput = htmlOutput + "<td align=\"center\">-</td>";
 			}
 			else {
 				sout = sout + " " + alt.getNumber();
-				hout = hout + "<td align=\"center\">" + alt.getNumber() + "</td>";
+				htmlOutput = htmlOutput + "<td align=\"center\">" + alt.getNumber() + "</td>";
 			}
 			/*Colocando um valor no campo Sucr, que indica o nó sucessor ao nó "o"*/
 			if (suc == null ) {
 				sout = sout + " 0";
-				hout = hout + "<td align=\"center\">-</td>";
+				htmlOutput = htmlOutput + "<td align=\"center\">-</td>";
 			}
 			else {
 				sout = sout + " " + suc.getNumber();
-				hout = hout + "<td align=\"center\">" + suc.getNumber() + "</td>";
+				htmlOutput = htmlOutput + "<td align=\"center\">" + suc.getNumber() + "</td>";
 			}
 				
 			/*Este número é referente à rotina semântica.*/
 			sout = sout + " "+name_smRoutine[1]+"\n";
-			hout = hout + "<td align=\"center\">" + ((name_smRoutine[1].equals("-1"))?"-":"<a href=\"name_smRoutine[1]\">" + name_smRoutine[1] + "</a>") + "</td>";
+			htmlOutput = htmlOutput + "<td align=\"center\">" + ((name_smRoutine[1].equals("-1"))?"-":"<a href=\"name_smRoutine[1]\">" + name_smRoutine[1] + "</a>") + "</td>";
 			
 			/*imprimindo os dados do nó atual (o) no arquivo...*/
 			if (out != null && isFile) {
@@ -244,7 +244,7 @@ public class GrammarFactory {
 			}
 			grammar.append(sout);
 			/*imprimindo os dados do nó atual (o) na tela...*/
-			hout += "</tr>";
+			htmlOutput += "</tr>";
 			
 			/*chamando a recursão para o nó sucessor (busca em profundidade)*/
 			absGrammar.setCurrent(thisGuy);

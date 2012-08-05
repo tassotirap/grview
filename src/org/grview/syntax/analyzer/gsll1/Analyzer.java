@@ -122,8 +122,7 @@ public class Analyzer extends Thread{
 						toppsIU = this.parseStack.size();						
 					} else {
 						/*2                 I isn't the lambda-node*/
-						if ((tabT[tabGraph[I].getSim()].getName())
-							.equals(currentSymbol)) {
+						if ((tabT[tabGraph[I].getSim()].getName()).equals(currentSymbol)) {
 							/*2                     Se o nó representado por I é igual ao ultimo valor lido.*/
 							/*2                         Então coloque o ultimo valor lido na parseStack*/
 							parseStack.push(new ParseStackNode(tabT[tabGraph[I].getSim()].getFlag(), currentSymbol,currentSemanticSymbol));

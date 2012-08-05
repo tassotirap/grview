@@ -25,6 +25,12 @@ import org.grview.util.Log;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 
+/**
+ * 
+ * @author Tasso Tirapani Silva Pinto
+ * Load Semantic Routines file
+ * [FileName].sem
+ */
 public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 
 	private Stack parseStack;
@@ -58,23 +64,23 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 			if (!modBeanInjection.exists()) {
 				modBeanInjection.createNewFile();
 			}
-			FileInputStream fis = new FileInputStream(beanInjection);
-			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
+			FileInputStream fileInputStream = new FileInputStream(beanInjection);
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 			String line = "";
-			String output = "";
-			while ((line = br.readLine()) != null) {
+			String outputString = "";
+			while ((line = bufferedReader.readLine()) != null) {
 				if (line.contains("$FILENAME")) {
 					line = line.replace("$FILENAME", semFile.getAbsolutePath());
 				}
-				output += line + "\n";
+				outputString += line + "\n";
 			}
-			FileOutputStream fos = new FileOutputStream(modBeanInjection);
-			OutputStreamWriter osw = new OutputStreamWriter(fos);
-			osw.write(output);
-			osw.close();
-			fos.close();
-			br.close();
-			fis.close();
+			FileOutputStream fileOutputStream = new FileOutputStream(modBeanInjection);
+			OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream);
+			outputStreamWriter.write(outputString);
+			outputStreamWriter.close();
+			fileOutputStream.close();
+			bufferedReader.close();
+			fileInputStream.close();
 		} catch (Exception e) {
 			Log.log(Log.ERROR, this, "Could not semantic routines file.", e);
 		}
@@ -134,7 +140,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 		return project.getProperty("semanticRoutineClass");
 	}
 
-	public void ivokeFromFile(String function) {
+	public void ivokeMethodFromFile(String function) {
 		goo.setProperty("tabT", tabT);
 		goo.setProperty("parseStack", parseStack);
 		goo.setProperty("currentToken", currentToken);
@@ -148,10 +154,9 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 		}
 	}
 
-	public void ivokeFromClass(String function) {
+	public void ivokeMethodFromClass(String function) {
 		try {
-			String _class;
-			_class = getExtenalSemanticRoutinesClass();
+			String _class = getExtenalSemanticRoutinesClass();
 			if (_class == null) {
 				_class = DEFAULT_SR_CLASS;
 			}

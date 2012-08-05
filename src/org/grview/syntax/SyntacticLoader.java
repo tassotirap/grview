@@ -44,12 +44,12 @@ public class SyntacticLoader {
 		return TabNt;
 	}
 
-	public SyntacticLoader(TabCreate argTab) {
+	public SyntacticLoader(TableCreate argTab) {
 		MaxT = 0;
 		MaxNt = 0;
 		IndPrim = 1;
 		NoMax = 0;
-		TabCreate t = argTab;
+		TableCreate t = argTab;
 		String tab[][] = t.getTab();
 		TabT = new TabNode[t.getNLines() + 1];
 		TabNt = new TabNode[t.getNLines() + 1];

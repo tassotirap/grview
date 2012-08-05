@@ -11,7 +11,7 @@ import org.grview.parser.ParsingEditor;
 import org.grview.project.tree.FileTree;
 import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
-import org.grview.syntax.TabCreate;
+import org.grview.syntax.TableCreate;
 import org.grview.syntax.analyzer.gsll1.Analyzer;
 import org.grview.syntax.analyzer.gsll1.exportable.Exporter;
 import org.grview.syntax.command.AsinEditor;
@@ -26,18 +26,18 @@ public class Controller {
 	public static void generateAndParseCurrentGrammar(boolean export) {
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
-		GrammarFactory gf = new GrammarFactory(AsinEditor.getInstance());
+		GrammarFactory grammarFactory = new GrammarFactory(AsinEditor.getInstance());
 		String grammar = null;
 		boolean validated = false;
 		try {
-			grammar = gf.run(false);
+			grammar = grammarFactory.run(false);
 			validated = (grammar != null && !grammar.equals(""));
 		}
 		catch (Exception ex) {
 			validated = false;
 			errorFound(ex);
 		}
-		Grammar absGrammar = gf.getAbsGrammar();
+		Grammar absGrammar = grammarFactory.getAbsGrammar();
 		if (absGrammar != null) {
 			GrammarRule gr = new GSLL1Rules(absGrammar, false);
 			try {
@@ -50,14 +50,14 @@ public class Controller {
 		}
 		if (validated) {
 	
-			TabCreate tc = new TabCreate(grammar, false);
-			SyntacticLoader cs = new SyntacticLoader(tc);
-			ParsingEditor pe = ParsingEditor.getInstance().build();
+			TableCreate tableCreate = new TableCreate(grammar, false);
+			SyntacticLoader syntacticLoader = new SyntacticLoader(tableCreate);
+			ParsingEditor parsingEditor = ParsingEditor.getInstance().build();
 			SemanticRoutinesIvoker.getLastInstance().configureAndLoad();
 			if (export) {
 				try {
-					new Exporter(cs, pe.getRootPath()).export();
-					FileTree.reload(pe.getRootPath());
+					new Exporter(syntacticLoader, parsingEditor.getRootPath()).export();
+					FileTree.reload(parsingEditor.getRootPath());
 				} catch (FileNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -66,7 +66,7 @@ public class Controller {
 					e.printStackTrace();
 				}
 			}
-			pe.setSyntacticLoader(cs);
+			parsingEditor.setSyntacticLoader(syntacticLoader);
 		}
 	}
 	
