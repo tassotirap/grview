@@ -393,7 +393,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 					{
 						semFile = p.getSemFile().get(p.getVersion()).getAbsolutePath();
 					}
-					if (semFile != null && ProjectManager.isUnsaved(semFile))
+					if (semFile != null && ProjectManager.hasUnsavedView(semFile))
 					{
 						int option = JOptionPane.showConfirmDialog(popup, "A new semantic routine can not be created while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 						if (option == JOptionPane.YES_OPTION)
@@ -456,7 +456,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 						{
 							semFile = project.getSemFile().get(project.getVersion()).getAbsolutePath();
 						}
-						if (semFile != null && ProjectManager.isUnsaved(semFile))
+						if (semFile != null && ProjectManager.hasUnsavedView(semFile))
 						{
 							int option = JOptionPane.showConfirmDialog(popup, "A semantic routine can not be edited while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 							if (option == JOptionPane.YES_OPTION)

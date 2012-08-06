@@ -3,6 +3,7 @@ package org.grview.ui;
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
@@ -69,7 +70,7 @@ public abstract class Window implements PropertyChangeListener
 	/**
 	 * Views that need to be saved
 	 */
-	protected ArrayList<DynamicView> unsavedViews = new ArrayList<DynamicView>();
+	
 
 	/**
 	 * The application frame
@@ -402,10 +403,7 @@ public abstract class Window implements PropertyChangeListener
 
 	public abstract TabWindow[] getTabPage();
 
-	public ArrayList<DynamicView> getUnsavedViews()
-	{
-		return unsavedViews;
-	}
+
 
 	public void removeDummyView(int place)
 	{

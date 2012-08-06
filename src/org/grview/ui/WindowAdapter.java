@@ -68,7 +68,7 @@ public class WindowAdapter extends DockingWindowAdapter
 		if (dWindow instanceof DynamicView)
 		{
 			DynamicView dv = (DynamicView) dWindow;
-			if (window.getUnsavedViews().contains(dv))
+			if (ProjectManager.hasUnsavedView(dv))
 			{
 				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().substring(Window.UNSAVED_PREFIX.length()) + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)

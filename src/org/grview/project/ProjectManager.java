@@ -3,7 +3,9 @@ package org.grview.project;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.EventObject;
+import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
@@ -15,6 +17,7 @@ import org.grview.bsh.input.DefaultInputHandlerProvider;
 import org.grview.bsh.input.InputHandlerProvider;
 import org.grview.bsh.input.ProjectManagerInputHandler;
 import org.grview.canvas.Canvas;
+import org.grview.canvas.CanvasTemplate;
 import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;
 import org.grview.model.FileExtension;
@@ -46,8 +49,35 @@ public class ProjectManager implements ActionContextHolder
 	private Window window;
 	private Project project;
 
+	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
+
+	public static ArrayList<DynamicView> getUnsavedViews()
+	{
+		return new ArrayList<DynamicView>(unsavedViews.values());
+	}
+
+	public static void setUnsavedView(String key, DynamicView value)
+	{
+		if (!unsavedViews.containsKey(key))
+			unsavedViews.put(key, value);
+	}
+
+	public static boolean hasUnsavedView(String key)
+	{
+		return unsavedViews.containsKey(key);
+	}
+
+	public static boolean hasUnsavedView(DynamicView value)
+	{
+		return unsavedViews.containsValue(value);
+	}
+
+	public static void removeUnsavedView(String key)
+	{
+		unsavedViews.remove(key);
+	}
+
 	/* unsaved files (path) */
-	private static ArrayList<String> unsavedFiles = new ArrayList<String>();
 
 	public ProjectManager(Window window, Project project)
 	{
@@ -60,31 +90,6 @@ public class ProjectManager implements ActionContextHolder
 		addActionSet(defaultActionSet);
 		window.getFrame().addKeyListener(inputHandlerProvider.getInputHandler().getKeyEventInterceptor());
 		window.getFrame().addMouseListener(inputHandlerProvider.getInputHandler().getMouseEventInterceptor());
-	}
-
-	/**
-	 * Marks a file as unsaved
-	 * 
-	 * @param path
-	 *            the absolute path to the file
-	 */
-	public void setUnsaved(String path)
-	{
-		if (!unsavedFiles.contains(path))
-		{
-			unsavedFiles.add(path);
-		}
-	}
-
-	/**
-	 * Used to find out if a file is unsaved
-	 * 
-	 * @param path
-	 *            the absolute path to file
-	 */
-	public static boolean isUnsaved(String path)
-	{
-		return unsavedFiles.contains(path);
 	}
 
 	public static void saveFile(String st)
@@ -101,10 +106,45 @@ public class ProjectManager implements ActionContextHolder
 	{
 		saveFileExt(canvas);
 	}
+	
+	public static void saveAllFiles(StandaloneTextArea textArea)
+	{
+		FileComponent fileComponent = TextAreaRepo.getComponent((TextArea)textArea);
+		saveAllFilesExt(fileComponent.getPath());
+	}
 
 	public static void saveAllFiles(Canvas canvas)
 	{
+		GramComponent gramComponent = (GramComponent) GrammarRepo.getCompByCanvas(canvas);
+		gramComponent.saveFile();
+		saveAllFilesExt(gramComponent.getPath());
+	}
+	
+	public static void saveAllFilesExt(String projectPath)
+	{
+		File projectFile = new File(projectPath);
+		Project project = Project.getProjectByPath(projectFile.getParentFile().getAbsolutePath());
+		if (project != null)
+		{
+			MainWindow mainWindow = MainWindow.getInstance(project.getBaseDir().getAbsolutePath());
+			if (mainWindow != null)
+			{
+				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
+				{
+					Component comp = dynamicView.getComponentModel();
+					if (comp instanceof SemComponent)
+					{
+						SemComponent sem = (SemComponent) comp;
+						saveFileExt(TextAreaRepo.getComponent(sem.getTextArea()));
+					}
+					if (comp instanceof GramComponent)
+					{
+						saveFileExt(comp);
+					}
 
+				}
+			}
+		}
 	}
 
 	public static void saveFileExt(Object... params)
@@ -116,50 +156,42 @@ public class ProjectManager implements ActionContextHolder
 			Object object = params[0];
 			if (object instanceof TextArea || object instanceof FileComponent)
 			{
-				FileComponent fc;
-				if (object instanceof TextArea)
-				{
-					fc = TextAreaRepo.getComponent((TextArea) object);
-				}
-				else
-				{
-					fc = (FileComponent) object;
-				}
-				if (fc != null)
-				{
-					fc.saveFile();
-					path = fc.getPath();
-				}
+				path = saveTextAreaOrFileComponent(object);
 				componentSaved = true;
 			}
 			else if (object instanceof Canvas)
 			{
-				GramComponent gc = (GramComponent) GrammarRepo.getCompByCanvas((Canvas) object);
-				gc.saveFile();
-				path = gc.getPath();
+				path = saveGram(object);
 				componentSaved = true;
+			}
+			else if (object instanceof GramComponent)
+			{
+				GramComponent gram = (GramComponent) object;
+				gram.saveFile();
+				path = gram.getPath();
 			}
 			else if (object instanceof String)
 			{
 				path = (String) object;
 			}
 		}
-		Project project;
-		File file;
+
 		if (path != null)
 		{
-			if ((file = new File(path)).isFile())
+			File file = new File(path);
+			if (file.isFile())
 			{
 				file = file.getParentFile();
 			}
 			if (Project.isProject(file))
 			{
-				if ((project = Project.getProjectByPath(file.getAbsolutePath())) != null)
+				Project project = Project.getProjectByPath(file.getAbsolutePath());
+				if (project != null)
 				{
 					MainWindow mainWindow = MainWindow.getInstance(project.getBaseDir().getAbsolutePath());
 					if (mainWindow != null && !componentSaved)
 					{
-						for (DynamicView dynamicView : mainWindow.getUnsavedViews())
+						for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
 						{
 							Component comp = dynamicView.getComponentModel();
 							if (comp instanceof FileComponent && ((FileComponent) comp).getPath().equals(path))
@@ -173,10 +205,39 @@ public class ProjectManager implements ActionContextHolder
 						mainWindow.setSaved(path);
 					}
 					project.writeProject();
+
 					FileTree.reload(project.getProjectsRootPath());
 				}
 			}
 		}
+	}
+
+	private static String saveGram(Object object)
+	{
+		GramComponent gramComponent = (GramComponent) GrammarRepo.getCompByCanvas((Canvas) object);
+		gramComponent.saveFile();
+		return gramComponent.getPath();
+	}
+
+	private static String saveTextAreaOrFileComponent(Object object)
+	{
+		FileComponent fileComponent;
+		if (object instanceof TextArea)
+		{
+			fileComponent = TextAreaRepo.getComponent((TextArea) object);
+		}
+		else
+		{
+			fileComponent = (FileComponent) object;
+		}
+
+		if (fileComponent != null)
+		{
+			fileComponent.saveFile();
+			return fileComponent.getPath();
+		}
+
+		return null;
 	}
 
 	public void createFile(String name, FileExtension extension) throws IOException

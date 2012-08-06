@@ -376,11 +376,7 @@ public class MainWindow extends Window implements ComponentListener
 			DynamicView view = dynamicViewsByComponent.get(source);
 			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
 				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
-			unsavedViews.add(view);
-			if (source instanceof FileComponent)
-			{
-				projectManager.setUnsaved(((FileComponent) source).getPath());
-			}
+			ProjectManager.setUnsavedView(((FileComponent) source).getPath(), view);
 		}
 
 	}
@@ -441,15 +437,20 @@ public class MainWindow extends Window implements ComponentListener
 	{
 		if (dynamicViewsByPath.containsKey(path))
 		{
-			DynamicView dv = dynamicViewsByPath.get(path);
-			if (unsavedViews.contains(dv))
+			DynamicView dynamicView = dynamicViewsByPath.get(path);
+			
+			if(ProjectManager.hasUnsavedView(dynamicView))
 			{
-				unsavedViews.remove(dv);
-				if (dv.getTitle().startsWith(UNSAVED_PREFIX))
+				if (dynamicView.getTitle().startsWith(UNSAVED_PREFIX))
 				{
-					dv.getViewProperties().setTitle(dv.getTitle().substring(UNSAVED_PREFIX.length()));
+					dynamicView.getViewProperties().setTitle(dynamicView.getTitle().replace(UNSAVED_PREFIX, ""));
 				}
 			}
+			
+			while (ProjectManager.hasUnsavedView(dynamicView))
+			{
+				ProjectManager.removeUnsavedView(path);
+			}			
 		}
 	}
 

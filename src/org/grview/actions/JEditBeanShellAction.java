@@ -213,7 +213,6 @@ public class JEditBeanShellAction extends AbstractEditAction<TextArea>
 		protected void handleException(TextArea textArea, String path, Throwable t)
 		{
 			Log.log(Log.ERROR,this, t, t);
-//			new BeanShellErrorDialog(null,t);
 		}
 	} //}}}
 
