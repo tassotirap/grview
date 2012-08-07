@@ -99,7 +99,7 @@
 </ACTION>
 <ACTION NAME="saveall">
 	<CODE>
-		ProjectManager.saveAllFiles(canvas);
+		ProjectManager.saveAllFiles();
 	</CODE>
 </ACTION>
 <ACTION NAME="undo">

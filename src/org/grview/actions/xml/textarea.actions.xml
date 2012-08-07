@@ -396,7 +396,7 @@
 </ACTION>
 <ACTION NAME="saveall">
 	<CODE>
-		ProjectManager.saveAllFiles(textArea);
+		ProjectManager.saveAllFiles();
 	</CODE>
 </ACTION>
 <ACTION NAME="scroll-down-line">

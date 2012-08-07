@@ -385,7 +385,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Project p = Project.getProjectByPath(new File(CanvasFactory.getCanvasPath(canvas)).getParent());
+				Project p = ProjectManager.getProject();
 				if (p != null)
 				{
 					String semFile = null;
@@ -448,7 +448,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					Project project = Project.getProjectByPath(new File(CanvasFactory.getCanvasPath(canvas)).getParent());
+					Project project = ProjectManager.getProject();
 					if (project != null)
 					{
 						String semFile = null;

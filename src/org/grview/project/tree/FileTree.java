@@ -44,16 +44,16 @@ public class FileTree implements TreeModelListener {
 	public FileTree(Project project) {
 		this.project = project;
 		instance = this;
-		ftInstances.put(project.getBaseDir().getAbsolutePath(), instance);
+		ftInstances.put(project.getProjectDir().getAbsolutePath(), instance);
 		tree = new JTree();
 		CustomTreeCellRenderer renderer = new CustomTreeCellRenderer();
 		tree.setCellRenderer(renderer);
 		tree.setEditable(true);
-		tree.setModel(getFileSystemModel(project.getBaseDir().getAbsolutePath()));
+		tree.setModel(getFileSystemModel(project.getProjectDir().getAbsolutePath()));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new FileTreeSelectionListener());
 		tree.addMouseListener(new FileTreeMouseListener());
-		getFileSystemModel(project.getBaseDir().getAbsolutePath()).addTreeModelListener(this);
+		getFileSystemModel(project.getProjectDir().getAbsolutePath()).addTreeModelListener(this);
 	}
 
 	private static FileSystemModel getFileSystemModel(String rootPath) {
@@ -131,7 +131,7 @@ public class FileTree implements TreeModelListener {
 		TreeFile node = (TreeFile)treePath.getLastPathComponent();
 		if (node.isFile()) {
 			String path = node.getAbsolutePath();
-			MainWindow mw = MainWindow.getInstance(project.getBaseDir().getAbsolutePath());
+			MainWindow mw = MainWindow.getInstance(project.getProjectDir().getAbsolutePath());
 			mw.getProjectManager().openFile(path);
 		}
 	}

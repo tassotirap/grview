@@ -70,11 +70,6 @@ public class MainWindow extends Window implements ComponentListener
 	private String id;
 
 	/**
-	 * Sets the path to the root directory of the current projects
-	 */
-	private String projectsRootPath = "Projects";
-
-	/**
 	 * The one and only root window
 	 */
 	private RootWindow rootWindow;
@@ -100,9 +95,6 @@ public class MainWindow extends Window implements ComponentListener
 
 	private static HashMap<String, MainWindow> instances;
 
-	/** the current project **/
-	private Project project;
-
 	/** the current project manager **/
 	private ProjectManager projectManager;
 
@@ -112,9 +104,7 @@ public class MainWindow extends Window implements ComponentListener
 	 * **/
 	private MainWindow(String projectsRootPath)
 	{
-		this.projectsRootPath = projectsRootPath;
-		this.project = Project.restoreProject(projectsRootPath);
-		this.projectManager = new ProjectManager(this, project);
+		this.projectManager = new ProjectManager(this, projectsRootPath);
 		createRootWindow();
 		setDefaultLayout();
 		this.id = getNewID();
@@ -129,7 +119,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private void createDefaultViews()
 	{
-		activeScene = CanvasFactory.createCanvas(project.getGrammarFile().get(project.getVersion()));
+		activeScene = CanvasFactory.createCanvas(ProjectManager.getProject().getGrammarFile().get(ProjectManager.getProject().getVersion()));
 		try
 		{
 			ArrayList<TabItem> tabItems = createTabs();
@@ -146,10 +136,10 @@ public class MainWindow extends Window implements ComponentListener
 				windowAdapter.updateViews(view, true);
 			}
 
-			ArrayList<File> files = project.getOpenedFiles();
+			ArrayList<File> files = ProjectManager.getProject().getOpenedFiles();
 			if (files.size() == 0)
 			{
-				project.getOpenedFiles().add(project.getGrammarFile().get(project.getVersion()));
+				ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile().get(ProjectManager.getProject().getVersion()));
 			}
 			for (int i = 0; i < files.size(); i++)
 			{
@@ -284,13 +274,13 @@ public class MainWindow extends Window implements ComponentListener
 	private ArrayList<TabItem> createTabs() throws BadParameterException
 	{
 		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-		tabItems.add(new TabItem("Project", new ProjectsComponent().create(project), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(ProjectManager.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
 		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
 		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
 		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
 		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
 		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-		tabItems.add(new TabItem("Parser", new ParserComponent().create(project.getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(ProjectManager.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 		return tabItems;
 	}
 
@@ -384,7 +374,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public Project getProject()
 	{
-		return project;
+		return ProjectManager.getProject();
 	}
 
 	@Override
@@ -420,8 +410,8 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void renameFile(String oldName, String newName)
 	{
-		String oldTitle = oldName.replace(projectsRootPath, "").replace("\\", "").replace("/", "");
-		String newTitle = newName.replace(projectsRootPath, "").replace("\\", "").replace("/", "");
+		String oldTitle = oldName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
+		String newTitle = newName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
 		for (DynamicView view : dynamicViewsById.values())
 		{
 			if (view.getTitle().equals(oldTitle))

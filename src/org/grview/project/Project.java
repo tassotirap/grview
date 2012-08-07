@@ -32,8 +32,8 @@ public class Project implements Serializable
 
 	private static final long serialVersionUID = -6812190878328950994L;
 	private ArrayList<File> openedFiles;
-	public final String projectsRootPath;
-	public final File baseDir;
+	// public final String projectsRootPath;
+	// public final File baseDir;
 
 	private HashMap<Version, File> grammarFile = new HashMap<Version, File>();
 	private HashMap<Version, File> lexFile = new HashMap<Version, File>();
@@ -62,6 +62,8 @@ public class Project implements Serializable
 
 	/** this project's properties **/
 	private Properties properties;
+	
+	private File projectDir;
 
 	/**
 	 * the AsinEditor instance, that holds a representation of the current
@@ -69,7 +71,8 @@ public class Project implements Serializable
 	 **/
 	private AsinEditor asinEditor;
 
-	private transient static HashMap<String, Project> projectByRootPath = new HashMap<String, Project>();
+	// private transient static HashMap<String, Project> projectByRootPath = new
+	// HashMap<String, Project>();
 
 	public Project(String projectsRootPath)
 	{
@@ -78,8 +81,7 @@ public class Project implements Serializable
 
 	private Project(String projectsRootPath, ArrayList<File> openedFiles)
 	{
-		this.projectsRootPath = projectsRootPath;
-		baseDir = new File(projectsRootPath);
+		this.projectDir = new File(projectsRootPath);
 		try
 		{
 			if (openedFiles == null)
@@ -90,7 +92,6 @@ public class Project implements Serializable
 			{
 				this.openedFiles = openedFiles;
 			}
-			projectByRootPath.put(projectsRootPath, this);
 		}
 		catch (Exception e)
 		{
@@ -130,9 +131,9 @@ public class Project implements Serializable
 			{
 				projectsRootPath += "/";
 			}
-			File file = new File(projectsRootPath + METADATA_FILENAME);
-			FileInputStream fileInputStream = new FileInputStream(file);
-			if (file.length() > 0)
+			File metaFile = new File(projectsRootPath + METADATA_FILENAME);
+			FileInputStream fileInputStream = new FileInputStream(metaFile);
+			if (metaFile.length() > 0)
 			{
 				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
 				Object object = objectInputStream.readObject();
@@ -140,7 +141,6 @@ public class Project implements Serializable
 				{
 					Project result = (Project) object;
 					AsinEditor.setInstance(result.asinEditor);
-					projectByRootPath.put(projectsRootPath, result);
 					result.init();
 					objectInputStream.close();
 					return result;
@@ -301,41 +301,6 @@ public class Project implements Serializable
 		return gramfile && semfile && lexfile && propertiesfile && metadatafile;
 	}
 
-	public static Project getProjectByPath(String rootPath)
-	{
-		if (rootPath == null)
-		{
-			return null;
-		}
-		if (projectByRootPath.containsKey(rootPath))
-		{
-			return projectByRootPath.get(rootPath);
-		}
-		else if (projectByRootPath.containsKey(rootPath.replace("\\", "/")))
-		{
-			return projectByRootPath.get(rootPath.replace("\\", "/"));
-		}
-		else if (rootPath.endsWith("/") || rootPath.endsWith("\\"))
-		{
-			if (projectByRootPath.containsKey(rootPath.substring(0, rootPath.length() - 1)))
-				return projectByRootPath.get(rootPath.substring(0, rootPath.length() - 1));
-		}
-		else if (projectByRootPath.containsKey(rootPath + "/"))
-		{
-			return projectByRootPath.get(rootPath + "/");
-		}
-		else if (projectByRootPath.containsKey(rootPath + "\\"))
-		{
-			return projectByRootPath.get(rootPath + "\\");
-		}
-		File parent = new File(rootPath).getParentFile();
-		if (parent != null)
-		{
-			return getProjectByPath(parent.getAbsolutePath());
-		}
-		return null;
-	}
-
 	public ArrayList<File> getOpenedFiles()
 	{
 		return openedFiles;
@@ -343,12 +308,12 @@ public class Project implements Serializable
 
 	public String getProjectsRootPath()
 	{
-		return projectsRootPath;
+		return projectDir.getAbsolutePath();
 	}
 
-	public File getBaseDir()
+	public File getProjectDir()
 	{
-		return baseDir;
+		return projectDir;
 	}
 
 	public HashMap<Version, File> getGrammarFile()

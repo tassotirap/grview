@@ -47,7 +47,7 @@ public class ProjectManager implements ActionContextHolder
 	private InputHandlerProvider inputHandlerProvider;
 
 	private Window window;
-	private Project project;
+	private static Project project;
 
 	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
 
@@ -79,10 +79,11 @@ public class ProjectManager implements ActionContextHolder
 
 	/* unsaved files (path) */
 
-	public ProjectManager(Window window, Project project)
+	public ProjectManager(Window window, String projectPath)
 	{
 		this.window = window;
-		this.project = project;
+		Project project = Project.restoreProject(projectPath);		
+		ProjectManager.setProject(project);
 		initInputHandler();
 		DefaultActionSet defaultActionSet = new DefaultActionSet(this);
 		defaultActionSet.load();
@@ -106,27 +107,17 @@ public class ProjectManager implements ActionContextHolder
 	{
 		saveFileExt(canvas);
 	}
-	
-	public static void saveAllFiles(StandaloneTextArea textArea)
+
+	public static void saveAllFiles()
 	{
-		FileComponent fileComponent = TextAreaRepo.getComponent((TextArea)textArea);
-		saveAllFilesExt(fileComponent.getPath());
+		saveAllFilesExt();
 	}
 
-	public static void saveAllFiles(Canvas canvas)
+	public static void saveAllFilesExt()
 	{
-		GramComponent gramComponent = (GramComponent) GrammarRepo.getCompByCanvas(canvas);
-		gramComponent.saveFile();
-		saveAllFilesExt(gramComponent.getPath());
-	}
-	
-	public static void saveAllFilesExt(String projectPath)
-	{
-		File projectFile = new File(projectPath);
-		Project project = Project.getProjectByPath(projectFile.getParentFile().getAbsolutePath());
-		if (project != null)
+		if (getProject() != null)
 		{
-			MainWindow mainWindow = MainWindow.getInstance(project.getBaseDir().getAbsolutePath());
+			MainWindow mainWindow = MainWindow.getInstance(getProject().getProjectDir().getAbsolutePath());
 			if (mainWindow != null)
 			{
 				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
@@ -176,39 +167,27 @@ public class ProjectManager implements ActionContextHolder
 			}
 		}
 
-		if (path != null)
+		if (getProject() != null)
 		{
-			File file = new File(path);
-			if (file.isFile())
+			MainWindow mainWindow = MainWindow.getInstance(getProject().getProjectDir().getAbsolutePath());
+			if (mainWindow != null && !componentSaved)
 			{
-				file = file.getParentFile();
-			}
-			if (Project.isProject(file))
-			{
-				Project project = Project.getProjectByPath(file.getAbsolutePath());
-				if (project != null)
+				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
 				{
-					MainWindow mainWindow = MainWindow.getInstance(project.getBaseDir().getAbsolutePath());
-					if (mainWindow != null && !componentSaved)
+					Component comp = dynamicView.getComponentModel();
+					if (comp instanceof FileComponent && ((FileComponent) comp).getPath().equals(path))
 					{
-						for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
-						{
-							Component comp = dynamicView.getComponentModel();
-							if (comp instanceof FileComponent && ((FileComponent) comp).getPath().equals(path))
-							{
-								((FileComponent) comp).saveFile();
-							}
-						}
+						((FileComponent) comp).saveFile();
 					}
-					if (mainWindow != null)
-					{
-						mainWindow.setSaved(path);
-					}
-					project.writeProject();
-
-					FileTree.reload(project.getProjectsRootPath());
 				}
 			}
+			if (mainWindow != null)
+			{
+				mainWindow.setSaved(path);
+			}
+			getProject().writeProject();
+
+			FileTree.reload(getProject().getProjectsRootPath());
 		}
 	}
 
@@ -244,35 +223,35 @@ public class ProjectManager implements ActionContextHolder
 	{
 		if (extension.getExtension().equals(FileExtension.GRAM_FILE))
 		{
-			if (project.getGrammarFile().get(project.getVersion()) != null)
+			if (getProject().getGrammarFile().get(getProject().getVersion()) != null)
 			{
 				JOptionPane.showMessageDialog(null, "Only one grammar file is allowed by project.", "Could not create file", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else if (extension.getExtension().equals(FileExtension.SEM_FILE))
 		{
-			if (project.getSemFile().get(project.getVersion()) != null)
+			if (getProject().getSemFile().get(getProject().getVersion()) != null)
 			{
 				JOptionPane.showMessageDialog(null, "Only one semantic routines file is allowed by project.", "Could not create file", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else if (extension.getExtension().equals(FileExtension.LEX_FILE))
 		{
-			if (project.getLexFile().get(project.getVersion()) != null)
+			if (getProject().getLexFile().get(getProject().getVersion()) != null)
 			{
 				JOptionPane.showMessageDialog(null, "Only one lexical scanner file is allowed by project.", "Could not create file", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else if (extension.getExtension().equals(FileExtension.OUT_FILE))
 		{
-			if (project.getLexFile().get(project.getVersion()) != null)
+			if (getProject().getLexFile().get(getProject().getVersion()) != null)
 			{
 				JOptionPane.showMessageDialog(null, "This kind of file is not supported yet", "Could not create file", JOptionPane.INFORMATION_MESSAGE);
 			}
 		}
 		else
 		{
-			File baseDir = project.getBaseDir();
+			File baseDir = getProject().getProjectDir();
 			File newFile = null;
 			if (extension != null)
 			{
@@ -351,8 +330,8 @@ public class ProjectManager implements ActionContextHolder
 					AdvancedTextAreaComponent atac = new AdvancedTextAreaComponent(null);
 					window.addComponent(atac.create(path), atac, file.getName(), path, IconRepository.getInstance().TXT_ICON, Window.CENTER_TABS);
 				}
-				project.getOpenedFiles().add(new File(path));
-				project.writeProject();
+				getProject().getOpenedFiles().add(new File(path));
+				getProject().writeProject();
 			}
 			catch (Exception ex)
 			{
@@ -369,15 +348,15 @@ public class ProjectManager implements ActionContextHolder
 	 */
 	public void closeFile(String fileName)
 	{
-		for (File file : project.getOpenedFiles())
+		for (File file : getProject().getOpenedFiles())
 		{
 			if (file.getAbsolutePath().equals(fileName))
 			{
-				project.getOpenedFiles().remove(file);
+				getProject().getOpenedFiles().remove(file);
 				break;
 			}
 		}
-		project.writeProject();
+		getProject().writeProject();
 	}
 
 	/**
@@ -389,7 +368,7 @@ public class ProjectManager implements ActionContextHolder
 	 */
 	public boolean isFileOpen(String fileName)
 	{
-		for (File f : project.getOpenedFiles())
+		for (File f : getProject().getOpenedFiles())
 		{
 			if (f.getAbsolutePath().equals(fileName))
 				return true;
@@ -400,7 +379,7 @@ public class ProjectManager implements ActionContextHolder
 	public void renameFile(String oldName, String newName)
 	{
 		File fr = null;
-		for (File f : project.getOpenedFiles())
+		for (File f : getProject().getOpenedFiles())
 		{
 			if (f.getAbsolutePath().equals(oldName))
 			{
@@ -408,24 +387,24 @@ public class ProjectManager implements ActionContextHolder
 				break;
 			}
 		}
-		if (fr != null && project.getOpenedFiles().contains(fr))
+		if (fr != null && getProject().getOpenedFiles().contains(fr))
 		{
-			project.getOpenedFiles().remove(fr);
-			project.getOpenedFiles().add(new File(newName));
+			getProject().getOpenedFiles().remove(fr);
+			getProject().getOpenedFiles().add(new File(newName));
 		}
 		if (oldName.endsWith(FileExtension.GRAM_FILE))
 		{
-			project.getGrammarFile().put(project.getVersion(), new File(newName));
+			getProject().getGrammarFile().put(getProject().getVersion(), new File(newName));
 		}
 		else if (oldName.endsWith(FileExtension.SEM_FILE))
 		{
-			project.getSemFile().put(project.getVersion(), new File(newName));
+			getProject().getSemFile().put(getProject().getVersion(), new File(newName));
 		}
 		else if (oldName.endsWith(FileExtension.LEX_FILE))
 		{
-			project.getLexFile().put(project.getVersion(), new File(newName));
+			getProject().getLexFile().put(getProject().getVersion(), new File(newName));
 		}
-		project.writeProject();
+		getProject().writeProject();
 	}
 
 	/**
@@ -470,6 +449,16 @@ public class ProjectManager implements ActionContextHolder
 	public AsinActionContext<ProjectManagerBeanShellAction, AsinActionSet<ProjectManagerBeanShellAction>> getActionContext()
 	{
 		return actionContext;
+	}
+
+	public static Project getProject()
+	{
+		return project;
+	}
+
+	public static void setProject(Project project)
+	{
+		ProjectManager.project = project;
 	}
 
 	/**
