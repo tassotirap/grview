@@ -444,7 +444,7 @@ public class InputAdapterComponent extends AdapterComponent {
 	}
 
 	@Override
-	public void ContentChanged(Component source, Object oldValue,
+	public void ContentChanged(AbstractComponent source, Object oldValue,
 			Object newValue) {
 		fireContentChanged();
 		if (ia.getCodeTextArea().getBufferLength() > 0) {

@@ -18,7 +18,7 @@ import org.grview.output.SyntaxErrorOutput;
 import org.grview.output.TokenOutput;
 
 
-public class OutputComponent extends Component {
+public class OutputComponent extends AbstractComponent {
 
 	public final static String ICONS_PATH = "/org/grview/images/";
 	

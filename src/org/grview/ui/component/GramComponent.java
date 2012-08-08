@@ -15,10 +15,10 @@ import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.state.StaticStateManager;
-import org.grview.ui.ToolBar;
+import org.grview.ui.ToolBar.ToolBarGrammar;
 import org.grview.util.Log;
 
-public class GramComponent extends Component implements FileComponent, PropertyChangeListener
+public class GramComponent extends AbstractComponent implements FileComponent, PropertyChangeListener
 {
 
 	String path;
@@ -43,18 +43,7 @@ public class GramComponent extends Component implements FileComponent, PropertyC
 			this.canvas = canvas;
 			JScrollPane jsp = new JScrollPane();
 			JComponent view = canvas.createView();
-			ToolBar toolBar = ToolBar.getInstance();
-			ToolBar.ToolBarGrammar<Canvas> toolBarGrammar = toolBar.new ToolBarGrammar<Canvas>(canvas)
-			{
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				public AbstractEditAction<Canvas> getAction(String action)
-				{
-					return canvas.getActionContext().getAction(action);
-				}
-
-			};
+			ToolBarGrammar toolBarGrammar = new ToolBarGrammar(canvas);
 			toolBarGrammar.initLayout();
 			toolBarGrammar.initActions();
 			toolBarGrammar.setLayout(new BoxLayout(toolBarGrammar, BoxLayout.PAGE_AXIS));

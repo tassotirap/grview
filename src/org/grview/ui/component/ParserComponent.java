@@ -26,7 +26,7 @@ import org.grview.parser.ParsingEditor;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ParserComponent extends Component
+public class ParserComponent extends AbstractComponent
 {
 
 	private JButton open;

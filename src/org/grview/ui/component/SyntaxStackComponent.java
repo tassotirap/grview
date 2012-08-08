@@ -7,7 +7,7 @@ import org.grview.canvas.Canvas;
 import org.grview.output.SyntaxStack;
 
 
-public class SyntaxStackComponent extends Component {
+public class SyntaxStackComponent extends AbstractComponent {
 
 	@Override
 	public JComponent create(Object param) throws BadParameterException {

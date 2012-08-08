@@ -16,7 +16,7 @@ import org.grview.editor.TextAreaBufferListener;
 import org.grview.editor.syntax.ModeProvider;
 import org.grview.util.Log;
 
-public class AdvancedTextAreaComponent extends Component implements FileComponent
+public class AdvancedTextAreaComponent extends AbstractComponent implements FileComponent
 {
 
 	protected TextArea textArea;

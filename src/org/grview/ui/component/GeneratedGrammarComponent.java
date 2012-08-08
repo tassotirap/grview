@@ -7,7 +7,7 @@ import org.grview.canvas.Canvas;
 import org.grview.output.GeneratedGrammar;
 
 
-public class GeneratedGrammarComponent extends Component {
+public class GeneratedGrammarComponent extends AbstractComponent {
 
 	@Override
 	public JComponent create(Object param) throws BadParameterException {

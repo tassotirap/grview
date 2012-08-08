@@ -41,6 +41,8 @@ import org.grview.model.ui.IconRepository;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
+import org.grview.ui.ToolBar.CommandBar;
+import org.grview.ui.ToolBar.ToolBarNewFile;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
 import org.grview.ui.component.FileComponent;
@@ -84,7 +86,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private DockingWindowsTheme currentTheme = new ShapedGradientDockingTheme();
 
-	@SuppressWarnings("unchecked")
+
 	private Vector<DynamicView> defaultLayout[] = new Vector[6];
 
 	/**
@@ -144,7 +146,7 @@ public class MainWindow extends Window implements ComponentListener
 			for (int i = 0; i < files.size(); i++)
 			{
 				String name = files.get(i).getName();
-				org.grview.ui.component.Component component = createFileComponent(name.substring(name.lastIndexOf(".")));
+				org.grview.ui.component.AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
 
 				if (component != null)
 				{
@@ -170,7 +172,7 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
-	private void createMenuModel(String name, org.grview.ui.component.Component component)
+	private void createMenuModel(String name, org.grview.ui.component.AbstractComponent component)
 	{
 		MenuModel model = new MenuModel();
 		model.save = true;
@@ -197,7 +199,7 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
-	private org.grview.ui.component.Component createFileComponent(String type)
+	private org.grview.ui.component.AbstractComponent createFileComponent(String type)
 	{
 		if (type.equalsIgnoreCase(FileExtension.GRAM_FILE))
 			return new GramComponent();
@@ -313,10 +315,9 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	protected ToolBar.CommandBar<ProjectManager> getNewFileToolBar()
+	protected CommandBar<ProjectManager> getNewFileToolBar()
 	{
-		ToolBar tb = ToolBar.getInstance();
-		ToolBar.ToolBarNewFile<ProjectManager> toolBarNewFile = tb.new ToolBarNewFile<ProjectManager>(projectManager)
+		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>(projectManager)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -347,7 +348,7 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	public DynamicView addComponent(Component component, org.grview.ui.component.Component componentModel, String title, String fileName, Icon icon, int place)
+	public DynamicView addComponent(Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place)
 	{
 		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, getDynamicViewId());
 		if (componentModel != null)
@@ -359,7 +360,7 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	public void ContentChanged(org.grview.ui.component.Component source, Object oldValue, Object newValue)
+	public void ContentChanged(org.grview.ui.component.AbstractComponent source, Object oldValue, Object newValue)
 	{
 		if (dynamicViewsByComponent.containsKey(source))
 		{
@@ -428,19 +429,19 @@ public class MainWindow extends Window implements ComponentListener
 		if (dynamicViewsByPath.containsKey(path))
 		{
 			DynamicView dynamicView = dynamicViewsByPath.get(path);
-			
-			if(ProjectManager.hasUnsavedView(dynamicView))
+
+			if (ProjectManager.hasUnsavedView(dynamicView))
 			{
 				if (dynamicView.getTitle().startsWith(UNSAVED_PREFIX))
 				{
 					dynamicView.getViewProperties().setTitle(dynamicView.getTitle().replace(UNSAVED_PREFIX, ""));
 				}
 			}
-			
+
 			while (ProjectManager.hasUnsavedView(dynamicView))
 			{
 				ProjectManager.removeUnsavedView(path);
-			}			
+			}
 		}
 	}
 

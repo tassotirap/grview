@@ -3,7 +3,6 @@ package org.grview.project;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.EventObject;
 import java.util.HashMap;
 
@@ -17,7 +16,6 @@ import org.grview.bsh.input.DefaultInputHandlerProvider;
 import org.grview.bsh.input.InputHandlerProvider;
 import org.grview.bsh.input.ProjectManagerInputHandler;
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasTemplate;
 import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;
 import org.grview.model.FileExtension;
@@ -26,8 +24,8 @@ import org.grview.project.tree.FileTree;
 import org.grview.ui.DynamicView;
 import org.grview.ui.MainWindow;
 import org.grview.ui.Window;
+import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdvancedTextAreaComponent;
-import org.grview.ui.component.Component;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GramComponent;
 import org.grview.ui.component.GrammarRepo;
@@ -122,15 +120,15 @@ public class ProjectManager implements ActionContextHolder
 			{
 				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
 				{
-					Component comp = dynamicView.getComponentModel();
-					if (comp instanceof SemComponent)
+					AbstractComponent abstractComponent = dynamicView.getComponentModel();
+					if (abstractComponent instanceof AdvancedTextAreaComponent)
 					{
-						SemComponent sem = (SemComponent) comp;
-						saveFileExt(TextAreaRepo.getComponent(sem.getTextArea()));
+						AdvancedTextAreaComponent advancedTextAreaComponent = (AdvancedTextAreaComponent) abstractComponent;
+						saveFileExt(TextAreaRepo.getComponent(advancedTextAreaComponent.getTextArea()));
 					}
-					if (comp instanceof GramComponent)
+					if (abstractComponent instanceof GramComponent)
 					{
-						saveFileExt(comp);
+						saveFileExt(abstractComponent);
 					}
 
 				}
@@ -174,7 +172,7 @@ public class ProjectManager implements ActionContextHolder
 			{
 				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
 				{
-					Component comp = dynamicView.getComponentModel();
+					AbstractComponent comp = dynamicView.getComponentModel();
 					if (comp instanceof FileComponent && ((FileComponent) comp).getPath().equals(path))
 					{
 						((FileComponent) comp).saveFile();

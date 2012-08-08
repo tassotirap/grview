@@ -7,13 +7,13 @@ import org.grview.canvas.Canvas;
 
 public abstract class GrammarRepo {
 
-	private static HashMap<Canvas, Component>  compByCanvas = new HashMap<Canvas, Component>();
+	private static HashMap<Canvas, AbstractComponent>  compByCanvas = new HashMap<Canvas, AbstractComponent>();
 
-	public static Component getCompByCanvas(Canvas canvas) {
+	public static AbstractComponent getCompByCanvas(Canvas canvas) {
 		return compByCanvas.get(canvas);
 	}
 	
-	public static void addGramComponent(Canvas canvas, Component comp) {
+	public static void addGramComponent(Canvas canvas, AbstractComponent comp) {
 		compByCanvas.put(canvas, comp);
 	}
 	

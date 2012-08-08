@@ -17,7 +17,7 @@ import org.grview.parser.ParserProxyFactory;
 import org.grview.ui.Window;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.BadParameterException;
-import org.grview.ui.component.Component;
+import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.util.JarFileLoader;

@@ -11,8 +11,8 @@ import net.infonode.docking.View;
 
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.project.ProjectManager;
-import org.grview.ui.component.Component;
-import org.grview.ui.component.DullComponent;
+import org.grview.ui.component.AbstractComponent;
+import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GramComponent;
 import org.grview.util.Log;
@@ -34,7 +34,7 @@ public class WindowAdapter extends DockingWindowAdapter
 		super.viewFocusChanged(ov, nv);
 		if (nv instanceof DynamicView)
 		{
-			Component comp = ((DynamicView) nv).getComponentModel();
+			AbstractComponent comp = ((DynamicView) nv).getComponentModel();
 			window.updateFocusedComponent(comp);
 		}
 	}
@@ -45,8 +45,8 @@ public class WindowAdapter extends DockingWindowAdapter
 		if (addedWindow instanceof DynamicView)
 		{
 			updateViews(addedWindow, true);
-			Component comp = ((DynamicView) addedWindow).getComponentModel();
-			if (!(comp instanceof DullComponent))
+			AbstractComponent comp = ((DynamicView) addedWindow).getComponentModel();
+			if (!(comp instanceof EmptyComponent))
 			{
 				if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(addedWindow) >= 0)
 				{
@@ -70,7 +70,7 @@ public class WindowAdapter extends DockingWindowAdapter
 			DynamicView dv = (DynamicView) dWindow;
 			if (ProjectManager.hasUnsavedView(dv))
 			{
-				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().substring(Window.UNSAVED_PREFIX.length()) + "' before closing?");
+				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
 				if (option == JOptionPane.YES_OPTION && dv.getComponentModel() instanceof GramComponent)

@@ -5,7 +5,7 @@ import java.awt.BorderLayout;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 
-public class DullComponent2 extends Component {
+public class DullComponent2 extends AbstractComponent {
 
 	@Override
 	public JComponent create(Object param) throws BadParameterException {

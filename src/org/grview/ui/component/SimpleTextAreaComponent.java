@@ -8,7 +8,7 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class SimpleTextAreaComponent extends Component {
+public class SimpleTextAreaComponent extends AbstractComponent {
 
 	/**
 	 * Creates a view component containing a simple text area.

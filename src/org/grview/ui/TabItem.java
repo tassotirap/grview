@@ -3,7 +3,7 @@ package org.grview.ui;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
-import org.grview.ui.component.Component;
+import org.grview.ui.component.AbstractComponent;
 
 public class TabItem {
 	private String title;

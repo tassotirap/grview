@@ -6,7 +6,7 @@ import org.grview.canvas.Canvas;
 import org.grview.canvas.OutlineTopComponent;
 
 
-public class OutlineComponent extends Component {
+public class OutlineComponent extends AbstractComponent {
 
 	/**
 	 * Creates an outline component showing the canvas

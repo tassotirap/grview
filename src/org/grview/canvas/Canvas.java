@@ -129,10 +129,10 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
 		initInputHandler();
-		DefaultActionSet defaultActionSet = new DefaultActionSet(this);
-		defaultActionSet.load();
-		defaultActionSet.initKeyBindings(); // not working yet
-		addActionSet(defaultActionSet);
+//		DefaultActionSet defaultActionSet = new DefaultActionSet(this);
+//		defaultActionSet.load();
+//		defaultActionSet.initKeyBindings(); // not working yet
+//		addActionSet(defaultActionSet);
 		createCursors();
 	}
 
@@ -601,37 +601,37 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	/**
 	 * The default action set for canvas
 	 */
-	protected static class DefaultActionSet extends AsinActionSet<CanvasBeanShellAction>
-	{
-		private final Canvas canvas;
-
-		DefaultActionSet(Canvas canvas)
-		{
-			super(null, Canvas.class.getResource("/org/grview/actions/xml/canvas.actions.xml"));
-			this.canvas = canvas;
-		}
-
-		@Override
-		protected CanvasBeanShellAction[] getArray(int size)
-		{
-			return new CanvasBeanShellAction[size];
-		}
-
-		@Override
-		protected String getProperty(String name)
-		{
-			return null;
-		}
-
-		public AbstractInputHandler<?> getInputHandler()
-		{
-			return canvas.getInputHandler();
-		}
-
-		@Override
-		protected CanvasBeanShellAction createBeanShellAction(String actionName, String code, String selected, boolean noRepeat, boolean noRecord, boolean noRememberLast)
-		{
-			return new CanvasBeanShellAction(actionName, code);
-		}
-	}
+//	protected static class DefaultActionSet extends AsinActionSet<CanvasBeanShellAction>
+//	{
+//		private final Canvas canvas;
+//
+//		DefaultActionSet(Canvas canvas)
+//		{
+//			super(null, Canvas.class.getResource("/org/grview/actions/xml/canvas.actions.xml"));
+//			this.canvas = canvas;
+//		}
+//
+//		@Override
+//		protected CanvasBeanShellAction[] getArray(int size)
+//		{
+//			return new CanvasBeanShellAction[size];
+//		}
+//
+//		@Override
+//		protected String getProperty(String name)
+//		{
+//			return null;
+//		}
+//
+//		public AbstractInputHandler<?> getInputHandler()
+//		{
+//			return canvas.getInputHandler();
+//		}
+//
+//		@Override
+//		protected CanvasBeanShellAction createBeanShellAction(String actionName, String code, String selected, boolean noRepeat, boolean noRecord, boolean noRememberLast)
+//		{
+//			return new CanvasBeanShellAction(actionName, code);
+//		}
+//	}
 }

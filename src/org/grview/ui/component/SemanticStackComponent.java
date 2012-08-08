@@ -7,7 +7,7 @@ import org.grview.canvas.Canvas;
 import org.grview.output.SemanticStack;
 
 
-public class SemanticStackComponent extends Component {
+public class SemanticStackComponent extends AbstractComponent {
 
 	@Override
 	public JComponent create(Object param) throws BadParameterException {

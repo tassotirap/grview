@@ -6,25 +6,29 @@ import javax.swing.JScrollPane;
 import org.grview.project.Project;
 import org.grview.project.tree.FileTree;
 
-
-public class ProjectsComponent extends Component {
+public class ProjectsComponent extends AbstractComponent
+{
 
 	@Override
-	public JComponent create(Object param) throws BadParameterException {
+	public JComponent create(Object param) throws BadParameterException
+	{
 		Project project;
-		if (param instanceof Project) {
+		if (param instanceof Project)
+		{
 			project = (Project) param;
-			FileTree ft = new FileTree(project);
-			JScrollPane jsp = new JScrollPane(ft.getView());
-			return jsp;
+			FileTree fileTree = new FileTree(project);
+			JScrollPane jScrollPane = new JScrollPane(fileTree.getView());
+			return jScrollPane;
 		}
-		else {
+		else
+		{
 			throw new BadParameterException("A Reference to a directoty was expected.");
 		}
 	}
 
 	@Override
-	public void fireContentChanged() {}
-	
+	public void fireContentChanged()
+	{
+	}
 
 }

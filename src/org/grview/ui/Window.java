@@ -2,8 +2,6 @@ package org.grview.ui;
 
 import java.awt.BorderLayout;
 import java.beans.PropertyChangeListener;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
@@ -26,10 +24,13 @@ import org.grview.parser.ParsingEditor;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
+import org.grview.ui.ToolBar.CommandBar;
+import org.grview.ui.ToolBar.ToolBarCanvas;
+import org.grview.ui.ToolBar.ToolBarFile;
 import org.grview.ui.component.AdapterComponent;
 import org.grview.ui.component.BadParameterException;
-import org.grview.ui.component.Component;
-import org.grview.ui.component.DullComponent;
+import org.grview.ui.component.AbstractComponent;
+import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GramComponent;
 import org.grview.ui.component.TextAreaRepo;
@@ -59,18 +60,13 @@ public abstract class Window implements PropertyChangeListener
 	 * Contains the dynamic views that have been added to the root window,
 	 * mapped by its component
 	 */
-	protected HashMap<Component, DynamicView> dynamicViewsByComponent = new HashMap<Component, DynamicView>();
+	protected HashMap<AbstractComponent, DynamicView> dynamicViewsByComponent = new HashMap<AbstractComponent, DynamicView>();
 
 	/**
 	 * Contains the dynamic views that have been added to the root window, the
 	 * filename of it's component, when there is one
 	 */
 	protected HashMap<String, DynamicView> dynamicViewsByPath = new HashMap<String, DynamicView>();
-
-	/**
-	 * Views that need to be saved
-	 */
-	
 
 	/**
 	 * The application frame
@@ -86,20 +82,16 @@ public abstract class Window implements PropertyChangeListener
 
 	protected WindowAdapter windowAdapter;
 
-	/* tool bars dictionary, the default toolbar, and the current toolbar */
 	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
 
-	private JComponent defToolBar; // default toolbar
+	private JComponent defaultToolBar;
 
-	private JComponent curToolBar; // current toolbar
+	private JComponent currentToolBar;
 
 	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
 
-	// ---------------- GETTERS AND SETTERS
-	// -------------------------------------
-
-	private JMenuBar defMenuBar;
-	private JMenuBar curMenuBar;
+	private JMenuBar defaultMenuBar;
+	private JMenuBar currentMenuBar;
 
 	public Window()
 	{
@@ -111,6 +103,21 @@ public abstract class Window implements PropertyChangeListener
 	{
 		frame = new JFrame(title);
 		frame.setName(DEFAULT_NAME);
+	}
+
+	/**
+	 * Create Drawable Canvas Toolbar
+	 * @param ref
+	 * @param toolBar
+	 * @return
+	 */
+	private <T extends ActionContextHolder> ToolBarCanvas createToolBarCanvas(final T ref)
+	{
+		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas)ref);
+		toolBarCanvas.initLayout();
+		toolBarCanvas.initActions();
+		toolBarCanvas.setLayout(new BoxLayout(toolBarCanvas, BoxLayout.LINE_AXIS));
+		return toolBarCanvas;
 	}
 
 	/**
@@ -133,16 +140,14 @@ public abstract class Window implements PropertyChangeListener
 		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
 		panel.add(getNewFileToolBar());
 
-		ToolBar toolBar = ToolBar.getInstance();
-
 		if (enableToolBarFile)
 		{
-			ToolBar.ToolBarFile<T> toolBarFile = createToolBarFile(ref, toolBar);
+			ToolBarFile<T> toolBarFile = createToolBarFile(ref);
 			panel.add(toolBarFile);
 		}
 		if (enableToolBarCanvas)
 		{
-			ToolBar.ToolBarCanvas<T> toolBarCanvas = createToolBarCanvas(ref, toolBar);
+			ToolBarCanvas toolBarCanvas = createToolBarCanvas(ref);
 			panel.add(toolBarCanvas);
 		}
 		return panel;
@@ -150,29 +155,9 @@ public abstract class Window implements PropertyChangeListener
 	}
 
 	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> ToolBar.ToolBarCanvas<T> createToolBarCanvas(final T ref, ToolBar toolBar)
+	private <T extends ActionContextHolder> ToolBarFile<T> createToolBarFile(final T ref)
 	{
-		ToolBar.ToolBarCanvas<T> toolBarCanvas = toolBar.new ToolBarCanvas<T>(ref)
-		{
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public AbstractEditAction<T> getAction(String action)
-			{
-				return ref.getActionContext().getAction(action);
-			}
-		};
-		toolBarCanvas.initLayout();
-		toolBarCanvas.initActions();
-		toolBarCanvas.setLayout(new BoxLayout(toolBarCanvas, BoxLayout.LINE_AXIS));
-		return toolBarCanvas;
-	}
-
-	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> ToolBar.ToolBarFile<T> createToolBarFile(final T ref, ToolBar toolBar)
-	{
-		ToolBar.ToolBarFile<T> toolBarFile = toolBar.new ToolBarFile<T>(ref)
+		ToolBarFile<T> toolBarFile = new ToolBarFile<T>(ref)
 		{
 			private static final long serialVersionUID = 1L;
 
@@ -203,11 +188,11 @@ public abstract class Window implements PropertyChangeListener
 	 */
 	protected void addMenuBar(JMenuBar menuBar, boolean replace, boolean repaint)
 	{
-		if (curMenuBar != null)
+		if (currentMenuBar != null)
 		{
 			frame.setMenuBar(null);
 		}
-		curMenuBar = menuBar;
+		currentMenuBar = menuBar;
 		frame.setJMenuBar(menuBar);
 		if (repaint)
 		{
@@ -229,11 +214,11 @@ public abstract class Window implements PropertyChangeListener
 	 */
 	protected void addToolBar(JComponent toolBar, boolean replace, boolean repaint)
 	{
-		if (replace && curToolBar != null)
+		if (replace && currentToolBar != null)
 		{
-			frame.getContentPane().remove(curToolBar);
+			frame.getContentPane().remove(currentToolBar);
 		}
-		curToolBar = toolBar;
+		currentToolBar = toolBar;
 		frame.getContentPane().add(toolBar, BorderLayout.NORTH);
 		if (repaint)
 		{
@@ -252,10 +237,10 @@ public abstract class Window implements PropertyChangeListener
 	{
 		if (context == null)
 		{
-			if (defMenuBar == null)
+			if (defaultMenuBar == null)
 			{
-				defMenuBar = createMenuBarExt(null, model);
-				return defMenuBar;
+				defaultMenuBar = createMenuBarExt(null, model);
+				return defaultMenuBar;
 			}
 		}
 		if (!menuBars.containsKey(context))
@@ -275,10 +260,10 @@ public abstract class Window implements PropertyChangeListener
 	{
 		if (ref == null)
 		{
-			if (defToolBar == null)
+			if (defaultToolBar == null)
 			{
-				defToolBar = createToolBarExt(ref, false, false);
-				return defToolBar;
+				defaultToolBar = createToolBarExt(ref, false, false);
+				return defaultToolBar;
 			}
 		}
 		if (!toolBars.containsKey(ref) || ref instanceof AdapterComponent)
@@ -288,14 +273,14 @@ public abstract class Window implements PropertyChangeListener
 		return toolBars.get(ref);
 	}
 
-	protected abstract ToolBar.CommandBar<ProjectManager> getNewFileToolBar();
+	protected abstract CommandBar<ProjectManager> getNewFileToolBar();
 
 	/**
 	 * Initializes the frame and shows it.
 	 */
 	protected abstract void showFrame();
 
-	public abstract DynamicView addComponent(java.awt.Component component, org.grview.ui.component.Component componentModel, String title, String fileName, Icon icon, int place);
+	public abstract DynamicView addComponent(java.awt.Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place);
 
 	// ---------------- DEFs AND CONs
 	// -------------------------------------------
@@ -310,8 +295,8 @@ public abstract class Window implements PropertyChangeListener
 	{
 		try
 		{
-			DullComponent dc = new DullComponent();
-			dummyViews.put(place, addComponent(dc.create(null), dc, "Empty Page", null, Window.VIEW_ICON, place));
+			EmptyComponent emptyComponent = new EmptyComponent();
+			dummyViews.put(place, addComponent(emptyComponent.create(null), emptyComponent, "Empty Page", null, Window.VIEW_ICON, place));
 		}
 		catch (BadParameterException e)
 		{
@@ -327,11 +312,12 @@ public abstract class Window implements PropertyChangeListener
 	 *            the context instance
 	 * @return a new menubar
 	 */
-	
+
 	@SuppressWarnings("rawtypes")
 	public <E extends ActionContextHolder> JMenuBar createMenuBarExt(E context, MenuModel model)
 	{
-		Menu<E> menu = new Menu<E>(new String[] { Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, getProjectManager(), context, model);
+		Menu<E> menu = new Menu<E>(new String[]
+		{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, getProjectManager(), context, model);
 		menu.build();
 		return menu;
 	}
@@ -360,7 +346,7 @@ public abstract class Window implements PropertyChangeListener
 		return view;
 	}
 
-	public HashMap<Component, DynamicView> getDynamicViewByComponent()
+	public HashMap<AbstractComponent, DynamicView> getDynamicViewByComponent()
 	{
 		return dynamicViewsByComponent;
 	}
@@ -403,8 +389,6 @@ public abstract class Window implements PropertyChangeListener
 
 	public abstract TabWindow[] getTabPage();
 
-
-
 	public void removeDummyView(int place)
 	{
 		if (dummyViews.containsKey(place))
@@ -417,7 +401,7 @@ public abstract class Window implements PropertyChangeListener
 
 	public abstract void renameFile(String oldName, String newName);
 
-	public void updateFocusedComponent(Component comp)
+	public void updateFocusedComponent(AbstractComponent comp)
 	{
 		// TODO should identify the parser in a more elegant way
 		if (comp == null)

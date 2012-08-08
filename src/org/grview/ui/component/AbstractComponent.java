@@ -4,32 +4,39 @@ import java.util.ArrayList;
 
 import javax.swing.JComponent;
 
-public abstract class Component {
-
+public abstract class AbstractComponent
+{
 	protected JComponent jComponent;
 	protected ArrayList<ComponentListener> listeners = new ArrayList<ComponentListener>();
-	
+
 	public abstract JComponent create(Object param) throws BadParameterException;
-	
-	public void addComponentListener(ComponentListener listener) {
-		if (!listeners.contains(listener)) {
+
+	public void addComponentListener(ComponentListener listener)
+	{
+		if (!listeners.contains(listener))
+		{
 			listeners.add(listener);
 		}
 	}
-	
-	public void removeComponentListener(ComponentListener listener) {
-		if (listeners.contains(listener)) {
+
+	public void removeComponentListener(ComponentListener listener)
+	{
+		if (listeners.contains(listener))
+		{
 			listeners.remove(listener);
 		}
 	}
-	
+
 	public abstract void fireContentChanged();
-	
+
 	/**
-	 * Gets the current component, It can be NULL!!, even if this component was created already
+	 * Gets the current component, It can be NULL!!, even if this component was
+	 * created already
+	 * 
 	 * @return the current component
 	 */
-	public JComponent getJComponent() {
+	public JComponent getJComponent()
+	{
 		return jComponent;
 	}
 }

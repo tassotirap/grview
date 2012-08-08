@@ -120,7 +120,7 @@
 </ACTION>
 <ACTION NAME="build">
 	<CODE>
-		Controller.generateAndParseCurrentGrammar(false);
+		
 	</CODE>
 </ACTION>
 <ACTION NAME="zoom+">

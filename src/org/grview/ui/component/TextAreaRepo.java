@@ -5,10 +5,10 @@ import org.grview.editor.TextArea;
 
 public class TextAreaRepo
 {
-	private static HashMap<Component, TextArea> textAreaByComponent = new HashMap<Component, TextArea>();
+	private static HashMap<AbstractComponent, TextArea> textAreaByComponent = new HashMap<AbstractComponent, TextArea>();
 	private static HashMap<TextArea, FileComponent> componentByTextArea = new HashMap<TextArea, FileComponent>();
 
-	public static void register(Component component, TextArea textArea)
+	public static void register(AbstractComponent component, TextArea textArea)
 	{
 		textAreaByComponent.put(component, textArea);
 		if (component instanceof FileComponent)
@@ -17,7 +17,7 @@ public class TextAreaRepo
 		}
 	}
 
-	public static void remove(Component comp)
+	public static void remove(AbstractComponent comp)
 	{
 		if (textAreaByComponent.containsKey(comp))
 		{
@@ -37,7 +37,7 @@ public class TextAreaRepo
 		}
 	}
 
-	public static TextArea getTextArea(Component comp)
+	public static TextArea getTextArea(AbstractComponent comp)
 	{
 		if (textAreaByComponent.containsKey(comp))
 		{

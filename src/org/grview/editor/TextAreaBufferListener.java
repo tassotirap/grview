@@ -2,14 +2,14 @@ package org.grview.editor;
 
 import org.grview.editor.buffer.BufferListener;
 import org.grview.editor.buffer.JEditBuffer;
-import org.grview.ui.component.Component;
+import org.grview.ui.component.AbstractComponent;
 
 
 public class TextAreaBufferListener implements BufferListener {
 
-	private Component parent;
+	private AbstractComponent parent;
 	
-	public TextAreaBufferListener(Component parent) {
+	public TextAreaBufferListener(AbstractComponent parent) {
 		this.parent = parent;
 	}
 	
