@@ -16,13 +16,17 @@ import javax.swing.border.EmptyBorder;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
+import org.grview.canvas.action.WidgetCopyPasteProvider;
+import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.editor.TextArea;
+import org.grview.project.ProjectManager;
+import org.grview.util.ComponentPrinter;
 import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
 
-public abstract class ToolBarFile<E> extends CommandBar<E>
+public class ToolBarFile<E> extends CommandBar<E>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -43,8 +47,10 @@ public abstract class ToolBarFile<E> extends CommandBar<E>
 	JButton btnPaste = new JButton(new ImageIcon(pasteURL));
 	JButton btnUndo = new JButton(new ImageIcon(undoURL));
 	JButton btnRedo = new JButton(new ImageIcon(redoURL));
-	JButton[] buttons = new JButton[] { btnSave, btnSaveAll, btnPrint, btnCopy, btnCut, btnPaste, btnUndo, btnRedo };
-	String[] names = new String[] { LangHelper.save, LangHelper.save_all, LangHelper.print, LangHelper.copy, LangHelper.cut, LangHelper.paste, LangHelper.undo, LangHelper.redo };
+	JButton[] buttons = new JButton[]
+	{ btnSave, btnSaveAll, btnPrint, btnCopy, btnCut, btnPaste, btnUndo, btnRedo };
+	String[] names = new String[]
+	{ LangHelper.save, LangHelper.save_all, LangHelper.print, LangHelper.copy, LangHelper.cut, LangHelper.paste, LangHelper.undo, LangHelper.redo };
 	HashMap<String, String[]> contextEnabledMap = new HashMap<String, String[]>();
 
 	E context;
@@ -61,8 +67,10 @@ public abstract class ToolBarFile<E> extends CommandBar<E>
 		{
 			buttons[i].setName(names[i]);
 		}
-		contextEnabledMap.put(MAIN_TB_CANVAS, new String[] { btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
-		contextEnabledMap.put(MAIN_TB_TEXTAREA, new String[] { btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
+		contextEnabledMap.put(MAIN_TB_CANVAS, new String[]
+		{ btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
+		contextEnabledMap.put(MAIN_TB_TEXTAREA, new String[]
+		{ btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
 		this.add(btnSave);
 		btnSave.setEnabled(true);
 		this.add(btnSaveAll);
@@ -156,19 +164,116 @@ public abstract class ToolBarFile<E> extends CommandBar<E>
 	@Override
 	public void initActions()
 	{
-		for (final JButton button : buttons)
+		if (context instanceof Canvas)
 		{
-			button.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent evt)
-				{
-					JButton button = (JButton) evt.getSource();
-					getAction(button.getName().replaceAll(" ", "").toLowerCase()).invoke(context);
-				}
-
-			});
+			setCanvasSave((Canvas)context);
 		}
+		else
+		{
+			for (final JButton button : buttons)
+			{
+				button.addActionListener(new ActionListener()
+				{
+					@Override
+					public void actionPerformed(ActionEvent evt)
+					{
+						JButton button = (JButton) evt.getSource();
+						//getAction(button.getName().replaceAll(" ", "").toLowerCase()).invoke(context);
+					}
+
+				});
+			}
+		}
+	}
+
+	private void setCanvasSave(final Canvas canvas)
+	{
+
+		btnSave.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ProjectManager.saveFile(canvas);
+			}
+
+		});
+		btnSaveAll.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ProjectManager.saveAllFiles();
+			}
+
+		});
+		btnPrint.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ComponentPrinter.printWidget(canvas);
+			}
+
+		});
+		btnCopy.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				WidgetCopyPasteProvider wcpp = new WidgetCopyPasteProvider(canvas);
+				wcpp.copySelected();
+			}
+
+		});
+		btnCut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				WidgetCopyPasteProvider wcpp = new WidgetCopyPasteProvider(canvas);
+				WidgetDeleteProvider wdp = new WidgetDeleteProvider(canvas);
+				wcpp.cutSelected(wdp);
+			}
+
+		});
+		btnPaste.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				WidgetCopyPasteProvider wcpp = new WidgetCopyPasteProvider(canvas);
+				wcpp.paste(null);
+			}
+
+		});
+		btnUndo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				VolatileStateManager vsm = canvas.getVolatileStateManager();
+				if (vsm.hasNextUndo())
+				{
+					vsm.undo();
+				}
+			}
+
+		});
+		btnRedo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				VolatileStateManager vsm = canvas.getVolatileStateManager();
+				if (vsm.hasNextRedo())
+				{
+					vsm.redo();
+				}
+			}
+
+		});
+
 	}
 
 	@Override

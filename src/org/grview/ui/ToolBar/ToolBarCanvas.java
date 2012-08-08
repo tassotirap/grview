@@ -160,11 +160,4 @@ public class ToolBarCanvas extends CommandBar<Canvas>
 	{
 
 	}
-
-	@Override
-	public AbstractEditAction getAction(String action)
-	{
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

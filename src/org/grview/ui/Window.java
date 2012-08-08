@@ -157,18 +157,7 @@ public abstract class Window implements PropertyChangeListener
 	@SuppressWarnings("rawtypes")
 	private <T extends ActionContextHolder> ToolBarFile<T> createToolBarFile(final T ref)
 	{
-		ToolBarFile<T> toolBarFile = new ToolBarFile<T>(ref)
-		{
-			private static final long serialVersionUID = 1L;
-
-			@SuppressWarnings("unchecked")
-			@Override
-			public AbstractEditAction<T> getAction(String action)
-			{
-				return ref.getActionContext().getAction(action);
-			}
-
-		};
+		ToolBarFile<T> toolBarFile = new ToolBarFile<T>(ref);
 		toolBarFile.initLayout();
 		toolBarFile.initActions();
 		toolBarFile.setLayout(new BoxLayout(toolBarFile, BoxLayout.LINE_AXIS));

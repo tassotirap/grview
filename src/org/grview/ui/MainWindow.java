@@ -317,16 +317,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	protected CommandBar<ProjectManager> getNewFileToolBar()
 	{
-		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>(projectManager)
-		{
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public AbstractEditAction<ProjectManager> getAction(String action)
-			{
-				return projectManager.getActionContext().getAction(action);
-			}
-		};
+		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>(projectManager);
 		toolBarNewFile.initLayout();
 		toolBarNewFile.initActions();
 		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));

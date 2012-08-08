@@ -43,8 +43,10 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 	JButton btnLambdaAlternative = new JButton(new ImageIcon(lambdaAlternativeURL));
 	JButton btnLabel = new JButton(new ImageIcon(labelURL));
 	JButton btnStart = new JButton(new ImageIcon(startURL));
-	JButton[] buttons = new JButton[] { btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnNTerminal, btnTerminal, btnLambdaAlternative, btnLabel, btnStart };
-	String[] names = new String[] { LangHelper.select, LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
+	JButton[] buttons = new JButton[]
+	{ btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnNTerminal, btnTerminal, btnLambdaAlternative, btnLabel, btnStart };
+	String[] names = new String[]
+	{ LangHelper.select, LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
 
 	Canvas canvas;
 
@@ -142,18 +144,88 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 	@Override
 	public void initActions()
 	{
-		for (final JButton bt : buttons)
-		{
-			bt.addActionListener(new ActionListener()
-			{
-				@Override
-				public void actionPerformed(ActionEvent evt)
-				{
-					getAction(bt.getName().replaceAll(" ", "").toLowerCase()).invoke(canvas);
-				}
 
-			});
-		}
+		btnSelect.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.SELECT);
+			}
+
+		});
+		btnSucessor.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.SUCCESSOR);
+			}
+
+		});
+		btnAlternative.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.ALTERNATIVE);
+			}
+
+		});
+		btnLeftHand.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.LEFT_SIDE);
+			}
+
+		});
+		btnNTerminal.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.N_TERMINAL);
+			}
+
+		});
+		btnTerminal.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.TERMINAL);
+			}
+
+		});
+		btnLambdaAlternative.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.LAMBDA);
+			}
+
+		});
+		btnLabel.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.LABEL);
+			}
+
+		});
+		btnStart.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				canvas.setActiveTool(Canvas.START);
+			}
+
+		});
 	}
 
 	@Override
@@ -176,12 +248,5 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 	public void propertyChange(PropertyChangeEvent event)
 	{
 
-	}
-
-	@Override
-	public AbstractEditAction<Canvas> getAction(String action)
-	{
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

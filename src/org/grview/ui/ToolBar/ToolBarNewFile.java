@@ -20,7 +20,7 @@ import org.grview.util.Log;
 
 import com.jidesoft.icons.ColorFilter;
 
-public abstract class ToolBarNewFile<E> extends CommandBar<E>
+public class ToolBarNewFile<E> extends CommandBar<E>
 {
 	private static final long serialVersionUID = 1L;
 
@@ -115,48 +115,48 @@ public abstract class ToolBarNewFile<E> extends CommandBar<E>
 	@Override
 	public void initActions()
 	{
-		ddbNewFile.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				AbstractEditAction<E> action = getAction(LangHelper.new_file.toLowerCase());
-				if (action != null)
-					action.invoke(context);
-				else
-					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.new_file);
-			}
-		});
-		ddbOpenFile.addActionListener(new ActionListener()
-		{
-
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				AbstractEditAction<E> action = getAction(LangHelper.open_file.toLowerCase());
-				if (action != null)
-					action.invoke(context);
-				else
-					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.open_file);
-			}
-		});
-		for (final JMenuItem item : mItems)
-		{
-			item.addActionListener(new ActionListener()
-			{
-
-				@Override
-				public void actionPerformed(ActionEvent e)
-				{
-					AbstractEditAction<E> action = getAction(actionNameByItem.get(item).replace(" ", "_").toLowerCase());
-					if (action != null)
-						action.invoke(context);
-					else
-						Log.log(Log.ERROR, this, "Could not invoke action -> " + actionNameByItem.get(item));
-				}
-			});
-		}
+//		ddbNewFile.addActionListener(new ActionListener()
+//		{
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e)
+//			{
+//				AbstractEditAction<E> action = getAction(LangHelper.new_file.toLowerCase());
+//				if (action != null)
+//					action.invoke(context);
+//				else
+//					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.new_file);
+//			}
+//		});
+//		ddbOpenFile.addActionListener(new ActionListener()
+//		{
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e)
+//			{
+//				AbstractEditAction<E> action = getAction(LangHelper.open_file.toLowerCase());
+//				if (action != null)
+//					action.invoke(context);
+//				else
+//					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.open_file);
+//			}
+//		});
+//		for (final JMenuItem item : mItems)
+//		{
+//			item.addActionListener(new ActionListener()
+//			{
+//
+//				@Override
+//				public void actionPerformed(ActionEvent e)
+//				{
+//					AbstractEditAction<E> action = getAction(actionNameByItem.get(item).replace(" ", "_").toLowerCase());
+//					if (action != null)
+//						action.invoke(context);
+//					else
+//						Log.log(Log.ERROR, this, "Could not invoke action -> " + actionNameByItem.get(item));
+//				}
+//			});
+//		}
 	}
 
 	@Override
