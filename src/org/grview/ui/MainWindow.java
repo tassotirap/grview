@@ -108,6 +108,7 @@ public class MainWindow extends Window implements ComponentListener
 	{
 		this.projectManager = new ProjectManager(this, projectsRootPath);
 		createRootWindow();
+		
 		setDefaultLayout();
 		this.id = getNewID();
 		CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);

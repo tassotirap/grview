@@ -28,7 +28,7 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 	E context;
 	ProjectManager projectManager;
 	int contextDesc;
-	MenuModel model; 
+	MenuModel model;
 
 	public final static int DEFAULT_CONTEXT = 0;
 	public final static int CANVAS_CONTEXT = 1;
@@ -119,11 +119,43 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		JMenuItem save = new JMenuItem(LangHelper.save);
 		save.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK));
 		JMenuItem saveAll = new JMenuItem(LangHelper.save_all);
-		saveAll.setEnabled(false);
+		saveAll.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				ProjectManager.saveAllFiles();				
+			}
+		});
+		
+		
 		saveAll.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
 		JMenuItem saveAs = new JMenuItem(LangHelper.save_as + DOTS);
 		saveAs.setEnabled(false);
+		
+		save.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				ProjectManager.saveFile(context);				
+			}
+		});
+		
 		JMenuItem print = new JMenuItem(LangHelper.print + DOTS);
+		
+		print.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				ProjectManager.print(context);				
+			}
+		});
+		
 		print.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK));
 		JMenu exportAs = new JMenu("Export As");
 		JMenuItem png = new JMenuItem("PNG File" + DOTS);
@@ -142,6 +174,18 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		print.setEnabled(model.print);
 		JMenuItem quit = new JMenuItem("Quit");
 		quit.setEnabled(true);
+
+		quit.addActionListener(new ActionListener()
+		{
+
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				System.exit(0);
+
+			}
+		});
+
 		PMbuttons.add(nFile.getText());
 		PMbuttons.add(oFile.getText());
 		PMbuttons.add(nProject.getText());
@@ -154,19 +198,6 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		Ebuttons.add(png.getText());
 		Ebuttons.add(ebnf.getText());
 
-		MenuListener menuListener = new MenuListener(PMbuttons, Ebuttons);
-
-		nFile.addActionListener(menuListener);
-		nProject.addActionListener(menuListener);
-		oFile.addActionListener(menuListener);
-		oProject.addActionListener(menuListener);
-		save.addActionListener(menuListener);
-		saveAll.addActionListener(menuListener);
-		saveAs.addActionListener(menuListener);
-		print.addActionListener(menuListener);
-		png.addActionListener(menuListener);
-		ebnf.addActionListener(menuListener);
-		quit.addActionListener(menuListener);
 		mFile.add(nFile);
 		mFile.add(nProject);
 		mFile.add(new JSeparator());
@@ -243,14 +274,8 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		Ebuttons.add(paste.getText());
 		Ebuttons.add(zoomIn.getText());
 		Ebuttons.add(zoomOut.getText());
-		JMenuItem[] items = new JMenuItem[] { undo, redo, copy, cut, paste, zoomIn, zoomOut };
-
-		MenuListener menuListener = new MenuListener(PMbuttons, Ebuttons);
-
-		for (JMenuItem item : items)
-		{
-			item.addActionListener(menuListener);
-		}
+		JMenuItem[] items = new JMenuItem[]
+		{ undo, redo, copy, cut, paste, zoomIn, zoomOut };
 
 		undo.setEnabled(model.undo);
 		redo.setEnabled(model.redo);
@@ -274,44 +299,6 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		edit.setEnabled(false);
 		return edit;
 	}
-
-	private class MenuListener implements ActionListener
-	{
-
-		ArrayList<String> PMbuttons;
-		ArrayList<String> Ebuttons;
-
-		MenuListener(ArrayList<String> PMbuttons, ArrayList<String> Ebuttons)
-		{
-			this.PMbuttons = PMbuttons;
-			this.Ebuttons = Ebuttons;
-		}
-
-		@Override
-		public void actionPerformed(ActionEvent e)
-		{
-			String sanitizedName = e.getActionCommand().toLowerCase().replace(DOTS, "").replace('.', '_').replace('-', '_').replace(" ", "_");
-			System.out.println(e.getActionCommand());
-			if (PMbuttons.contains(e.getActionCommand()))
-			{
-				AbstractEditAction<ProjectManager> actionpm = projectManager.getActionContext().getAction(sanitizedName);
-				if (actionpm != null)
-				{
-					actionpm.invoke(projectManager);
-				}
-			}
-			else if (Ebuttons.contains(e.getActionCommand()))
-			{
-				AbstractEditAction<E> actione = context.getActionContext().getAction(sanitizedName);
-				if (actione != null)
-				{
-					actione.invoke(context);
-				}
-				else
-					Log.log(Log.ERROR, this, "Could not invoke action. -> " + sanitizedName);
-			}
-		}
-	};
 
 	public static class MenuModel
 	{

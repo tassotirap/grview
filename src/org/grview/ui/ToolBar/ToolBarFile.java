@@ -14,15 +14,19 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.grview.actions.Registers;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.action.WidgetCopyPasteProvider;
 import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
+import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;
+import org.grview.editor.buffer.JEditBuffer;
 import org.grview.project.ProjectManager;
 import org.grview.util.ComponentPrinter;
 import org.grview.util.LangHelper;
+import org.grview.util.TextPrinter;
 
 import com.jidesoft.icons.ColorFilter;
 
@@ -166,27 +170,94 @@ public class ToolBarFile<E> extends CommandBar<E>
 	{
 		if (context instanceof Canvas)
 		{
-			setCanvasSave((Canvas)context);
+			setCanvasActions((Canvas)context);
 		}
-		else
+		else if (context instanceof StandaloneTextArea)
 		{
-			for (final JButton button : buttons)
-			{
-				button.addActionListener(new ActionListener()
-				{
-					@Override
-					public void actionPerformed(ActionEvent evt)
-					{
-						JButton button = (JButton) evt.getSource();
-						//getAction(button.getName().replaceAll(" ", "").toLowerCase()).invoke(context);
-					}
-
-				});
-			}
+			setTextActions((StandaloneTextArea)context);
 		}
 	}
+	
+	
+	private void setTextActions(final StandaloneTextArea textArea)
+	{
+		btnSave.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ProjectManager.saveFile(textArea);
+			}
 
-	private void setCanvasSave(final Canvas canvas)
+		});
+		btnSaveAll.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ProjectManager.saveAllFiles();
+			}
+
+		});
+		btnPrint.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				ProjectManager.print(textArea);
+			}
+
+		});
+		btnCopy.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.copy(textArea,'$');
+			}
+
+		});
+		btnCut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.cut(textArea,'$');
+			}
+
+		});
+		btnPaste.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.paste(textArea,'$',false);
+			}
+
+		});
+		btnUndo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				JEditBuffer buffer = textArea.getBuffer();
+				buffer.undo(textArea);
+			}
+
+		});
+		btnRedo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				JEditBuffer buffer = textArea.getBuffer();
+				buffer.redo(textArea);
+			}
+
+		});
+	}
+
+	private void setCanvasActions(final Canvas canvas)
 	{
 
 		btnSave.addActionListener(new ActionListener()
@@ -212,7 +283,7 @@ public class ToolBarFile<E> extends CommandBar<E>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ComponentPrinter.printWidget(canvas);
+				ProjectManager.print(canvas);
 			}
 
 		});

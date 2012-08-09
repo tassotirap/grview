@@ -35,14 +35,12 @@ import org.grview.ui.component.LexComponent;
 import org.grview.ui.component.SemComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
+import org.grview.util.ComponentPrinter;
 import org.grview.util.Log;
+import org.grview.util.TextPrinter;
 
-public class ProjectManager implements ActionContextHolder
+public class ProjectManager
 {
-
-	// provides an action context, specially for user input
-	private AsinActionContext<ProjectManagerBeanShellAction, AsinActionSet<ProjectManagerBeanShellAction>> actionContext;
-	private InputHandlerProvider inputHandlerProvider;
 
 	private Window window;
 	private static Project project;
@@ -82,36 +80,20 @@ public class ProjectManager implements ActionContextHolder
 		this.window = window;
 		Project project = Project.restoreProject(projectPath);		
 		ProjectManager.setProject(project);
-		initInputHandler();
-		DefaultActionSet defaultActionSet = new DefaultActionSet(this);
-		defaultActionSet.load();
-		defaultActionSet.initKeyBindings(); // not working yet
-		addActionSet(defaultActionSet);
-		window.getFrame().addKeyListener(inputHandlerProvider.getInputHandler().getKeyEventInterceptor());
-		window.getFrame().addMouseListener(inputHandlerProvider.getInputHandler().getMouseEventInterceptor());
 	}
 
-	public static void saveFile(String st)
+	
+	public static void print(Object object)
 	{
-		saveFileExt(st);
+		if(object instanceof Canvas)
+			ComponentPrinter.printWidget((Canvas)object);
+		else if(object instanceof StandaloneTextArea)
+			TextPrinter.printText(((StandaloneTextArea)object).getText());
+			
 	}
 
-	public static void saveFile(StandaloneTextArea sta)
-	{
-		saveFileExt(sta);
-	}
-
-	public static void saveFile(Canvas canvas)
-	{
-		saveFileExt(canvas);
-	}
 
 	public static void saveAllFiles()
-	{
-		saveAllFilesExt();
-	}
-
-	public static void saveAllFilesExt()
 	{
 		if (getProject() != null)
 		{
@@ -124,11 +106,11 @@ public class ProjectManager implements ActionContextHolder
 					if (abstractComponent instanceof AdvancedTextAreaComponent)
 					{
 						AdvancedTextAreaComponent advancedTextAreaComponent = (AdvancedTextAreaComponent) abstractComponent;
-						saveFileExt(TextAreaRepo.getComponent(advancedTextAreaComponent.getTextArea()));
+						saveFile(TextAreaRepo.getComponent(advancedTextAreaComponent.getTextArea()));
 					}
 					if (abstractComponent instanceof GramComponent)
 					{
-						saveFileExt(abstractComponent);
+						saveFile(abstractComponent);
 					}
 
 				}
@@ -136,7 +118,7 @@ public class ProjectManager implements ActionContextHolder
 		}
 	}
 
-	public static void saveFileExt(Object... params)
+	public static void saveFile(Object... params)
 	{
 		String path = null;
 		boolean componentSaved = false;
@@ -405,49 +387,6 @@ public class ProjectManager implements ActionContextHolder
 		getProject().writeProject();
 	}
 
-	/**
-	 * Creates an actionContext and initializes the input handler for this
-	 * canvas. When compared to TextArea, Canvas has an mixed approach to input
-	 * event handling, for it can deal with input through invocation of action
-	 * beans or through direct , usual, invocation, mainly when the input comes
-	 * from some widget.
-	 */
-	public void initInputHandler()
-	{
-		actionContext = new AsinActionContext<ProjectManagerBeanShellAction, AsinActionSet<ProjectManagerBeanShellAction>>()
-		{
-			@Override
-			public void invokeAction(EventObject evt, ProjectManagerBeanShellAction action)
-			{
-				action.invoke(ProjectManager.this);
-			}
-		};
-
-		inputHandlerProvider = new DefaultInputHandlerProvider(new ProjectManagerInputHandler(this)
-		{
-			@Override
-			protected ProjectManagerBeanShellAction getAction(String action)
-			{
-				return actionContext.getAction(action);
-			}
-		});
-	}
-
-	/**
-	 * Adds a new action set to the canvas's list of ActionSets.
-	 * 
-	 * @param actionSet
-	 *            the actionSet to add
-	 */
-	public void addActionSet(AsinActionSet<ProjectManagerBeanShellAction> actionSet)
-	{
-		actionContext.addActionSet(actionSet);
-	}
-
-	public AsinActionContext<ProjectManagerBeanShellAction, AsinActionSet<ProjectManagerBeanShellAction>> getActionContext()
-	{
-		return actionContext;
-	}
 
 	public static Project getProject()
 	{
@@ -457,43 +396,5 @@ public class ProjectManager implements ActionContextHolder
 	public static void setProject(Project project)
 	{
 		ProjectManager.project = project;
-	}
-
-	/**
-	 * The default action set for canvas
-	 */
-	protected static class DefaultActionSet extends AsinActionSet<ProjectManagerBeanShellAction>
-	{
-		private final ProjectManager pManager;
-
-		DefaultActionSet(ProjectManager pManager)
-		{
-			super(null, ProjectManager.class.getResource("/org/grview/actions/xml/project.actions.xml"));
-			this.pManager = pManager;
-		}
-
-		@Override
-		protected ProjectManagerBeanShellAction[] getArray(int size)
-		{
-			return new ProjectManagerBeanShellAction[size];
-		}
-
-		@Override
-		protected String getProperty(String name)
-		{
-			return null;
-		}
-
-		@SuppressWarnings("unchecked")
-		public AbstractInputHandler getInputHandler()
-		{
-			return pManager.inputHandlerProvider.getInputHandler();
-		}
-
-		@Override
-		protected ProjectManagerBeanShellAction createBeanShellAction(String actionName, String code, String selected, boolean noRepeat, boolean noRecord, boolean noRememberLast)
-		{
-			return new ProjectManagerBeanShellAction(actionName, code);
-		}
 	}
 }

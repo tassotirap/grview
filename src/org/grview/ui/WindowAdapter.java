@@ -89,7 +89,7 @@ public class WindowAdapter extends DockingWindowAdapter
 				}
 				else if (option == JOptionPane.YES_OPTION)
 				{
-					ProjectManager.saveFileExt(dv.getComponentModel());
+					ProjectManager.saveFile(dv.getComponentModel());
 				}
 			}
 		}

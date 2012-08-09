@@ -14,6 +14,8 @@ import javax.swing.JPopupMenu;
 import javax.swing.border.EmptyBorder;
 
 import org.grview.actions.AbstractEditAction;
+import org.grview.project.ProjectManager;
+import org.grview.ui.wizard.NewFileWizard;
 import org.grview.util.DropDownButton;
 import org.grview.util.LangHelper;
 import org.grview.util.Log;
@@ -27,83 +29,22 @@ public class ToolBarNewFile<E> extends CommandBar<E>
 	private final URL newURL = getClass().getResource(imgPath + "document-new.png");
 	private final URL openURL = getClass().getResource(imgPath + "document-open.png");
 
-	JMenuItem openFile = new JMenuItem(LangHelper.open_file);
-	JMenuItem openProject = new JMenuItem(LangHelper.open_project);
-	JMenuItem newFile = new JMenuItem(LangHelper.new_file);
-	JMenuItem newProject = new JMenuItem(LangHelper.new_project);
+	JButton openFile = new JButton(new ImageIcon(openURL));
+	JButton newFile = new JButton(new ImageIcon(newURL));
 
-	JMenuItem[] mItems = new JMenuItem[] { openFile, openProject, newFile, newProject };
-	HashMap<JMenuItem, String> actionNameByItem = new HashMap<JMenuItem, String>();
-
-	DropDownButton ddbNewFile = new DropDownButton()
-	{
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		protected JPopupMenu getPopupMenu()
-		{
-
-			JPopupMenu jpm = new JPopupMenu();
-			jpm.add(newFile);
-			jpm.add(newProject);
-			newProject.setEnabled(false);
-			return jpm;
-		}
-
-	};
-	DropDownButton ddbOpenFile = new DropDownButton()
-	{
-		private static final long serialVersionUID = 1L;
-
-		@Override
-		protected JPopupMenu getPopupMenu()
-		{
-
-			JPopupMenu jpm = new JPopupMenu();
-			jpm.add(openFile);
-			jpm.add(openProject);
-			openProject.setEnabled(false);
-			openFile.setEnabled(false);
-			return jpm;
-		}
-
-	};
+	HashMap<JButton, String> actionNameByItem = new HashMap<JButton, String>();
 
 	E context;
-	HashMap<String, String[]> contextEnabledMap = new HashMap<String, String[]>();
 
 	public ToolBarNewFile(E context)
 	{
 		this.context = context;
-		ddbNewFile.setName(LangHelper._new);
-		ddbOpenFile.setName(LangHelper._open);
-		ddbNewFile.setToolTipText(LangHelper._new);
-		ddbOpenFile.setToolTipText(LangHelper._open);
+
+		this.add(newFile);
+		this.add(openFile);
+
 		actionNameByItem.put(openFile, LangHelper.open_file);
-		actionNameByItem.put(openProject, LangHelper.open_project);
 		actionNameByItem.put(newFile, LangHelper.new_file);
-		actionNameByItem.put(newProject, LangHelper.new_project);
-		contextEnabledMap.put(MAIN_TB_CANVAS, new String[] { ddbNewFile.getName(), ddbOpenFile.getName() });
-		ddbNewFile.setIcon(new ImageIcon(newURL));
-		ddbOpenFile.setIcon(new ImageIcon(openURL));
-		ddbNewFile.addToToolBar(this);
-		ddbOpenFile.addToToolBar(this);
-	}
-
-	@Override
-	public HashMap<String, String[]> getContextEnabledMap()
-	{
-		return this.contextEnabledMap;
-	}
-
-	public DropDownButton getDdbNewFile()
-	{
-		return ddbNewFile;
-	}
-
-	public DropDownButton getDdbOpenFile()
-	{
-		return ddbOpenFile;
 	}
 
 	@Override
@@ -115,48 +56,27 @@ public class ToolBarNewFile<E> extends CommandBar<E>
 	@Override
 	public void initActions()
 	{
-//		ddbNewFile.addActionListener(new ActionListener()
-//		{
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e)
-//			{
-//				AbstractEditAction<E> action = getAction(LangHelper.new_file.toLowerCase());
-//				if (action != null)
-//					action.invoke(context);
-//				else
-//					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.new_file);
-//			}
-//		});
-//		ddbOpenFile.addActionListener(new ActionListener()
-//		{
-//
-//			@Override
-//			public void actionPerformed(ActionEvent e)
-//			{
-//				AbstractEditAction<E> action = getAction(LangHelper.open_file.toLowerCase());
-//				if (action != null)
-//					action.invoke(context);
-//				else
-//					Log.log(Log.ERROR, this, "Could not invoke action. -> " + LangHelper.open_file);
-//			}
-//		});
-//		for (final JMenuItem item : mItems)
-//		{
-//			item.addActionListener(new ActionListener()
-//			{
-//
-//				@Override
-//				public void actionPerformed(ActionEvent e)
-//				{
-//					AbstractEditAction<E> action = getAction(actionNameByItem.get(item).replace(" ", "_").toLowerCase());
-//					if (action != null)
-//						action.invoke(context);
-//					else
-//						Log.log(Log.ERROR, this, "Could not invoke action -> " + actionNameByItem.get(item));
-//				}
-//			});
-//		}
+		newFile.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				System.out.println("New File");
+				
+			}
+		});
+		
+		openFile.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				System.out.println("Open File");
+				
+			}
+		});
 	}
 
 	@Override
@@ -164,7 +84,8 @@ public class ToolBarNewFile<E> extends CommandBar<E>
 	{
 		this.setFloatable(false);
 		this.setAlignmentX(0.5f);
-		JButton[] buttons = new JButton[] { ddbNewFile, ddbOpenFile };
+		JButton[] buttons = new JButton[]
+		{ newFile, openFile };
 		for (int i = 0; i < buttons.length; i++)
 		{
 			JButton btn = buttons[i];
@@ -180,6 +101,13 @@ public class ToolBarNewFile<E> extends CommandBar<E>
 
 	public void propertyChange(PropertyChangeEvent event)
 	{
+	}
+
+	@Override
+	public HashMap<String, String[]> getContextEnabledMap()
+	{
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

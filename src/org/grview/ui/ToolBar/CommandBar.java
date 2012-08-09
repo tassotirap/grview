@@ -23,8 +23,6 @@ public abstract class CommandBar<E> extends JToolBar implements PropertyChangeLi
 	private static final long serialVersionUID = 1L;
 	protected E context;
 
-	//public abstract AbstractEditAction<E> getAction(String action);
-
 	public abstract HashMap<String, String[]> getContextEnabledMap();
 
 	public String getContextType()
