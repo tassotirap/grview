@@ -3,9 +3,6 @@ package org.grview.ui.ToolBar;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.beans.PropertyChangeEvent;
-import java.net.URL;
-import java.util.HashMap;
 
 import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
@@ -14,135 +11,50 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
-import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.Canvas;
 import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarGrammar extends CommandBar<Canvas>
+public class ToolBarGrammar extends BaseToolBar<Canvas>
 {
 	private static final long serialVersionUID = 1L;
 
-	private final URL selectURL = getClass().getResource(imgPath + "select.png");
-	private final URL successorURL = getClass().getResource(imgPath + "successor.png");
-	private final URL alternativeURL = getClass().getResource(imgPath + "alternative.png");
-	private final URL terminalURL = getClass().getResource(imgPath + "icon_t.png");
-	private final URL nTerminalURL = getClass().getResource(imgPath + "icon_nt.png");
-	private final URL leftHandURL = getClass().getResource(imgPath + "left_hand.png");
-	private final URL lambdaAlternativeURL = getClass().getResource(imgPath + "icon_l.png");
-	private final URL labelURL = getClass().getResource(imgPath + "label.png");
-	private final URL startURL = getClass().getResource(imgPath + "icon_s.png");
-
-	JButton btnSelect = new JButton(new ImageIcon(selectURL));
-	JButton btnSucessor = new JButton(new ImageIcon(successorURL));
-	JButton btnAlternative = new JButton(new ImageIcon(alternativeURL));
-	JButton btnLeftHand = new JButton(new ImageIcon(leftHandURL));
-	JButton btnNTerminal = new JButton(new ImageIcon(nTerminalURL));
-	JButton btnTerminal = new JButton(new ImageIcon(terminalURL));
-	JButton btnLambdaAlternative = new JButton(new ImageIcon(lambdaAlternativeURL));
-	JButton btnLabel = new JButton(new ImageIcon(labelURL));
-	JButton btnStart = new JButton(new ImageIcon(startURL));
-	JButton[] buttons = new JButton[]
-	{ btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnNTerminal, btnTerminal, btnLambdaAlternative, btnLabel, btnStart };
-	String[] names = new String[]
-	{ LangHelper.select, LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
-
-	Canvas canvas;
-
+	private JButton btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnLabel;
+	private JButton btnNTerminal, btnTerminal, btnLambdaAlternative, btnStart;
+	JButton[] buttons;
+	String[] names;
+	
 	public ToolBarGrammar(Canvas canvas)
 	{
-		this.canvas = canvas;
+		super(canvas);
 		for (int i = 0; i < buttons.length; i++)
 		{
 			buttons[i].setName(names[i]);
 		}
 		this.add(btnSelect);
-		JSeparator sep1 = new JSeparator(SwingConstants.HORIZONTAL);
-		sep1.setMaximumSize(new Dimension(100, 6));
-		this.add(sep1);
+		this.add(createJSeparator());
 		this.add(btnSucessor);
 		this.add(btnAlternative);
-		JSeparator sep2 = new JSeparator(SwingConstants.HORIZONTAL);
-		sep2.setMaximumSize(new Dimension(100, 6));
-		this.add(sep2);
+		this.add(createJSeparator());
 		this.add(btnStart);
 		this.add(btnLeftHand);
 		this.add(btnNTerminal);
 		this.add(btnTerminal);
 		this.add(btnLambdaAlternative);
-		JSeparator sep3 = new JSeparator(SwingConstants.HORIZONTAL);
-		sep3.setMaximumSize(new Dimension(100, 6));
-		this.add(sep3);
+		this.add(createJSeparator());
 		this.add(btnLabel);
 	}
 
-	public JButton getBtnAlternative()
+	private JSeparator createJSeparator()
 	{
-		return btnAlternative;
-	}
-
-	public JButton getBtnLabel()
-	{
-		return btnLabel;
-	}
-
-	public JButton getBtnLambdaAlternative()
-	{
-		return btnLambdaAlternative;
-	}
-
-	public JButton getBtnLeftHand()
-	{
-		return btnLeftHand;
-	}
-
-	public JButton getBtnNTerminal()
-	{
-		return btnNTerminal;
-	}
-
-	public JButton getBtnSelect()
-	{
-		return btnSelect;
-	}
-
-	public JButton getBtnSucessor()
-	{
-		return btnSucessor;
-	}
-
-	public JButton getBtnTerminal()
-	{
-		return btnTerminal;
-	}
-
-	public JButton[] getButtons()
-	{
-		return buttons;
+		JSeparator jSeparator = new JSeparator(SwingConstants.HORIZONTAL);
+		jSeparator.setMaximumSize(new Dimension(100, 6));
+		return jSeparator;
 	}
 
 	@Override
-	public HashMap<String, String[]> getContextEnabledMap()
-	{
-		return null;
-	}
-
-	public String[] getNames()
-	{
-		return names;
-	}
-
-	@Override
-	public String getNickname()
-	{
-		if (canvas instanceof Canvas)
-			return CANVAS_TB_CANVAS;
-		return null;
-	}
-
-	@Override
-	public void initActions()
+	protected void initActions()
 	{
 
 		btnSelect.addActionListener(new ActionListener()
@@ -150,7 +62,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.SELECT);
+				context.setActiveTool(Canvas.SELECT);
 			}
 
 		});
@@ -159,7 +71,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.SUCCESSOR);
+				context.setActiveTool(Canvas.SUCCESSOR);
 			}
 
 		});
@@ -168,7 +80,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.ALTERNATIVE);
+				context.setActiveTool(Canvas.ALTERNATIVE);
 			}
 
 		});
@@ -177,7 +89,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.LEFT_SIDE);
+				context.setActiveTool(Canvas.LEFT_SIDE);
 			}
 
 		});
@@ -186,7 +98,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.N_TERMINAL);
+				context.setActiveTool(Canvas.N_TERMINAL);
 			}
 
 		});
@@ -195,7 +107,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.TERMINAL);
+				context.setActiveTool(Canvas.TERMINAL);
 			}
 
 		});
@@ -204,7 +116,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.LAMBDA);
+				context.setActiveTool(Canvas.LAMBDA);
 			}
 
 		});
@@ -213,7 +125,7 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.LABEL);
+				context.setActiveTool(Canvas.LABEL);
 			}
 
 		});
@@ -222,14 +134,31 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				canvas.setActiveTool(Canvas.START);
+				context.setActiveTool(Canvas.START);
 			}
 
 		});
 	}
 
 	@Override
-	public void initLayout()
+	protected void initComponets()
+	{	
+		btnSelect = new JButton(new ImageIcon(getClass().getResource(imgPath + "select.png")));
+		btnSucessor = new JButton(new ImageIcon(getClass().getResource(imgPath + "successor.png")));
+		btnAlternative = new JButton(new ImageIcon(getClass().getResource(imgPath + "alternative.png")));
+		btnLeftHand = new JButton(new ImageIcon(getClass().getResource(imgPath + "left_hand.png")));
+		btnNTerminal = new JButton(new ImageIcon(getClass().getResource(imgPath + "icon_nt.png")));
+		btnTerminal = new JButton(new ImageIcon(getClass().getResource(imgPath + "icon_t.png")));
+		btnLambdaAlternative = new JButton(new ImageIcon(getClass().getResource(imgPath + "icon_l.png")));
+		btnLabel = new JButton(new ImageIcon(getClass().getResource(imgPath + "label.png")));
+		btnStart = new JButton(new ImageIcon(getClass().getResource(imgPath + "icon_s.png")));
+
+		buttons = new JButton[]{ btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnNTerminal, btnTerminal, btnLambdaAlternative, btnLabel, btnStart };
+		names = new String[]{LangHelper.select , LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
+	}
+
+	@Override
+	protected void initLayout()
 	{
 		for (int i = 0; i < buttons.length; i++)
 		{
@@ -243,10 +172,5 @@ public class ToolBarGrammar extends CommandBar<Canvas>
 			bt.setBackground(this.getBackground());
 			bt.setToolTipText(names[i]);
 		}
-	}
-
-	public void propertyChange(PropertyChangeEvent event)
-	{
-
 	}
 }

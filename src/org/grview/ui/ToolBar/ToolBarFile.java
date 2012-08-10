@@ -4,8 +4,7 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeEvent;
-import java.net.URL;
-import java.util.HashMap;
+import java.beans.PropertyChangeListener;
 
 import javax.swing.GrayFilter;
 import javax.swing.ImageIcon;
@@ -21,47 +20,25 @@ import org.grview.canvas.action.WidgetCopyPasteProvider;
 import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.editor.StandaloneTextArea;
-import org.grview.editor.TextArea;
 import org.grview.editor.buffer.JEditBuffer;
 import org.grview.project.ProjectManager;
-import org.grview.util.ComponentPrinter;
 import org.grview.util.LangHelper;
-import org.grview.util.TextPrinter;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarFile<E> extends CommandBar<E>
+public class ToolBarFile<E> extends BaseToolBar<E> implements PropertyChangeListener
 {
 	private static final long serialVersionUID = 1L;
 
-	private final URL saveURL = getClass().getResource(imgPath + "document-save.png");
-	private final URL saveAllURL = getClass().getResource(imgPath + "document-save-all.png");
-	private final URL printURL = getClass().getResource(imgPath + "document-print.png");
-	private final URL copyURL = getClass().getResource(imgPath + "edit-copy.png");
-	private final URL cutURL = getClass().getResource(imgPath + "edit-cut.png");
-	private final URL pasteURL = getClass().getResource(imgPath + "edit-paste.png");
-	private final URL undoURL = getClass().getResource(imgPath + "edit-undo.png");
-	private final URL redoURL = getClass().getResource(imgPath + "edit-redo.png");
+	private JButton btnSave, btnSaveAll, btnPrint, btnCopy;
+	private JButton btnCut, btnPaste, btnUndo, btnRedo;
 
-	JButton btnSave = new JButton(new ImageIcon(saveURL));
-	JButton btnSaveAll = new JButton(new ImageIcon(saveAllURL));
-	JButton btnPrint = new JButton(new ImageIcon(printURL));
-	JButton btnCopy = new JButton(new ImageIcon(copyURL));
-	JButton btnCut = new JButton(new ImageIcon(cutURL));
-	JButton btnPaste = new JButton(new ImageIcon(pasteURL));
-	JButton btnUndo = new JButton(new ImageIcon(undoURL));
-	JButton btnRedo = new JButton(new ImageIcon(redoURL));
-	JButton[] buttons = new JButton[]
-	{ btnSave, btnSaveAll, btnPrint, btnCopy, btnCut, btnPaste, btnUndo, btnRedo };
-	String[] names = new String[]
-	{ LangHelper.save, LangHelper.save_all, LangHelper.print, LangHelper.copy, LangHelper.cut, LangHelper.paste, LangHelper.undo, LangHelper.redo };
-	HashMap<String, String[]> contextEnabledMap = new HashMap<String, String[]>();
-
-	E context;
+	JButton[] buttons;
+	String[] names;
 
 	public ToolBarFile(E context)
 	{
-		this.context = context;
+		super(context);
 		if (context instanceof Canvas)
 		{
 			((Canvas) context).getMonitor().addPropertyChangeListener("undoable", this);
@@ -71,122 +48,33 @@ public class ToolBarFile<E> extends CommandBar<E>
 		{
 			buttons[i].setName(names[i]);
 		}
-		contextEnabledMap.put(MAIN_TB_CANVAS, new String[]
-		{ btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
-		contextEnabledMap.put(MAIN_TB_TEXTAREA, new String[]
-		{ btnSave.getName(), btnSaveAll.getName(), btnPrint.getName(), btnCopy.getName(), btnCut.getName(), btnPaste.getName(), btnUndo.getName(), btnRedo.getName() });
 		this.add(btnSave);
-		btnSave.setEnabled(true);
 		this.add(btnSaveAll);
-		btnSaveAll.setEnabled(true);
 		this.add(btnPrint);
-		btnPrint.setEnabled(true);
-		JSeparator sep1 = new JSeparator(SwingConstants.VERTICAL);
-		sep1.setMaximumSize(new Dimension(6, 100));
-		this.add(sep1);
+		this.add(createJSeparator());
 		this.add(btnCopy);
-		btnCopy.setEnabled(true);
 		this.add(btnCut);
-		btnCut.setEnabled(true);
 		this.add(btnPaste);
-		btnPaste.setEnabled(true);
-		JSeparator sep2 = new JSeparator(SwingConstants.VERTICAL);
-		sep2.setMaximumSize(new Dimension(6, 100));
-		this.add(sep2);
+		this.add(createJSeparator());
 		this.add(btnUndo);
-		btnUndo.setEnabled(true);
 		this.add(btnRedo);
-		btnRedo.setEnabled(true);
 	}
 
-	public JButton getBtnCopy()
+	private JSeparator createJSeparator()
 	{
-		return btnCopy;
+		JSeparator jSeparator = new JSeparator(SwingConstants.VERTICAL);
+		jSeparator.setMaximumSize(new Dimension(6, 100));
+		return jSeparator;
 	}
 
-	public JButton getBtnCut()
-	{
-		return btnCut;
-	}
-
-	public JButton getBtnPaste()
-	{
-		return btnPaste;
-	}
-
-	public JButton getBtnPrint()
-	{
-		return btnPrint;
-	}
-
-	public JButton getBtnRedo()
-	{
-		return btnRedo;
-	}
-
-	public JButton getBtnSave()
-	{
-		return btnSave;
-	}
-
-	public JButton getBtnSaveAll()
-	{
-		return btnSaveAll;
-	}
-
-	public JButton getBtnUndo()
-	{
-		return btnUndo;
-	}
-
-	public JButton[] getButtons()
-	{
-		return buttons;
-	}
-
-	@Override
-	public HashMap<String, String[]> getContextEnabledMap()
-	{
-		return this.contextEnabledMap;
-	}
-
-	public String[] getNames()
-	{
-		return names;
-	}
-
-	@Override
-	public String getNickname()
-	{
-		if (context instanceof Canvas)
-			return MAIN_TB_CANVAS;
-		else if (context instanceof TextArea)
-			return MAIN_TB_TEXTAREA;
-		return null;
-	}
-
-	@Override
-	public void initActions()
-	{
-		if (context instanceof Canvas)
-		{
-			setCanvasActions((Canvas)context);
-		}
-		else if (context instanceof StandaloneTextArea)
-		{
-			setTextActions((StandaloneTextArea)context);
-		}
-	}
-	
-	
-	private void setTextActions(final StandaloneTextArea textArea)
+	private void setBaseActions()
 	{
 		btnSave.addActionListener(new ActionListener()
 		{
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ProjectManager.saveFile(textArea);
+				ProjectManager.saveFile(context);
 			}
 
 		});
@@ -204,89 +92,13 @@ public class ToolBarFile<E> extends CommandBar<E>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ProjectManager.print(textArea);
+				ProjectManager.print(context);
 			}
-
-		});
-		btnCopy.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				Registers.copy(textArea,'$');
-			}
-
-		});
-		btnCut.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				Registers.cut(textArea,'$');
-			}
-
-		});
-		btnPaste.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				Registers.paste(textArea,'$',false);
-			}
-
-		});
-		btnUndo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				JEditBuffer buffer = textArea.getBuffer();
-				buffer.undo(textArea);
-			}
-
-		});
-		btnRedo.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				JEditBuffer buffer = textArea.getBuffer();
-				buffer.redo(textArea);
-			}
-
 		});
 	}
 
 	private void setCanvasActions(final Canvas canvas)
 	{
-
-		btnSave.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				ProjectManager.saveFile(canvas);
-			}
-
-		});
-		btnSaveAll.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				ProjectManager.saveAllFiles();
-			}
-
-		});
-		btnPrint.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent evt)
-			{
-				ProjectManager.print(canvas);
-			}
-
-		});
 		btnCopy.addActionListener(new ActionListener()
 		{
 			@Override
@@ -344,11 +156,91 @@ public class ToolBarFile<E> extends CommandBar<E>
 			}
 
 		});
+	}
 
+	private void setTextActions(final StandaloneTextArea textArea)
+	{
+		btnCopy.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.copy(textArea, '$');
+			}
+
+		});
+		btnCut.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.cut(textArea, '$');
+			}
+
+		});
+		btnPaste.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				Registers.paste(textArea, '$', false);
+			}
+
+		});
+		btnUndo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				JEditBuffer buffer = textArea.getBuffer();
+				buffer.undo(textArea);
+			}
+
+		});
+		btnRedo.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent evt)
+			{
+				JEditBuffer buffer = textArea.getBuffer();
+				buffer.redo(textArea);
+			}
+
+		});
 	}
 
 	@Override
-	public void initLayout()
+	protected void initActions()
+	{
+		setBaseActions();
+
+		if (context instanceof Canvas)
+		{
+			setCanvasActions((Canvas) context);
+		}
+		else if (context instanceof StandaloneTextArea)
+		{
+			setTextActions((StandaloneTextArea) context);
+		}
+	}
+
+	@Override
+	protected void initComponets()
+	{
+		btnSave = new JButton(new ImageIcon(getClass().getResource(imgPath + "document-save.png")));
+		btnSaveAll = new JButton(new ImageIcon(getClass().getResource(imgPath + "document-save-all.png")));
+		btnPrint = new JButton(new ImageIcon(getClass().getResource(imgPath + "document-print.png")));
+		btnCopy = new JButton(new ImageIcon(getClass().getResource(imgPath + "edit-copy.png")));
+		btnCut = new JButton(new ImageIcon(getClass().getResource(imgPath + "edit-cut.png")));
+		btnPaste = new JButton(new ImageIcon(getClass().getResource(imgPath + "edit-paste.png")));
+		btnUndo = new JButton(new ImageIcon(getClass().getResource(imgPath + "edit-undo.png")));
+		btnRedo = new JButton(new ImageIcon(getClass().getResource(imgPath + "edit-redo.png")));
+		buttons = new JButton[]{ btnSave, btnSaveAll, btnPrint, btnCopy, btnCut, btnPaste, btnUndo, btnRedo };
+		names = new String[]{ LangHelper.save, LangHelper.save_all, LangHelper.print, LangHelper.copy, LangHelper.cut, LangHelper.paste, LangHelper.undo, LangHelper.redo };
+	}
+
+	@Override
+	protected void initLayout()
 	{
 		for (int i = 0; i < buttons.length; i++)
 		{
@@ -364,6 +256,7 @@ public class ToolBarFile<E> extends CommandBar<E>
 		}
 	}
 
+	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{
 		if (event.getSource() instanceof Canvas)

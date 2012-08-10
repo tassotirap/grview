@@ -44,8 +44,6 @@ public class GramComponent extends AbstractComponent implements FileComponent, P
 			JScrollPane jsp = new JScrollPane();
 			JComponent view = canvas.createView();
 			ToolBarGrammar toolBarGrammar = new ToolBarGrammar(canvas);
-			toolBarGrammar.initLayout();
-			toolBarGrammar.initActions();
 			toolBarGrammar.setLayout(new BoxLayout(toolBarGrammar, BoxLayout.PAGE_AXIS));
 			JPanel canvasPanel = new JPanel();
 			canvasPanel.setLayout(new BorderLayout());

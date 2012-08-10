@@ -41,7 +41,7 @@ import org.grview.model.ui.IconRepository;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
-import org.grview.ui.ToolBar.CommandBar;
+import org.grview.ui.ToolBar.BaseToolBar;
 import org.grview.ui.ToolBar.ToolBarNewFile;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
@@ -316,11 +316,9 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	protected CommandBar<ProjectManager> getNewFileToolBar()
+	protected BaseToolBar<ProjectManager> getNewFileToolBar()
 	{
 		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>(projectManager);
-		toolBarNewFile.initLayout();
-		toolBarNewFile.initActions();
 		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
 		return toolBarNewFile;
 	}

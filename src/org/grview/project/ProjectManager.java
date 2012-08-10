@@ -44,6 +44,7 @@ public class ProjectManager
 
 	private Window window;
 	private static Project project;
+	private static ProjectManager projectManager;
 
 	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
 
@@ -80,6 +81,7 @@ public class ProjectManager
 		this.window = window;
 		Project project = Project.restoreProject(projectPath);		
 		ProjectManager.setProject(project);
+		ProjectManager.setProjectManager(this);
 	}
 
 	
@@ -396,5 +398,15 @@ public class ProjectManager
 	public static void setProject(Project project)
 	{
 		ProjectManager.project = project;
+	}
+
+	public static ProjectManager getProjectManager()
+	{
+		return projectManager;
+	}
+
+	public static void setProjectManager(ProjectManager projectManager)
+	{
+		ProjectManager.projectManager = projectManager;
 	}
 }

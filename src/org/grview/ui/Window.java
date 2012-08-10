@@ -15,7 +15,6 @@ import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 
-import org.grview.actions.AbstractEditAction;
 import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
@@ -24,12 +23,12 @@ import org.grview.parser.ParsingEditor;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
-import org.grview.ui.ToolBar.CommandBar;
+import org.grview.ui.ToolBar.BaseToolBar;
 import org.grview.ui.ToolBar.ToolBarCanvas;
 import org.grview.ui.ToolBar.ToolBarFile;
+import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdapterComponent;
 import org.grview.ui.component.BadParameterException;
-import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GramComponent;
@@ -114,8 +113,6 @@ public abstract class Window implements PropertyChangeListener
 	private <T extends ActionContextHolder> ToolBarCanvas createToolBarCanvas(final T ref)
 	{
 		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas)ref);
-		toolBarCanvas.initLayout();
-		toolBarCanvas.initActions();
 		toolBarCanvas.setLayout(new BoxLayout(toolBarCanvas, BoxLayout.LINE_AXIS));
 		return toolBarCanvas;
 	}
@@ -158,8 +155,6 @@ public abstract class Window implements PropertyChangeListener
 	private <T extends ActionContextHolder> ToolBarFile<T> createToolBarFile(final T ref)
 	{
 		ToolBarFile<T> toolBarFile = new ToolBarFile<T>(ref);
-		toolBarFile.initLayout();
-		toolBarFile.initActions();
 		toolBarFile.setLayout(new BoxLayout(toolBarFile, BoxLayout.LINE_AXIS));
 		return toolBarFile;
 	}
@@ -262,7 +257,7 @@ public abstract class Window implements PropertyChangeListener
 		return toolBars.get(ref);
 	}
 
-	protected abstract CommandBar<ProjectManager> getNewFileToolBar();
+	protected abstract BaseToolBar<ProjectManager> getNewFileToolBar();
 
 	/**
 	 * Initializes the frame and shows it.
