@@ -1,4 +1,4 @@
-package org.grview.ui.ToolBar;
+package org.grview.ui.toolbar;
 
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;

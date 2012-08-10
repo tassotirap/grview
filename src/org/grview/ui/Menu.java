@@ -11,15 +11,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
-import org.grview.actions.AbstractEditAction;
-import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.project.ProjectManager;
+import org.grview.ui.ThemeManager.Theme;
+import org.grview.ui.wizard.NewFileWizard;
 import org.grview.util.LangHelper;
-import org.grview.util.Log;
 
-public class Menu<E extends ActionContextHolder> extends JMenuBar
+public class Menu<E> extends JMenuBar
 {
 	private static final long serialVersionUID = 1L;
 
@@ -43,12 +42,11 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 	public final static String WINDOW = "Window";
 	public final static String HELP = "Help";
 
-	public Menu(String[] menus, Window window, ProjectManager projectManager, E context, MenuModel model)
+	public Menu(String[] menus, Window window, E context, MenuModel model)
 	{
 		this.window = window;
 		this.menus = new ArrayList<String>();
 		this.context = context;
-		this.projectManager = projectManager;
 		this.model = model;
 		if (context instanceof Canvas)
 		{
@@ -107,6 +105,18 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 		final ArrayList<String> Ebuttons = new ArrayList<String>();
 		JMenuItem nFile = new JMenuItem(LangHelper.new_file + DOTS);
 		nFile.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
+		
+		nFile.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				new NewFileWizard();				
+			}
+		});
+		
+		
 		JMenuItem nProject = new JMenuItem(LangHelper.new_project);
 		nProject.setEnabled(false);
 		nProject.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK + ActionEvent.SHIFT_MASK));
@@ -181,8 +191,7 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				System.exit(0);
-
+				ProjectManager.exit();
 			}
 		});
 
@@ -233,7 +242,105 @@ public class Menu<E extends ActionContextHolder> extends JMenuBar
 	private JMenu createWindowMenu()
 	{
 		JMenu windowMenu = new JMenu(WINDOW);
-		windowMenu.setEnabled(false);
+		JMenu theme = new JMenu("Change Theme");
+		JMenuItem themeBlueHighlight = new JMenuItem("Blue Highlight");
+		themeBlueHighlight.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.BlueHighlightDockingTheme);			
+			}
+		});
+		theme.add(themeBlueHighlight);
+		
+		JMenuItem themeClassic = new JMenuItem("Classic");
+		themeClassic.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.ClassicDockingTheme);			
+			}
+		});
+		theme.add(themeClassic);
+		
+		JMenuItem themeDefault = new JMenuItem("Default");
+		themeDefault.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.DefaultDockingTheme);			
+			}
+		});
+		theme.add(themeDefault);
+		
+		JMenuItem themeGradient = new JMenuItem("Gradient");
+		themeGradient.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.GradientDockingTheme);			
+			}
+		});
+		theme.add(themeGradient);
+		
+		JMenuItem themeLookAndFeel = new JMenuItem("Look And Feel");
+		themeLookAndFeel.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.LookAndFeelDockingTheme);			
+			}
+		});
+		theme.add(themeLookAndFeel);
+		
+		JMenuItem themeShapedGradient = new JMenuItem("Shaped Gradient");
+		themeShapedGradient.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.ShapedGradientDockingTheme);			
+			}
+		});
+		theme.add(themeShapedGradient);
+		
+		JMenuItem themeSlimFlatt = new JMenuItem("Slim Flat");
+		themeSlimFlatt.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.SlimFlatDockingTheme);			
+			}
+		});
+		theme.add(themeSlimFlatt);
+		
+		JMenuItem themeSoftBlueIce = new JMenuItem("Soft BlueIce");
+		themeSoftBlueIce.addActionListener(new ActionListener()
+		{
+			
+			@Override
+			public void actionPerformed(ActionEvent arg0)
+			{
+				ProjectManager.getWindow().changeTheme(Theme.SoftBlueIceDockingTheme);			
+			}
+		});
+		theme.add(themeSoftBlueIce);
+		
+		
+		windowMenu.add(theme);
 		return windowMenu;
 	}
 

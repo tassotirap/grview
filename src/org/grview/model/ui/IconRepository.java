@@ -3,7 +3,7 @@ package org.grview.model.ui;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 
-import org.grview.model.FileExtension;
+import org.grview.model.FileNames;
 
 public class IconRepository {
 
@@ -40,28 +40,28 @@ public class IconRepository {
 	}
 	
 	public static Icon getIconByFileName(String fileName) {
-		if (fileName.toLowerCase().endsWith(FileExtension.GRAM_FILE.toLowerCase())) {
+		if (fileName.toLowerCase().endsWith(FileNames.GRAM_EXTENSION.toLowerCase())) {
 			return getInstance().GRAM_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.LEX_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.LEX_EXTENSION.toLowerCase())) {
 			return getInstance().LEX_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.SEM_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.SEM_EXTENSION.toLowerCase())) {
 			return getInstance().SEM_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.TXT_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.TXT_EXTENSION.toLowerCase())) {
 			return getInstance().TXT_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.XML_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.XML_EXTENSION.toLowerCase())) {
 			return getInstance().XML_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.JAVA_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.JAVA_EXTENSION.toLowerCase())) {
 			return getInstance().JAVA_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.IN_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.IN_EXTENSION.toLowerCase())) {
 			return getInstance().IN_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileExtension.OUT_FILE.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.OUT_EXTENSION.toLowerCase())) {
 			return getInstance().OUT_ICON;
 		}
 		return new IconView();

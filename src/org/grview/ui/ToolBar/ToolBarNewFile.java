@@ -1,4 +1,4 @@
-package org.grview.ui.ToolBar;
+package org.grview.ui.toolbar;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -13,15 +13,15 @@ import org.grview.ui.wizard.NewFileWizard;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarNewFile<E> extends BaseToolBar<E>
+public class ToolBarNewFile<E> extends BaseToolBar<ProjectManager>
 {
 	private static final long serialVersionUID = 1L;
 
 	JButton btnNewFile;
 
-	public ToolBarNewFile(E context)
+	public ToolBarNewFile()
 	{
-		super(context);
+		super(null);
 		this.add(btnNewFile);
 	}
 
@@ -34,9 +34,7 @@ public class ToolBarNewFile<E> extends BaseToolBar<E>
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				new NewFileWizard(ProjectManager.getProjectManager());
-				System.out.println("New File");
-
+				new NewFileWizard();
 			}
 		});
 	}

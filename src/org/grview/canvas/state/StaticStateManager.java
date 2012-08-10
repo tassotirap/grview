@@ -40,10 +40,11 @@ public class StaticStateManager
 	public void write() throws IOException
 	{
 		monitor.firePropertyChange("writing", null, object);
-		FileOutputStream fos = new FileOutputStream(file);
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fos);
+		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 		objectOutputStream.writeObject(object);
 		objectOutputStream.close();
+		fileOutputStream.close();
 	}
 
 	public String getParentDirectory()

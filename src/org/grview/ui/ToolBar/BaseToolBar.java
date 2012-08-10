@@ -1,4 +1,4 @@
-package org.grview.ui.ToolBar;
+package org.grview.ui.toolbar;
 import javax.swing.JToolBar;
 
 public abstract class BaseToolBar<E> extends JToolBar

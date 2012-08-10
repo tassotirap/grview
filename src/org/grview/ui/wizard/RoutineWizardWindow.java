@@ -18,8 +18,8 @@ import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;
 import org.grview.editor.syntax.ModeProvider;
 
-
-public class RoutineWizardWindow extends JFrame {
+public class RoutineWizardWindow extends JFrame
+{
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -27,13 +27,14 @@ public class RoutineWizardWindow extends JFrame {
 	private JTextField nameTextField = null;
 	private TextArea codeTextArea = null;
 	private JPanel buttonsPanel = null;
-	private JButton insertButton = null;  //  @jve:decl-index=0:visual-constraint="371,512"
-	private JButton cancelButton = null;  //  @jve:decl-index=0:visual-constraint="512,525"
+	private JButton insertButton = null; // @jve:decl-index=0:visual-constraint="371,512"
+	private JButton cancelButton = null; // @jve:decl-index=0:visual-constraint="512,525"
 
 	/**
 	 * This is the default constructor
 	 */
-	public RoutineWizardWindow() {
+	public RoutineWizardWindow()
+	{
 		super();
 		initialize();
 	}
@@ -43,13 +44,11 @@ public class RoutineWizardWindow extends JFrame {
 	 * 
 	 * @return void
 	 */
-	private void initialize() {
+	private void initialize()
+	{
 		this.setSize(550, 500);
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation(
-				(screenDim.width - 550) / 2,
-				(screenDim.height - 500) / 2
-		);
+		this.setLocation((screenDim.width - 550) / 2, (screenDim.height - 500) / 2);
 		this.setContentPane(getJContentPane());
 	}
 
@@ -58,8 +57,10 @@ public class RoutineWizardWindow extends JFrame {
 	 * 
 	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJContentPane() {
-		if (jContentPane == null) {
+	private JPanel getJContentPane()
+	{
+		if (jContentPane == null)
+		{
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.gridx = 1;
 			gridBagConstraints4.gridy = 2;
@@ -96,27 +97,31 @@ public class RoutineWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes nameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes nameTextField
+	 * 
+	 * @return javax.swing.JTextField
 	 */
-	protected JTextField getNameTextField() {
-		if (nameTextField == null) {
+	protected JTextField getNameTextField()
+	{
+		if (nameTextField == null)
+		{
 			nameTextField = new JTextField();
 		}
 		return nameTextField;
 	}
 
 	/**
-	 * This method initializes codeTextArea	
-	 * 	
-	 * @return javax.swing.JTextArea	
+	 * This method initializes codeTextArea
+	 * 
+	 * @return javax.swing.JTextArea
 	 */
-	protected TextArea getCodeTextArea() {
-		if (codeTextArea == null) {
+	protected TextArea getCodeTextArea()
+	{
+		if (codeTextArea == null)
+		{
 			codeTextArea = StandaloneTextArea.createTextArea();
 			Mode mode = new Mode("groovy");
-			mode.setProperty("file","modes/groovy.xml");
+			mode.setProperty("file", "modes/groovy.xml");
 			ModeProvider.instance.addMode(mode);
 			codeTextArea.getBuffer().setMode(mode);
 			codeTextArea.setText("/* insert code here */");
@@ -125,12 +130,14 @@ public class RoutineWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes buttonsPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes buttonsPanel
+	 * 
+	 * @return javax.swing.JPanel
 	 */
-	private JPanel getButtonsPanel() {
-		if (buttonsPanel == null) {
+	private JPanel getButtonsPanel()
+	{
+		if (buttonsPanel == null)
+		{
 			buttonsPanel = new JPanel();
 			buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
 			buttonsPanel.add(getCancelButton());
@@ -140,12 +147,14 @@ public class RoutineWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes insertButton	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes insertButton
+	 * 
+	 * @return javax.swing.JButton
 	 */
-	protected JButton getInsertButton() {
-		if (insertButton == null) {
+	protected JButton getInsertButton()
+	{
+		if (insertButton == null)
+		{
 			insertButton = new JButton();
 			insertButton.setText("Insert");
 		}
@@ -153,16 +162,18 @@ public class RoutineWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes cancelButton	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes cancelButton
+	 * 
+	 * @return javax.swing.JButton
 	 */
-	protected JButton getCancelButton() {
-		if (cancelButton == null) {
+	protected JButton getCancelButton()
+	{
+		if (cancelButton == null)
+		{
 			cancelButton = new JButton();
 			cancelButton.setText("Cancel");
 		}
 		return cancelButton;
 	}
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} // @jve:decl-index=0:visual-constraint="10,10"

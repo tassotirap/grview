@@ -10,6 +10,7 @@ import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JMenuBar;
 import javax.swing.JPanel;
+import javax.swing.WindowConstants;
 
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
@@ -20,12 +21,8 @@ import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.model.ui.IconView;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
-import org.grview.ui.ToolBar.BaseToolBar;
-import org.grview.ui.ToolBar.ToolBarCanvas;
-import org.grview.ui.ToolBar.ToolBarFile;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdapterComponent;
 import org.grview.ui.component.BadParameterException;
@@ -33,6 +30,9 @@ import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GramComponent;
 import org.grview.ui.component.TextAreaRepo;
+import org.grview.ui.toolbar.BaseToolBar;
+import org.grview.ui.toolbar.ToolBarCanvas;
+import org.grview.ui.toolbar.ToolBarFile;
 
 /** An abstract, top-level windows with docking **/
 public abstract class Window implements PropertyChangeListener
@@ -102,6 +102,7 @@ public abstract class Window implements PropertyChangeListener
 	{
 		frame = new JFrame(title);
 		frame.setName(DEFAULT_NAME);
+		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 	}
 
 	/**
@@ -301,7 +302,7 @@ public abstract class Window implements PropertyChangeListener
 	public <E extends ActionContextHolder> JMenuBar createMenuBarExt(E context, MenuModel model)
 	{
 		Menu<E> menu = new Menu<E>(new String[]
-		{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, getProjectManager(), context, model);
+		{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model);
 		menu.build();
 		return menu;
 	}
@@ -364,10 +365,6 @@ public abstract class Window implements PropertyChangeListener
 	{
 		return frame;
 	}
-
-	public abstract Project getProject();
-
-	public abstract ProjectManager getProjectManager();
 
 	public abstract RootWindow getRootWindow();
 

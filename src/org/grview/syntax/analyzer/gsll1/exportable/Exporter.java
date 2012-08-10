@@ -75,7 +75,7 @@ public class Exporter {
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/lib/antlr-2.7.6.jar"), new File(rootPath, "export_code/lib/antlr-2.7.6.jar"));
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/lib/license.txt"), new File(rootPath, "export_code/lib/license.txt"));
 		Project p = ProjectManager.getProject();
-		File semFile = p.getSemFile().get(p.getVersion());
+		File semFile = p.getSemFile();
 		FileReader fr;
 		BufferedReader br;
 		String line = "";

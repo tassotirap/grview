@@ -389,9 +389,9 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 				if (p != null)
 				{
 					String semFile = null;
-					if (p.getSemFile() != null && p.getSemFile().get(p.getVersion()) != null)
+					if (p.getSemFile() != null)
 					{
-						semFile = p.getSemFile().get(p.getVersion()).getAbsolutePath();
+						semFile = p.getSemFile().getAbsolutePath();
 					}
 					if (semFile != null && ProjectManager.hasUnsavedView(semFile))
 					{
@@ -407,7 +407,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 					}
 					if (semFile != null)
 					{
-						new RoutineWizard(((String) canvas.findObject(widget)), (MarkedWidget) widget, null, p, monitor);
+						new RoutineWizard(((String) canvas.findObject(widget)), (MarkedWidget) widget, null, monitor);
 					}
 				}
 			}
@@ -452,9 +452,9 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 					if (project != null)
 					{
 						String semFile = null;
-						if (project.getSemFile() != null && project.getSemFile().get(project.getVersion()) != null)
+						if (project.getSemFile() != null)
 						{
-							semFile = project.getSemFile().get(project.getVersion()).getAbsolutePath();
+							semFile = project.getSemFile().getAbsolutePath();
 						}
 						if (semFile != null && ProjectManager.hasUnsavedView(semFile))
 						{
@@ -470,7 +470,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 						}
 						if (semFile != null)
 						{
-							new RoutineWizard(((String) canvas.findObject(widget)), (MarkedWidget) widget, ((MarkedWidget) widget).getMark(), project, monitor);
+							new RoutineWizard(((String) canvas.findObject(widget)), (MarkedWidget) widget, ((MarkedWidget) widget).getMark(), monitor);
 						}
 					}
 				}

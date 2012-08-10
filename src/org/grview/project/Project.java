@@ -10,15 +10,20 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Properties;
 
+import org.grview.file.GrammarFile;
+import org.grview.file.LexicalFile;
+import org.grview.file.MetaFile;
+import org.grview.file.PropertiesFile;
+import org.grview.file.SemanticFile;
 import org.grview.lexical.YyFactory;
-import org.grview.model.FileExtension;
+import org.grview.model.FileNames;
 import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.AsinEditor;
+import org.grview.ui.ThemeManager.Theme;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
 
@@ -26,30 +31,30 @@ import org.grview.util.Log;
  * This class represents a projects and deals with the management of a project.
  * 
  * @author Gustavo H. Braga
+ * @author Tasso Tirapani Silva Pinto
  */
 public class Project implements Serializable
 {
 
 	private static final long serialVersionUID = -6812190878328950994L;
 	private ArrayList<File> openedFiles;
-	// public final String projectsRootPath;
-	// public final File baseDir;
 
-	private HashMap<Version, File> grammarFile = new HashMap<Version, File>();
-	private HashMap<Version, File> lexFile = new HashMap<Version, File>();
-	private HashMap<Version, File> semFile = new HashMap<Version, File>();
+	/**
+	 * Current Theme
+	 */
+	private Theme theme = Theme.ShapedGradientDockingTheme;
+
+	/**
+	 * Current GrammarFile
+	 */
+	private GrammarFile grammarFile;
+	private LexicalFile lexicalFile;
+	private SemanticFile semanticFile;
 	private File yyLexFile;
-	private File propertiesFile;
-	private File metadataFile;
+	private PropertiesFile propertiesFile;
+	private MetaFile metadataFile;
+
 	private HashMap<String, String> codeByRoutine = new HashMap<String, String>();
-
-	public static final String GRAM_EXT = FileExtension.GRAM_FILE;
-	public static final String SEM_EXT = FileExtension.SEM_FILE;
-	public static final String XML_EXT = FileExtension.XML_FILE;
-	public static final String LEX_EXT = FileExtension.LEX_FILE;
-
-	public final static String METADATA_FILENAME = ".METADATA";
-	public final static String PROPERTIES_FILENAME = "properties.xml";
 
 	/** this project's name **/
 	private String name;
@@ -57,12 +62,9 @@ public class Project implements Serializable
 	public final static String DEFAULT_DESCRIPTION = "New project";
 	public final static String DEFAULT_SEMANTIC_ROUTINE_CLASS = "org.grview.semantics.SemanticRoutines";
 
-	/** this project's version **/
-	private Version version;
-
 	/** this project's properties **/
 	private Properties properties;
-	
+
 	private File projectDir;
 
 	/**
@@ -70,9 +72,6 @@ public class Project implements Serializable
 	 * grammar
 	 **/
 	private AsinEditor asinEditor;
-
-	// private transient static HashMap<String, Project> projectByRootPath = new
-	// HashMap<String, Project>();
 
 	public Project(String projectsRootPath)
 	{
@@ -119,19 +118,19 @@ public class Project implements Serializable
 	/**
 	 * Restores a project stored in a METADATA file
 	 * 
-	 * @param projectsRootPath
+	 * @param projectRootPath
 	 *            the root path of the project
 	 * @return true if a serialized project was found
 	 */
-	public static Project restoreProject(String projectsRootPath)
+	public static Project restoreProject(String projectRootPath)
 	{
 		try
 		{
-			if (!(projectsRootPath.endsWith("/") || projectsRootPath.endsWith("\\")))
+			if (!(projectRootPath.endsWith("/") || projectRootPath.endsWith("\\")))
 			{
-				projectsRootPath += "/";
+				projectRootPath += "/";
 			}
-			File metaFile = new File(projectsRootPath + METADATA_FILENAME);
+			File metaFile = new File(projectRootPath + FileNames.METADATA_FILENAME);
 			FileInputStream fileInputStream = new FileInputStream(metaFile);
 			if (metaFile.length() > 0)
 			{
@@ -216,7 +215,6 @@ public class Project implements Serializable
 	 */
 	public static Project createProject(File baseDir, String name, String description) throws IOException
 	{
-		Project project = null;
 		final Properties properties = new Properties();
 		if (name == null)
 		{
@@ -230,11 +228,11 @@ public class Project implements Serializable
 		properties.put("description", description);
 		properties.put("baseDir", baseDir);
 		properties.put("semanticRoutineClass", DEFAULT_SEMANTIC_ROUTINE_CLASS);
-		File gramFile = new File(baseDir.getAbsoluteFile() + "/" + name + GRAM_EXT);
-		File semFile = new File(baseDir.getAbsoluteFile() + "/" + name + SEM_EXT);
-		File lexFile = new File(baseDir.getAbsoluteFile() + "/" + name + LEX_EXT);
-		File propertiesFile = new File(baseDir.getAbsoluteFile() + "/" + PROPERTIES_FILENAME);
-		File metadataFile = new File(baseDir.getAbsoluteFile() + "/" + METADATA_FILENAME);
+		GrammarFile gramFile = new GrammarFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.GRAM_EXTENSION);
+		SemanticFile semFile = new SemanticFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.SEM_EXTENSION);
+		LexicalFile lexFile = new LexicalFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.LEX_EXTENSION);
+		PropertiesFile propertiesFile = new PropertiesFile(baseDir.getAbsoluteFile() + "/" + FileNames.PROPERTIES_FILENAME);
+		MetaFile metadataFile = new MetaFile(baseDir.getAbsoluteFile() + "/" + FileNames.METADATA_FILENAME);
 		if ((!gramFile.exists() && !gramFile.createNewFile()) || (!semFile.exists() && !semFile.createNewFile()) || (!lexFile.exists() && !lexFile.createNewFile()) || (!propertiesFile.exists() && !propertiesFile.createNewFile()) || (!metadataFile.exists() && !metadataFile.createNewFile()))
 		{
 			throw new IOException("Could not create files");
@@ -244,18 +242,11 @@ public class Project implements Serializable
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_lex"), lexFile);
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/default_properties.xml"), propertiesFile);
 		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/new_metadata"), metadataFile);
-		// make sure I have the correct routines.dtd
-		// props.putAll(loadProperties(pf.getAbsolutePath(), true));
-		project = new Project(baseDir.getAbsolutePath(), null);
-		Version nv = new Version();
-		nv.setCreationDate(Calendar.getInstance().getTime());
-		nv.setModDate(Calendar.getInstance().getTime());
-		nv.setVersionName("1");
-		nv.setDescription("new project -" + name);
-		project.setVersion(nv);
-		project.grammarFile.put(nv, gramFile);
-		project.semFile.put(nv, semFile);
-		project.lexFile.put(nv, lexFile);
+
+		Project project = new Project(baseDir.getAbsolutePath(), null);
+		project.grammarFile = gramFile;
+		project.semanticFile = semFile;
+		project.lexicalFile = lexFile;
 		project.propertiesFile = propertiesFile;
 		project.metadataFile = metadataFile;
 		project.properties = properties;
@@ -269,36 +260,36 @@ public class Project implements Serializable
 
 	public static boolean isProject(File dir)
 	{
-		boolean gramfile = false;
-		boolean semfile = false;
-		boolean lexfile = false;
-		boolean propertiesfile = false;
-		boolean metadatafile = false;
+		boolean hasGrammarFile = false;
+		boolean hasSemanticFile = false;
+		boolean hasLexicalFile = false;
+		boolean hasPropertiesFile = false;
+		boolean hasMetaFile = false;
 
-		for (File f : dir.listFiles())
+		for (File file : dir.listFiles())
 		{
-			if (f.getName().endsWith(GRAM_EXT))
+			if (file.getName().endsWith(FileNames.GRAM_EXTENSION))
 			{
-				gramfile = true;
+				hasGrammarFile = true;
 			}
-			else if (f.getName().endsWith(SEM_EXT))
+			else if (file.getName().endsWith(FileNames.SEM_EXTENSION))
 			{
-				semfile = true;
+				hasSemanticFile = true;
 			}
-			else if (f.getName().endsWith(LEX_EXT))
+			else if (file.getName().endsWith(FileNames.LEX_EXTENSION))
 			{
-				lexfile = true;
+				hasLexicalFile = true;
 			}
-			else if (f.getName().equals(PROPERTIES_FILENAME))
+			else if (file.getName().equals(FileNames.PROPERTIES_FILENAME))
 			{
-				propertiesfile = true;
+				hasPropertiesFile = true;
 			}
-			else if (f.getName().equals(METADATA_FILENAME))
+			else if (file.getName().equals(FileNames.METADATA_FILENAME))
 			{
-				metadatafile = true;
+				hasMetaFile = true;
 			}
 		}
-		return gramfile && semfile && lexfile && propertiesfile && metadatafile;
+		return hasGrammarFile && hasSemanticFile && hasLexicalFile && hasPropertiesFile && hasMetaFile;
 	}
 
 	public ArrayList<File> getOpenedFiles()
@@ -316,34 +307,34 @@ public class Project implements Serializable
 		return projectDir;
 	}
 
-	public HashMap<Version, File> getGrammarFile()
+	public File getGrammarFile()
 	{
 		return grammarFile;
 	}
 
-	public void setGrammarFile(HashMap<Version, File> grammarFile)
+	public void setGrammarFile(GrammarFile grammarFile)
 	{
 		this.grammarFile = grammarFile;
 	}
 
-	public HashMap<Version, File> getLexFile()
+	public File getLexFile()
 	{
-		return lexFile;
+		return lexicalFile;
 	}
 
-	public void setLexFile(HashMap<Version, File> lexFile)
+	public void setLexFile(LexicalFile lexFile)
 	{
-		this.lexFile = lexFile;
+		this.lexicalFile = lexFile;
 	}
 
-	public HashMap<Version, File> getSemFile()
+	public File getSemFile()
 	{
-		return semFile;
+		return semanticFile;
 	}
 
-	public void setSemFile(HashMap<Version, File> semFile)
+	public void setSemFile(SemanticFile semFile)
 	{
-		this.semFile = semFile;
+		this.semanticFile = semFile;
 	}
 
 	public File getPropertiesFile()
@@ -351,7 +342,7 @@ public class Project implements Serializable
 		return propertiesFile;
 	}
 
-	public void setPropertiesFile(File propertiesFile)
+	public void setPropertiesFile(PropertiesFile propertiesFile)
 	{
 		this.propertiesFile = propertiesFile;
 	}
@@ -361,7 +352,7 @@ public class Project implements Serializable
 		return metadataFile;
 	}
 
-	public void setMetadataFile(File metadataFile)
+	public void setMetadataFile(MetaFile metadataFile)
 	{
 		this.metadataFile = metadataFile;
 	}
@@ -374,16 +365,6 @@ public class Project implements Serializable
 	public void setName(String name)
 	{
 		this.name = name;
-	}
-
-	public Version getVersion()
-	{
-		return version;
-	}
-
-	public void setVersion(Version version)
-	{
-		this.version = version;
 	}
 
 	public void setOpenedFiles(ArrayList<File> openedFiles)
@@ -404,5 +385,15 @@ public class Project implements Serializable
 	public File getYyLexFile()
 	{
 		return yyLexFile;
+	}
+
+	public Theme getTheme()
+	{
+		return this.theme;
+	}
+
+	public void setTheme(Theme theme)
+	{
+		this.theme = theme;
 	}
 }

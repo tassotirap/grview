@@ -24,11 +24,10 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
-import org.grview.ui.wizard.NewFileWizard.FileEntry;
+import org.grview.ui.wizard.FileEntry;
 
-
-
-public class NewFileWizardWindow extends JFrame {
+public class NewFileWizardWindow extends JFrame
+{
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -45,10 +44,12 @@ public class NewFileWizardWindow extends JFrame {
 	private Object[] fileEntries;
 	private HashMap<String, String> descByName;
 	private JTextField jTextField = null;
+
 	/**
 	 * This is the default constructor
 	 */
-	public NewFileWizardWindow(Object[] fileEntries, HashMap<String, String> descByName) {
+	public NewFileWizardWindow(Object[] fileEntries, HashMap<String, String> descByName)
+	{
 		super();
 		this.fileEntries = fileEntries;
 		this.descByName = descByName;
@@ -60,13 +61,11 @@ public class NewFileWizardWindow extends JFrame {
 	 * 
 	 * @return void
 	 */
-	private void initialize() {
+	private void initialize()
+	{
 		this.setSize(320, 418);
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation(
-				(screenDim.width - 320) / 2,
-				(screenDim.height - 418) / 2
-		);
+		this.setLocation((screenDim.width - 320) / 2, (screenDim.height - 418) / 2);
 		this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
 		this.setContentPane(getJContentPane());
 		this.setTitle("File Wizard");
@@ -77,8 +76,10 @@ public class NewFileWizardWindow extends JFrame {
 	 * 
 	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJContentPane() {
-		if (jContentPane == null) {
+	private JPanel getJContentPane()
+	{
+		if (jContentPane == null)
+		{
 			GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 			gridBagConstraints12.fill = GridBagConstraints.BOTH;
 			gridBagConstraints12.gridy = 1;
@@ -110,7 +111,7 @@ public class NewFileWizardWindow extends JFrame {
 			gridBagConstraints1.weighty = 0.8;
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.insets = new Insets(5, 10, 5, 10);
-			GridBagConstraints gridBagConstraints= new GridBagConstraints();
+			GridBagConstraints gridBagConstraints = new GridBagConstraints();
 			gridBagConstraints.gridx = 0;
 			gridBagConstraints.gridy = 0;
 			gridBagConstraints.insets = new Insets(10, 10, 5, 10);
@@ -143,20 +144,25 @@ public class NewFileWizardWindow extends JFrame {
 		return jContentPane;
 	}
 
-	public JTextArea getJTextArea() {
-		if (jTextArea == null) {
+	public JTextArea getJTextArea()
+	{
+		if (jTextArea == null)
+		{
 			jTextArea = new JTextArea();
 			jTextArea.setLineWrap(true);
 		}
 		return jTextArea;
 	}
+
 	/**
-	 * This method initializes jList	
-	 * 	
-	 * @return javax.swing.JList	
+	 * This method initializes jList
+	 * 
+	 * @return javax.swing.JList
 	 */
-	public JList getJList() {
-		if (jList == null) {
+	public JList getJList()
+	{
+		if (jList == null)
+		{
 			jList = new JList(fileEntries);
 			jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 			jList.setCellRenderer(new FileCellRenderer());
@@ -165,12 +171,14 @@ public class NewFileWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanel
+	 * 
+	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJPanel() {
-		if (jPanel == null) {
+	private JPanel getJPanel()
+	{
+		if (jPanel == null)
+		{
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
 			jPanel.setPreferredSize(new Dimension(0, 100));
@@ -179,12 +187,14 @@ public class NewFileWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanel1
+	 * 
+	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
+	private JPanel getJPanel1()
+	{
+		if (jPanel1 == null)
+		{
 			jPanel1 = new JPanel();
 			jPanel1.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 			jPanel1.add(getOkButton());
@@ -194,12 +204,14 @@ public class NewFileWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes jButton	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes jButton
+	 * 
+	 * @return javax.swing.JButton
 	 */
-	public JButton getOkButton() {
-		if (jButton == null) {
+	public JButton getOkButton()
+	{
+		if (jButton == null)
+		{
 			jButton = new JButton();
 			jButton.setText("Ok");
 		}
@@ -207,17 +219,21 @@ public class NewFileWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes jButton1	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes jButton1
+	 * 
+	 * @return javax.swing.JButton
 	 */
-	protected JButton getCancelButton() {
-		if (jButton1 == null) {
+	protected JButton getCancelButton()
+	{
+		if (jButton1 == null)
+		{
 			jButton1 = new JButton();
 			jButton1.setText("Cancel");
-			jButton1.addActionListener(new ActionListener() {
+			jButton1.addActionListener(new ActionListener()
+			{
 
-				public void actionPerformed(ActionEvent e) {
+				public void actionPerformed(ActionEvent e)
+				{
 					setVisible(false);
 				}
 			});
@@ -225,38 +241,44 @@ public class NewFileWizardWindow extends JFrame {
 		return jButton1;
 	}
 
-
 	/**
-	 * This method initializes jPanel2	
-	 * 	
-	 * @return javax.swing.JPanel	
+	 * This method initializes jPanel2
+	 * 
+	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJPanel2() {
-		if (jPanel2 == null) {
+	private JPanel getJPanel2()
+	{
+		if (jPanel2 == null)
+		{
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(new GridBagLayout());
 		}
 		return jPanel2;
 	}
 
-	class FileCellRenderer extends JLabel implements ListCellRenderer {
+	class FileCellRenderer extends JLabel implements ListCellRenderer
+	{
 		private final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
 
-		public FileCellRenderer() {
+		public FileCellRenderer()
+		{
 			setOpaque(true);
 			setIconTextGap(12);
 		}
 
-		public Component getListCellRendererComponent(JList list, Object value,
-				int index, boolean isSelected, boolean cellHasFocus) {
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+		{
 			FileEntry entry = (FileEntry) value;
 			setText(entry.getTitle());
 			setIcon(entry.getImage());
-			if (isSelected) {
+			if (isSelected)
+			{
 				getJTextArea().setText(descByName.get(getText()));
 				setBackground(HIGHLIGHT_COLOR);
 				setForeground(Color.white);
-			} else {
+			}
+			else
+			{
 				setBackground(Color.white);
 				setForeground(Color.black);
 			}
@@ -265,14 +287,16 @@ public class NewFileWizardWindow extends JFrame {
 	}
 
 	/**
-	 * This method initializes jTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes jTextField
+	 * 
+	 * @return javax.swing.JTextField
 	 */
-	public JTextField getJTextField() {
-		if (jTextField == null) {
+	public JTextField getJTextField()
+	{
+		if (jTextField == null)
+		{
 			jTextField = new JTextField();
 		}
 		return jTextField;
 	}
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+} // @jve:decl-index=0:visual-constraint="10,10"

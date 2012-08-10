@@ -10,12 +10,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
@@ -27,22 +25,17 @@ import net.infonode.docking.ViewSerializer;
 import net.infonode.docking.WindowBar;
 import net.infonode.docking.mouse.DockingWindowActionMouseButtonListener;
 import net.infonode.docking.properties.RootWindowProperties;
-import net.infonode.docking.theme.DockingWindowsTheme;
-import net.infonode.docking.theme.ShapedGradientDockingTheme;
 import net.infonode.docking.util.DockingUtil;
 import net.infonode.docking.util.MixedViewHandler;
 import net.infonode.docking.util.ViewMap;
 import net.infonode.util.Direction;
 
-import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.CanvasFactory;
-import org.grview.model.FileExtension;
+import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
-import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
-import org.grview.ui.ToolBar.BaseToolBar;
-import org.grview.ui.ToolBar.ToolBarNewFile;
+import org.grview.ui.ThemeManager.Theme;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
 import org.grview.ui.component.FileComponent;
@@ -61,6 +54,8 @@ import org.grview.ui.component.SimpleTextAreaComponent;
 import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
+import org.grview.ui.toolbar.BaseToolBar;
+import org.grview.ui.toolbar.ToolBarNewFile;
 
 public class MainWindow extends Window implements ComponentListener
 {
@@ -81,24 +76,16 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private ViewMap perspectiveMap = new ViewMap();
 
-	/**
-	 * The currently applied docking windows theme
-	 */
-	private DockingWindowsTheme currentTheme = new ShapedGradientDockingTheme();
-
-
 	private Vector<DynamicView> defaultLayout[] = new Vector[6];
 
 	/**
 	 * In this properties object the modified property values for close buttons
 	 * etc. are stored. This object is cleared when the theme is changed.
 	 */
-	private RootWindowProperties properties = new RootWindowProperties();
+	private RootWindowProperties rootWindowProperties = new RootWindowProperties();
 
-	private static HashMap<String, MainWindow> instances;
+	private static MainWindow instance;
 
-	/** the current project manager **/
-	private ProjectManager projectManager;
 
 	/**
 	 * constructor sets all project paths, create a new default window, gets an
@@ -106,14 +93,12 @@ public class MainWindow extends Window implements ComponentListener
 	 * **/
 	private MainWindow(String projectsRootPath)
 	{
-		this.projectManager = new ProjectManager(this, projectsRootPath);
+		ProjectManager.init(this, projectsRootPath);
 		createRootWindow();
-		
 		setDefaultLayout();
 		this.id = getNewID();
 		CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);
-		instances = new HashMap<String, MainWindow>();
-		instances.put(projectsRootPath, this);
+		instance = this;
 		showFrame();
 	}
 
@@ -122,7 +107,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private void createDefaultViews()
 	{
-		activeScene = CanvasFactory.createCanvas(ProjectManager.getProject().getGrammarFile().get(ProjectManager.getProject().getVersion()));
+		activeScene = CanvasFactory.createCanvas(ProjectManager.getProject().getGrammarFile());
 		try
 		{
 			ArrayList<TabItem> tabItems = createTabs();
@@ -142,7 +127,7 @@ public class MainWindow extends Window implements ComponentListener
 			ArrayList<File> files = ProjectManager.getProject().getOpenedFiles();
 			if (files.size() == 0)
 			{
-				ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile().get(ProjectManager.getProject().getVersion()));
+				ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
 			}
 			for (int i = 0; i < files.size(); i++)
 			{
@@ -186,7 +171,7 @@ public class MainWindow extends Window implements ComponentListener
 		model.undo = true;
 		model.redo = true;
 		model.find = true;
-		if (name.endsWith(FileExtension.GRAM_FILE))
+		if (name.endsWith(FileNames.GRAM_EXTENSION))
 		{
 			model.zoomIn = true;
 			model.zoomOut = true;
@@ -202,19 +187,19 @@ public class MainWindow extends Window implements ComponentListener
 
 	private org.grview.ui.component.AbstractComponent createFileComponent(String type)
 	{
-		if (type.equalsIgnoreCase(FileExtension.GRAM_FILE))
+		if (type.equalsIgnoreCase(FileNames.GRAM_EXTENSION))
 			return new GramComponent();
-		if (type.equalsIgnoreCase(FileExtension.LEX_FILE))
+		if (type.equalsIgnoreCase(FileNames.LEX_EXTENSION))
 			return new LexComponent();
-		if (type.equalsIgnoreCase(FileExtension.SEM_FILE))
+		if (type.equalsIgnoreCase(FileNames.SEM_EXTENSION))
 			return new SemComponent();
-		if (type.equalsIgnoreCase(FileExtension.XML_FILE))
+		if (type.equalsIgnoreCase(FileNames.XML_EXTENSION))
 			return new XMLComponent();
-		if (type.equalsIgnoreCase(FileExtension.TXT_FILE))
+		if (type.equalsIgnoreCase(FileNames.TXT_EXTENSION))
 			return new SimpleTextAreaComponent();
-		if (type.equalsIgnoreCase(FileExtension.JAVA_FILE))
+		if (type.equalsIgnoreCase(FileNames.JAVA_EXTENSION))
 			return new JavaComponent();
-		if (type.equalsIgnoreCase(FileExtension.IN_FILE))
+		if (type.equalsIgnoreCase(FileNames.IN_EXTENSION))
 			return new InputAdapterComponent();
 		return null;
 	}
@@ -250,12 +235,13 @@ public class MainWindow extends Window implements ComponentListener
 		// Set gradient theme. The theme properties object is the super object
 		// of our properties object, which
 		// means our property value settings will override the theme values
-		properties.addSuperObject(currentTheme.getRootWindowProperties());
+			
+		rootWindowProperties.addSuperObject(ThemeManager.getCurrentTheme().getRootWindowProperties());
 
 		// Our properties object is the super object of the root window
 		// properties object, so all property values of the
 		// theme and in our property object will be used by the root window
-		rootWindow.getRootWindowProperties().addSuperObject(properties);
+		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
 
 		// Enable the bottom window bar
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
@@ -318,7 +304,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	protected BaseToolBar<ProjectManager> getNewFileToolBar()
 	{
-		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>(projectManager);
+		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>();
 		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
 		return toolBarNewFile;
 	}
@@ -333,8 +319,8 @@ public class MainWindow extends Window implements ComponentListener
 		frame.setSize(900, 700);
 		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation((screenDim.width - frame.getWidth()) / 2, (screenDim.height - frame.getHeight()) / 2);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		frame.addWindowListener(new FrameAdapter());
 	}
 
 	@Override
@@ -363,18 +349,6 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	public Project getProject()
-	{
-		return ProjectManager.getProject();
-	}
-
-	@Override
-	public ProjectManager getProjectManager()
-	{
-		return projectManager;
-	}
-
-	@Override
 	public RootWindow getRootWindow()
 	{
 		return rootWindow;
@@ -395,7 +369,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void removeFileFromProject(String fileName)
 	{
-		projectManager.closeFile(fileName);
+		ProjectManager.closeFile(fileName);
 	}
 
 	@Override
@@ -411,7 +385,7 @@ public class MainWindow extends Window implements ComponentListener
 				break;
 			}
 		}
-		projectManager.renameFile(oldName, newName);
+		ProjectManager.renameFile(oldName, newName);
 	}
 
 	public void setSaved(String path)
@@ -446,16 +420,11 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	public static MainWindow getInstance(String projectsRootPath)
 	{
-		if (instances == null)
+		if (instance == null)
 		{
-			instances = new HashMap<String, MainWindow>();
-			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
+			instance = new MainWindow(projectsRootPath);
 		}
-		else if (!instances.keySet().contains(projectsRootPath))
-		{
-			instances.put(projectsRootPath, new MainWindow(projectsRootPath));
-		}
-		return instances.get(projectsRootPath);
+		return instance;
 	}
 
 	public static void main(String[] args) throws Exception
@@ -470,5 +439,10 @@ public class MainWindow extends Window implements ComponentListener
 				new MainWindow(projectRootPath);
 			}
 		});
+	}
+	
+	public void changeTheme(Theme theme)
+	{
+		ThemeManager.changeTheme(rootWindowProperties, theme);
 	}
 }

@@ -252,9 +252,7 @@ public class SplashWindow extends java.awt.Window
 	{
 		try
 		{
-			Class.forName(className).getMethod("main", new Class[]
-			{ String[].class }).invoke(null, new Object[]
-			{ args });
+			Class.forName(className).getMethod("main", new Class[]{ String[].class }).invoke(null, new Object[]{ args });
 		}
 		catch (Exception e)
 		{

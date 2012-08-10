@@ -24,14 +24,12 @@ import org.grview.syntax.model.TabNode;
 import org.grview.util.Log;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
-
 /**
  * 
- * @author Tasso Tirapani Silva Pinto
- * Load Semantic Routines file
- * [FileName].sem
+ * @author Tasso Tirapani Silva Pinto Load Semantic Routines file [FileName].sem
  */
-public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
+public class SemanticRoutinesIvoker implements Cloneable, TokenListener
+{
 
 	private Stack parseStack;
 	private TabNode[] tabT;
@@ -48,28 +46,34 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 	private FileSystemXmlApplicationContext ctx;
 	private Object scriptlet;
 	private GroovyObject goo;
-	
+
 	private boolean loaded = false;
 
-	public SemanticRoutinesIvoker(Project project) throws MalformedURLException {
+	public SemanticRoutinesIvoker(Project project) throws MalformedURLException
+	{
 		this.project = project;
 		lastInstance = this;
 	}
 
-	public void configureAndLoad() {
-		File semFile = project.getSemFile().get(project.getVersion());
-		File modBeanInjection = new File(System.getProperty("java.io.tmpdir"),"beaninjection.xml");
+	public void configureAndLoad()
+	{
+		File semFile = project.getSemFile();
+		File modBeanInjection = new File(System.getProperty("java.io.tmpdir"), "beaninjection.xml");
 		File beanInjection = new File(SPRING_XML_MODEL);
-		try {
-			if (!modBeanInjection.exists()) {
+		try
+		{
+			if (!modBeanInjection.exists())
+			{
 				modBeanInjection.createNewFile();
 			}
 			FileInputStream fileInputStream = new FileInputStream(beanInjection);
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 			String line = "";
 			String outputString = "";
-			while ((line = bufferedReader.readLine()) != null) {
-				if (line.contains("$FILENAME")) {
+			while ((line = bufferedReader.readLine()) != null)
+			{
+				if (line.contains("$FILENAME"))
+				{
 					line = line.replace("$FILENAME", semFile.getAbsolutePath());
 				}
 				outputString += line + "\n";
@@ -81,18 +85,23 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 			fileOutputStream.close();
 			bufferedReader.close();
 			fileInputStream.close();
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			Log.log(Log.ERROR, this, "Could not semantic routines file.", e);
 		}
 		ctx = new FileSystemXmlApplicationContext(modBeanInjection.getAbsolutePath());
-		scriptlet = (Object)ctx.getBean("routines");
+		scriptlet = (Object) ctx.getBean("routines");
 		loaded = true;
 	}
-	public static SemanticRoutinesIvoker getLastInstance() {
+
+	public static SemanticRoutinesIvoker getLastInstance()
+	{
 		return lastInstance;
 	}
 
-	public static SemanticRoutinesIvoker getLastInstance(Stack parseStack, TabNode[] tabT, SemanticRoutinesRepo repository) {
+	public static SemanticRoutinesIvoker getLastInstance(Stack parseStack, TabNode[] tabT, SemanticRoutinesRepo repository)
+	{
 
 		SemanticRoutinesIvoker instance = lastInstance;
 		instance.parseStack = parseStack;
@@ -103,115 +112,148 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener {
 		return instance;
 	}
 
-	public SemanticRoutinesRepo getRepository() {
+	public SemanticRoutinesRepo getRepository()
+	{
 		return repository;
 	}
 
-	public void setRepository(SemanticRoutinesRepo repository) {
+	public void setRepository(SemanticRoutinesRepo repository)
+	{
 		this.repository = repository;
 	}
 
 	@Override
-	public void setCurrentToken(Yytoken currentToken) {
+	public void setCurrentToken(Yytoken currentToken)
+	{
 		this.currentToken = currentToken;
 	}
 
-	public Stack getParseStack() {
+	public Stack getParseStack()
+	{
 		return parseStack;
 	}
 
-	public void setParseStack(Stack parseStack) {
+	public void setParseStack(Stack parseStack)
+	{
 		this.parseStack = parseStack;
 	}
 
-	public TabNode[] getTabT() {
+	public TabNode[] getTabT()
+	{
 		return tabT;
 	}
 
-	public void setTabT(TabNode[] tabT) {
+	public void setTabT(TabNode[] tabT)
+	{
 		this.tabT = tabT;
 	}
 
-	public Yytoken getCurrentToken() {
+	public Yytoken getCurrentToken()
+	{
 		return currentToken;
 	}
 
-	public String getExtenalSemanticRoutinesClass() {
+	public String getExtenalSemanticRoutinesClass()
+	{
 		return project.getProperty("semanticRoutineClass");
 	}
 
-	public void ivokeMethodFromFile(String function) {
+	public void ivokeMethodFromFile(String function)
+	{
 		goo.setProperty("tabT", tabT);
 		goo.setProperty("parseStack", parseStack);
 		goo.setProperty("currentToken", currentToken);
 		goo.setProperty("output", SemanticRoutinesOutput.getInstance());
-		
-		try {
+
+		try
+		{
 			Method method = scriptlet.getClass().getMethod(function);
-			method.invoke(scriptlet, new java.lang.Object[] {});
-		} catch (Exception e) {
+			method.invoke(scriptlet, new java.lang.Object[]{});
+		}
+		catch (Exception e)
+		{
 			Log.log(Log.ERROR, this, "A parsing error has ocurred while trying to access " + function, e);
 		}
 	}
 
-	public void ivokeMethodFromClass(String function) {
-		try {
+	public void ivokeMethodFromClass(String function)
+	{
+		try
+		{
 			String _class = getExtenalSemanticRoutinesClass();
-			if (_class == null) {
+			if (_class == null)
+			{
 				_class = DEFAULT_SR_CLASS;
 			}
 			Class<?> c = Class.forName(_class);
 			Object t = c.newInstance();
 
-			if (t instanceof TokenListener) {
+			if (t instanceof TokenListener)
+			{
 				((TokenListener) t).setCurrentToken(currentToken);
 				repository.getListeners().add((TokenListener) t);
 			}
 			Method[] allMethods = c.getDeclaredMethods();
-			for (Method m : allMethods) {
+			for (Method m : allMethods)
+			{
 				String mname = m.getName();
-				if (!mname.equals(function)) {
+				if (!mname.equals(function))
+				{
 					continue;
 				}
 				// you could verify this method's parameters here.
-				//See: http://java.sun.com/docs/books/tutorial/reflect/member/methodInvocation.html
+				// See:
+				// http://java.sun.com/docs/books/tutorial/reflect/member/methodInvocation.html
 				AppOutput.displayText(String.format("invoking %s()%n", mname), TOPIC.Output);
-				try {
+				try
+				{
 					m.setAccessible(true);
 					Object o = m.invoke(t, parseStack, tabT);
-					if (m.getGenericReturnType() == boolean.class) {
+					if (m.getGenericReturnType() == boolean.class)
+					{
 						AppOutput.displayText(String.format("%s() returned %b%n", mname, o), TOPIC.Output);
 					}
-					else if (m.getGenericReturnType() == int.class) {
+					else if (m.getGenericReturnType() == int.class)
+					{
 						AppOutput.displayText(String.format("%s() returned %d%n", mname, o), TOPIC.Output);
 					}
-					else if (m.getGenericReturnType() == String.class) {
+					else if (m.getGenericReturnType() == String.class)
+					{
 						AppOutput.displayText(String.format("%s() returned %s%n", mname, o), TOPIC.Output);
 					}
 
 					// Handle any exceptions thrown by method to be invoked.
-				} catch (InvocationTargetException x) {
+				}
+				catch (InvocationTargetException x)
+				{
 					Throwable cause = x.getCause();
-					AppOutput.semanticRoutinesOutput(String.format("invocation of %s failed: %s%n",
-							mname, cause.getMessage()));
+					AppOutput.semanticRoutinesOutput(String.format("invocation of %s failed: %s%n", mname, cause.getMessage()));
 				}
 			}
 
 			// production code should handle these exceptions more gracefully
-		} catch (ClassNotFoundException x) {
+		}
+		catch (ClassNotFoundException x)
+		{
 			Log.log(Log.ERROR, this, String.format("Could not execute semantic routine: %s", function), x);
-		} catch (InstantiationException x) {
+		}
+		catch (InstantiationException x)
+		{
 			Log.log(Log.ERROR, this, String.format("Could not execute semantic routine: %s", function), x);
-		} catch (IllegalAccessException x) {
+		}
+		catch (IllegalAccessException x)
+		{
 			Log.log(Log.ERROR, this, String.format("Could not execute semantic routine: %s", function), x);
 		}
 	}
 
-	public void setGoo(GroovyObject goo) {
+	public void setGoo(GroovyObject goo)
+	{
 		this.goo = goo;
 	}
 
-	public GroovyObject getGoo() {
+	public GroovyObject getGoo()
+	{
 		return goo;
 	}
 

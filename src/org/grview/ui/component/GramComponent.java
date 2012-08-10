@@ -15,7 +15,7 @@ import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.state.StaticStateManager;
-import org.grview.ui.ToolBar.ToolBarGrammar;
+import org.grview.ui.toolbar.ToolBarGrammar;
 import org.grview.util.Log;
 
 public class GramComponent extends AbstractComponent implements FileComponent, PropertyChangeListener
@@ -79,10 +79,10 @@ public class GramComponent extends AbstractComponent implements FileComponent, P
 	@Override
 	public void saveFile()
 	{
-		StaticStateManager ssm = canvas.getStaticStateManager();
+		StaticStateManager staticStateManager = canvas.getStaticStateManager();
 		try
 		{
-			ssm.write();
+			staticStateManager.write();
 		}
 		catch (IOException e)
 		{

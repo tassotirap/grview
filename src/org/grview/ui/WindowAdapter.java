@@ -67,19 +67,19 @@ public class WindowAdapter extends DockingWindowAdapter
 	{
 		if (dWindow instanceof DynamicView)
 		{
-			DynamicView dv = (DynamicView) dWindow;
-			if (ProjectManager.hasUnsavedView(dv))
+			DynamicView dynamicView = (DynamicView) dWindow;
+			if (ProjectManager.hasUnsavedView(dynamicView))
 			{
 				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
-				if (option == JOptionPane.YES_OPTION && dv.getComponentModel() instanceof GramComponent)
+				if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GramComponent)
 				{
-					StaticStateManager ssm = window.getActiveScene().getStaticStateManager();
+					StaticStateManager StaticStateManager = window.getActiveScene().getStaticStateManager();
 					try
 					{
-						ssm.write();
-						String path = ssm.getParentDirectory();
+						StaticStateManager.write();
+						String path = StaticStateManager.getParentDirectory();
 						ProjectManager.saveFile(path);
 					}
 					catch (IOException e)
@@ -89,7 +89,7 @@ public class WindowAdapter extends DockingWindowAdapter
 				}
 				else if (option == JOptionPane.YES_OPTION)
 				{
-					ProjectManager.saveFile(dv.getComponentModel());
+					ProjectManager.saveFile(dynamicView.getComponentModel());
 				}
 			}
 		}
