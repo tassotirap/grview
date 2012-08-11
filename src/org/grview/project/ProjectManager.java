@@ -23,7 +23,7 @@ import org.grview.ui.Window;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.FileComponent;
-import org.grview.ui.component.GramComponent;
+import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.GrammarRepo;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.JavaComponent;
@@ -37,15 +37,15 @@ import org.grview.util.TextPrinter;
 
 public final class ProjectManager
 {
+	private static MainWindow mainWindow;
 
-	private static MainWindow window;
 	private static Project project;
 
 	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
-	
-	private static String saveGrammar(Object object)
+
+	private static String saveGrammarFile(Canvas canvas)
 	{
-		GramComponent gramComponent = (GramComponent) GrammarRepo.getCompByCanvas((Canvas) object);
+		GrammarComponent gramComponent = GrammarRepo.getCompByCanvas();
 		gramComponent.saveFile();
 		return gramComponent.getPath();
 	}
@@ -147,7 +147,7 @@ public final class ProjectManager
 			catch (SecurityException e)
 			{
 				JOptionPane.showMessageDialog(null, "Could not create file. Probably you do not have permission to write on disk.", "Could not create file", JOptionPane.INFORMATION_MESSAGE);
-				Log.log(Log.WARNING, getWindow(), "A security exception was thrown while trying to create a new file.", e);
+				Log.log(Log.WARNING, getMainWindow(), "A security exception was thrown while trying to create a new file.", e);
 			}
 			FileTree.reload(baseDir.getAbsolutePath());
 		}
@@ -159,12 +159,12 @@ public final class ProjectManager
 
 		for (DynamicView dynamicView : unsavedViews)
 		{
-			int option = JOptionPane.showConfirmDialog(getWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before exiting?");
+			int option = JOptionPane.showConfirmDialog(getMainWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before exiting?");
 			if (option == JOptionPane.CANCEL_OPTION)
 				return;
-			if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GramComponent)
+			if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GrammarComponent)
 			{
-				StaticStateManager StaticStateManager = getWindow().getActiveScene().getStaticStateManager();
+				StaticStateManager StaticStateManager = getMainWindow().getActiveScene().getStaticStateManager();
 				try
 				{
 					StaticStateManager.write();
@@ -173,7 +173,7 @@ public final class ProjectManager
 				}
 				catch (IOException e)
 				{
-					Log.log(Log.ERROR, getWindow(), "Could not save file", e);
+					Log.log(Log.ERROR, getMainWindow(), "Could not save file", e);
 				}
 			}
 			else if (option == JOptionPane.YES_OPTION)
@@ -195,9 +195,9 @@ public final class ProjectManager
 		return new ArrayList<DynamicView>(unsavedViews.values());
 	}
 
-	public static MainWindow getWindow()
+	public static MainWindow getMainWindow()
 	{
-		return window;
+		return mainWindow;
 	}
 
 	public static boolean hasUnsavedView(DynamicView value)
@@ -212,7 +212,7 @@ public final class ProjectManager
 
 	public static void init(MainWindow window, String projectPath)
 	{
-		ProjectManager.window = window;
+		ProjectManager.mainWindow = window;
 		ProjectManager.project = Project.restoreProject(projectPath);
 	}
 
@@ -248,38 +248,38 @@ public final class ProjectManager
 			{
 				if (file.getName().toLowerCase().endsWith(FileNames.LEX_EXTENSION.toLowerCase()))
 				{
-					LexComponent lc = new LexComponent();
-					getWindow().addComponent(lc.create(path), lc, file.getName(), path, IconRepository.getInstance().LEX_ICON, Window.CENTER_TABS);
+					LexComponent lexComponent = new LexComponent();
+					getMainWindow().addComponent(lexComponent.create(path), lexComponent, file.getName(), path, IconRepository.getInstance().LEX_ICON, Window.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.SEM_EXTENSION.toLowerCase()))
 				{
-					SemComponent sc = new SemComponent();
-					getWindow().addComponent(sc.create(path), sc, file.getName(), path, IconRepository.getInstance().SEM_ICON, Window.CENTER_TABS);
+					SemComponent semComponent = new SemComponent();
+					getMainWindow().addComponent(semComponent.create(path), semComponent, file.getName(), path, IconRepository.getInstance().SEM_ICON, Window.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.GRAM_EXTENSION.toLowerCase()))
 				{
-					GramComponent gc = new GramComponent();
-					getWindow().addComponent(gc.create(path), gc, file.getName(), path, IconRepository.getInstance().GRAM_ICON, Window.CENTER_TABS);
+					GrammarComponent gramComponent = new GrammarComponent();
+					getMainWindow().addComponent(gramComponent.create(path), gramComponent, file.getName(), path, IconRepository.getInstance().GRAM_ICON, Window.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.XML_EXTENSION.toLowerCase()))
 				{
-					XMLComponent xc = new XMLComponent();
-					getWindow().addComponent(xc.create(path), xc, file.getName(), path, IconRepository.getInstance().XML_ICON, Window.CENTER_TABS);
+					XMLComponent xMLComponent = new XMLComponent();
+					getMainWindow().addComponent(xMLComponent.create(path), xMLComponent, file.getName(), path, IconRepository.getInstance().XML_ICON, Window.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.JAVA_EXTENSION.toLowerCase()))
 				{
-					JavaComponent jc = new JavaComponent();
-					getWindow().addComponent(jc.create(path), jc, file.getName(), path, IconRepository.getInstance().JAVA_ICON, Window.CENTER_TABS);
+					JavaComponent javaComponent = new JavaComponent();
+					getMainWindow().addComponent(javaComponent.create(path), javaComponent, file.getName(), path, IconRepository.getInstance().JAVA_ICON, Window.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.IN_EXTENSION.toLowerCase()))
 				{
-					InputAdapterComponent iac = new InputAdapterComponent();
-					getWindow().addComponent(iac.create(path), iac, file.getName(), path, IconRepository.getInstance().IN_ICON, Window.CENTER_TABS);
+					InputAdapterComponent inputAdapterComponent = new InputAdapterComponent();
+					getMainWindow().addComponent(inputAdapterComponent.create(path), inputAdapterComponent, file.getName(), path, IconRepository.getInstance().IN_ICON, Window.CENTER_TABS);
 				}
 				else
 				{
-					AdvancedTextAreaComponent atac = new AdvancedTextAreaComponent(null);
-					getWindow().addComponent(atac.create(path), atac, file.getName(), path, IconRepository.getInstance().TXT_ICON, Window.CENTER_TABS);
+					AdvancedTextAreaComponent advancedTextAreaComponent = new AdvancedTextAreaComponent(null);
+					getMainWindow().addComponent(advancedTextAreaComponent.create(path), advancedTextAreaComponent, file.getName(), path, IconRepository.getInstance().TXT_ICON, Window.CENTER_TABS);
 				}
 				project.getOpenedFiles().add(new File(path));
 				project.writeProject();
@@ -311,40 +311,41 @@ public final class ProjectManager
 
 	public static void renameFile(String oldName, String newName)
 	{
-		File fileRename = null;
-		for (File file : getProject().getOpenedFiles())
-		{
-			if (file.getAbsolutePath().equals(oldName))
-			{
-				fileRename = file;
-				break;
-			}
-		}
-		if (fileRename != null && project.getOpenedFiles().contains(fileRename))
-		{
-			project.getOpenedFiles().remove(fileRename);
-			project.getOpenedFiles().add(new File(newName));
-		}
-		if (oldName.endsWith(FileNames.GRAM_EXTENSION))
-		{
-			project.setGrammarFile(new GrammarFile(newName));
-		}
-		else if (oldName.endsWith(FileNames.SEM_EXTENSION))
-		{
-			project.setSemFile(new SemanticFile(newName));
-		}
-		else if (oldName.endsWith(FileNames.LEX_EXTENSION))
-		{
-			project.setLexFile(new LexicalFile(newName));
-		}
-		project.writeProject();
+//		File fileRename = null;
+//		for (File file : getProject().getOpenedFiles())
+//		{
+//			if (file.getAbsolutePath().equals(oldName))
+//			{
+//				fileRename = file;
+//				break;
+//			}
+//		}
+//		if (fileRename != null && project.getOpenedFiles().contains(fileRename))
+//		{
+//			project.getOpenedFiles().remove(fileRename);
+//			project.getOpenedFiles().add(new File(newName));
+//		}
+//		
+//		if (oldName.endsWith(FileNames.GRAM_EXTENSION))
+//		{
+//			project.setGrammarFile(new GrammarFile(newName));
+//			GrammarRepo.getCompByCanvas().setPath(newName);
+//		}
+//		else if (oldName.endsWith(FileNames.SEM_EXTENSION))
+//		{
+//			project.setSemFile(new SemanticFile(newName));
+//		}
+//		else if (oldName.endsWith(FileNames.LEX_EXTENSION))
+//		{
+//			project.setLexFile(new LexicalFile(newName));
+//		}
+//		project.writeProject();
 	}
 
 	public static void saveAllFiles()
 	{
 		if (getProject() != null)
 		{
-			MainWindow mainWindow = MainWindow.getInstance(getProject().getProjectDir().getAbsolutePath());
 			if (mainWindow != null)
 			{
 				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
@@ -355,7 +356,7 @@ public final class ProjectManager
 						AdvancedTextAreaComponent advancedTextAreaComponent = (AdvancedTextAreaComponent) abstractComponent;
 						saveFile(TextAreaRepo.getComponent(advancedTextAreaComponent.getTextArea()));
 					}
-					if (abstractComponent instanceof GramComponent)
+					if (abstractComponent instanceof GrammarComponent)
 					{
 						saveFile(abstractComponent);
 					}
@@ -378,12 +379,12 @@ public final class ProjectManager
 			}
 			else if (object instanceof Canvas)
 			{
-				path = saveGrammar(object);
+				path = saveGrammarFile((Canvas) object);
 				componentSaved = true;
 			}
-			else if (object instanceof GramComponent)
+			else if (object instanceof GrammarComponent)
 			{
-				GramComponent gram = (GramComponent) object;
+				GrammarComponent gram = (GrammarComponent) object;
 				gram.saveFile();
 				path = gram.getPath();
 			}
@@ -395,7 +396,6 @@ public final class ProjectManager
 
 		if (getProject() != null)
 		{
-			MainWindow mainWindow = MainWindow.getInstance(getProject().getProjectDir().getAbsolutePath());
 			if (mainWindow != null && !componentSaved)
 			{
 				for (DynamicView dynamicView : ProjectManager.getUnsavedViews())

@@ -14,7 +14,7 @@ import org.grview.project.ProjectManager;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
-import org.grview.ui.component.GramComponent;
+import org.grview.ui.component.GrammarComponent;
 import org.grview.util.Log;
 
 /** An adapter to control how a window should react when changed **/
@@ -73,23 +73,9 @@ public class WindowAdapter extends DockingWindowAdapter
 				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
-				if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GramComponent)
+				if (option == JOptionPane.YES_OPTION)
 				{
-					StaticStateManager StaticStateManager = window.getActiveScene().getStaticStateManager();
-					try
-					{
-						StaticStateManager.write();
-						String path = StaticStateManager.getParentDirectory();
-						ProjectManager.saveFile(path);
-					}
-					catch (IOException e)
-					{
-						Log.log(Log.ERROR, this, "Could not save file", e);
-					}
-				}
-				else if (option == JOptionPane.YES_OPTION)
-				{
-					ProjectManager.saveFile(dynamicView.getComponentModel());
+					ProjectManager.saveFile(dynamicView.getComponentModel());	
 				}
 			}
 		}

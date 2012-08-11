@@ -36,11 +36,12 @@ import org.grview.model.ui.IconRepository;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.ThemeManager.Theme;
+import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GeneratedGrammarComponent;
-import org.grview.ui.component.GramComponent;
+import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.JavaComponent;
 import org.grview.ui.component.LexComponent;
@@ -86,7 +87,6 @@ public class MainWindow extends Window implements ComponentListener
 
 	private static MainWindow instance;
 
-
 	/**
 	 * constructor sets all project paths, create a new default window, gets an
 	 * id, and says hello on the volatile state manager
@@ -100,6 +100,20 @@ public class MainWindow extends Window implements ComponentListener
 		CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);
 		instance = this;
 		showFrame();
+	}
+
+	public static void main(String[] args) throws Exception
+	{
+		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
+		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
+		SwingUtilities.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				new MainWindow(projectRootPath);
+			}
+		});
 	}
 
 	/**
@@ -124,15 +138,15 @@ public class MainWindow extends Window implements ComponentListener
 				windowAdapter.updateViews(view, true);
 			}
 
-			ArrayList<File> files = ProjectManager.getProject().getOpenedFiles();
-			if (files.size() == 0)
+			ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
+			if (filesToOpen.size() == 0)
 			{
 				ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
 			}
-			for (int i = 0; i < files.size(); i++)
+			for (int i = 0; i < filesToOpen.size(); i++)
 			{
-				String name = files.get(i).getName();
-				org.grview.ui.component.AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
+				String name = filesToOpen.get(i).getName();
+				AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
 
 				if (component != null)
 				{
@@ -140,12 +154,12 @@ public class MainWindow extends Window implements ComponentListener
 
 					int nextId = getDynamicViewId();
 					Icon icon = IconRepository.getIconByFileName(name);
-					DynamicView view = new DynamicView(name, icon, component.create(files.get(i).getAbsolutePath()), component, files.get(i).getAbsolutePath(), nextId);
+					DynamicView view = new DynamicView(name, icon, component.create(filesToOpen.get(i).getAbsolutePath()), component, filesToOpen.get(i).getAbsolutePath(), nextId);
 
 					defaultLayout[CENTER_TABS].add(view);
 					perspectiveMap.addView(i + perspectiveMap.getViewCount(), view);
 					windowAdapter.updateViews(view, true);
-					if (i == files.size() - 1)
+					if (i == filesToOpen.size() - 1)
 					{
 						createMenuModel(name, component);
 					}
@@ -156,6 +170,25 @@ public class MainWindow extends Window implements ComponentListener
 		{
 			e.printStackTrace();
 		}
+	}
+
+	private org.grview.ui.component.AbstractComponent createFileComponent(String type)
+	{
+		if (type.equalsIgnoreCase(FileNames.GRAM_EXTENSION))
+			return new GrammarComponent();
+		if (type.equalsIgnoreCase(FileNames.LEX_EXTENSION))
+			return new LexComponent();
+		if (type.equalsIgnoreCase(FileNames.SEM_EXTENSION))
+			return new SemComponent();
+		if (type.equalsIgnoreCase(FileNames.XML_EXTENSION))
+			return new XMLComponent();
+		if (type.equalsIgnoreCase(FileNames.TXT_EXTENSION))
+			return new SimpleTextAreaComponent();
+		if (type.equalsIgnoreCase(FileNames.JAVA_EXTENSION))
+			return new JavaComponent();
+		if (type.equalsIgnoreCase(FileNames.IN_EXTENSION))
+			return new InputAdapterComponent();
+		return null;
 	}
 
 	private void createMenuModel(String name, org.grview.ui.component.AbstractComponent component)
@@ -183,25 +216,6 @@ public class MainWindow extends Window implements ComponentListener
 			addToolBar(createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
 			addMenuBar(createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
 		}
-	}
-
-	private org.grview.ui.component.AbstractComponent createFileComponent(String type)
-	{
-		if (type.equalsIgnoreCase(FileNames.GRAM_EXTENSION))
-			return new GramComponent();
-		if (type.equalsIgnoreCase(FileNames.LEX_EXTENSION))
-			return new LexComponent();
-		if (type.equalsIgnoreCase(FileNames.SEM_EXTENSION))
-			return new SemComponent();
-		if (type.equalsIgnoreCase(FileNames.XML_EXTENSION))
-			return new XMLComponent();
-		if (type.equalsIgnoreCase(FileNames.TXT_EXTENSION))
-			return new SimpleTextAreaComponent();
-		if (type.equalsIgnoreCase(FileNames.JAVA_EXTENSION))
-			return new JavaComponent();
-		if (type.equalsIgnoreCase(FileNames.IN_EXTENSION))
-			return new InputAdapterComponent();
-		return null;
 	}
 
 	/**
@@ -235,7 +249,7 @@ public class MainWindow extends Window implements ComponentListener
 		// Set gradient theme. The theme properties object is the super object
 		// of our properties object, which
 		// means our property value settings will override the theme values
-			
+
 		rootWindowProperties.addSuperObject(ThemeManager.getCurrentTheme().getRootWindowProperties());
 
 		// Our properties object is the super object of the root window
@@ -335,6 +349,11 @@ public class MainWindow extends Window implements ComponentListener
 		return view;
 	}
 
+	public void changeTheme(Theme theme)
+	{
+		ThemeManager.changeTheme(rootWindowProperties, theme);
+	}
+
 	@Override
 	public void ContentChanged(org.grview.ui.component.AbstractComponent source, Object oldValue, Object newValue)
 	{
@@ -375,17 +394,25 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void renameFile(String oldName, String newName)
 	{
-		String oldTitle = oldName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
-		String newTitle = newName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
-		for (DynamicView view : dynamicViewsById.values())
-		{
-			if (view.getTitle().equals(oldTitle))
-			{
-				view.getViewProperties().setTitle(newTitle);
-				break;
-			}
-		}
-		ProjectManager.renameFile(oldName, newName);
+//		String oldTitle = oldName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
+//		String newTitle = newName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
+//		for (DynamicView dynamicView : dynamicViewsById.values())
+//		{
+//			if (dynamicView.getTitle().equals(oldTitle))
+//			{
+//				dynamicView.getViewProperties().setTitle(newTitle);
+//				break;
+//			}
+//		}
+//		
+//		if(dynamicViewsByPath.containsKey(oldName))
+//		{
+//			 DynamicView dynamicView = dynamicViewsByPath.remove(oldName);
+//			 dynamicViewsByPath.put(newName, dynamicView);
+//		}
+//		
+//		
+//		ProjectManager.renameFile(oldName, newName);
 	}
 
 	public void setSaved(String path)
@@ -407,42 +434,5 @@ public class MainWindow extends Window implements ComponentListener
 				ProjectManager.removeUnsavedView(path);
 			}
 		}
-	}
-
-	/**
-	 * gets an instance depending on the project path
-	 * 
-	 * @param projectsRootPath
-	 *            the root directory containing the projects and possibly others
-	 * @param projectPath
-	 *            the path exclusively to the current active project
-	 * @return
-	 */
-	public static MainWindow getInstance(String projectsRootPath)
-	{
-		if (instance == null)
-		{
-			instance = new MainWindow(projectsRootPath);
-		}
-		return instance;
-	}
-
-	public static void main(String[] args) throws Exception
-	{
-		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
-		SwingUtilities.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				new MainWindow(projectRootPath);
-			}
-		});
-	}
-	
-	public void changeTheme(Theme theme)
-	{
-		ThemeManager.changeTheme(rootWindowProperties, theme);
 	}
 }

@@ -11,14 +11,13 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 
-import org.grview.actions.AbstractEditAction;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.ui.toolbar.ToolBarGrammar;
 import org.grview.util.Log;
 
-public class GramComponent extends AbstractComponent implements FileComponent, PropertyChangeListener
+public class GrammarComponent extends AbstractComponent implements FileComponent, PropertyChangeListener
 {
 
 	String path;
@@ -52,7 +51,7 @@ public class GramComponent extends AbstractComponent implements FileComponent, P
 			canvasPanel.add(jsp, BorderLayout.CENTER);
 			canvas.setPreferredSize(new Dimension(jsp.getWidth(), jsp.getHeight()));
 			CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().addPropertyChangeListener("writing", this);
-			GrammarRepo.addGramComponent(canvas, this);
+			GrammarRepo.addGramComponent(this);
 			return canvasPanel;
 		}
 		else
@@ -74,6 +73,12 @@ public class GramComponent extends AbstractComponent implements FileComponent, P
 	public String getPath()
 	{
 		return path;
+	}
+	
+	public void setPath(String path)
+	{
+		canvas = CanvasFactory.getCanvasFromFile(path);
+		this.path = path;
 	}
 
 	@Override

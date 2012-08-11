@@ -12,11 +12,9 @@ public class ProjectsComponent extends AbstractComponent
 	@Override
 	public JComponent create(Object param) throws BadParameterException
 	{
-		Project project;
 		if (param instanceof Project)
 		{
-			project = (Project) param;
-			FileTree fileTree = new FileTree(project);
+			FileTree fileTree = new FileTree();
 			JScrollPane jScrollPane = new JScrollPane(fileTree.getView());
 			return jScrollPane;
 		}

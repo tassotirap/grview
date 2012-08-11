@@ -28,7 +28,7 @@ import org.grview.ui.component.AdapterComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
-import org.grview.ui.component.GramComponent;
+import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.toolbar.BaseToolBar;
 import org.grview.ui.toolbar.ToolBarCanvas;
@@ -432,7 +432,7 @@ public abstract class Window implements PropertyChangeListener
 			}
 			else
 			{
-				if (comp instanceof GramComponent)
+				if (comp instanceof GrammarComponent)
 				{
 					model.zoomIn = true;
 					model.zoomOut = true;

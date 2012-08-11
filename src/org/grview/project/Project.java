@@ -24,6 +24,8 @@ import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.AsinEditor;
 import org.grview.ui.ThemeManager.Theme;
+import org.grview.ui.component.GrammarComponent;
+import org.grview.ui.component.GrammarRepo;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
 

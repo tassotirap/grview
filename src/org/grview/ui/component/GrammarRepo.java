@@ -1,21 +1,18 @@
 package org.grview.ui.component;
 
-import java.util.HashMap;
 
-import org.grview.canvas.Canvas;
+public abstract class GrammarRepo
+{
+	private static GrammarComponent gramComponent;
 
-
-public abstract class GrammarRepo {
-
-	private static HashMap<Canvas, AbstractComponent>  compByCanvas = new HashMap<Canvas, AbstractComponent>();
-
-	public static AbstractComponent getCompByCanvas(Canvas canvas) {
-		return compByCanvas.get(canvas);
+	public static GrammarComponent getCompByCanvas()
+	{
+		return gramComponent;
 	}
-	
-	public static void addGramComponent(Canvas canvas, AbstractComponent comp) {
-		compByCanvas.put(canvas, comp);
+
+	public static void addGramComponent(GrammarComponent gramComponent)
+	{
+		GrammarRepo.gramComponent = gramComponent;
 	}
-	
-	
+
 }

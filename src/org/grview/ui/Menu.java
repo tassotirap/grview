@@ -242,7 +242,7 @@ public class Menu<E> extends JMenuBar
 	private JMenu createWindowMenu()
 	{
 		JMenu windowMenu = new JMenu(WINDOW);
-		JMenu theme = new JMenu("Change Theme");
+		JMenu theme = new JMenu("Theme");
 		JMenuItem themeBlueHighlight = new JMenuItem("Blue Highlight");
 		themeBlueHighlight.addActionListener(new ActionListener()
 		{
@@ -250,7 +250,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.BlueHighlightDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.BlueHighlightDockingTheme);			
 			}
 		});
 		theme.add(themeBlueHighlight);
@@ -262,7 +262,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.ClassicDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.ClassicDockingTheme);			
 			}
 		});
 		theme.add(themeClassic);
@@ -274,7 +274,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.DefaultDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.DefaultDockingTheme);			
 			}
 		});
 		theme.add(themeDefault);
@@ -286,7 +286,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.GradientDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.GradientDockingTheme);			
 			}
 		});
 		theme.add(themeGradient);
@@ -298,7 +298,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.LookAndFeelDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.LookAndFeelDockingTheme);			
 			}
 		});
 		theme.add(themeLookAndFeel);
@@ -310,7 +310,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.ShapedGradientDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.ShapedGradientDockingTheme);			
 			}
 		});
 		theme.add(themeShapedGradient);
@@ -322,7 +322,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.SlimFlatDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.SlimFlatDockingTheme);			
 			}
 		});
 		theme.add(themeSlimFlatt);
@@ -334,7 +334,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getWindow().changeTheme(Theme.SoftBlueIceDockingTheme);			
+				ProjectManager.getMainWindow().changeTheme(Theme.SoftBlueIceDockingTheme);			
 			}
 		});
 		theme.add(themeSoftBlueIce);
@@ -354,7 +354,6 @@ public class Menu<E> extends JMenuBar
 	private JMenu createEditMenu()
 	{
 		JMenu edit = new JMenu("Edit");
-		final ArrayList<String> PMbuttons = new ArrayList<String>();
 		final ArrayList<String> Ebuttons = new ArrayList<String>();
 		edit.setMnemonic(KeyEvent.VK_E);
 		JMenuItem undo = new JMenuItem("Undo");
@@ -381,8 +380,6 @@ public class Menu<E> extends JMenuBar
 		Ebuttons.add(paste.getText());
 		Ebuttons.add(zoomIn.getText());
 		Ebuttons.add(zoomOut.getText());
-		JMenuItem[] items = new JMenuItem[]
-		{ undo, redo, copy, cut, paste, zoomIn, zoomOut };
 
 		undo.setEnabled(model.undo);
 		redo.setEnabled(model.redo);
