@@ -35,7 +35,7 @@ import org.grview.ui.toolbar.ToolBarCanvas;
 import org.grview.ui.toolbar.ToolBarFile;
 
 /** An abstract, top-level windows with docking **/
-public abstract class Window implements PropertyChangeListener
+public abstract class Window
 {
 
 	public final static int LEFT_TOP_TABS = 0;
@@ -111,6 +111,7 @@ public abstract class Window implements PropertyChangeListener
 	 * @param toolBar
 	 * @return
 	 */
+	@SuppressWarnings("rawtypes")
 	private <T extends ActionContextHolder> ToolBarCanvas createToolBarCanvas(final T ref)
 	{
 		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas)ref);
@@ -379,8 +380,6 @@ public abstract class Window implements PropertyChangeListener
 	}
 
 	public abstract void removeFileFromProject(String fileName);
-
-	public abstract void renameFile(String oldName, String newName);
 
 	public void updateFocusedComponent(AbstractComponent comp)
 	{

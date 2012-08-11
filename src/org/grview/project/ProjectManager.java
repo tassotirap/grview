@@ -310,36 +310,20 @@ public final class ProjectManager
 	}
 
 	public static void renameFile(String oldName, String newName)
-	{
-//		File fileRename = null;
-//		for (File file : getProject().getOpenedFiles())
-//		{
-//			if (file.getAbsolutePath().equals(oldName))
-//			{
-//				fileRename = file;
-//				break;
-//			}
-//		}
-//		if (fileRename != null && project.getOpenedFiles().contains(fileRename))
-//		{
-//			project.getOpenedFiles().remove(fileRename);
-//			project.getOpenedFiles().add(new File(newName));
-//		}
-//		
-//		if (oldName.endsWith(FileNames.GRAM_EXTENSION))
-//		{
-//			project.setGrammarFile(new GrammarFile(newName));
-//			GrammarRepo.getCompByCanvas().setPath(newName);
-//		}
-//		else if (oldName.endsWith(FileNames.SEM_EXTENSION))
-//		{
-//			project.setSemFile(new SemanticFile(newName));
-//		}
-//		else if (oldName.endsWith(FileNames.LEX_EXTENSION))
-//		{
-//			project.setLexFile(new LexicalFile(newName));
-//		}
-//		project.writeProject();
+	{		
+		if (oldName.endsWith(FileNames.GRAM_EXTENSION))
+		{
+			project.setGrammarFile(new GrammarFile(newName));
+		}
+		else if (oldName.endsWith(FileNames.SEM_EXTENSION))
+		{
+			project.setSemFile(new SemanticFile(newName));
+		}
+		else if (oldName.endsWith(FileNames.LEX_EXTENSION))
+		{
+			project.setLexFile(new LexicalFile(newName));
+		}
+		project.writeProject();
 	}
 
 	public static void saveAllFiles()

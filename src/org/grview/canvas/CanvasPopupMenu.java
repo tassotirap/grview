@@ -6,7 +6,6 @@ import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeSupport;
-import java.io.File;
 
 import javax.swing.ButtonGroup;
 import javax.swing.JCheckBoxMenuItem;
@@ -543,7 +542,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		{
 			for (String string : canvas.getNodes())
 			{
-				
+
 				Widget tempWidget = canvas.findWidget(string);
 				if (tempWidget.getPreferredLocation() != null && tempWidget.getPreferredBounds() != null)
 				{

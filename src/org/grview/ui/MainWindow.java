@@ -65,7 +65,6 @@ public class MainWindow extends Window implements ComponentListener
 
 	private TabWindow tabPage[] = new TabWindow[6];
 
-	private String id;
 
 	/**
 	 * The one and only root window
@@ -77,6 +76,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private ViewMap perspectiveMap = new ViewMap();
 
+	@SuppressWarnings("unchecked")
 	private Vector<DynamicView> defaultLayout[] = new Vector[6];
 
 	/**
@@ -84,8 +84,6 @@ public class MainWindow extends Window implements ComponentListener
 	 * etc. are stored. This object is cleared when the theme is changed.
 	 */
 	private RootWindowProperties rootWindowProperties = new RootWindowProperties();
-
-	private static MainWindow instance;
 
 	/**
 	 * constructor sets all project paths, create a new default window, gets an
@@ -96,9 +94,7 @@ public class MainWindow extends Window implements ComponentListener
 		ProjectManager.init(this, projectsRootPath);
 		createRootWindow();
 		setDefaultLayout();
-		this.id = getNewID();
-		CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);
-		instance = this;
+		//CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);
 		showFrame();
 	}
 
@@ -157,7 +153,7 @@ public class MainWindow extends Window implements ComponentListener
 					DynamicView view = new DynamicView(name, icon, component.create(filesToOpen.get(i).getAbsolutePath()), component, filesToOpen.get(i).getAbsolutePath(), nextId);
 
 					defaultLayout[CENTER_TABS].add(view);
-					perspectiveMap.addView(i + perspectiveMap.getViewCount(), view);
+					perspectiveMap.addView(perspectiveMap.getViewCount(), view);
 					windowAdapter.updateViews(view, true);
 					if (i == filesToOpen.size() - 1)
 					{
@@ -287,11 +283,6 @@ public class MainWindow extends Window implements ComponentListener
 		return tabItems;
 	}
 
-	private synchronized String getNewID()
-	{
-		return String.valueOf(lastID++);
-	}
-
 	/**
 	 * Sets the default window layout.
 	 */
@@ -380,39 +371,9 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	public void propertyChange(PropertyChangeEvent event)
-	{
-
-	}
-
-	@Override
 	public void removeFileFromProject(String fileName)
 	{
 		ProjectManager.closeFile(fileName);
-	}
-
-	@Override
-	public void renameFile(String oldName, String newName)
-	{
-//		String oldTitle = oldName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
-//		String newTitle = newName.replace(ProjectManager.getProject().getProjectsRootPath(), "").replace("\\", "").replace("/", "");
-//		for (DynamicView dynamicView : dynamicViewsById.values())
-//		{
-//			if (dynamicView.getTitle().equals(oldTitle))
-//			{
-//				dynamicView.getViewProperties().setTitle(newTitle);
-//				break;
-//			}
-//		}
-//		
-//		if(dynamicViewsByPath.containsKey(oldName))
-//		{
-//			 DynamicView dynamicView = dynamicViewsByPath.remove(oldName);
-//			 dynamicViewsByPath.put(newName, dynamicView);
-//		}
-//		
-//		
-//		ProjectManager.renameFile(oldName, newName);
 	}
 
 	public void setSaved(String path)

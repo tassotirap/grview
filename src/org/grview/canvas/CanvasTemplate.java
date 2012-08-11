@@ -87,6 +87,7 @@ public class CanvasTemplate extends Canvas
 			return instance;
 		}
 	}
+
 	private LayerWidget backgroundLayer = new LayerWidget(this);
 	private LayerWidget mainLayer = new LayerWidget(this);
 	private LayerWidget connectionLayer = new LayerWidget(this);

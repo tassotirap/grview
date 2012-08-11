@@ -1,8 +1,8 @@
 package org.grview.syntax.command;
 
+public class CommandFactory
+{
 
-public class CommandFactory {
-	
 	private static AddCommand addCommand = new AddCommand();
 	private static ConnectCommand connCommand = new ConnectCommand();
 	private static DelCommand delCommand = new DelCommand();
@@ -11,42 +11,50 @@ public class CommandFactory {
 	private static MoveCommand moveCommand = new MoveCommand();
 	private static AddRoutineCommand addRoutineCommand = new AddRoutineCommand();
 	private static RemoveRoutineCommand removeRoutineCommand = new RemoveRoutineCommand();
-	
-	public static AddCommand createAddCommand() {
+
+	public static AddCommand createAddCommand()
+	{
 		addCommand.clear();
 		return addCommand;
 	}
-	
-	public static ConnectCommand createConnectionCommand() {
+
+	public static ConnectCommand createConnectionCommand()
+	{
 		connCommand.clear();
 		return connCommand;
 	}
-	
-	public static DelCommand createDelCommand() {
+
+	public static DelCommand createDelCommand()
+	{
 		return new DelCommand();
 	}
-	
-	public static DisconnectCommand createDisconnectionCommand() {
+
+	public static DisconnectCommand createDisconnectionCommand()
+	{
 		dConnCommand.clear();
 		return dConnCommand;
 	}
-	
-	public static RenameCommand createRenameCommand() {
+
+	public static RenameCommand createRenameCommand()
+	{
 		renameCommand.clear();
 		return renameCommand;
 	}
-	
-	public static RemoveRoutineCommand createRemoveRoutineCommand() {
+
+	public static RemoveRoutineCommand createRemoveRoutineCommand()
+	{
 		removeRoutineCommand.clear();
 		return removeRoutineCommand;
 	}
-	
-	public static MoveCommand createMoveCommand() {
+
+	public static MoveCommand createMoveCommand()
+	{
 		moveCommand.clear();
 		return moveCommand;
 	}
-	
-	public static AddRoutineCommand createAddRoutineCommand() {
+
+	public static AddRoutineCommand createAddRoutineCommand()
+	{
 		addRoutineCommand.clear();
 		return addRoutineCommand;
 	}

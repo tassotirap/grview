@@ -1,7 +1,5 @@
 package org.grview.ui;
 
-import java.io.IOException;
-
 import javax.swing.JOptionPane;
 
 import net.infonode.docking.DockingWindow;
@@ -9,13 +7,10 @@ import net.infonode.docking.DockingWindowAdapter;
 import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 
-import org.grview.canvas.state.StaticStateManager;
 import org.grview.project.ProjectManager;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
-import org.grview.ui.component.GrammarComponent;
-import org.grview.util.Log;
 
 /** An adapter to control how a window should react when changed **/
 public class WindowAdapter extends DockingWindowAdapter

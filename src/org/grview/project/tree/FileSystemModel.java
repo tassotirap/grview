@@ -89,7 +89,7 @@ public class FileSystemModel implements TreeModel
 		fireTreeNodesChanged(path.getParentPath(), changedChildrenIndices, changedChildren);
 		fireTreeStructureChanged(this, path.getParentPath());
 
-		ProjectManager.getMainWindow().renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
+		ProjectManager.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
 	}
 
 	protected void fireTreeNodesChanged(TreePath parentPath, int[] indices, Object[] children)

@@ -129,33 +129,36 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
 		initInputHandler();
-//		DefaultActionSet defaultActionSet = new DefaultActionSet(this);
-//		defaultActionSet.load();
-//		defaultActionSet.initKeyBindings(); // not working yet
-//		addActionSet(defaultActionSet);
 		createCursors();
 	}
 
 	public void createCursors()
 	{
-		Toolkit tk = Toolkit.getDefaultToolkit();
-		Image image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_h_enabled.gif"));
-		cursors.put(LEFT_SIDE, tk.createCustomCursor(image, new Point(0, 0), "Left Side"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_t_enabled.gif"));
-		cursors.put(TERMINAL, tk.createCustomCursor(image, new Point(0, 0), "Terminal"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_nt_enabled.gif"));
-		cursors.put(N_TERMINAL, tk.createCustomCursor(image, new Point(0, 0), "Non-Terminal"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_l_enabled.gif"));
-		cursors.put(LAMBDA, tk.createCustomCursor(image, new Point(0, 0), "Lambda Alternative"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_successor_enabled.gif"));
-		cursors.put(SUCCESSOR, tk.createCustomCursor(image, new Point(0, 0), "Successor"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_alternative_enabled.gif"));
-		cursors.put(ALTERNATIVE, tk.createCustomCursor(image, new Point(0, 0), "Alternative"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_label_enabled.gif"));
-		cursors.put(LABEL, tk.createCustomCursor(image, new Point(0, 0), "Label"));
-		image = tk.getImage(Canvas.class.getResource("/org/grview/images/cursor_s_enabled.gif"));
-		cursors.put(START, tk.createCustomCursor(image, new Point(0, 0), "Start"));
+		Toolkit toolkit = Toolkit.getDefaultToolkit();
 
+		Image image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_h_enabled.gif"));
+		cursors.put(LEFT_SIDE, toolkit.createCustomCursor(image, new Point(0, 0), "Left Side"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_t_enabled.gif"));
+		cursors.put(TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Terminal"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_nt_enabled.gif"));
+		cursors.put(N_TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Non-Terminal"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_l_enabled.gif"));
+		cursors.put(LAMBDA, toolkit.createCustomCursor(image, new Point(0, 0), "Lambda Alternative"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_successor_enabled.gif"));
+		cursors.put(SUCCESSOR, toolkit.createCustomCursor(image, new Point(0, 0), "Successor"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_alternative_enabled.gif"));
+		cursors.put(ALTERNATIVE, toolkit.createCustomCursor(image, new Point(0, 0), "Alternative"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_label_enabled.gif"));
+		cursors.put(LABEL, toolkit.createCustomCursor(image, new Point(0, 0), "Label"));
+
+		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_s_enabled.gif"));
+		cursors.put(START, toolkit.createCustomCursor(image, new Point(0, 0), "Start"));
 	}
 
 	/**

@@ -38,8 +38,8 @@ public class CanvasFactory implements PropertyChangeListener
 	private HashMap<String, Canvas> canvasByPath;
 	private HashMap<Canvas, String> pathByCanvas;
 	private HashMap<String, Canvas> canvasById;
-	private HashMap<String, VolatileStateManager> volatileStateManager;
-	private HashMap<String, StaticStateManager> staticStateManager;
+	private HashMap<String, VolatileStateManager> listVolatileStateManager;
+	private HashMap<String, StaticStateManager> listStaticStateManager;
 	private HashMap<String, CanvasState> states;
 
 	private static int defaultBufferCapacity = 20;
@@ -51,8 +51,8 @@ public class CanvasFactory implements PropertyChangeListener
 		canvasByPath = new HashMap<String, Canvas>();
 		pathByCanvas = new HashMap<Canvas, String>();
 		canvasById = new HashMap<String, Canvas>();
-		volatileStateManager = new HashMap<String, VolatileStateManager>();
-		staticStateManager = new HashMap<String, StaticStateManager>();
+		listVolatileStateManager = new HashMap<String, VolatileStateManager>();
+		listStaticStateManager = new HashMap<String, StaticStateManager>();
 		states = new HashMap<String, CanvasState>();
 		decorator = new CD();
 		actions = WidgetActionRepositoryFactory.getDefaultRepository();
@@ -66,14 +66,14 @@ public class CanvasFactory implements PropertyChangeListener
 		}
 		return instance;
 	}
-
+	
 	public static Canvas createCanvas(File file)
 	{
 		CanvasFactory canvasFactory = getInstance();
 		String id = String.valueOf(canvasFactory.canvasById.size());
 		Canvas canvas = null;
 		StaticStateManager staticStateManager = new StaticStateManager();
-		canvasFactory.staticStateManager.put(id, staticStateManager);
+		canvasFactory.listStaticStateManager.put(id, staticStateManager);
 		staticStateManager.setFile(file);
 		try
 		{
@@ -91,7 +91,7 @@ public class CanvasFactory implements PropertyChangeListener
 			;
 			VolatileStateManager volatileStateManager = new VolatileStateManager(canvasFactory.states.get(id), defaultBufferCapacity);
 			volatileStateManager.init();
-			canvasFactory.volatileStateManager.put(id, volatileStateManager);
+			canvasFactory.listVolatileStateManager.put(id, volatileStateManager);
 			volatileStateManager.getMonitor().addPropertyChangeListener("object_state", canvas);
 			volatileStateManager.getMonitor().addPropertyChangeListener("writing", canvas);
 			volatileStateManager.getMonitor().addPropertyChangeListener("undoable", canvas);
@@ -159,12 +159,12 @@ public class CanvasFactory implements PropertyChangeListener
 	 */
 	public static Canvas getCanvas(String id)
 	{
-		CanvasFactory cf = getInstance();
-		if (!cf.canvasById.containsKey(id))
+		CanvasFactory canvasFactory = getInstance();
+		if (!canvasFactory.canvasById.containsKey(id))
 		{
 			return null;
 		}
-		return cf.canvasById.get(id);
+		return canvasFactory.canvasById.get(id);
 	}
 
 	/**
@@ -177,11 +177,11 @@ public class CanvasFactory implements PropertyChangeListener
 	 */
 	public static StaticStateManager getStaticStateManager(String id)
 	{
-		if (!getInstance().staticStateManager.containsKey(id))
+		if (!getInstance().listStaticStateManager.containsKey(id))
 		{
 			return null;
 		}
-		return getInstance().staticStateManager.get(id);
+		return getInstance().listStaticStateManager.get(id);
 	}
 
 	/**
@@ -194,11 +194,11 @@ public class CanvasFactory implements PropertyChangeListener
 	 */
 	public static VolatileStateManager getVolatileStateManager(String id)
 	{
-		if (!getInstance().volatileStateManager.containsKey(id))
+		if (!getInstance().listVolatileStateManager.containsKey(id))
 		{
 			return null;
 		}
-		return getInstance().volatileStateManager.get(id);
+		return getInstance().listVolatileStateManager.get(id);
 	}
 
 	private static class CD extends CanvasDecorator
@@ -273,7 +273,7 @@ public class CanvasFactory implements PropertyChangeListener
 				((VolatileStateManager) event.getSource()).getMonitor().removePropertyChangeListener(oldState);
 				((VolatileStateManager) event.getSource()).getMonitor().addPropertyChangeListener("writing", state);
 				states.put(state.getID(), state);
-				staticStateManager.get(state.getID()).setObject(state);
+				listStaticStateManager.get(state.getID()).setObject(state);
 				getCanvas(state.getID()).updateState(state);
 			}
 		}

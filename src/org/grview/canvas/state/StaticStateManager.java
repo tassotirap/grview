@@ -1,6 +1,5 @@
 package org.grview.canvas.state;
 
-import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -13,13 +12,13 @@ public class StaticStateManager
 {
 	private Object object;
 
-	private PropertyChangeSupport monitor;
+	//private PropertyChangeSupport monitor;
 
 	private File file;
 
 	public StaticStateManager()
 	{
-		monitor = new PropertyChangeSupport(this);
+		//monitor = new PropertyChangeSupport(this);
 	}
 
 	public Object read() throws IOException, ClassNotFoundException
@@ -39,7 +38,7 @@ public class StaticStateManager
 
 	public void write() throws IOException
 	{
-		monitor.firePropertyChange("writing", null, object);
+		//monitor.firePropertyChange("writing", null, object);
 		FileOutputStream fileOutputStream = new FileOutputStream(file);
 		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
 		objectOutputStream.writeObject(object);
