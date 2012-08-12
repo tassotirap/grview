@@ -70,6 +70,7 @@ public class CanvasFactory implements PropertyChangeListener
 	public static Canvas createCanvas(File file)
 	{
 		CanvasFactory canvasFactory = getInstance();
+		canvasFactory.resetActions();
 		String id = String.valueOf(canvasFactory.canvasById.size());
 		Canvas canvas = null;
 		StaticStateManager staticStateManager = new StaticStateManager();
@@ -88,7 +89,8 @@ public class CanvasFactory implements PropertyChangeListener
 			{
 				canvasFactory.states.put(id, (CanvasState) state);
 			}
-			;
+			canvasFactory.states.get(id).setId(id);
+			canvas.setId(id);
 			VolatileStateManager volatileStateManager = new VolatileStateManager(canvasFactory.states.get(id), defaultBufferCapacity);
 			volatileStateManager.init();
 			canvasFactory.listVolatileStateManager.put(id, volatileStateManager);
@@ -108,6 +110,12 @@ public class CanvasFactory implements PropertyChangeListener
 		canvasFactory.canvasByPath.put(file.getAbsolutePath(), canvas);
 		canvasFactory.pathByCanvas.put(canvas, file.getAbsolutePath());
 		return canvas;
+	}
+
+	private void resetActions()
+	{
+		WidgetActionRepositoryFactory.createRepository();
+		actions = WidgetActionRepositoryFactory.getDefaultRepository();		
 	}
 
 	public static void setProjectPath(String path)

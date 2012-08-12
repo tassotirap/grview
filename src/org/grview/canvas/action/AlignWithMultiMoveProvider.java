@@ -54,54 +54,62 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Widget;
 import org.netbeans.modules.visual.action.AlignWithSupport;
 
+public final class AlignWithMultiMoveProvider extends AlignWithSupport implements MoveStrategy, MoveProvider
+{
 
-public final class AlignWithMultiMoveProvider extends AlignWithSupport implements MoveStrategy, MoveProvider {
+	private boolean outerBounds;
+	private String canvasID;
+	private MultiMoveProvider mmp;
 
-    private boolean outerBounds;
-    private String canvasID;
-    private MultiMoveProvider mmp;
+	public AlignWithMultiMoveProvider(Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
+	{
+		super(collector, interractionLayer, decorator);
+		this.outerBounds = outerBounds;
+		this.canvasID = canvas.getID();
+		mmp = new MultiMoveProvider(CanvasFactory.getCanvas(canvasID));
+	}
 
-    public AlignWithMultiMoveProvider (Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds) {
-        super (collector, interractionLayer, decorator);
-        this.outerBounds = outerBounds;
-        this.canvasID = canvas.getID();
-        mmp = new MultiMoveProvider(CanvasFactory.getCanvas(canvasID));
-    }
+	public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation)
+	{
+		Point widgetLocation = widget.getLocation();
+		Rectangle widgetBounds = outerBounds ? widget.getBounds() : widget.getClientArea();
+		Rectangle bounds = widget.convertLocalToScene(widgetBounds);
+		bounds.translate(suggestedLocation.x - widgetLocation.x, suggestedLocation.y - widgetLocation.y);
+		Insets insets = widget.getBorder().getInsets();
+		if (!outerBounds)
+		{
+			suggestedLocation.x += insets.left;
+			suggestedLocation.y += insets.top;
+		}
+		Point point = super.locationSuggested(widget, bounds, suggestedLocation, true, true, true, true);
+		if (!outerBounds)
+		{
+			point.x -= insets.left;
+			point.y -= insets.top;
+		}
+		return widget.getParentWidget().convertSceneToLocal(point);
+	}
 
-    public Point locationSuggested (Widget widget, Point originalLocation, Point suggestedLocation) {
-        Point widgetLocation = widget.getLocation ();
-        Rectangle widgetBounds = outerBounds ? widget.getBounds () : widget.getClientArea ();
-        Rectangle bounds = widget.convertLocalToScene (widgetBounds);
-        bounds.translate (suggestedLocation.x - widgetLocation.x, suggestedLocation.y - widgetLocation.y);
-        Insets insets = widget.getBorder ().getInsets ();
-        if (! outerBounds) {
-            suggestedLocation.x += insets.left;
-            suggestedLocation.y += insets.top;
-        }
-        Point point = super.locationSuggested (widget, bounds, suggestedLocation, true, true, true, true);
-        if (! outerBounds) {
-            point.x -= insets.left;
-            point.y -= insets.top;
-        }
-        return widget.getParentWidget ().convertSceneToLocal (point);
-    }
+	public void movementStarted(Widget widget)
+	{
+		show();
+		mmp.movementStarted(widget);
+	}
 
-    public void movementStarted (Widget widget) {
-        show ();
-        mmp.movementStarted(widget);
-    }
+	public void movementFinished(Widget widget)
+	{
+		hide();
+		mmp.movementFinished(widget);
+	}
 
-    public void movementFinished (Widget widget) {
-        hide ();
-        mmp.movementFinished(widget);
-    }
+	public Point getOriginalLocation(Widget widget)
+	{
+		return mmp.getOriginalLocation(widget);
+	}
 
-    public Point getOriginalLocation (Widget widget) {
-        return mmp.getOriginalLocation (widget);
-    }
-
-    public void setNewLocation (Widget widget, Point location) {
-        mmp.setNewLocation (widget, location);
-    }
+	public void setNewLocation(Widget widget, Point location)
+	{
+		mmp.setNewLocation(widget, location);
+	}
 
 }

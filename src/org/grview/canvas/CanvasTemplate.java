@@ -36,7 +36,6 @@ public class CanvasTemplate extends Canvas
 	private static class MoveTracker extends MoveStrategy
 	{
 		private static Canvas canvas;
-		private static MoveTracker instance;
 
 		private WidgetAction activeMovement;
 
@@ -76,15 +75,6 @@ public class CanvasTemplate extends Canvas
 				}
 			}
 			activeMovement = ma;
-		}
-
-		public static MoveTracker getInstance(Canvas canvas, WidgetActionRepository arepo)
-		{
-			if (instance == null)
-			{
-				instance = new MoveTracker(canvas, arepo);
-			}
-			return instance;
 		}
 	}
 
@@ -586,7 +576,7 @@ public class CanvasTemplate extends Canvas
 	@Override
 	public void setMoveStrategy(String strategy)
 	{
-		MoveTracker mt = MoveTracker.getInstance(this, actions);
+		MoveTracker mt = new MoveTracker(this, actions);
 		if (strategy != null)
 		{
 			state.getPreferences().setMoveStrategy(strategy);

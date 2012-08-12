@@ -8,6 +8,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 import org.grview.canvas.Canvas;
+import org.grview.canvas.action.WidgetActionRepositoryFactory;
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;

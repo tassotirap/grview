@@ -228,4 +228,9 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	{
 		return preferences;
 	}
+
+	public void setId(String id)
+	{
+		this.id = id;		
+	}
 }

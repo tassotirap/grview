@@ -4,7 +4,6 @@ import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.beans.PropertyChangeEvent;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -31,6 +30,7 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.util.Direction;
 
 import org.grview.canvas.CanvasFactory;
+import org.grview.canvas.action.WidgetActionRepositoryFactory;
 import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
 import org.grview.project.ProjectManager;
@@ -61,10 +61,7 @@ import org.grview.ui.toolbar.ToolBarNewFile;
 public class MainWindow extends Window implements ComponentListener
 {
 
-	private static int lastID;
-
 	private TabWindow tabPage[] = new TabWindow[6];
-
 
 	/**
 	 * The one and only root window
@@ -93,8 +90,17 @@ public class MainWindow extends Window implements ComponentListener
 	{
 		ProjectManager.init(this, projectsRootPath);
 		createRootWindow();
+		createDefaultViews();
 		setDefaultLayout();
-		//CanvasFactory.getVolatileStateManager(id).getMonitor().addPropertyChangeListener(this);
+		try
+		{
+			openFiles();
+		}
+		catch (BadParameterException e)
+		{
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		showFrame();
 	}
 
@@ -134,37 +140,37 @@ public class MainWindow extends Window implements ComponentListener
 				windowAdapter.updateViews(view, true);
 			}
 
-			ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
-			if (filesToOpen.size() == 0)
-			{
-				ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
-			}
-			for (int i = 0; i < filesToOpen.size(); i++)
-			{
-				String name = filesToOpen.get(i).getName();
-				AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
-
-				if (component != null)
-				{
-					component.addComponentListener(this);
-
-					int nextId = getDynamicViewId();
-					Icon icon = IconRepository.getIconByFileName(name);
-					DynamicView view = new DynamicView(name, icon, component.create(filesToOpen.get(i).getAbsolutePath()), component, filesToOpen.get(i).getAbsolutePath(), nextId);
-
-					defaultLayout[CENTER_TABS].add(view);
-					perspectiveMap.addView(perspectiveMap.getViewCount(), view);
-					windowAdapter.updateViews(view, true);
-					if (i == filesToOpen.size() - 1)
-					{
-						createMenuModel(name, component);
-					}
-				}
-			}
+			
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
+		}
+	}
+
+	private void openFiles() throws BadParameterException
+	{
+		ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
+		if (filesToOpen.size() == 0)
+		{
+			ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
+		}
+		for (int i = 0; i < filesToOpen.size(); i++)
+		{
+			String name = filesToOpen.get(i).getName();
+			AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
+
+			if (component != null)
+			{
+				component.addComponentListener(this);
+
+				Icon icon = IconRepository.getIconByFileName(name);
+				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name,filesToOpen.get(i).getAbsolutePath(), icon, CENTER_TABS);
+				if (i == filesToOpen.size() - 1)
+				{
+					createMenuModel(name, component);
+				}
+			}
 		}
 	}
 
@@ -220,8 +226,6 @@ public class MainWindow extends Window implements ComponentListener
 	private void createRootWindow()
 	{
 
-		// The mixed view map makes it easy to mix static and dynamic views
-		// inside the same root window
 		MixedViewHandler handler = new MixedViewHandler(perspectiveMap, new ViewSerializer()
 		{
 			@Override
@@ -237,37 +241,12 @@ public class MainWindow extends Window implements ComponentListener
 			}
 		});
 
-		// rootWindow =
-		// DockingUtil.createHeavyweightSupportedRootWindow(viewMap, handler,
-		// true);
 		rootWindow = DockingUtil.createRootWindow(perspectiveMap, handler, true);
-
-		// Set gradient theme. The theme properties object is the super object
-		// of our properties object, which
-		// means our property value settings will override the theme values
-
 		rootWindowProperties.addSuperObject(ThemeManager.getCurrentTheme().getRootWindowProperties());
-
-		// Our properties object is the super object of the root window
-		// properties object, so all property values of the
-		// theme and in our property object will be used by the root window
 		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
-
-		// Enable the bottom window bar
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
-
-		// Add a listener which shows dialogs when a window is closing or
-		// closed.
 		rootWindow.addListener(new WindowAdapter(this));
-
-		// Add a mouse button listener that closes a window when it's clicked
-		// with the middle mouse button.
-		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);
-
-		// //////////////////// CREATE THE VIEWS
-		// ////////////////////////////////
-		createDefaultViews();
-		// //////////////////////////////////////////////////////////////////////////
+		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);		
 	}
 
 	private ArrayList<TabItem> createTabs() throws BadParameterException
@@ -332,6 +311,10 @@ public class MainWindow extends Window implements ComponentListener
 	public DynamicView addComponent(Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place)
 	{
 		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, getDynamicViewId());
+		if(componentModel instanceof GrammarComponent)
+		{
+			activeScene = CanvasFactory.getCanvasFromFile(fileName);
+		}
 		if (componentModel != null)
 			componentModel.addComponentListener(this);
 		tabPage[place].addTab(view);
@@ -374,6 +357,23 @@ public class MainWindow extends Window implements ComponentListener
 	public void removeFileFromProject(String fileName)
 	{
 		ProjectManager.closeFile(fileName);
+	}
+	
+	@Override
+	public void removeDynamicView(DynamicView dynamicView)
+	{
+		dynamicViewsById.remove(dynamicView.getId());
+		dynamicViewsByComponent.remove(dynamicView.getComponentModel());
+		dynamicViewsByPath.remove(dynamicView.getFileName());
+		AbstractComponent component = dynamicView.getComponentModel();
+		component.removeAllComponentListener();
+		component.removeComponentListener(this);
+		
+		for(Vector<DynamicView> vDynamicView : defaultLayout)
+		{
+			if(vDynamicView.contains(dynamicView))
+				vDynamicView.remove(dynamicView);
+		}
 	}
 
 	public void setSaved(String path)

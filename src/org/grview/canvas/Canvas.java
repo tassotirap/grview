@@ -600,4 +600,9 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 			}
 		}
 	}
+
+	public void setId(String id)
+	{
+		this.id = id;
+	}
 }

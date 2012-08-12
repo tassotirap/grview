@@ -61,6 +61,25 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 	}
 
 	@Override
+	public void removeAllComponentListener()
+	{
+		super.removeAllComponentListener();
+
+		PropertyChangeListener[] propertyChangeListener = canvas.getMonitor().getPropertyChangeListeners();
+		for (int i = 0; i < propertyChangeListener.length; i++)
+		{
+			canvas.getMonitor().removePropertyChangeListener(propertyChangeListener[i]);
+		}
+
+		propertyChangeListener = CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().getPropertyChangeListeners();
+		for (int i = 0; i < propertyChangeListener.length; i++)
+		{
+			CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().removePropertyChangeListener(propertyChangeListener[i]);
+		}
+
+	}
+
+	@Override
 	public void fireContentChanged()
 	{
 		for (ComponentListener listener : listeners)
@@ -74,7 +93,7 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 	{
 		return path;
 	}
-	
+
 	public void setPath(String path)
 	{
 		canvas = CanvasFactory.getCanvasFromFile(path);

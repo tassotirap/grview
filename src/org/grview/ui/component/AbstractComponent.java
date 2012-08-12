@@ -26,6 +26,13 @@ public abstract class AbstractComponent
 			listeners.remove(listener);
 		}
 	}
+	
+	public void removeAllComponentListener()
+	{
+		ArrayList<ComponentListener> clone = (ArrayList<ComponentListener>)listeners.clone();
+		for(ComponentListener listener : clone)
+			listeners.remove(listener);
+	}
 
 	public abstract void fireContentChanged();
 

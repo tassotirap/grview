@@ -73,6 +73,7 @@ public class WindowAdapter extends DockingWindowAdapter
 					ProjectManager.saveFile(dynamicView.getComponentModel());	
 				}
 			}
+			window.removeDynamicView(dynamicView);
 		}
 		if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(dWindow) >= 0 && window.getTabPage()[Window.CENTER_TABS].getChildWindowCount() == 1)
 		{

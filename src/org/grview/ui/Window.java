@@ -441,4 +441,10 @@ public abstract class Window
 			}
 		}
 	}
+
+	public void removeDynamicView(DynamicView dynamicView)
+	{
+		// TODO Auto-generated method stub
+		
+	}
 }
