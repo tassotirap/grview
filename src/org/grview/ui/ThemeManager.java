@@ -1,7 +1,5 @@
 package org.grview.ui;
 
-import org.grview.project.ProjectManager;
-
 import net.infonode.docking.properties.RootWindowProperties;
 import net.infonode.docking.theme.BlueHighlightDockingTheme;
 import net.infonode.docking.theme.ClassicDockingTheme;
@@ -13,8 +11,15 @@ import net.infonode.docking.theme.ShapedGradientDockingTheme;
 import net.infonode.docking.theme.SlimFlatDockingTheme;
 import net.infonode.docking.theme.SoftBlueIceDockingTheme;
 
+import org.grview.project.ProjectManager;
+
 public class ThemeManager
 {
+	public enum Theme
+	{
+		BlueHighlightDockingTheme, ClassicDockingTheme, DefaultDockingTheme, GradientDockingTheme, LookAndFeelDockingTheme, ShapedGradientDockingTheme, SlimFlatDockingTheme, SoftBlueIceDockingTheme,
+	}
+
 	private static BlueHighlightDockingTheme blueHighlightDockingTheme;
 	private static ClassicDockingTheme classicDockingTheme;
 	static DefaultDockingTheme defaultDockingTheme;
@@ -22,67 +27,76 @@ public class ThemeManager
 	static LookAndFeelDockingTheme lookAndFeelDockingTheme;
 	static ShapedGradientDockingTheme shapedGradientDockingTheme;
 	static SlimFlatDockingTheme slimFlatDockingTheme;
+
 	static SoftBlueIceDockingTheme softBlueIceDockingTheme;
 
 	private static BlueHighlightDockingTheme getBlueHighlightDockingTheme()
 	{
-		if(blueHighlightDockingTheme == null)
+		if (blueHighlightDockingTheme == null)
 			blueHighlightDockingTheme = new BlueHighlightDockingTheme();
 		return blueHighlightDockingTheme;
 	}
 
 	private static ClassicDockingTheme getClassicDockingTheme()
 	{
-		if(classicDockingTheme == null)
+		if (classicDockingTheme == null)
 			classicDockingTheme = new ClassicDockingTheme();
 		return classicDockingTheme;
 	}
 
 	private static DefaultDockingTheme getDefaultDockingTheme()
 	{
-		if(defaultDockingTheme == null)
+		if (defaultDockingTheme == null)
 			defaultDockingTheme = new DefaultDockingTheme();
 		return defaultDockingTheme;
 	}
 
 	private static GradientDockingTheme getGradientDockingTheme()
 	{
-		if(gradientDockingTheme == null)
+		if (gradientDockingTheme == null)
 			gradientDockingTheme = new GradientDockingTheme();
 		return gradientDockingTheme;
 	}
 
 	private static LookAndFeelDockingTheme getLookAndFeelDockingTheme()
 	{
-		if(lookAndFeelDockingTheme == null)
+		if (lookAndFeelDockingTheme == null)
 			lookAndFeelDockingTheme = new LookAndFeelDockingTheme();
 		return lookAndFeelDockingTheme;
 	}
 
 	private static ShapedGradientDockingTheme getShapedGradientDockingTheme()
 	{
-		if(shapedGradientDockingTheme == null)
+		if (shapedGradientDockingTheme == null)
 			shapedGradientDockingTheme = new ShapedGradientDockingTheme();
 		return shapedGradientDockingTheme;
 	}
 
 	private static SlimFlatDockingTheme getSlimFlatDockingTheme()
 	{
-		if(slimFlatDockingTheme == null)
+		if (slimFlatDockingTheme == null)
 			slimFlatDockingTheme = new SlimFlatDockingTheme();
 		return slimFlatDockingTheme;
 	}
 
 	private static SoftBlueIceDockingTheme getSoftBlueIceDockingTheme()
 	{
-		if(softBlueIceDockingTheme == null)
+		if (softBlueIceDockingTheme == null)
 			softBlueIceDockingTheme = new SoftBlueIceDockingTheme();
 		return softBlueIceDockingTheme;
 	}
 
-	public enum Theme
+	public static void changeTheme(RootWindowProperties rootWindowProperties, Theme theme)
 	{
-		BlueHighlightDockingTheme, ClassicDockingTheme, DefaultDockingTheme, GradientDockingTheme, LookAndFeelDockingTheme, ShapedGradientDockingTheme, SlimFlatDockingTheme, SoftBlueIceDockingTheme,
+		DockingWindowsTheme oldTheme = getCurrentTheme();
+		DockingWindowsTheme newTheme = getTheme(theme);
+		rootWindowProperties.replaceSuperObject(oldTheme.getRootWindowProperties(), newTheme.getRootWindowProperties());
+		ProjectManager.getProject().setTheme(theme);
+	}
+
+	public static DockingWindowsTheme getCurrentTheme()
+	{
+		return getTheme(ProjectManager.getProject().getTheme());
 	}
 
 	public static DockingWindowsTheme getTheme(Theme theme)
@@ -110,17 +124,4 @@ public class ThemeManager
 		}
 	}
 
-	public static DockingWindowsTheme getCurrentTheme()
-	{
-		return getTheme(ProjectManager.getProject().getTheme());
-	}
-	
-	public static void changeTheme(RootWindowProperties rootWindowProperties, Theme theme)
-	{
-		DockingWindowsTheme oldTheme = getCurrentTheme();
-		DockingWindowsTheme newTheme = getTheme(theme);
-		rootWindowProperties.replaceSuperObject(oldTheme.getRootWindowProperties(), newTheme.getRootWindowProperties());	
-		ProjectManager.getProject().setTheme(theme);	
-	}
-	
 }

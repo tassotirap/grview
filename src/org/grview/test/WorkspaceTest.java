@@ -16,10 +16,35 @@ public class WorkspaceTest
 
 	WorkspaceChooser workspaceChooser;
 
-	@Before
-	public void setUp()
+	@Test
+	public void addAndLoadDirectory()
 	{
-		workspaceChooser = WorkspaceChooser.getInstance();
+		Method addDirToList, readDirsFromList;
+		Field field;
+
+		try
+		{
+			addDirToList = WorkspaceChooser.class.getDeclaredMethod("addDirToList", String.class);
+			addDirToList.setAccessible(true);
+			addDirToList.invoke(workspaceChooser, "C:/TESTE");
+
+			field = WorkspaceChooser.class.getDeclaredField("ckbWorkspace");
+			field.setAccessible(true);
+			JComboBox<String> ckbWorkspace = (JComboBox<String>) field.get(workspaceChooser);
+
+			ckbWorkspace.removeAllItems();
+
+			readDirsFromList = WorkspaceChooser.class.getDeclaredMethod("readDirsFromList");
+			readDirsFromList.setAccessible(true);
+			readDirsFromList.invoke(workspaceChooser);
+			ckbWorkspace.setSelectedItem("C:/TESTE");
+
+			Assert.assertTrue(ckbWorkspace.getSelectedIndex() != -1);
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	@Test
@@ -41,37 +66,10 @@ public class WorkspaceTest
 
 	}
 
-	
-	@Test
-	public void addAndLoadDirectory()
+	@Before
+	public void setUp()
 	{
-		Method addDirToList, readDirsFromList;
-		Field field;
-		
-		try
-		{
-			addDirToList = WorkspaceChooser.class.getDeclaredMethod("addDirToList", String.class);
-			addDirToList.setAccessible(true);
-			addDirToList.invoke(workspaceChooser, "C:/TESTE");
-
-			field = WorkspaceChooser.class.getDeclaredField("ckbWorkspace");
-			field.setAccessible(true);
-			JComboBox<String> ckbWorkspace = (JComboBox<String>)field.get(workspaceChooser);
-			
-			ckbWorkspace.removeAllItems();
-			
-			readDirsFromList = WorkspaceChooser.class.getDeclaredMethod("readDirsFromList");
-			readDirsFromList.setAccessible(true);
-			readDirsFromList.invoke(workspaceChooser);
-			ckbWorkspace.setSelectedItem("C:/TESTE");
-			
-			
-			Assert.assertTrue(ckbWorkspace.getSelectedIndex() != -1);
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		workspaceChooser = WorkspaceChooser.getInstance();
 	}
 
 }

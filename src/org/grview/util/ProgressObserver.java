@@ -24,7 +24,7 @@ package org.grview.util;
 
 /**
  * Interface used to monitor things that can progress.
- *
+ * 
  * @author Matthieu Casanova
  * @version $Id$
  * @since jEdit 4.3pre3
@@ -32,26 +32,29 @@ package org.grview.util;
 public interface ProgressObserver
 {
 	/**
-	 * Update the progress value.
-	 *
-	 * @param value the new value
-	 * @since jEdit 4.3pre3
-	 */
-	void setValue(long value);
-	 
-	/**
 	 * Update the maximum value.
-	 *
-	 * @param value the new maximum value
+	 * 
+	 * @param value
+	 *            the new maximum value
 	 * @since jEdit 4.3pre3
 	 */
 	void setMaximum(long value);
-	 
+
 	/**
 	 * Update the status label.
-	 *
-	 * @param status the new status label
+	 * 
+	 * @param status
+	 *            the new status label
 	 * @since jEdit 4.3pre3
 	 */
 	void setStatus(String status);
+
+	/**
+	 * Update the progress value.
+	 * 
+	 * @param value
+	 *            the new value
+	 * @since jEdit 4.3pre3
+	 */
+	void setValue(long value);
 }

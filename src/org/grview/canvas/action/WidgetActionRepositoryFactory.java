@@ -13,19 +13,6 @@ import org.netbeans.modules.visual.action.SingleLayerAlignWithWidgetCollector;
 public class WidgetActionRepositoryFactory
 {
 
-	private static WidgetActionRepository war = new WAR();
-
-	public static WidgetActionRepository createRepository()
-	{
-		war = new WAR();
-		return war;
-	}
-
-	public static WidgetActionRepository getDefaultRepository()
-	{
-		return war;
-	}
-
 	private static class WAR implements WidgetActionRepository
 	{
 
@@ -62,11 +49,13 @@ public class WidgetActionRepositoryFactory
 			actions.put(COPY_PASTE, null);
 		}
 
+		@Override
 		public void clearAction(String action)
 		{
 			actions.put(action, null);
 		}
 
+		@Override
 		public WidgetAction getAction(String action, Canvas canvas)
 		{
 			if (action.equals(MOVE))
@@ -302,6 +291,7 @@ public class WidgetActionRepositoryFactory
 			return null;
 		}
 
+		@Override
 		public void update(Observable obs, Object obj)
 		{
 			if (obs instanceof MoveStrategy)
@@ -309,5 +299,18 @@ public class WidgetActionRepositoryFactory
 				activeMoveAction = (String) obj;
 			}
 		}
+	}
+
+	private static WidgetActionRepository war = new WAR();
+
+	public static WidgetActionRepository createRepository()
+	{
+		war = new WAR();
+		return war;
+	}
+
+	public static WidgetActionRepository getDefaultRepository()
+	{
+		return war;
 	}
 }

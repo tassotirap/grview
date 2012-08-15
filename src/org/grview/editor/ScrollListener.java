@@ -22,12 +22,14 @@ package org.grview.editor;
 /**
  * A scroll listener will be notified when the text area is scrolled, either
  * horizontally or vertically.
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 3.2pre2
  */
 public interface ScrollListener extends java.util.EventListener
 {
-	void scrolledVertically(TextArea textArea);
 	void scrolledHorizontally(TextArea textArea);
+
+	void scrolledVertically(TextArea textArea);
 }

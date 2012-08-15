@@ -1,18 +1,19 @@
 package org.grview.ui.debug;
 
-import javax.swing.JPanel;
 import java.awt.Frame;
-import java.awt.BorderLayout;
-import javax.swing.JDialog;
-import java.awt.GridBagLayout;
-import javax.swing.JLabel;
 import java.awt.GridBagConstraints;
-import javax.swing.JList;
-import javax.swing.JTextArea;
-import javax.swing.JButton;
+import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-public class ErrorDialog extends JDialog {
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
+
+public class ErrorDialog extends JDialog
+{
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -25,21 +26,32 @@ public class ErrorDialog extends JDialog {
 	/**
 	 * @param owner
 	 */
-	public ErrorDialog(Frame owner) {
+	public ErrorDialog(Frame owner)
+	{
 		super(owner);
 		initialize();
 	}
 
 	/**
-	 * This method initializes this
+	 * This method initializes btOk
 	 * 
-	 * @return void
+	 * @return javax.swing.JButton
 	 */
-	private void initialize() {
-		this.setSize(600, 400);
-		this.setTitle("Error");
-		this.setContentPane(getJContentPane());
-		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+	private JButton getBtOk()
+	{
+		if (btOk == null)
+		{
+			btOk = new JButton("Ok");
+			btOk.addActionListener(new java.awt.event.ActionListener()
+			{
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e)
+				{
+					dispose();
+				}
+			});
+		}
+		return btOk;
 	}
 
 	/**
@@ -47,8 +59,10 @@ public class ErrorDialog extends JDialog {
 	 * 
 	 * @return javax.swing.JPanel
 	 */
-	private JPanel getJContentPane() {
-		if (jContentPane == null) {
+	private JPanel getJContentPane()
+	{
+		if (jContentPane == null)
+		{
 			GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
 			gridBagConstraints4.gridx = 0;
 			gridBagConstraints4.insets = new Insets(0, 5, 5, 0);
@@ -94,44 +108,44 @@ public class ErrorDialog extends JDialog {
 	}
 
 	/**
-	 * This method initializes errorList	
-	 * 	
-	 * @return javax.swing.JList	
+	 * This method initializes this
+	 * 
+	 * @return void
 	 */
-	public JList getErrorList() {
-		if (errorList == null) {
+	private void initialize()
+	{
+		this.setSize(600, 400);
+		this.setTitle("Error");
+		this.setContentPane(getJContentPane());
+		this.setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+	}
+
+	/**
+	 * This method initializes errorList
+	 * 
+	 * @return javax.swing.JList
+	 */
+	public JList getErrorList()
+	{
+		if (errorList == null)
+		{
 			errorList = new JList();
 		}
 		return errorList;
 	}
 
 	/**
-	 * This method initializes taErrorDescription	
-	 * 	
-	 * @return javax.swing.JTextArea	
+	 * This method initializes taErrorDescription
+	 * 
+	 * @return javax.swing.JTextArea
 	 */
-	public JTextArea getTaErrorDescription() {
-		if (taErrorDescription == null) {
+	public JTextArea getTaErrorDescription()
+	{
+		if (taErrorDescription == null)
+		{
 			taErrorDescription = new JTextArea();
 		}
 		return taErrorDescription;
-	}
-
-	/**
-	 * This method initializes btOk	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getBtOk() {
-		if (btOk == null) {
-			btOk = new JButton("Ok");
-			btOk.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					dispose();
-				}
-			});
-		}
-		return btOk;
 	}
 
 }

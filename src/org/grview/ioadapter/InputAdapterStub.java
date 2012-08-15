@@ -2,13 +2,11 @@ package org.grview.ioadapter;
 
 import java.util.ArrayList;
 
-public class InputAdapterStub {
+public class InputAdapterStub
+{
 
 	private String _package;
-	private String header = "/**Self gerated input adapter class stub\n" +
-	"Warning: If you change the name of the class, the existing fields, constructors or methods\n" +
-	"except for the body of init method, then you must manually make all necessary corrections in\n" +
-	"the generated code file. Besides that the runtime execution may fail.\n**/";
+	private String header = "/**Self gerated input adapter class stub\n" + "Warning: If you change the name of the class, the existing fields, constructors or methods\n" + "except for the body of init method, then you must manually make all necessary corrections in\n" + "the generated code file. Besides that the runtime execution may fail.\n**/";
 	private String _class = "Input";
 	private String superclass;
 	private ArrayList<String> imports = new ArrayList<String>();
@@ -16,15 +14,63 @@ public class InputAdapterStub {
 	private String objectClass;
 
 	private int initMethodPos;
-	
-	public String getStub() {
+
+	public void addImport(String _import)
+	{
+		imports.add(_import);
+	}
+
+	public void addInterface(String _interface)
+	{
+		interfaces.add(_interface);
+	}
+
+	public String get_Class()
+	{
+		return _class;
+	}
+
+	public String getHeader()
+	{
+		return header;
+	}
+
+	public ArrayList<String> getImports()
+	{
+		return imports;
+	}
+
+	public int getInitMethodPos()
+	{
+		return initMethodPos;
+	}
+
+	public ArrayList<String> getInterfaces()
+	{
+		return interfaces;
+	}
+
+	public String getObjectClass()
+	{
+		return objectClass;
+	}
+
+	public String getPackage()
+	{
+		return _package;
+	}
+
+	public String getStub()
+	{
 		StringBuffer stub = new StringBuffer();
-		if (objectClass != null && !objectClass.equals("")) {
+		if (objectClass != null && !objectClass.equals(""))
+		{
 			stub.append("///~" + objectClass);
 			stub.append("\n/*Do not erase the line above*/\n");
 		}
 		stub.append(((_package != null && !_package.equals("")) ? "package " + _package + ";\n\n" : ""));
-		for (String i : imports) {
+		for (String i : imports)
+		{
 			stub.append("import " + i + ";\n");
 		}
 		stub.append("\n\n");
@@ -33,19 +79,23 @@ public class InputAdapterStub {
 		stub.append((superclass != null && !superclass.equals("")) ? " extends " + superclass : "");
 		stub.append((interfaces.size() > 0) ? " implements " : "");
 		boolean isFirst = true;
-		for (String i : interfaces) {
-			if (isFirst) {
+		for (String i : interfaces)
+		{
+			if (isFirst)
+			{
 				stub.append(i);
 				isFirst = false;
 			}
-			else {
+			else
+			{
 				stub.append(", " + i);
 			}
-			
+
 		}
 		stub.append(" {\n\n");
 		setInitMethodPos(stub.length());
-		if (objectClass != null && !objectClass.equals("")) {
+		if (objectClass != null && !objectClass.equals(""))
+		{
 			stub.append("\tprivate " + objectClass + " object;\n");
 			stub.append("\tprivate ParserProxy input;\n\n");
 			stub.append("\tpublic " + _class + "() {\n\t}\n\n");
@@ -68,65 +118,35 @@ public class InputAdapterStub {
 		stub.append("}");
 		return stub.toString();
 	}
-	
-	public void setPackage(String _package) {
-		this._package = _package;
-	}
-	
-	public void addImport(String _import) {
-		imports.add(_import);
-	}
-	
-	public void setSuperclass(String superclass) {
-		this.superclass = superclass;
-	}
-	
-	public void addInterface(String _interface) {
-		interfaces.add(_interface);
-	}
 
-	public String get_Class() {
-		return _class;
-	}
-
-	public void setClass(String class1) {
-		_class = class1;
-	}
-
-	public String getHeader() {
-		return header;
-	}
-
-	public String getSuperclass() {
+	public String getSuperclass()
+	{
 		return superclass;
 	}
 
-	public ArrayList<String> getImports() {
-		return imports;
+	public void setClass(String class1)
+	{
+		_class = class1;
 	}
 
-	public ArrayList<String> getInterfaces() {
-		return interfaces;
-	}
-
-	public String getPackage() {
-		return _package;
-	}
-	
-	public String getObjectClass() {
-		return objectClass;
-	}
-
-	public void setObjectClass(String objectClass) {
-		this.objectClass = objectClass;
-	}
-
-	public void setInitMethodPos(int initMethodPos) {
+	public void setInitMethodPos(int initMethodPos)
+	{
 		this.initMethodPos = initMethodPos;
 	}
 
-	public int getInitMethodPos() {
-		return initMethodPos;
+	public void setObjectClass(String objectClass)
+	{
+		this.objectClass = objectClass;
 	}
-	
+
+	public void setPackage(String _package)
+	{
+		this._package = _package;
+	}
+
+	public void setSuperclass(String superclass)
+	{
+		this.superclass = superclass;
+	}
+
 }

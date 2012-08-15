@@ -24,6 +24,7 @@ package org.grview.editor.gui;
 
 public interface MutableListModel extends javax.swing.ListModel
 {
-	public boolean removeElement(Object elem);
 	public void insertElementAt(Object elem, int index);
+
+	public boolean removeElement(Object elem);
 }

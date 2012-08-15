@@ -71,19 +71,6 @@ public abstract class AbstractEditAction<E>
 		return name;
 	} // }}}
 
-	// {{{ setName() method
-	/**
-	 * Changes the name of an action
-	 * 
-	 * @param newName
-	 *            the new name of the action
-	 * @since jEdit 4.3pre4
-	 */
-	public void setName(String newName)
-	{
-		name = newName;
-	}// }}}
-
 	// {{{ invoke() method
 	/**
 	 * Invokes the action. This is an implementation of the Command pattern, and
@@ -105,6 +92,19 @@ public abstract class AbstractEditAction<E>
 		args = newArgs;
 		invoke(arg);
 	} // }}}
+
+	// {{{ setName() method
+	/**
+	 * Changes the name of an action
+	 * 
+	 * @param newName
+	 *            the new name of the action
+	 * @since jEdit 4.3pre4
+	 */
+	public void setName(String newName)
+	{
+		name = newName;
+	}// }}}
 
 	// {{{ toString() method
 	@Override

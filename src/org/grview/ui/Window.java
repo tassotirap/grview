@@ -1,7 +1,6 @@
 package org.grview.ui;
 
 import java.awt.BorderLayout;
-import java.beans.PropertyChangeListener;
 import java.util.HashMap;
 
 import javax.swing.BoxLayout;
@@ -32,7 +31,7 @@ import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.toolbar.BaseToolBar;
 import org.grview.ui.toolbar.ToolBarCanvas;
-import org.grview.ui.toolbar.ToolBarFile;
+import org.grview.ui.toolbar.ToolBarDefault;
 
 /** An abstract, top-level windows with docking **/
 public abstract class Window
@@ -107,6 +106,7 @@ public abstract class Window
 
 	/**
 	 * Create Drawable Canvas Toolbar
+	 * 
 	 * @param ref
 	 * @param toolBar
 	 * @return
@@ -114,7 +114,7 @@ public abstract class Window
 	@SuppressWarnings("rawtypes")
 	private <T extends ActionContextHolder> ToolBarCanvas createToolBarCanvas(final T ref)
 	{
-		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas)ref);
+		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas) ref);
 		toolBarCanvas.setLayout(new BoxLayout(toolBarCanvas, BoxLayout.LINE_AXIS));
 		return toolBarCanvas;
 	}
@@ -141,7 +141,7 @@ public abstract class Window
 
 		if (enableToolBarFile)
 		{
-			ToolBarFile<T> toolBarFile = createToolBarFile(ref);
+			ToolBarDefault<T> toolBarFile = createToolBarFile(ref);
 			panel.add(toolBarFile);
 		}
 		if (enableToolBarCanvas)
@@ -154,9 +154,9 @@ public abstract class Window
 	}
 
 	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> ToolBarFile<T> createToolBarFile(final T ref)
+	private <T extends ActionContextHolder> ToolBarDefault<T> createToolBarFile(final T ref)
 	{
-		ToolBarFile<T> toolBarFile = new ToolBarFile<T>(ref);
+		ToolBarDefault<T> toolBarFile = new ToolBarDefault<T>(ref);
 		toolBarFile.setLayout(new BoxLayout(toolBarFile, BoxLayout.LINE_AXIS));
 		return toolBarFile;
 	}
@@ -302,8 +302,7 @@ public abstract class Window
 	@SuppressWarnings("rawtypes")
 	public <E extends ActionContextHolder> JMenuBar createMenuBarExt(E context, MenuModel model)
 	{
-		Menu<E> menu = new Menu<E>(new String[]
-		{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model);
+		Menu<E> menu = new Menu<E>(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model);
 		menu.build();
 		return menu;
 	}
@@ -440,11 +439,5 @@ public abstract class Window
 				}
 			}
 		}
-	}
-
-	public void removeDynamicView(DynamicView dynamicView)
-	{
-		// TODO Auto-generated method stub
-		
 	}
 }

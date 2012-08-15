@@ -5,7 +5,8 @@ import javax.swing.ImageIcon;
 
 import org.grview.model.FileNames;
 
-public class IconRepository {
+public class IconRepository
+{
 
 	public final String ICONS_PATH = "/org/grview/images/";
 
@@ -27,43 +28,56 @@ public class IconRepository {
 	public final Icon GRAMMAR_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "grammar.png"));
 	public final Icon PROJECT_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "project.png"));
 	public final Icon JAVA_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "java-file.png"));
-	
+
 	private static IconRepository instance;
-	
-	private IconRepository() {}
-	
-	public static IconRepository getInstance() {
-		if (instance == null) {
-			instance = new IconRepository();
-		}
-		return instance;
+
+	private IconRepository()
+	{
 	}
-	
-	public static Icon getIconByFileName(String fileName) {
-		if (fileName.toLowerCase().endsWith(FileNames.GRAM_EXTENSION.toLowerCase())) {
+
+	public static Icon getIconByFileName(String fileName)
+	{
+		if (fileName.toLowerCase().endsWith(FileNames.GRAM_EXTENSION.toLowerCase()))
+		{
 			return getInstance().GRAM_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.LEX_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.LEX_EXTENSION.toLowerCase()))
+		{
 			return getInstance().LEX_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.SEM_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.SEM_EXTENSION.toLowerCase()))
+		{
 			return getInstance().SEM_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.TXT_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.TXT_EXTENSION.toLowerCase()))
+		{
 			return getInstance().TXT_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.XML_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.XML_EXTENSION.toLowerCase()))
+		{
 			return getInstance().XML_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.JAVA_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.JAVA_EXTENSION.toLowerCase()))
+		{
 			return getInstance().JAVA_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.IN_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.IN_EXTENSION.toLowerCase()))
+		{
 			return getInstance().IN_ICON;
 		}
-		else if (fileName.toLowerCase().endsWith(FileNames.OUT_EXTENSION.toLowerCase())) {
+		else if (fileName.toLowerCase().endsWith(FileNames.OUT_EXTENSION.toLowerCase()))
+		{
 			return getInstance().OUT_ICON;
 		}
 		return new IconView();
+	}
+
+	public static IconRepository getInstance()
+	{
+		if (instance == null)
+		{
+			instance = new IconRepository();
+		}
+		return instance;
 	}
 }

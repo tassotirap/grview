@@ -22,7 +22,7 @@ public class VolatileStateManager implements PropertyChangeListener
 		public byte[] serializedObject;
 		public Command command;
 	}
-	
+
 	private ByteArrayInputStream bais;
 	private ByteArrayOutputStream baos;
 	private ObjectInputStream ois;
@@ -191,6 +191,7 @@ public class VolatileStateManager implements PropertyChangeListener
 	 * the command may send a string to identify itself. This string, though,
 	 * can not start by a number.
 	 */
+	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{
 		if (event.getPropertyName().equals("undoable"))

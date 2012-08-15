@@ -15,10 +15,8 @@ import java.util.Stack;
 
 import org.grview.lexical.Yytoken;
 import org.grview.output.AppOutput;
-import org.grview.output.Output;
-import org.grview.output.SemanticRoutinesOutput;
 import org.grview.output.HtmlViewer.TOPIC;
-import org.grview.parser.ParsingEditor;
+import org.grview.output.SemanticRoutinesOutput;
 import org.grview.project.Project;
 import org.grview.syntax.model.TabNode;
 import org.grview.util.Log;
@@ -53,6 +51,23 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 	{
 		this.project = project;
 		lastInstance = this;
+	}
+
+	public static SemanticRoutinesIvoker getLastInstance()
+	{
+		return lastInstance;
+	}
+
+	public static SemanticRoutinesIvoker getLastInstance(Stack parseStack, TabNode[] tabT, SemanticRoutinesRepo repository)
+	{
+
+		SemanticRoutinesIvoker instance = lastInstance;
+		instance.parseStack = parseStack;
+		instance.tabT = tabT;
+		instance.repository = repository;
+		if (!instance.loaded)
+			instance.configureAndLoad();
+		return instance;
 	}
 
 	public void configureAndLoad()
@@ -91,61 +106,8 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 			Log.log(Log.ERROR, this, "Could not semantic routines file.", e);
 		}
 		ctx = new FileSystemXmlApplicationContext(modBeanInjection.getAbsolutePath());
-		scriptlet = (Object) ctx.getBean("routines");
+		scriptlet = ctx.getBean("routines");
 		loaded = true;
-	}
-
-	public static SemanticRoutinesIvoker getLastInstance()
-	{
-		return lastInstance;
-	}
-
-	public static SemanticRoutinesIvoker getLastInstance(Stack parseStack, TabNode[] tabT, SemanticRoutinesRepo repository)
-	{
-
-		SemanticRoutinesIvoker instance = lastInstance;
-		instance.parseStack = parseStack;
-		instance.tabT = tabT;
-		instance.repository = repository;
-		if (!instance.loaded)
-			instance.configureAndLoad();
-		return instance;
-	}
-
-	public SemanticRoutinesRepo getRepository()
-	{
-		return repository;
-	}
-
-	public void setRepository(SemanticRoutinesRepo repository)
-	{
-		this.repository = repository;
-	}
-
-	@Override
-	public void setCurrentToken(Yytoken currentToken)
-	{
-		this.currentToken = currentToken;
-	}
-
-	public Stack getParseStack()
-	{
-		return parseStack;
-	}
-
-	public void setParseStack(Stack parseStack)
-	{
-		this.parseStack = parseStack;
-	}
-
-	public TabNode[] getTabT()
-	{
-		return tabT;
-	}
-
-	public void setTabT(TabNode[] tabT)
-	{
-		this.tabT = tabT;
 	}
 
 	public Yytoken getCurrentToken()
@@ -158,22 +120,24 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return project.getProperty("semanticRoutineClass");
 	}
 
-	public void ivokeMethodFromFile(String function)
+	public GroovyObject getGoo()
 	{
-		goo.setProperty("tabT", tabT);
-		goo.setProperty("parseStack", parseStack);
-		goo.setProperty("currentToken", currentToken);
-		goo.setProperty("output", SemanticRoutinesOutput.getInstance());
+		return goo;
+	}
 
-		try
-		{
-			Method method = scriptlet.getClass().getMethod(function);
-			method.invoke(scriptlet, new java.lang.Object[]{});
-		}
-		catch (Exception e)
-		{
-			Log.log(Log.ERROR, this, "A parsing error has ocurred while trying to access " + function, e);
-		}
+	public Stack getParseStack()
+	{
+		return parseStack;
+	}
+
+	public SemanticRoutinesRepo getRepository()
+	{
+		return repository;
+	}
+
+	public TabNode[] getTabT()
+	{
+		return tabT;
 	}
 
 	public void ivokeMethodFromClass(String function)
@@ -247,14 +211,48 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		}
 	}
 
+	public void ivokeMethodFromFile(String function)
+	{
+		goo.setProperty("tabT", tabT);
+		goo.setProperty("parseStack", parseStack);
+		goo.setProperty("currentToken", currentToken);
+		goo.setProperty("output", SemanticRoutinesOutput.getInstance());
+
+		try
+		{
+			Method method = scriptlet.getClass().getMethod(function);
+			method.invoke(scriptlet, new java.lang.Object[]{});
+		}
+		catch (Exception e)
+		{
+			Log.log(Log.ERROR, this, "A parsing error has ocurred while trying to access " + function, e);
+		}
+	}
+
+	@Override
+	public void setCurrentToken(Yytoken currentToken)
+	{
+		this.currentToken = currentToken;
+	}
+
 	public void setGoo(GroovyObject goo)
 	{
 		this.goo = goo;
 	}
 
-	public GroovyObject getGoo()
+	public void setParseStack(Stack parseStack)
 	{
-		return goo;
+		this.parseStack = parseStack;
+	}
+
+	public void setRepository(SemanticRoutinesRepo repository)
+	{
+		this.repository = repository;
+	}
+
+	public void setTabT(TabNode[] tabT)
+	{
+		this.tabT = tabT;
 	}
 
 }

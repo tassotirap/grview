@@ -9,14 +9,17 @@ import java.util.Properties;
 
 import org.grview.editor.TextArea;
 
+public class PropertiesUtils
+{
 
-public class PropertiesUtils {
-
-	/** Loads properties from a file
+	/**
+	 * Loads properties from a file
 	 * 
-	 *  @param fileName the name of the file containing the properties
-	 *  @param isXML whether is a XML file or not
-	 *  **/
+	 * @param fileName
+	 *            the name of the file containing the properties
+	 * @param isXML
+	 *            whether is a XML file or not
+	 * **/
 	public static Properties loadProperties(String fileName, boolean isXML)
 	{
 		Properties props = new Properties();
@@ -24,16 +27,19 @@ public class PropertiesUtils {
 		try
 		{
 			in = new FileInputStream(new File(fileName));
-			if (!isXML) {
+			if (!isXML)
+			{
 				props.load(in);
 			}
-			else {
+			else
+			{
 				props.loadFromXML(in);
-				
+
 			}
 		}
-		catch (InvalidPropertiesFormatException e) {
-			 
+		catch (InvalidPropertiesFormatException e)
+		{
+
 		}
 		catch (IOException e)
 		{
@@ -45,36 +51,47 @@ public class PropertiesUtils {
 		}
 		return props;
 	}
-	
+
 	/**
 	 * Store properties in a file
-	 * @param fileName the file that will store the properties
-	 * @param properties the properties that will be stored
-	 * @param comments additional and optional comments
-	 * @param isXML whether is a XML file or not
+	 * 
+	 * @param fileName
+	 *            the file that will store the properties
+	 * @param properties
+	 *            the properties that will be stored
+	 * @param comments
+	 *            additional and optional comments
+	 * @param isXML
+	 *            whether is a XML file or not
 	 */
-	public static void storeProperties(String fileName, Properties properties, 
-											String comments, boolean isXML) {
-		
+	public static void storeProperties(String fileName, Properties properties, String comments, boolean isXML)
+	{
+
 		FileOutputStream out = null;
-		try {
+		try
+		{
 			out = new FileOutputStream(new File(fileName));
-			if (!isXML) {
+			if (!isXML)
+			{
 				properties.store(out, comments);
 			}
-			else {
+			else
+			{
 				properties.storeToXML(out, comments, "UTF-8");
 			}
 		}
-		catch (IOException e) {
+		catch (IOException e)
+		{
 			Log.log(Log.ERROR, TextArea.class, e);
 		}
-		catch (Exception e) {
-			
+		catch (Exception e)
+		{
+
 		}
-		finally {
+		finally
+		{
 			IOUtilities.closeQuietly(out);
 		}
 	}
-	
+
 }

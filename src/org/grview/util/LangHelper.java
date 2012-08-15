@@ -1,6 +1,7 @@
 package org.grview.util;
 
-public interface LangHelper {
+public interface LangHelper
+{
 
 	String select = "Select";
 	String successor = "Successor";
@@ -50,7 +51,7 @@ public interface LangHelper {
 
 	String options = "Options";
 	String help = "Help";
-	
+
 	String new_gram_desc = "Used to store a graph that represents a grammar.";
 	String new_sem_desc = "Contains various semantic routines that may be applied at parsing.";
 	String new_lex_desc = "A new lexical rules file, mostly in yylex format.";

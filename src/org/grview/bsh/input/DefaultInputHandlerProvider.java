@@ -23,7 +23,7 @@ package org.grview.bsh.input;
 
 /**
  * This class provide the input handler used by the textarea.
- *
+ * 
  * @author Matthieu Casanova
  * @version $Id: FoldHandler.java 5568 2006-07-10 20:52:23Z kpouer $
  */
@@ -31,11 +31,13 @@ public class DefaultInputHandlerProvider implements InputHandlerProvider
 {
 
 	private AbstractInputHandler inputHandler;
+
 	public DefaultInputHandlerProvider(AbstractInputHandler inputHandler)
 	{
 		this.inputHandler = inputHandler;
 	}
 
+	@Override
 	public AbstractInputHandler getInputHandler()
 	{
 		return inputHandler;

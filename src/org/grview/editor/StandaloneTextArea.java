@@ -171,34 +171,244 @@ public class StandaloneTextArea extends TextArea
 
 	} // }}}
 
-	// {{{ initTextArea() method
-	/**
-	 * Initializes the text area by re-reading the properties from the property
-	 * manager passed to the constructor.
-	 */
-	private void initTextArea()
+	// {{{ loadProperties() method
+	private static Properties loadProperties(String fileName)
 	{
-		initPainter();
-		initGutter();
+		Properties props = new Properties();
+		InputStream in = TextArea.class.getResourceAsStream(fileName);
+		try
+		{
+			props.load(in);
+		}
+		catch (IOException e)
+		{
+			Log.log(Log.ERROR, TextArea.class, e);
+		}
+		finally
+		{
+			IOUtilities.closeQuietly(in);
+		}
+		return props;
+	} // }}}
 
-		setCaretBlinkEnabled(getBooleanProperty("view.caretBlink"));
+	// {{{ createTextArea() method
+	/**
+	 * Create a standalone TextArea. If you want to use it in jEdit, please use
+	 * {@link org.grview.actions.jEdit#createTextArea()}
+	 * 
+	 * @return a textarea
+	 * @since 4.3pre13
+	 */
+	public static StandaloneTextArea createTextArea()
+	{
+		final Properties props = new Properties();
+		props.putAll(loadProperties("/org/grview/actions/jedit_keys.props"));
+		props.putAll(loadProperties("/org/grview/actions/jedit.props"));
+		StandaloneTextArea textArea = new StandaloneTextArea(new IPropertyManager()
+		{
+			@Override
+			public String getProperty(String name)
+			{
+				return props.getProperty(name);
+			}
+		});
+		textArea.getBuffer().setProperty("folding", "explicit");
+		return textArea;
+	} // }}}
 
-		setElectricScroll(getIntegerProperty("view.electricBorders", 0));
+	// {{{ main() method
+	public static void main(String[] args)
+	{
+		JFrame frame = new JFrame();
+		TextArea text = createTextArea();
+		Mode mode = new Mode("xml");
+		mode.setProperty("file", "/modes/java.xml");
+		ModeProvider.instance.addMode(mode);
+		text.getBuffer().setMode(mode);
+		frame.getContentPane().add(text);
+		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+		frame.pack();
+		frame.setVisible(true);
+	} // }}}
 
-		if (this.buffer == null)
-			return;
+	// {{{
+	// The following methods are copied from jEdit.java and refer to the
+	// propertyManager passed
+	// to the constructor.
+	// }}}
 
-		String property = propertyManager.getProperty("buffer.undoCount");
-		int undoCount = 100;
-		if (property != null)
+	// {{{ getBooleanProperty() method
+	/**
+	 * Returns the value of a boolean property.
+	 * 
+	 * @param name
+	 *            The property
+	 */
+	private boolean getBooleanProperty(String name)
+	{
+		return getBooleanProperty(name, false);
+	} // }}}
+
+	// {{{ getBooleanProperty() method
+	/**
+	 * Returns the value of a boolean property.
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
+	 */
+	private boolean getBooleanProperty(String name, boolean def)
+	{
+		String value = getProperty(name);
+		if (value == null)
+			return def;
+		else if (value.equals("true") || value.equals("yes") || value.equals("on"))
+			return true;
+		else if (value.equals("false") || value.equals("no") || value.equals("off"))
+			return false;
+		else
+			return def;
+	} // }}}
+
+	// {{{ getColorProperty() method
+	/**
+	 * Returns the value of a color property.
+	 * 
+	 * @param name
+	 *            The property name
+	 * @since jEdit 4.0pre1
+	 */
+	private Color getColorProperty(String name)
+	{
+		return getColorProperty(name, Color.black);
+	} // }}}
+
+	// {{{ getColorProperty() method
+	/**
+	 * Returns the value of a color property.
+	 * 
+	 * @param name
+	 *            The property name
+	 * @param def
+	 *            The default value
+	 * @since jEdit 4.0pre1
+	 */
+	private Color getColorProperty(String name, Color def)
+	{
+		String value = getProperty(name);
+		if (value == null)
+			return def;
+		else
+			return SyntaxUtilities.parseColor(value, def);
+	} // }}}
+
+	// {{{ getFontProperty() method
+	/**
+	 * Returns the value of a font property. The family is stored in the
+	 * <code><i>name</i></code> property, the font size is stored in the
+	 * <code><i>name</i>size</code> property, and the font style is stored in
+	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
+	 * is <code>view.gutter.font</code>, the properties will be named
+	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
+	 * <code>view.gutter.fontstyle</code>.
+	 * 
+	 * @param name
+	 *            The property
+	 * @since jEdit 4.0pre1
+	 */
+	private Font getFontProperty(String name)
+	{
+		return getFontProperty(name, null);
+	} // }}}
+
+	/**
+	 * Returns the value of a font property. The family is stored in the
+	 * <code><i>name</i></code> property, the font size is stored in the
+	 * <code><i>name</i>size</code> property, and the font style is stored in
+	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
+	 * is <code>view.gutter.font</code>, the properties will be named
+	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
+	 * <code>view.gutter.fontstyle</code>.
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
+	 * @since jEdit 4.0pre1
+	 */
+	private Font getFontProperty(String name, Font def)
+	{
+		String family = getProperty(name);
+		String sizeString = getProperty(name + "size");
+		String styleString = getProperty(name + "style");
+
+		if (family == null || sizeString == null || styleString == null)
+			return def;
+		else
+		{
+			int size, style;
+
 			try
 			{
-				undoCount = Integer.parseInt(property);
+				size = Integer.parseInt(sizeString);
 			}
-			catch (NumberFormatException e)
+			catch (NumberFormatException nf)
 			{
+				return def;
 			}
-		this.buffer.setUndoLimit(undoCount);
+
+			try
+			{
+				style = Integer.parseInt(styleString);
+			}
+			catch (NumberFormatException nf)
+			{
+				return def;
+			}
+
+			return new Font(family, style, size);
+		}
+	} // }}}
+
+	// {{{ getIntegerProperty() method
+	/**
+	 * Returns the value of an integer property.
+	 * 
+	 * @param name
+	 *            The property
+	 */
+	private int getIntegerProperty(String name)
+	{
+		return getIntegerProperty(name, 0);
+	} // }}}
+
+	// {{{ getIntegerProperty() method
+	/**
+	 * Returns the value of an integer property.
+	 * 
+	 * @param name
+	 *            The property
+	 * @param def
+	 *            The default value
+	 * @since jEdit 4.0pre1
+	 */
+	private int getIntegerProperty(String name, int def)
+	{
+		String value = getProperty(name);
+		if (value == null)
+			return def;
+		else
+		{
+			try
+			{
+				return Integer.parseInt(value.trim());
+			}
+			catch (NumberFormatException nf)
+			{
+				return def;
+			}
+		}
 	} // }}}
 
 	// {{{ initGutter() method
@@ -278,202 +488,59 @@ public class StandaloneTextArea extends TextArea
 		painter.setFoldLineStyle(foldLineStyle);
 	} // }}}
 
-	// {{{
-	// The following methods are copied from jEdit.java and refer to the
-	// propertyManager passed
-	// to the constructor.
-	// }}}
-
-	// {{{ getProperty() method
-	public String getProperty(String name)
+	// {{{ initTextArea() method
+	/**
+	 * Initializes the text area by re-reading the properties from the property
+	 * manager passed to the constructor.
+	 */
+	private void initTextArea()
 	{
-		return propertyManager.getProperty(name);
+		initPainter();
+		initGutter();
+
+		setCaretBlinkEnabled(getBooleanProperty("view.caretBlink"));
+
+		setElectricScroll(getIntegerProperty("view.electricBorders", 0));
+
+		if (this.buffer == null)
+			return;
+
+		String property = propertyManager.getProperty("buffer.undoCount");
+		int undoCount = 100;
+		if (property != null)
+			try
+			{
+				undoCount = Integer.parseInt(property);
+			}
+			catch (NumberFormatException e)
+			{
+			}
+		this.buffer.setUndoLimit(undoCount);
 	} // }}}
 
-	// {{{ getBooleanProperty() method
+	// {{{ addMenuItem() method
 	/**
-	 * Returns the value of a boolean property.
+	 * Adds a menu item from the action context to the popup menu and returns
+	 * the item.
 	 * 
-	 * @param name
-	 *            The property
+	 * @return the menu item added
 	 */
-	private boolean getBooleanProperty(String name)
+	public JMenuItem addMenuItem(String action, String label)
 	{
-		return getBooleanProperty(name, false);
-	} // }}}
-
-	// {{{ getBooleanProperty() method
-	/**
-	 * Returns the value of a boolean property.
-	 * 
-	 * @param name
-	 *            The property
-	 * @param def
-	 *            The default value
-	 */
-	private boolean getBooleanProperty(String name, boolean def)
-	{
-		String value = getProperty(name);
-		if (value == null)
-			return def;
-		else if (value.equals("true") || value.equals("yes") || value.equals("on"))
-			return true;
-		else if (value.equals("false") || value.equals("no") || value.equals("off"))
-			return false;
-		else
-			return def;
-	} // }}}
-
-	// {{{ getIntegerProperty() method
-	/**
-	 * Returns the value of an integer property.
-	 * 
-	 * @param name
-	 *            The property
-	 */
-	private int getIntegerProperty(String name)
-	{
-		return getIntegerProperty(name, 0);
-	} // }}}
-
-	// {{{ getIntegerProperty() method
-	/**
-	 * Returns the value of an integer property.
-	 * 
-	 * @param name
-	 *            The property
-	 * @param def
-	 *            The default value
-	 * @since jEdit 4.0pre1
-	 */
-	private int getIntegerProperty(String name, int def)
-	{
-		String value = getProperty(name);
-		if (value == null)
-			return def;
-		else
+		final JEditBeanShellAction shellAction = getActionContext().getAction(action);
+		if (shellAction == null)
+			return null;
+		JMenuItem item = new JMenuItem();
+		item.setAction(new AbstractAction(label)
 		{
-			try
+			@Override
+			public void actionPerformed(ActionEvent e)
 			{
-				return Integer.parseInt(value.trim());
+				shellAction.invoke(StandaloneTextArea.this);
 			}
-			catch (NumberFormatException nf)
-			{
-				return def;
-			}
-		}
-	} // }}}
-
-	// {{{ getFontProperty() method
-	/**
-	 * Returns the value of a font property. The family is stored in the
-	 * <code><i>name</i></code> property, the font size is stored in the
-	 * <code><i>name</i>size</code> property, and the font style is stored in
-	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
-	 * is <code>view.gutter.font</code>, the properties will be named
-	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
-	 * <code>view.gutter.fontstyle</code>.
-	 * 
-	 * @param name
-	 *            The property
-	 * @since jEdit 4.0pre1
-	 */
-	private Font getFontProperty(String name)
-	{
-		return getFontProperty(name, null);
-	} // }}}
-
-	/**
-	 * Returns the value of a font property. The family is stored in the
-	 * <code><i>name</i></code> property, the font size is stored in the
-	 * <code><i>name</i>size</code> property, and the font style is stored in
-	 * <code><i>name</i>style</code>. For example, if <code><i>name</i></code>
-	 * is <code>view.gutter.font</code>, the properties will be named
-	 * <code>view.gutter.font</code>, <code>view.gutter.fontsize</code>, and
-	 * <code>view.gutter.fontstyle</code>.
-	 * 
-	 * @param name
-	 *            The property
-	 * @param def
-	 *            The default value
-	 * @since jEdit 4.0pre1
-	 */
-	private Font getFontProperty(String name, Font def)
-	{
-		String family = getProperty(name);
-		String sizeString = getProperty(name + "size");
-		String styleString = getProperty(name + "style");
-
-		if (family == null || sizeString == null || styleString == null)
-			return def;
-		else
-		{
-			int size, style;
-
-			try
-			{
-				size = Integer.parseInt(sizeString);
-			}
-			catch (NumberFormatException nf)
-			{
-				return def;
-			}
-
-			try
-			{
-				style = Integer.parseInt(styleString);
-			}
-			catch (NumberFormatException nf)
-			{
-				return def;
-			}
-
-			return new Font(family, style, size);
-		}
-	} // }}}
-
-	// {{{ getColorProperty() method
-	/**
-	 * Returns the value of a color property.
-	 * 
-	 * @param name
-	 *            The property name
-	 * @since jEdit 4.0pre1
-	 */
-	private Color getColorProperty(String name)
-	{
-		return getColorProperty(name, Color.black);
-	} // }}}
-
-	// {{{ getColorProperty() method
-	/**
-	 * Returns the value of a color property.
-	 * 
-	 * @param name
-	 *            The property name
-	 * @param def
-	 *            The default value
-	 * @since jEdit 4.0pre1
-	 */
-	private Color getColorProperty(String name, Color def)
-	{
-		String value = getProperty(name);
-		if (value == null)
-			return def;
-		else
-			return SyntaxUtilities.parseColor(value, def);
-	} // }}}
-
-	// {{{ propertiesChanged() method
-	/**
-	 * Reinitializes the textarea by reading the properties from the property
-	 * manager
-	 */
-	@Override
-	public void propertiesChanged()
-	{
-		initTextArea();
-		super.propertiesChanged();
+		});
+		popup.add(item);
+		return item;
 	} // }}}
 
 	// {{{ createPopupMenu() method
@@ -494,86 +561,21 @@ public class StandaloneTextArea extends TextArea
 		addMenuItem("paste", "Paste");
 	} // }}}
 
-	// {{{ addMenuItem() method
+	// {{{ getProperty() method
+	public String getProperty(String name)
+	{
+		return propertyManager.getProperty(name);
+	} // }}}
+
+	// {{{ propertiesChanged() method
 	/**
-	 * Adds a menu item from the action context to the popup menu and returns
-	 * the item.
-	 * 
-	 * @return the menu item added
+	 * Reinitializes the textarea by reading the properties from the property
+	 * manager
 	 */
-	public JMenuItem addMenuItem(String action, String label)
+	@Override
+	public void propertiesChanged()
 	{
-		final JEditBeanShellAction shellAction = getActionContext().getAction(action);
-		if (shellAction == null)
-			return null;
-		JMenuItem item = new JMenuItem();
-		item.setAction(new AbstractAction(label)
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				shellAction.invoke(StandaloneTextArea.this);
-			}
-		});
-		popup.add(item);
-		return item;
-	} // }}}
-
-	// {{{ createTextArea() method
-	/**
-	 * Create a standalone TextArea. If you want to use it in jEdit, please use
-	 * {@link org.grview.actions.jEdit#createTextArea()}
-	 * 
-	 * @return a textarea
-	 * @since 4.3pre13
-	 */
-	public static StandaloneTextArea createTextArea()
-	{
-		final Properties props = new Properties();
-		props.putAll(loadProperties("/org/grview/actions/jedit_keys.props"));
-		props.putAll(loadProperties("/org/grview/actions/jedit.props"));
-		StandaloneTextArea textArea = new StandaloneTextArea(new IPropertyManager()
-		{
-			public String getProperty(String name)
-			{
-				return props.getProperty(name);
-			}
-		});
-		textArea.getBuffer().setProperty("folding", "explicit");
-		return textArea;
-	} // }}}
-
-	// {{{ loadProperties() method
-	private static Properties loadProperties(String fileName)
-	{
-		Properties props = new Properties();
-		InputStream in = TextArea.class.getResourceAsStream(fileName);
-		try
-		{
-			props.load(in);
-		}
-		catch (IOException e)
-		{
-			Log.log(Log.ERROR, TextArea.class, e);
-		}
-		finally
-		{
-			IOUtilities.closeQuietly(in);
-		}
-		return props;
-	} // }}}
-
-	// {{{ main() method
-	public static void main(String[] args)
-	{
-		JFrame frame = new JFrame();
-		TextArea text = createTextArea();
-		Mode mode = new Mode("xml");
-		mode.setProperty("file", "/modes/java.xml");
-		ModeProvider.instance.addMode(mode);
-		text.getBuffer().setMode(mode);
-		frame.getContentPane().add(text);
-		frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-		frame.pack();
-		frame.setVisible(true);
+		initTextArea();
+		super.propertiesChanged();
 	} // }}}
 }

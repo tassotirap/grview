@@ -12,18 +12,6 @@ public class ClipboardManager
 	private static Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 
 	/**
-	 * Set the content of the clipboard
-	 * 
-	 * @param contents
-	 * @param owner
-	 *            the object that is sending the content
-	 */
-	public static void setClipboardContents(Transferable contents, ClipboardOwner owner)
-	{
-		clipboard.setContents(contents, owner);
-	}
-
-	/**
 	 * Gets whatever is in clipboard since it is a WidgetSelection or
 	 * StringSelection
 	 * 
@@ -52,5 +40,17 @@ public class ClipboardManager
 		}
 		return result;
 
+	}
+
+	/**
+	 * Set the content of the clipboard
+	 * 
+	 * @param contents
+	 * @param owner
+	 *            the object that is sending the content
+	 */
+	public static void setClipboardContents(Transferable contents, ClipboardOwner owner)
+	{
+		clipboard.setContents(contents, owner);
 	}
 }

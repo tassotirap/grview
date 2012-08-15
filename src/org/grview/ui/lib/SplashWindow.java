@@ -10,9 +10,16 @@ package org.grview.ui.lib;
  * This software is in the public domain.
  */
 
-import java.awt.*;
-import java.awt.event.*;
-import java.net.*;
+import java.awt.Dimension;
+import java.awt.EventQueue;
+import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.MediaTracker;
+import java.awt.Toolkit;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.net.URL;
 
 /**
  * A Splash window.
@@ -138,37 +145,34 @@ public class SplashWindow extends java.awt.Window
 	}
 
 	/**
-	 * Updates the display area of the window.
+	 * Closes the splash window.
 	 */
-	@Override
-	public void update(Graphics g)
+	public static void disposeSplash()
 	{
-		// Note: Since the paint method is going to draw an
-		// image that covers the complete area of the component we
-		// do not fill the component with its background color
-		// here. This avoids flickering.
-		paint(g);
+		if (instance != null)
+		{
+			instance.getOwner().dispose();
+			instance = null;
+		}
 	}
 
 	/**
-	 * Paints the image on the window.
+	 * Invokes the main method of the provided class name.
+	 * 
+	 * @param args
+	 *            the command line arguments
 	 */
-	@Override
-	public void paint(Graphics g)
+	public static void invokeMain(String className, String[] args)
 	{
-		g.drawImage(image, 0, 0, this);
-
-		// Notify method splash that the window
-		// has been painted.
-		// Note: To improve performance we do not enter
-		// the synchronized block unless we have to.
-		if (!paintCalled)
+		try
 		{
-			paintCalled = true;
-			synchronized (this)
-			{
-				notifyAll();
-			}
+			Class.forName(className).getMethod("main", new Class[]{ String[].class }).invoke(null, new Object[]{ args });
+		}
+		catch (Exception e)
+		{
+			InternalError error = new InternalError("Failed to invoke main method");
+			error.initCause(e);
+			throw error;
 		}
 	}
 
@@ -231,34 +235,37 @@ public class SplashWindow extends java.awt.Window
 	}
 
 	/**
-	 * Closes the splash window.
+	 * Paints the image on the window.
 	 */
-	public static void disposeSplash()
+	@Override
+	public void paint(Graphics g)
 	{
-		if (instance != null)
+		g.drawImage(image, 0, 0, this);
+
+		// Notify method splash that the window
+		// has been painted.
+		// Note: To improve performance we do not enter
+		// the synchronized block unless we have to.
+		if (!paintCalled)
 		{
-			instance.getOwner().dispose();
-			instance = null;
+			paintCalled = true;
+			synchronized (this)
+			{
+				notifyAll();
+			}
 		}
 	}
 
 	/**
-	 * Invokes the main method of the provided class name.
-	 * 
-	 * @param args
-	 *            the command line arguments
+	 * Updates the display area of the window.
 	 */
-	public static void invokeMain(String className, String[] args)
+	@Override
+	public void update(Graphics g)
 	{
-		try
-		{
-			Class.forName(className).getMethod("main", new Class[]{ String[].class }).invoke(null, new Object[]{ args });
-		}
-		catch (Exception e)
-		{
-			InternalError error = new InternalError("Failed to invoke main method");
-			error.initCause(e);
-			throw error;
-		}
+		// Note: Since the paint method is going to draw an
+		// image that covers the complete area of the component we
+		// do not fill the component with its background color
+		// here. This avoids flickering.
+		paint(g);
 	}
 }

@@ -1,9 +1,10 @@
 package org.grview.ui.component;
 
+public class JavaCodeComponent extends AdvancedTextAreaComponent
+{
 
-public class JavaCodeComponent extends AdvancedTextAreaComponent {
-
-	public JavaCodeComponent() {
+	public JavaCodeComponent()
+	{
 		super("java");
 	}
 }

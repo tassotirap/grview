@@ -2,7 +2,8 @@ package org.grview.canvas.state;
 
 import java.io.Serializable;
 
-public abstract class CanvasSerializableElement implements Serializable {
+public abstract class CanvasSerializableElement implements Serializable
+{
 
 	/**
 	 * 

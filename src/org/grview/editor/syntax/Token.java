@@ -25,68 +25,21 @@ import java.lang.reflect.Field;
 
 /**
  * A linked list of syntax tokens.
- *
+ * 
  * @author Slava Pestov
  * @version $Id$
  */
 public class Token
 {
-	//{{{ stringToToken() method
-	/**
-	 * Converts a token type string to a token type constant.
-	 * @param value The token type
-	 * @since jEdit 4.1pre1
-	 */
-	public static byte stringToToken(String value)
-	{
-		try
-		{
-			Field f = Token.class.getField(value);
-			return f.getByte(null);
-		}
-		catch(Exception e)
-		{
-			return -1;
-		}
-	} //}}}
-
-	//{{{ tokenToString() method
-	/**
-	 * Converts a token type constant to a token type string.
-	 * @since jEdit 4.2pre1
-	 */
-	public static String tokenToString(byte token)
-	{
-		return TOKEN_TYPES[token];
-	} //}}}
-
-	//{{{ Token types
-	public static final String[] TOKEN_TYPES = new String[] {
-		"NULL",
-		"COMMENT1",
-		"COMMENT2",
-		"COMMENT3",
-		"COMMENT4",
-		"DIGIT",
-		"FUNCTION",
-		"INVALID",
-		"KEYWORD1",
-		"KEYWORD2",
-		"KEYWORD3",
-		"KEYWORD4",
-		"LABEL",
-		"LITERAL1",
-		"LITERAL2",
-		"LITERAL3",
-		"LITERAL4",
-		"MARKUP",
-		"OPERATOR"
-	};
+	// {{{ Token types
+	public static final String[] TOKEN_TYPES = new String[]{ "NULL", "COMMENT1", "COMMENT2", "COMMENT3", "COMMENT4", "DIGIT", "FUNCTION", "INVALID", "KEYWORD1", "KEYWORD2", "KEYWORD3", "KEYWORD4", "LABEL", "LITERAL1", "LITERAL2", "LITERAL3", "LITERAL4", "MARKUP", "OPERATOR" };
 
 	public static final byte NULL = 0;
 
 	public static final byte COMMENT1 = 1;
+
 	public static final byte COMMENT2 = 2;
+
 	public static final byte COMMENT3 = 3;
 	public static final byte COMMENT4 = 4;
 	public static final byte DIGIT = 5;
@@ -103,14 +56,12 @@ public class Token
 	public static final byte LITERAL4 = 16;
 	public static final byte MARKUP = 17;
 	public static final byte OPERATOR = 18;
-	//}}}
-
+	// }}}
 	public static final byte ID_COUNT = 19;
-
 	// Special:
 	public static final byte END = 127;
 
-	//{{{ Instance variables
+	// {{{ Instance variables
 	/**
 	 * The id of this token.
 	 */
@@ -135,15 +86,21 @@ public class Token
 	 * The next token in the linked list.
 	 */
 	public Token next;
-	//}}}
 
-	//{{{ Token constructor
+	// }}}
+
+	// {{{ Token constructor
 	/**
 	 * Creates a new token.
-	 * @param id The id of the token
-	 * @param offset The start offset of the token
-	 * @param length The length of the token
-	 * @param rules The parser rule set that generated this token
+	 * 
+	 * @param id
+	 *            The id of the token
+	 * @param offset
+	 *            The start offset of the token
+	 * @param length
+	 *            The length of the token
+	 * @param rules
+	 *            The parser rule set that generated this token
 	 */
 	public Token(byte id, int offset, int length, ParserRuleSet rules)
 	{
@@ -151,9 +108,41 @@ public class Token
 		this.offset = offset;
 		this.length = length;
 		this.rules = rules;
-	} //}}}
+	} // }}}
 
-	//{{{ toString() method
+	// {{{ stringToToken() method
+	/**
+	 * Converts a token type string to a token type constant.
+	 * 
+	 * @param value
+	 *            The token type
+	 * @since jEdit 4.1pre1
+	 */
+	public static byte stringToToken(String value)
+	{
+		try
+		{
+			Field f = Token.class.getField(value);
+			return f.getByte(null);
+		}
+		catch (Exception e)
+		{
+			return -1;
+		}
+	} // }}}
+
+	// {{{ tokenToString() method
+	/**
+	 * Converts a token type constant to a token type string.
+	 * 
+	 * @since jEdit 4.2pre1
+	 */
+	public static String tokenToString(byte token)
+	{
+		return TOKEN_TYPES[token];
+	} // }}}
+
+	// {{{ toString() method
 	/**
 	 * Returns a string representation of this token.
 	 */
@@ -161,5 +150,5 @@ public class Token
 	public String toString()
 	{
 		return "[id=" + id + ",offset=" + offset + ",length=" + length + "]";
-	} //}}}
+	} // }}}
 }

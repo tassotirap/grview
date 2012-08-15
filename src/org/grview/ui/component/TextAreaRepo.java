@@ -1,12 +1,31 @@
 package org.grview.ui.component;
 
 import java.util.HashMap;
+
 import org.grview.editor.TextArea;
 
 public class TextAreaRepo
 {
 	private static HashMap<AbstractComponent, TextArea> textAreaByComponent = new HashMap<AbstractComponent, TextArea>();
 	private static HashMap<TextArea, FileComponent> componentByTextArea = new HashMap<TextArea, FileComponent>();
+
+	public static FileComponent getComponent(TextArea ta)
+	{
+		if (componentByTextArea.containsKey(ta))
+		{
+			return componentByTextArea.get(ta);
+		}
+		return null;
+	}
+
+	public static TextArea getTextArea(AbstractComponent comp)
+	{
+		if (textAreaByComponent.containsKey(comp))
+		{
+			return textAreaByComponent.get(comp);
+		}
+		return null;
+	}
 
 	public static void register(AbstractComponent component, TextArea textArea)
 	{
@@ -35,24 +54,6 @@ public class TextAreaRepo
 			componentByTextArea.remove(ta);
 			textAreaByComponent.remove(comp);
 		}
-	}
-
-	public static TextArea getTextArea(AbstractComponent comp)
-	{
-		if (textAreaByComponent.containsKey(comp))
-		{
-			return textAreaByComponent.get(comp);
-		}
-		return null;
-	}
-
-	public static FileComponent getComponent(TextArea ta)
-	{
-		if (componentByTextArea.containsKey(ta))
-		{
-			return componentByTextArea.get(ta);
-		}
-		return null;
 	}
 
 }

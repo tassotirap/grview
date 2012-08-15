@@ -31,17 +31,15 @@ import org.grview.util.StandardUtilities;
 
 //}}}
 
-
 /**
- * An abstract class that holds data on a region of selected text.
- * As an abstract class, it cannot be used
- * directly, but instead serves as a parent class for two specific types
- * of selection structures:
+ * An abstract class that holds data on a region of selected text. As an
+ * abstract class, it cannot be used directly, but instead serves as a parent
+ * class for two specific types of selection structures:
  * <ul>
  * <li>{@link Selection.Range} - represents an ordinary range of selected text.</li>
  * <li>{@link Selection.Rect} - represents a rectangular selection.</li>
  * </ul>
- *
+ * 
  * @author Slava Pestov
  * @author John Gellene (API documentation)
  * @version $Id$
@@ -49,448 +47,370 @@ import org.grview.util.StandardUtilities;
  */
 public abstract class Selection implements Cloneable
 {
-	//{{{ getStart() method
-	/**
-	 * Returns the start offset of this selection.
-	 */
-	public int getStart()
-	{
-		return start;
-	} //}}}
-
-	//{{{ getEnd() method
-	/**
-	 * Returns the end offset of this selection.
-	 */
-	public int getEnd()
-	{
-		return end;
-	} //}}}
-
-	//{{{ getStart() method
-	/**
-	 * Returns the beginning of the portion of the selection
-	 * falling on the specified line. Used to manipulate
-	 * selection text on a line-by-line basis.
-	 * @param buffer The buffer
-	 * @param line The line number
-	 * @since jEdit 4.1pre1
-	 */
-	public abstract int getStart(JEditBuffer buffer, int line);
-	//}}}
-
-	//{{{ getEnd() method
-	/**
-	 * Returns the end of the portion of the selection
-	 * falling on the specified line. Used to manipulate
-	 * selection text on a line-by-line basis.
-	 * @param buffer The buffer
-	 * @param line The line number
-	 * @since jEdit 4.1pre1
-	 */
-	public abstract int getEnd(JEditBuffer buffer, int line);
-	//}}}
-
-	//{{{ getStartLine() method
-	/**
-	 * Returns the starting line number of this selection.
-	 */
-	public int getStartLine()
-	{
-		return startLine;
-	} //}}}
-
-	//{{{ getEndLine() method
-	/**
-	 * Returns the ending line number of this selection.
-	 */
-	public int getEndLine()
-	{
-		return endLine;
-	} //}}}
-
-	//{{{ overlaps() method
-	/**
-	 * Returns if this selection and the specified selection overlap.
-	 * @param s The other selection
-	 * @since jEdit 4.1pre1
-	 */
-	public boolean overlaps(Selection s)
-	{
-		if((start >= s.start && start <= s.end)
-			|| (end >= s.start && end <= s.end))
-			return true;
-		else
-			return false;
-	} //}}}
-
-	//{{{ toString() method
-	@Override
-	public String toString()
-	{
-		return getClass().getName() + "[start=" + start
-			+ ",end=" + end + ",startLine=" + startLine
-			+ ",endLine=" + endLine + ']';
-	} //}}}
-
-	//{{{ clone() method
-	@Override
-	public Object clone()
-	{
-		try
-		{
-			return super.clone();
-		}
-		catch(CloneNotSupportedException e)
-		{
-			throw new InternalError("I just drank a whole "
-				+ "bottle of cough syrup and I feel "
-				+ "funny!");
-		}
-	} //}}}
-
-	//{{{ Package-private members
-	int start, end;
-	int startLine, endLine;
-
-	//{{{ Selection constructor
-	protected Selection()
-	{
-	} //}}}
-
-	//{{{ Selection constructor
-	protected Selection(Selection sel)
-	{
-		this.start = sel.start;
-		this.end = sel.end;
-	} //}}}
-
-	//{{{ Selection constructor
-	protected Selection(int start, int end)
-	{
-		this.start = start;
-		this.end = end;
-	} //}}}
-
-	// should the next two be public, maybe?
-	abstract void getText(JEditBuffer buffer, StringBuilder buf);
-
-	/**
-	 * Replace the selection with the given text
-	 * @param buffer the buffer
-	 * @param text the text
-	 * @return the offset at the end of the inserted text
-	 */
-	abstract int setText(JEditBuffer buffer, String text);
-
-	/**
-	 * Called when text is inserted into the buffer.
-	 * @param buffer The buffer in question
-	 * @param startLine The first line
-	 * @param start The start offset, from the beginning of the buffer
-	 * @param numLines The number of lines inserted
-	 * @param length The number of characters inserted
-	 * @return <code>true</code> if the selection was changed
-	 */
-	abstract boolean contentInserted(JEditBuffer buffer, int startLine, int start,
-		int numLines, int length);
-
-	/**
-	 * Called when text is removed from the buffer.
-	 * @param buffer The buffer in question
-	 * @param startLine The first line
-	 * @param start The start offset, from the beginning of the buffer
-	 * @param numLines The number of lines removed
-	 * @param length The number of characters removed
-	 * @return <code>true</code> if the selection was changed
-	 */
-	abstract boolean contentRemoved(JEditBuffer buffer, int startLine, int start,
-		int numLines, int length);
-	//}}}
-
-	//{{{ Range class
+	// {{{ Range class
 	/**
 	 * An ordinary range selection.
+	 * 
 	 * @since jEdit 3.2pre1
 	 */
 	public static class Range extends Selection
 	{
-		//{{{ Range constructor
+		// {{{ Range constructor
 		public Range()
 		{
-		} //}}}
+		} // }}}
 
-		//{{{ Range constructor
+		// {{{ Range constructor
+		public Range(int start, int end)
+		{
+			super(start, end);
+		} // }}}
+
+		// {{{ Range constructor
 		public Range(Selection sel)
 		{
 			super(sel);
-		} //}}}
+		} // }}}
 
-		//{{{ Range constructor
-		public Range(int start, int end)
-		{
-			super(start,end);
-		} //}}}
-
-		//{{{ getStart() method
+		// {{{ contentInserted() method
 		@Override
-		public int getStart(JEditBuffer buffer, int line)
-		{
-			if(line == startLine)
-				return start;
-			else
-				return buffer.getLineStartOffset(line);
-		} //}}}
-
-		//{{{ getEnd() method
-		@Override
-		public int getEnd(JEditBuffer buffer, int line)
-		{
-			if(line == endLine)
-				return end;
-			else
-				return buffer.getLineEndOffset(line) - 1;
-		} //}}}
-
-		//{{{ Package-private members
-
-		//{{{ getText() method
-		@Override
-		void getText(JEditBuffer buffer, StringBuilder buf)
-		{
-			buf.append(buffer.getText(start,end - start));
-		} //}}}
-
-		//{{{ setText() method
-		/**
-		 * Replace the selection with the given text
-		 * @param buffer the buffer
-		 * @param text the text
-		 * @return the offset at the end of the inserted text
-		 */
-		@Override
-		int setText(JEditBuffer buffer, String text)
-		{
-			buffer.remove(start,end - start);
-			if(text != null && text.length() != 0)
-			{
-				buffer.insert(start,text);
-				return start + text.length();
-			}
-			else
-				return start;
-		} //}}}
-
-		//{{{ contentInserted() method
-		@Override
-		boolean contentInserted(JEditBuffer buffer, int startLine, int start,
-			int numLines, int length)
+		boolean contentInserted(JEditBuffer buffer, int startLine, int start, int numLines, int length)
 		{
 			boolean changed = false;
 
-			if(this.start >= start)
+			if (this.start >= start)
 			{
 				this.start += length;
-				if(numLines != 0)
+				if (numLines != 0)
 					this.startLine = buffer.getLineOfOffset(this.start);
 				changed = true;
 			}
 
-			if(this.end >= start)
+			if (this.end >= start)
 			{
 				this.end += length;
-				if(numLines != 0)
+				if (numLines != 0)
 					this.endLine = buffer.getLineOfOffset(this.end);
 				changed = true;
 			}
 
 			return changed;
-		} //}}}
+		} // }}}
 
-		//{{{ contentRemoved() method
+		// {{{ contentRemoved() method
 		@Override
-		boolean contentRemoved(JEditBuffer buffer, int startLine, int start,
-			int numLines, int length)
+		boolean contentRemoved(JEditBuffer buffer, int startLine, int start, int numLines, int length)
 		{
 			int end = start + length;
 			boolean changed = false;
 
-			if(this.start > start && this.start <= end)
+			if (this.start > start && this.start <= end)
 			{
 				this.start = start;
 				changed = true;
 			}
-			else if(this.start > end)
+			else if (this.start > end)
 			{
 				this.start -= length;
 				changed = true;
 			}
 
-			if(this.end > start && this.end <= end)
+			if (this.end > start && this.end <= end)
 			{
 				this.end = start;
 				changed = true;
 			}
-			else if(this.end > end)
+			else if (this.end > end)
 			{
 				this.end -= length;
 				changed = true;
 			}
 
-			if(changed && numLines != 0)
+			if (changed && numLines != 0)
 			{
 				this.startLine = buffer.getLineOfOffset(this.start);
 				this.endLine = buffer.getLineOfOffset(this.end);
 			}
 
 			return changed;
-		} //}}}
+		} // }}}
 
-		//}}}
-	} //}}}
+		// {{{ Package-private members
 
-	//{{{ Rect class
+		// {{{ getText() method
+		@Override
+		void getText(JEditBuffer buffer, StringBuilder buf)
+		{
+			buf.append(buffer.getText(start, end - start));
+		} // }}}
+
+		// {{{ setText() method
+		/**
+		 * Replace the selection with the given text
+		 * 
+		 * @param buffer
+		 *            the buffer
+		 * @param text
+		 *            the text
+		 * @return the offset at the end of the inserted text
+		 */
+		@Override
+		int setText(JEditBuffer buffer, String text)
+		{
+			buffer.remove(start, end - start);
+			if (text != null && text.length() != 0)
+			{
+				buffer.insert(start, text);
+				return start + text.length();
+			}
+			else
+				return start;
+		} // }}}
+
+		// {{{ getEnd() method
+		@Override
+		public int getEnd(JEditBuffer buffer, int line)
+		{
+			if (line == endLine)
+				return end;
+			else
+				return buffer.getLineEndOffset(line) - 1;
+		} // }}}
+
+		// {{{ getStart() method
+		@Override
+		public int getStart(JEditBuffer buffer, int line)
+		{
+			if (line == startLine)
+				return start;
+			else
+				return buffer.getLineStartOffset(line);
+		} // }}}
+
+		// }}}
+	} // }}}
+
+	// {{{ Rect class
 	/**
 	 * A rectangular selection.
+	 * 
 	 * @since jEdit 3.2pre1
 	 */
 	// this class is not very fast...
 	public static class Rect extends Selection
 	{
-		//{{{ Rect constructor
+		// {{{ Package-private members
+		int extraStartVirt;
+
+		int extraEndVirt;
+
+		// {{{ Rect constructor
 		public Rect()
 		{
 			super();
-		} //}}}
+		} // }}}
 
-		//{{{ Rect constructor
-		public Rect(Selection sel)
-		{
-			super(sel);
-		} //}}}
-
-		//{{{ Rect constructor
+		// {{{ Rect constructor
 		public Rect(int start, int end)
 		{
-			super(start,end);
-		} //}}}
+			super(start, end);
+		} // }}}
 
-		//{{{ Rect constructor
+		// {{{ Rect constructor
 		public Rect(int startLine, int start, int endLine, int end)
 		{
 			this.startLine = startLine;
 			this.start = start;
 			this.endLine = endLine;
 			this.end = end;
-		} //}}}
+		} // }}}
 
-		//{{{ Rect constructor
-		public Rect(JEditBuffer buffer, int startLine, int startColumn,
-			int endLine, int endColumn)
+		// {{{ Rect constructor
+		public Rect(JEditBuffer buffer, int startLine, int startColumn, int endLine, int endColumn)
 		{
 			this.startLine = startLine;
 			this.endLine = endLine;
 
 			int[] width = new int[1];
-			int startOffset = buffer.getOffsetOfVirtualColumn(startLine,
-				startColumn,width);
-			if(startOffset == -1)
+			int startOffset = buffer.getOffsetOfVirtualColumn(startLine, startColumn, width);
+			if (startOffset == -1)
 			{
 				extraStartVirt = startColumn - width[0];
-				//startOffset = buffer.getLineEndOffset(startLine) - 1;
+				// startOffset = buffer.getLineEndOffset(startLine) - 1;
 			}
-			/*else
-				startOffset += buffer.getLineStartOffset(startLine);*/
+			/*
+			 * else startOffset += buffer.getLineStartOffset(startLine);
+			 */
 
-			int endOffset = buffer.getOffsetOfVirtualColumn(endLine,
-				endColumn,width);
-			if(endOffset == -1)
+			int endOffset = buffer.getOffsetOfVirtualColumn(endLine, endColumn, width);
+			if (endOffset == -1)
 			{
 				extraEndVirt = endColumn - width[0];
-				//endOffset = buffer.getLineEndOffset(endLine) - 1;
+				// endOffset = buffer.getLineEndOffset(endLine) - 1;
 			}
-			/*else
-				endOffset += buffer.getLineStartOffset(endLine);*/
-		} //}}}
+			/*
+			 * else endOffset += buffer.getLineStartOffset(endLine);
+			 */
+		} // }}}
 
-		//{{{ getStartColumn() method
-		public int getStartColumn(JEditBuffer buffer)
+		// {{{ Rect constructor
+		public Rect(Selection sel)
 		{
-			int virtColStart = buffer.getVirtualWidth(startLine,
-				start - buffer.getLineStartOffset(startLine)) + extraStartVirt;
-			int virtColEnd = buffer.getVirtualWidth(endLine,
-				end - buffer.getLineStartOffset(endLine)) + extraEndVirt;
-			return Math.min(virtColStart,virtColEnd);
-		} //}}}
+			super(sel);
+		} // }}}
 
-		//{{{ getEndColumn() method
-		public int getEndColumn(JEditBuffer buffer)
+		// {{{ getColumnOnOtherLine() method
+		private static int getColumnOnOtherLine(JEditBuffer buffer, int line, int col)
 		{
-			int virtColStart = buffer.getVirtualWidth(startLine,
-				start - buffer.getLineStartOffset(startLine)) + extraStartVirt;
-			int virtColEnd = buffer.getVirtualWidth(endLine,
-				end - buffer.getLineStartOffset(endLine)) + extraEndVirt;
-			return Math.max(virtColStart,virtColEnd);
-		} //}}}
+			int returnValue = buffer.getOffsetOfVirtualColumn(line, col, null);
+			if (returnValue == -1)
+				return buffer.getLineEndOffset(line) - 1;
+			else
+				return buffer.getLineStartOffset(line) + returnValue;
+		} // }}}
 
-		//{{{ getStart() method
+		// {{{ contentInserted() method
 		@Override
-		public int getStart(JEditBuffer buffer, int line)
+		boolean contentInserted(JEditBuffer buffer, int startLine, int start, int numLines, int length)
 		{
-			return getColumnOnOtherLine(buffer,line,
-				getStartColumn(buffer));
-		} //}}}
+			if (this.end < start)
+				return false;
 
-		//{{{ getEnd() method
+			this.end += length;
+
+			if (this.startLine > startLine)
+			{
+				this.start += length;
+				if (numLines != 0)
+				{
+					this.startLine = buffer.getLineOfOffset(this.start);
+					this.endLine = buffer.getLineOfOffset(this.end);
+				}
+				return true;
+			}
+
+			int endVirtualColumn = buffer.getVirtualWidth(this.endLine, end - buffer.getLineStartOffset(this.endLine));
+
+			if (this.start == start)
+			{
+				int startVirtualColumn = buffer.getVirtualWidth(this.startLine, start - buffer.getLineStartOffset(this.startLine));
+
+				this.start += length;
+
+				int newStartVirtualColumn = buffer.getVirtualWidth(startLine, start - buffer.getLineStartOffset(this.startLine));
+
+				int[] totalVirtualWidth = new int[1];
+				int newEnd = buffer.getOffsetOfVirtualColumn(this.endLine, endVirtualColumn + newStartVirtualColumn - startVirtualColumn, totalVirtualWidth);
+
+				if (newEnd != -1)
+				{
+					end = buffer.getLineStartOffset(this.endLine) + newEnd;
+				}
+				else
+				{
+					end = buffer.getLineEndOffset(this.endLine) - 1;
+					extraEndVirt = totalVirtualWidth[0] - endVirtualColumn;
+				}
+			}
+			else if (this.start > start)
+			{
+				this.start += length;
+				if (numLines != 0)
+				{
+					this.startLine = buffer.getLineOfOffset(this.start);
+				}
+			}
+
+			if (numLines != 0)
+				this.endLine = buffer.getLineOfOffset(this.end);
+			int newEndVirtualColumn = buffer.getVirtualWidth(endLine, end - buffer.getLineStartOffset(this.endLine));
+			if (startLine == this.endLine && extraEndVirt != 0)
+			{
+				extraEndVirt += endVirtualColumn - newEndVirtualColumn;
+			}
+			else if (startLine == this.startLine && extraStartVirt != 0)
+			{
+				extraStartVirt += endVirtualColumn - newEndVirtualColumn;
+			}
+
+			return true;
+		} // }}}
+
+		// {{{ contentRemoved() method
 		@Override
-		public int getEnd(JEditBuffer buffer, int line)
+		boolean contentRemoved(JEditBuffer buffer, int startLine, int start, int numLines, int length)
 		{
-			return getColumnOnOtherLine(buffer,line,
-				getEndColumn(buffer));
-		} //}}}
+			int end = start + length;
+			boolean changed = false;
 
-		//{{{ Package-private members
-		int extraStartVirt;
-		int extraEndVirt;
+			if (this.start > start && this.start <= end)
+			{
+				this.start = start;
+				changed = true;
+			}
+			else if (this.start > end)
+			{
+				this.start -= length;
+				changed = true;
+			}
 
-		//{{{ getText() method
+			if (this.end > start && this.end <= end)
+			{
+				this.end = start;
+				changed = true;
+			}
+			else if (this.end > end)
+			{
+				this.end -= length;
+				changed = true;
+			}
+
+			if (changed && numLines != 0)
+			{
+				this.startLine = buffer.getLineOfOffset(this.start);
+				this.endLine = buffer.getLineOfOffset(this.end);
+			}
+
+			return changed;
+		} // }}}
+			// {{{ getText() method
+
 		@Override
 		void getText(JEditBuffer buffer, StringBuilder buf)
 		{
 			int start = getStartColumn(buffer);
 			int end = getEndColumn(buffer);
 
-			for(int i = startLine; i <= endLine; i++)
+			for (int i = startLine; i <= endLine; i++)
 			{
 				int lineStart = buffer.getLineStartOffset(i);
 				int lineLen = buffer.getLineLength(i);
 
-				int rectStart = buffer.getOffsetOfVirtualColumn(
-					i,start,null);
-				if(rectStart == -1)
+				int rectStart = buffer.getOffsetOfVirtualColumn(i, start, null);
+				if (rectStart == -1)
 					rectStart = lineLen;
 
-				int rectEnd = buffer.getOffsetOfVirtualColumn(
-					i,end,null);
-				if(rectEnd == -1)
+				int rectEnd = buffer.getOffsetOfVirtualColumn(i, end, null);
+				if (rectEnd == -1)
 					rectEnd = lineLen;
 
-				if(rectEnd < rectStart)
-					System.err.println(i + ":::" + start + ':' + end
-						+ " ==> " + rectStart + ':' + rectEnd);
-				buf.append(buffer.getText(lineStart + rectStart,
-					rectEnd - rectStart));
+				if (rectEnd < rectStart)
+					System.err.println(i + ":::" + start + ':' + end + " ==> " + rectStart + ':' + rectEnd);
+				buf.append(buffer.getText(lineStart + rectStart, rectEnd - rectStart));
 
-				if(i != endLine)
+				if (i != endLine)
 					buf.append('\n');
 			}
-		} //}}}
+		} // }}}
 
-		//{{{ setText() method
+		// {{{ setText() method
 		/**
 		 * Replace the selection with the given text
-		 * @param buffer the buffer
-		 * @param text the text
+		 * 
+		 * @param buffer
+		 *            the buffer
+		 * @param text
+		 *            the text
 		 * @return the offset at the end of the inserted text
 		 */
 		@Override
@@ -506,55 +426,53 @@ public abstract class Selection implements Cloneable
 			/** This list will contains Strings and Integer. */
 			List lines = new ArrayList();
 
-			//{{{ Split the text into lines
-			if(text != null)
+			// {{{ Split the text into lines
+			if (text != null)
 			{
 				int lastNewline = 0;
 				int currentWidth = startColumn;
-				for(int i = 0; i < text.length(); i++)
+				for (int i = 0; i < text.length(); i++)
 				{
 					char ch = text.charAt(i);
-					if(ch == '\n')
+					if (ch == '\n')
 					{
 						totalLines++;
-						lines.add(text.substring(
-							lastNewline,i));
+						lines.add(text.substring(lastNewline, i));
 						lastNewline = i + 1;
-						maxWidth = Math.max(maxWidth,currentWidth);
+						maxWidth = Math.max(maxWidth, currentWidth);
 						lines.add(currentWidth);
 						currentWidth = startColumn;
 					}
-					else if(ch == '\t')
+					else if (ch == '\t')
 						currentWidth += tabSize - (currentWidth % tabSize);
 					else
 						currentWidth++;
 				}
 
-				if(lastNewline != text.length())
+				if (lastNewline != text.length())
 				{
 					totalLines++;
 					lines.add(text.substring(lastNewline));
 					lines.add(currentWidth);
-					maxWidth = Math.max(maxWidth,currentWidth);
+					maxWidth = Math.max(maxWidth, currentWidth);
 				}
-			} //}}}
+			} // }}}
 
-			//{{{ Insert the lines into the buffer
+			// {{{ Insert the lines into the buffer
 			int endOffset = 0;
 			int[] total = new int[1];
-			int lastLine = Math.max(startLine + totalLines - 1,endLine);
-			for(int i = startLine; i <= lastLine; i++)
+			int lastLine = Math.max(startLine + totalLines - 1, endLine);
+			for (int i = startLine; i <= lastLine; i++)
 			{
-				if(i == buffer.getLineCount())
-					buffer.insert(buffer.getLength(),"\n");
+				if (i == buffer.getLineCount())
+					buffer.insert(buffer.getLength(), "\n");
 
 				int lineStart = buffer.getLineStartOffset(i);
 				int lineLen = buffer.getLineLength(i);
 
-				int rectStart = buffer.getOffsetOfVirtualColumn(
-					i,startColumn,total);
+				int rectStart = buffer.getOffsetOfVirtualColumn(i, startColumn, total);
 				int startWhitespace;
-				if(rectStart == -1)
+				if (rectStart == -1)
 				{
 					startWhitespace = startColumn - total[0];
 					rectStart = lineLen;
@@ -562,23 +480,21 @@ public abstract class Selection implements Cloneable
 				else
 					startWhitespace = 0;
 
-				int rectEnd = buffer.getOffsetOfVirtualColumn(
-					i,endColumn,null);
-				if(rectEnd == -1)
+				int rectEnd = buffer.getOffsetOfVirtualColumn(i, endColumn, null);
+				if (rectEnd == -1)
 					rectEnd = lineLen;
 
-				buffer.remove(rectStart + lineStart,rectEnd - rectStart);
+				buffer.remove(rectStart + lineStart, rectEnd - rectStart);
 
-				if(startWhitespace != 0)
+				if (startWhitespace != 0)
 				{
-					buffer.insert(rectStart + lineStart,
-						StandardUtilities.createWhiteSpace(startWhitespace,0));
+					buffer.insert(rectStart + lineStart, StandardUtilities.createWhiteSpace(startWhitespace, 0));
 				}
 
 				int endWhitespace;
-				if(totalLines == 0)
+				if (totalLines == 0)
 				{
-					if(rectEnd == lineLen)
+					if (rectEnd == lineLen)
 						endWhitespace = 0;
 					else
 						endWhitespace = maxWidth - startColumn;
@@ -586,183 +502,245 @@ public abstract class Selection implements Cloneable
 				else
 				{
 					int index = 2 * ((i - startLine) % totalLines);
-					String str = (String)lines.get(index);
-					buffer.insert(rectStart + lineStart + startWhitespace,str);
-					if(rectEnd == lineLen)
+					String str = (String) lines.get(index);
+					buffer.insert(rectStart + lineStart + startWhitespace, str);
+					if (rectEnd == lineLen)
 						endWhitespace = 0;
 					else
 					{
-						endWhitespace = maxWidth
-							- (Integer) lines.get(index + 1);
+						endWhitespace = maxWidth - (Integer) lines.get(index + 1);
 					}
 					startWhitespace += str.length();
 				}
 
-				if(endWhitespace != 0)
+				if (endWhitespace != 0)
 				{
-					buffer.insert(rectStart + lineStart
-						+ startWhitespace,
-						StandardUtilities.createWhiteSpace(endWhitespace,0));
+					buffer.insert(rectStart + lineStart + startWhitespace, StandardUtilities.createWhiteSpace(endWhitespace, 0));
 				}
 
-				endOffset = rectStart + lineStart
-					+ startWhitespace
-					+ endWhitespace;
-			} //}}}
+				endOffset = rectStart + lineStart + startWhitespace + endWhitespace;
+			} // }}}
 
-			//{{{ Move the caret down a line
-			if(text == null || text.length() == 0)
+			// {{{ Move the caret down a line
+			if (text == null || text.length() == 0)
 				return end;
 			else
 				return endOffset;
-			//}}}
-		} //}}}
+			// }}}
+		} // }}}
 
-		//{{{ contentInserted() method
+		// {{{ getEnd() method
 		@Override
-		boolean contentInserted(JEditBuffer buffer, int startLine, int start,
-			int numLines, int length)
+		public int getEnd(JEditBuffer buffer, int line)
 		{
-			if(this.end < start)
-				return false;
+			return getColumnOnOtherLine(buffer, line, getEndColumn(buffer));
+		} // }}}
 
-			this.end += length;
+		// {{{ getEndColumn() method
+		public int getEndColumn(JEditBuffer buffer)
+		{
+			int virtColStart = buffer.getVirtualWidth(startLine, start - buffer.getLineStartOffset(startLine)) + extraStartVirt;
+			int virtColEnd = buffer.getVirtualWidth(endLine, end - buffer.getLineStartOffset(endLine)) + extraEndVirt;
+			return Math.max(virtColStart, virtColEnd);
+		} // }}}
 
-			if(this.startLine > startLine)
-			{
-				this.start += length;
-				if(numLines != 0)
-				{
-					this.startLine = buffer.getLineOfOffset(
-						this.start);
-					this.endLine = buffer.getLineOfOffset(
-						this.end);
-				}
-				return true;
-			}
+		// {{{ getStart() method
+		@Override
+		public int getStart(JEditBuffer buffer, int line)
+		{
+			return getColumnOnOtherLine(buffer, line, getStartColumn(buffer));
+		} // }}}
 
-			int endVirtualColumn = buffer.getVirtualWidth(
-				this.endLine,end
-				- buffer.getLineStartOffset(this.endLine));
+		// }}}
 
-			if(this.start == start)
-			{
-				int startVirtualColumn = buffer.getVirtualWidth(
-					this.startLine,start
-					- buffer.getLineStartOffset(
-					this.startLine));
+		// {{{ Private members
 
-				this.start += length;
+		// {{{ getStartColumn() method
+		public int getStartColumn(JEditBuffer buffer)
+		{
+			int virtColStart = buffer.getVirtualWidth(startLine, start - buffer.getLineStartOffset(startLine)) + extraStartVirt;
+			int virtColEnd = buffer.getVirtualWidth(endLine, end - buffer.getLineStartOffset(endLine)) + extraEndVirt;
+			return Math.min(virtColStart, virtColEnd);
+		} // }}}
 
-				int newStartVirtualColumn
-					= buffer.getVirtualWidth(
-						startLine,start -
-						buffer.getLineStartOffset(
-						this.startLine));
+		// }}}
+	} // }}}
 
-				int[] totalVirtualWidth = new int[1];
-				int newEnd = buffer.getOffsetOfVirtualColumn(
-					this.endLine,endVirtualColumn +
-					newStartVirtualColumn -
-					startVirtualColumn,
-					totalVirtualWidth);
+	// {{{ Package-private members
+	int start, end;
 
-				if(newEnd != -1)
-				{
-					end = buffer.getLineStartOffset(
-						this.endLine) + newEnd;
-				}
-				else
-				{
-					end = buffer.getLineEndOffset(
-						this.endLine) - 1;
-					extraEndVirt = totalVirtualWidth[0]
-						- endVirtualColumn;
-				}
-			}
-			else if(this.start > start)
-			{
-				this.start += length;
-				if(numLines != 0)
-				{
-					this.startLine = buffer.getLineOfOffset(
-						this.start);
-				}
-			}
+	int startLine, endLine;
 
-			if(numLines != 0)
-				this.endLine = buffer.getLineOfOffset(this.end);
-			int newEndVirtualColumn = buffer.getVirtualWidth(
-				endLine,
-				end - buffer.getLineStartOffset(this.endLine));
-			if(startLine == this.endLine && extraEndVirt != 0)
-			{
-				extraEndVirt += endVirtualColumn - newEndVirtualColumn;
-			}
-			else if(startLine == this.startLine
-				&& extraStartVirt != 0)
-			{
-				extraStartVirt += endVirtualColumn - newEndVirtualColumn;
-			}
+	// {{{ Selection constructor
+	protected Selection()
+	{
+	} // }}}
 
+	// {{{ Selection constructor
+	protected Selection(int start, int end)
+	{
+		this.start = start;
+		this.end = end;
+	} // }}}
+
+	// {{{ Selection constructor
+	protected Selection(Selection sel)
+	{
+		this.start = sel.start;
+		this.end = sel.end;
+	} // }}}
+
+	/**
+	 * Called when text is inserted into the buffer.
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param startLine
+	 *            The first line
+	 * @param start
+	 *            The start offset, from the beginning of the buffer
+	 * @param numLines
+	 *            The number of lines inserted
+	 * @param length
+	 *            The number of characters inserted
+	 * @return <code>true</code> if the selection was changed
+	 */
+	abstract boolean contentInserted(JEditBuffer buffer, int startLine, int start, int numLines, int length);
+
+	/**
+	 * Called when text is removed from the buffer.
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param startLine
+	 *            The first line
+	 * @param start
+	 *            The start offset, from the beginning of the buffer
+	 * @param numLines
+	 *            The number of lines removed
+	 * @param length
+	 *            The number of characters removed
+	 * @return <code>true</code> if the selection was changed
+	 */
+	abstract boolean contentRemoved(JEditBuffer buffer, int startLine, int start, int numLines, int length);
+
+	// }}}
+
+	// should the next two be public, maybe?
+	abstract void getText(JEditBuffer buffer, StringBuilder buf);
+
+	/**
+	 * Replace the selection with the given text
+	 * 
+	 * @param buffer
+	 *            the buffer
+	 * @param text
+	 *            the text
+	 * @return the offset at the end of the inserted text
+	 */
+	abstract int setText(JEditBuffer buffer, String text);
+
+	// {{{ clone() method
+	@Override
+	public Object clone()
+	{
+		try
+		{
+			return super.clone();
+		}
+		catch (CloneNotSupportedException e)
+		{
+			throw new InternalError("I just drank a whole " + "bottle of cough syrup and I feel " + "funny!");
+		}
+	} // }}}
+
+	// {{{ getEnd() method
+	/**
+	 * Returns the end offset of this selection.
+	 */
+	public int getEnd()
+	{
+		return end;
+	} // }}}
+
+	// {{{ getEnd() method
+	/**
+	 * Returns the end of the portion of the selection falling on the specified
+	 * line. Used to manipulate selection text on a line-by-line basis.
+	 * 
+	 * @param buffer
+	 *            The buffer
+	 * @param line
+	 *            The line number
+	 * @since jEdit 4.1pre1
+	 */
+	public abstract int getEnd(JEditBuffer buffer, int line);
+
+	// }}}
+
+	// {{{ getEndLine() method
+	/**
+	 * Returns the ending line number of this selection.
+	 */
+	public int getEndLine()
+	{
+		return endLine;
+	} // }}}
+
+	// {{{ getStart() method
+	/**
+	 * Returns the start offset of this selection.
+	 */
+	public int getStart()
+	{
+		return start;
+	} // }}}
+
+	// {{{ getStart() method
+	/**
+	 * Returns the beginning of the portion of the selection falling on the
+	 * specified line. Used to manipulate selection text on a line-by-line
+	 * basis.
+	 * 
+	 * @param buffer
+	 *            The buffer
+	 * @param line
+	 *            The line number
+	 * @since jEdit 4.1pre1
+	 */
+	public abstract int getStart(JEditBuffer buffer, int line);
+
+	// }}}
+
+	// {{{ getStartLine() method
+	/**
+	 * Returns the starting line number of this selection.
+	 */
+	public int getStartLine()
+	{
+		return startLine;
+	} // }}}
+
+	// {{{ overlaps() method
+	/**
+	 * Returns if this selection and the specified selection overlap.
+	 * 
+	 * @param s
+	 *            The other selection
+	 * @since jEdit 4.1pre1
+	 */
+	public boolean overlaps(Selection s)
+	{
+		if ((start >= s.start && start <= s.end) || (end >= s.start && end <= s.end))
 			return true;
-		} //}}}
+		else
+			return false;
+	} // }}}
 
-		//{{{ contentRemoved() method
-		@Override
-		boolean contentRemoved(JEditBuffer buffer, int startLine, int start,
-			int numLines, int length)
-		{
-			int end = start + length;
-			boolean changed = false;
-
-			if(this.start > start && this.start <= end)
-			{
-				this.start = start;
-				changed = true;
-			}
-			else if(this.start > end)
-			{
-				this.start -= length;
-				changed = true;
-			}
-
-			if(this.end > start && this.end <= end)
-			{
-				this.end = start;
-				changed = true;
-			}
-			else if(this.end > end)
-			{
-				this.end -= length;
-				changed = true;
-			}
-
-			if(changed && numLines != 0)
-			{
-				this.startLine = buffer.getLineOfOffset(this.start);
-				this.endLine = buffer.getLineOfOffset(this.end);
-			}
-
-			return changed;
-		} //}}}
-
-		//}}}
-
-		//{{{ Private members
-
-		//{{{ getColumnOnOtherLine() method
-		private static int getColumnOnOtherLine(JEditBuffer buffer, int line,
-			int col)
-		{
-			int returnValue = buffer.getOffsetOfVirtualColumn(
-				line,col,null);
-			if(returnValue == -1)
-				return buffer.getLineEndOffset(line) - 1;
-			else
-				return buffer.getLineStartOffset(line) + returnValue;
-		} //}}}
-
-		//}}}
-	} //}}}
+	// {{{ toString() method
+	@Override
+	public String toString()
+	{
+		return getClass().getName() + "[start=" + start + ",end=" + end + ",startLine=" + startLine + ",endLine=" + endLine + ']';
+	} // }}}
 }

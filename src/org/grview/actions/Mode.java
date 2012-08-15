@@ -25,8 +25,8 @@ package org.grview.actions;
 
 //{{{ Imports
 import java.lang.reflect.Method;
-import java.util.Hashtable;
 import java.util.Collections;
+import java.util.Hashtable;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -41,24 +41,43 @@ import org.grview.editor.syntax.ModeProvider;
 import org.grview.editor.syntax.TokenMarker;
 import org.grview.util.Log;
 import org.grview.util.StandardUtilities;
+
 //}}}
 
-
 /**
- * An edit mode defines specific settings for editing some type of file.
- * One instance of this class is created for each supported edit mode.
- *
+ * An edit mode defines specific settings for editing some type of file. One
+ * instance of this class is created for each supported edit mode.
+ * 
  * @author Slava Pestov
  * @version $Id$
  */
 public class Mode
 {
-	//{{{ Mode constructor
+	// {{{ Private members
+	protected String name;
+
+	protected Map<String, Object> props;
+
+	private Pattern firstlineRE;
+
+	private Pattern filenameRE;
+
+	protected TokenMarker marker;
+
+	private List<IndentRule> indentRules;
+
+	private String electricKeys;
+
+	private boolean ignoreWhitespace;
+
+	// }}}
+
+	// {{{ Mode constructor
 	/**
 	 * Creates a new edit mode.
-	 *
-	 * @param name The name used in mode listings and to query mode
-	 * properties
+	 * 
+	 * @param name
+	 *            The name used in mode listings and to query mode properties
 	 * @see #getProperty(String)
 	 */
 	public Mode(String name)
@@ -66,281 +85,79 @@ public class Mode
 		this.name = name;
 		this.ignoreWhitespace = true;
 		props = new Hashtable<String, Object>();
-	} //}}}
+	} // }}}
 
-	//{{{ init() method
-	/**
-	 * Initializes the edit mode. Should be called after all properties
-	 * are loaded and set.
-	 */
-	public void init()
+	private void createBracketIndentRules(String prop, List<IndentRule> rules)
 	{
+		String value = (String) getProperty(prop + 's');
+
 		try
 		{
-			String filenameGlob = (String)getProperty("filenameGlob");
-			if(filenameGlob != null && filenameGlob.length() != 0)
+			if (value != null)
 			{
-				filenameRE = Pattern.compile(StandardUtilities.globToRE(filenameGlob),
-							     Pattern.CASE_INSENSITIVE);
-			}
+				for (int i = 0; i < value.length(); i++)
+				{
+					char ch = value.charAt(i);
 
-			String firstlineGlob = (String)getProperty("firstlineGlob");
-			if(firstlineGlob != null && firstlineGlob.length() != 0)
-			{
-				firstlineRE = Pattern.compile(StandardUtilities.globToRE(firstlineGlob),
-							      Pattern.CASE_INSENSITIVE);
+					Method m = IndentRuleFactory.class.getMethod(prop, new Class[]{ char.class });
+					rules.add((IndentRule) m.invoke(null, ch));
+				}
 			}
 		}
-		catch(PatternSyntaxException re)
+		catch (Exception e)
 		{
-			Log.log(Log.ERROR,this,"Invalid filename/firstline"
-				+ " globs in mode " + name);
-			Log.log(Log.ERROR,this,re);
+			Log.log(Log.ERROR, this, "Bad indent rule " + prop + '=' + value + ':');
+			Log.log(Log.ERROR, this, e);
 		}
-
-		// Fix for this bug:
-		// -- Put a mode into the user dir with the same name as one
-		//    on the system dir.
-		// -- Reload edit modes.
-		// -- Old mode from system dir still used for highlighting
-		//    until jEdit restart.
-		marker = null;
-	} //}}}
-
-	//{{{ getTokenMarker() method
-	/**
-	 * Returns the token marker for this mode.
-	 */
-	public TokenMarker getTokenMarker()
-	{
-		loadIfNecessary();
-		return marker;
-	} //}}}
-
-	//{{{ setTokenMarker() method
-	/**
-	 * Sets the token marker for this mode.
-	 * @param marker The new token marker
-	 */
-	public void setTokenMarker(TokenMarker marker)
-	{
-		this.marker = marker;
-	} //}}}
-
-	//{{{ loadIfNecessary() method
-	/**
-	 * Loads the mode from disk if it hasn't been loaded already.
-	 * @since jEdit 2.5pre3
-	 */
-	public void loadIfNecessary()
-	{
-		if(marker == null)
-		{
-			ModeProvider.instance.loadMode(this);
-			if (marker == null)
-				Log.log(Log.ERROR, this, "Mode not correctly loaded, token marker is still null");
-		}
-	} //}}}
-
-	//{{{ getProperty() method
-	/**
-	 * Returns a mode property.
-	 * @param key The property name
-	 *
-	 * @since jEdit 2.2pre1
-	 */
-	public Object getProperty(String key)
-	{
-		Object value = props.get(key);
-		if(value != null)
-			return value;
-		return null;
-	} //}}}
-
-	//{{{ getBooleanProperty() method
-	/**
-	 * Returns the value of a boolean property.
-	 * @param key The property name
-	 *
-	 * @since jEdit 2.5pre3
-	 */
-	public boolean getBooleanProperty(String key)
-	{
-		Object value = getProperty(key);
-		if("true".equals(value) || "on".equals(value) || "yes".equals(value))
-			return true;
-		else
-			return false;
-	} //}}}
-
-	//{{{ setProperty() method
-	/**
-	 * Sets a mode property.
-	 * @param key The property name
-	 * @param value The property value
-	 */
-	public void setProperty(String key, Object value)
-	{
-		props.put(key,value);
-	} //}}}
-
-	//{{{ unsetProperty() method
-	/**
-	 * Unsets a mode property.
-	 * @param key The property name
-	 * @since jEdit 3.2pre3
-	 */
-	public void unsetProperty(String key)
-	{
-		props.remove(key);
-	} //}}}
-
-	//{{{ setProperties() method
-	/**
-	 * Should only be called by <code>XModeHandler</code>.
-	 * @since jEdit 4.0pre3
-	 */
-	public void setProperties(Map props)
-	{
-		if(props == null)
-			props = new Hashtable<String, Object>();
-
-		ignoreWhitespace = !"false".equalsIgnoreCase(
-					(String)props.get("ignoreWhitespace"));
-
-		// need to carry over file name and first line globs because they are
-		// not given to us by the XMode handler, but instead are filled in by
-		// the catalog loader.
-		String filenameGlob = (String)this.props.get("filenameGlob");
-		String firstlineGlob = (String)this.props.get("firstlineGlob");
-		String filename = (String)this.props.get("file");
-		this.props = props;
-		if(filenameGlob != null)
-			props.put("filenameGlob",filenameGlob);
-		if(firstlineGlob != null)
-			props.put("firstlineGlob",firstlineGlob);
-		if(filename != null)
-			props.put("file",filename);
-	} //}}}
-
-	//{{{ accept() method
-	/**
-	 * Returns if the edit mode is suitable for editing the specified
-	 * file. The buffer name and first line is checked against the
-	 * file name and first line globs, respectively.
-	 * @param fileName The buffer's name
-	 * @param firstLine The first line of the buffer
-	 *
-	 * @since jEdit 3.2pre3
-	 */
-	public boolean accept(String fileName, String firstLine)
-	{
-		if(filenameRE != null && filenameRE.matcher(fileName).matches())
-			return true;
-
-		if(firstlineRE != null && firstlineRE.matcher(firstLine).matches())
-			return true;
-
-		return false;
-	} //}}}
-
-	//{{{ getName() method
-	/**
-	 * Returns the internal name of this edit mode.
-	 */
-	public String getName()
-	{
-		return name;
-	} //}}}
-
-	//{{{ toString() method
-	/**
-	 * Returns a string representation of this edit mode.
-	 */
-	@Override
-	public String toString()
-	{
-		return name;
-	} //}}}
-
-	//{{{ getIgnoreWhitespace() method
-	public boolean getIgnoreWhitespace()
-	{
-		return ignoreWhitespace;
-	} //}}}
-
-	//{{{ Indent rules
-
-	public synchronized List<IndentRule> getIndentRules()
-	{
-		if (indentRules == null)
-		{
-			initIndentRules();
-		}
-		return indentRules;
 	}
 
-	public synchronized boolean isElectricKey(char ch)
+	private IndentRule createRegexpIndentRule(String prop)
 	{
-		if (electricKeys == null)
+		String value = (String) getProperty(prop);
+
+		try
 		{
-			String[] props = {
-				"indentOpenBrackets",
-				"indentCloseBrackets",
-				"electricKeys"
-			};
-
-			StringBuilder buf = new StringBuilder();
-			for(int i = 0; i < props.length; i++)
+			if (value != null)
 			{
-				String prop = (String) getProperty(props[i]);
-				if (prop != null)
-					buf.append(prop);
+				Method m = IndentRuleFactory.class.getMethod(prop, new Class[]{ String.class });
+				return (IndentRule) m.invoke(null, value);
 			}
-
-			electricKeys = buf.toString();
+		}
+		catch (Exception e)
+		{
+			Log.log(Log.ERROR, this, "Bad indent rule " + prop + '=' + value + ':');
+			Log.log(Log.ERROR, this, e);
 		}
 
-		return (electricKeys.indexOf(ch) >= 0);
+		return null;
 	}
 
 	private void initIndentRules()
 	{
 		List<IndentRule> rules = new LinkedList<IndentRule>();
 
-		String[] regexpProps = {
-			"indentNextLine",
-			"indentNextLines"
-		};
+		String[] regexpProps = { "indentNextLine", "indentNextLines" };
 
-		for(int i = 0; i < regexpProps.length; i++)
+		for (int i = 0; i < regexpProps.length; i++)
 		{
 			IndentRule rule = createRegexpIndentRule(regexpProps[i]);
-			if(rule != null)
+			if (rule != null)
 				rules.add(rule);
 		}
 
-		String[] bracketProps = {
-			"indentOpenBracket",
-			"indentCloseBracket",
-			"unalignedOpenBracket",
-			"unalignedCloseBracket",
-		};
+		String[] bracketProps = { "indentOpenBracket", "indentCloseBracket", "unalignedOpenBracket", "unalignedCloseBracket", };
 
-		for(int i = 0; i < bracketProps.length; i++)
+		for (int i = 0; i < bracketProps.length; i++)
 		{
 			createBracketIndentRules(bracketProps[i], rules);
 		}
 
-		String[] finalProps = {
-			"unindentThisLine",
-			"unindentNextLines"
-		};
+		String[] finalProps = { "unindentThisLine", "unindentNextLines" };
 
-		for(int i = 0; i < finalProps.length; i++)
+		for (int i = 0; i < finalProps.length; i++)
 		{
 			IndentRule rule = createRegexpIndentRule(finalProps[i]);
-			if(rule != null)
+			if (rule != null)
 				rules.add(rule);
 		}
 
@@ -349,7 +166,7 @@ public class Mode
 			String unalignedOpenBrackets = (String) getProperty("unalignedOpenBrackets");
 			if (unalignedOpenBrackets != null)
 			{
-				for (int i = 0 ; i < unalignedOpenBrackets.length();i++)
+				for (int i = 0; i < unalignedOpenBrackets.length(); i++)
 				{
 					char openChar = unalignedOpenBrackets.charAt(i);
 					char closeChar = TextUtilities.getComplementaryBracket(openChar, null);
@@ -365,66 +182,249 @@ public class Mode
 		indentRules = Collections.unmodifiableList(rules);
 	}
 
-	private IndentRule createRegexpIndentRule(String prop)
+	// {{{ accept() method
+	/**
+	 * Returns if the edit mode is suitable for editing the specified file. The
+	 * buffer name and first line is checked against the file name and first
+	 * line globs, respectively.
+	 * 
+	 * @param fileName
+	 *            The buffer's name
+	 * @param firstLine
+	 *            The first line of the buffer
+	 * 
+	 * @since jEdit 3.2pre3
+	 */
+	public boolean accept(String fileName, String firstLine)
 	{
-		String value = (String) getProperty(prop);
+		if (filenameRE != null && filenameRE.matcher(fileName).matches())
+			return true;
 
-		try
-		{
-			if(value != null)
-			{
-				Method m = IndentRuleFactory.class.getMethod(
-					prop,new Class[] { String.class });
-				return (IndentRule)m.invoke(null, value);
-			}
-		}
-		catch(Exception e)
-		{
-			Log.log(Log.ERROR,this,"Bad indent rule " + prop
-				+ '=' + value + ':');
-			Log.log(Log.ERROR,this,e);
-		}
+		if (firstlineRE != null && firstlineRE.matcher(firstLine).matches())
+			return true;
 
+		return false;
+	} // }}}
+
+	// {{{ getBooleanProperty() method
+	/**
+	 * Returns the value of a boolean property.
+	 * 
+	 * @param key
+	 *            The property name
+	 * 
+	 * @since jEdit 2.5pre3
+	 */
+	public boolean getBooleanProperty(String key)
+	{
+		Object value = getProperty(key);
+		if ("true".equals(value) || "on".equals(value) || "yes".equals(value))
+			return true;
+		else
+			return false;
+	} // }}}
+
+	// {{{ Indent rules
+
+	// {{{ getIgnoreWhitespace() method
+	public boolean getIgnoreWhitespace()
+	{
+		return ignoreWhitespace;
+	} // }}}
+
+	public synchronized List<IndentRule> getIndentRules()
+	{
+		if (indentRules == null)
+		{
+			initIndentRules();
+		}
+		return indentRules;
+	}
+
+	// {{{ getName() method
+	/**
+	 * Returns the internal name of this edit mode.
+	 */
+	public String getName()
+	{
+		return name;
+	} // }}}
+
+	// {{{ getProperty() method
+	/**
+	 * Returns a mode property.
+	 * 
+	 * @param key
+	 *            The property name
+	 * 
+	 * @since jEdit 2.2pre1
+	 */
+	public Object getProperty(String key)
+	{
+		Object value = props.get(key);
+		if (value != null)
+			return value;
 		return null;
-	}
+	} // }}}
 
-	private void createBracketIndentRules(String prop,
-						List<IndentRule> rules)
+	// {{{ getTokenMarker() method
+	/**
+	 * Returns the token marker for this mode.
+	 */
+	public TokenMarker getTokenMarker()
 	{
-		String value = (String) getProperty(prop + 's');
+		loadIfNecessary();
+		return marker;
+	} // }}}
 
+	// }}}
+
+	// {{{ init() method
+	/**
+	 * Initializes the edit mode. Should be called after all properties are
+	 * loaded and set.
+	 */
+	public void init()
+	{
 		try
 		{
-			if(value != null)
+			String filenameGlob = (String) getProperty("filenameGlob");
+			if (filenameGlob != null && filenameGlob.length() != 0)
 			{
-				for(int i = 0; i < value.length(); i++)
-				{
-					char ch = value.charAt(i);
+				filenameRE = Pattern.compile(StandardUtilities.globToRE(filenameGlob), Pattern.CASE_INSENSITIVE);
+			}
 
-					Method m = IndentRuleFactory.class.getMethod(
-						prop,new Class[] { char.class });
-					rules.add((IndentRule) m.invoke(null, ch));
-				}
+			String firstlineGlob = (String) getProperty("firstlineGlob");
+			if (firstlineGlob != null && firstlineGlob.length() != 0)
+			{
+				firstlineRE = Pattern.compile(StandardUtilities.globToRE(firstlineGlob), Pattern.CASE_INSENSITIVE);
 			}
 		}
-		catch(Exception e)
+		catch (PatternSyntaxException re)
 		{
-			Log.log(Log.ERROR,this,"Bad indent rule " + prop
-				+ '=' + value + ':');
-			Log.log(Log.ERROR,this,e);
+			Log.log(Log.ERROR, this, "Invalid filename/firstline" + " globs in mode " + name);
+			Log.log(Log.ERROR, this, re);
 		}
+
+		// Fix for this bug:
+		// -- Put a mode into the user dir with the same name as one
+		// on the system dir.
+		// -- Reload edit modes.
+		// -- Old mode from system dir still used for highlighting
+		// until jEdit restart.
+		marker = null;
+	} // }}}
+
+	public synchronized boolean isElectricKey(char ch)
+	{
+		if (electricKeys == null)
+		{
+			String[] props = { "indentOpenBrackets", "indentCloseBrackets", "electricKeys" };
+
+			StringBuilder buf = new StringBuilder();
+			for (int i = 0; i < props.length; i++)
+			{
+				String prop = (String) getProperty(props[i]);
+				if (prop != null)
+					buf.append(prop);
+			}
+
+			electricKeys = buf.toString();
+		}
+
+		return (electricKeys.indexOf(ch) >= 0);
 	}
 
-	//}}}
+	// {{{ loadIfNecessary() method
+	/**
+	 * Loads the mode from disk if it hasn't been loaded already.
+	 * 
+	 * @since jEdit 2.5pre3
+	 */
+	public void loadIfNecessary()
+	{
+		if (marker == null)
+		{
+			ModeProvider.instance.loadMode(this);
+			if (marker == null)
+				Log.log(Log.ERROR, this, "Mode not correctly loaded, token marker is still null");
+		}
+	} // }}}
+		// {{{ setProperties() method
 
-	//{{{ Private members
-	protected String name;
-	protected Map<String, Object> props;
-	private Pattern firstlineRE;
-	private Pattern filenameRE;
-	protected TokenMarker marker;
-	private List<IndentRule> indentRules;
-	private String electricKeys;
-	private boolean ignoreWhitespace;
-	//}}}
+	/**
+	 * Should only be called by <code>XModeHandler</code>.
+	 * 
+	 * @since jEdit 4.0pre3
+	 */
+	public void setProperties(Map props)
+	{
+		if (props == null)
+			props = new Hashtable<String, Object>();
+
+		ignoreWhitespace = !"false".equalsIgnoreCase((String) props.get("ignoreWhitespace"));
+
+		// need to carry over file name and first line globs because they are
+		// not given to us by the XMode handler, but instead are filled in by
+		// the catalog loader.
+		String filenameGlob = (String) this.props.get("filenameGlob");
+		String firstlineGlob = (String) this.props.get("firstlineGlob");
+		String filename = (String) this.props.get("file");
+		this.props = props;
+		if (filenameGlob != null)
+			props.put("filenameGlob", filenameGlob);
+		if (firstlineGlob != null)
+			props.put("firstlineGlob", firstlineGlob);
+		if (filename != null)
+			props.put("file", filename);
+	} // }}}
+		// {{{ setProperty() method
+
+	/**
+	 * Sets a mode property.
+	 * 
+	 * @param key
+	 *            The property name
+	 * @param value
+	 *            The property value
+	 */
+	public void setProperty(String key, Object value)
+	{
+		props.put(key, value);
+	} // }}}
+		// {{{ setTokenMarker() method
+
+	/**
+	 * Sets the token marker for this mode.
+	 * 
+	 * @param marker
+	 *            The new token marker
+	 */
+	public void setTokenMarker(TokenMarker marker)
+	{
+		this.marker = marker;
+	} // }}}
+		// {{{ toString() method
+
+	/**
+	 * Returns a string representation of this edit mode.
+	 */
+	@Override
+	public String toString()
+	{
+		return name;
+	} // }}}
+		// {{{ unsetProperty() method
+
+	/**
+	 * Unsets a mode property.
+	 * 
+	 * @param key
+	 *            The property name
+	 * @since jEdit 3.2pre3
+	 */
+	public void unsetProperty(String key)
+	{
+		props.remove(key);
+	} // }}}
 }

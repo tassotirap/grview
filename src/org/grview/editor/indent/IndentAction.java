@@ -22,10 +22,8 @@
 
 package org.grview.editor.indent;
 
-
 import org.grview.editor.buffer.JEditBuffer;
 import org.grview.util.StandardUtilities;
-
 
 /**
  * @author Slava Pestov
@@ -34,53 +32,90 @@ import org.grview.util.StandardUtilities;
 public interface IndentAction
 {
 	/**
-	 * @param buffer The buffer
-	 * @param line The line number that matched the rule; not necessarily
-	 * the line being indented.
-	 * @param oldIndent Original indent.
-	 * @param newIndent The new indent -- ie, indent returned by previous
-	 * indent action.
+	 * @author Matthieu Casanova
 	 */
-	int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-		int newIndent);
+	class AlignOffset implements IndentAction
+	{
+		private int offset;
+
+		public AlignOffset(int offset)
+		{
+			this.offset = offset;
+		}
+
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
+		{
+			return offset;
+		}
+
+		@Override
+		public boolean keepChecking()
+		{
+			return false;
+		}
+	}
 
 	/**
-	 * @return true if the indent engine should keep processing after
-	 * this rule.
+	 * Indent action used for deep indent.
+	 * 
+	 * @author Matthieu Casanova
 	 */
-	boolean keepChecking();
+	class AlignParameter implements IndentAction
+	{
+		private int openParensColumn;
+
+		public AlignParameter(int openParensColumn)
+		{
+			this.openParensColumn = openParensColumn;
+		}
+
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
+		{
+			return openParensColumn + 1;
+		}
+
+		@Override
+		public boolean keepChecking()
+		{
+			return false;
+		}
+	}
 
 	/** See comments for each instance of this class below. */
 	class Collapse implements IndentAction
 	{
+		private Collapse()
+		{
+		}
+
 		/**
 		 * This does nothing; it is merely a sentinel for the
 		 * <code>OpenBracketIndentRule</code>.
 		 */
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
 		{
 			return newIndent;
 		}
 
+		@Override
 		public boolean keepChecking()
 		{
 			return true;
 		}
-
-		private Collapse()
-		{
-		}
 	}
 
-	class Reset implements IndentAction
+	class Decrease implements IndentAction
 	{
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
 		{
-			return oldIndent;
+			return newIndent - buffer.getIndentSize();
 		}
 
+		@Override
 		public boolean keepChecking()
 		{
 			return true;
@@ -101,105 +136,58 @@ public interface IndentAction
 			this.amount = amount;
 		}
 
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
 		{
 			return newIndent + buffer.getIndentSize() * amount;
-		}
-
-		public boolean keepChecking()
-		{
-			return true;
 		}
 
 		@Override
 		public boolean equals(Object o)
 		{
-			if(o instanceof Increase)
-				return ((Increase)o).amount == amount;
+			if (o instanceof Increase)
+				return ((Increase) o).amount == amount;
 			else
 				return false;
 		}
-	}
 
-	class Decrease implements IndentAction
-	{
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
-		{
-			return newIndent - buffer.getIndentSize();
-		}
-
+		@Override
 		public boolean keepChecking()
 		{
 			return true;
-		}
-	}
-
-	/**
-	* @author Matthieu Casanova
-	*/
-	class AlignOffset implements IndentAction
-	{
-		private int offset;
-
-		public AlignOffset(int offset)
-		{
-			this.offset = offset;
-		}
-
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
-		{
-			return offset;
-		}
-
-		public boolean keepChecking()
-		{
-			return false;
-		}
-	}
-
-	/**
-	* Indent action used for deep indent.
-	* @author Matthieu Casanova
-	*/
-	class AlignParameter implements IndentAction
-	{
-		private int openParensColumn;
-
-		public AlignParameter(int openParensColumn)
-		{
-			this.openParensColumn = openParensColumn;
-		}
-
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-				     int newIndent)
-		{
-			return openParensColumn + 1;
-		}
-
-		public boolean keepChecking()
-		{
-			return false;
 		}
 	}
 
 	/**
 	 * Used to cancel increases in indentation.
-	 *
+	 * 
 	 * @author Marcelo Vanzin
 	 */
 	class NoIncrease implements IndentAction
 	{
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-				           int newIndent)
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
 		{
-			int current = StandardUtilities.getLeadingWhiteSpaceWidth(
-					buffer.getLineSegment(line),buffer.getTabSize());
+			int current = StandardUtilities.getLeadingWhiteSpaceWidth(buffer.getLineSegment(line), buffer.getTabSize());
 			return (current < newIndent) ? current : newIndent;
 		}
 
+		@Override
+		public boolean keepChecking()
+		{
+			return true;
+		}
+	}
+
+	class Reset implements IndentAction
+	{
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
+		{
+			return oldIndent;
+		}
+
+		@Override
 		public boolean keepChecking()
 		{
 			return true;
@@ -207,19 +195,33 @@ public interface IndentAction
 	}
 
 	/**
-	 * This handles the following Java code:
-	 * if(something)
-	 * { // no indentation on this line, even though previous matches a rule
+	 * This handles the following Java code: if(something) { // no indentation
+	 * on this line, even though previous matches a rule
 	 */
-	Collapse PrevCollapse		= new Collapse();
-	/**
-	 * This handles cases like:
-	 * if (foo)
-	 *     bar;
-	 * for (something; condition; action) {
-	 * }
-	 * Without this the "for" line would be incorrectly indented.
-	 */
-	Collapse PrevPrevCollapse	= new Collapse();
-}
+	Collapse PrevCollapse = new Collapse();
 
+	/**
+	 * This handles cases like: if (foo) bar; for (something; condition; action)
+	 * { } Without this the "for" line would be incorrectly indented.
+	 */
+	Collapse PrevPrevCollapse = new Collapse();
+
+	/**
+	 * @param buffer
+	 *            The buffer
+	 * @param line
+	 *            The line number that matched the rule; not necessarily the
+	 *            line being indented.
+	 * @param oldIndent
+	 *            Original indent.
+	 * @param newIndent
+	 *            The new indent -- ie, indent returned by previous indent
+	 *            action.
+	 */
+	int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent);
+
+	/**
+	 * @return true if the indent engine should keep processing after this rule.
+	 */
+	boolean keepChecking();
+}

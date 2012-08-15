@@ -24,14 +24,18 @@ package org.grview.editor;
 
 //{{{ Imports
 import java.awt.Toolkit;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 import org.grview.actions.Debug;
-import org.grview.editor.buffer.*;
+import org.grview.editor.buffer.IndentFoldHandler;
+import org.grview.editor.buffer.JEditBuffer;
 import org.grview.util.Log;
 
 //}}}
-
 
 /**
  * Manages low-level text display tasks, such as folding.
@@ -42,29 +46,74 @@ import org.grview.util.Log;
  */
 public class DisplayManager
 {
-	//{{{ Static part
+	// {{{ Static part
 
-	//{{{ getDisplayManager() method
-	static DisplayManager getDisplayManager(JEditBuffer buffer,
-		TextArea textArea)
+	private static final Map<JEditBuffer, List<DisplayManager>> bufferMap = new HashMap<JEditBuffer, List<DisplayManager>>();
+	// }}}
+
+	// {{{ Package-private members
+	final FirstLine firstLine;
+
+	final ScrollLineCount scrollLineCount;
+
+	final ScreenLineManager screenLineMgr;
+
+	RangeMap folds;
+
+	// {{{ Private members
+	private boolean initialized;
+
+	private boolean inUse;
+
+	private final JEditBuffer buffer;
+
+	private final TextArea textArea;
+
+	private final BufferHandler bufferHandler;
+
+	// {{{ DisplayManager constructor
+	private DisplayManager(JEditBuffer buffer, TextArea textArea, DisplayManager copy)
+	{
+		this.buffer = buffer;
+		this.screenLineMgr = new ScreenLineManager(buffer);
+		this.textArea = textArea;
+
+		scrollLineCount = new ScrollLineCount(this, textArea);
+		firstLine = new FirstLine(this, textArea);
+
+		bufferHandler = new BufferHandler(this, textArea, buffer);
+		// this listener priority thing is a bad hack...
+		buffer.addBufferListener(bufferHandler, JEditBuffer.HIGH_PRIORITY);
+
+		if (copy != null)
+		{
+			folds = new RangeMap(copy.folds);
+			initialized = true;
+		}
+	} // }}}
+
+	// {{{ getDisplayManager() method
+	static DisplayManager getDisplayManager(JEditBuffer buffer, TextArea textArea)
 	{
 		List<DisplayManager> l = bufferMap.get(buffer);
-		if(l == null)
+		if (l == null)
 		{
 			l = new LinkedList<DisplayManager>();
-			bufferMap.put(buffer,l);
+			bufferMap.put(buffer, l);
 		}
 
-		/* An existing display manager's fold visibility map
-		that a new display manager will inherit */
+		/*
+		 * An existing display manager's fold visibility map that a new display
+		 * manager will inherit
+		 */
 		DisplayManager copy = null;
 		Iterator<DisplayManager> liter = l.iterator();
 		DisplayManager dmgr;
-		while(liter.hasNext())
+		while (liter.hasNext())
 		{
 			dmgr = liter.next();
 			copy = dmgr;
-			if(!dmgr.inUse && dmgr.textArea == textArea)
+			if (!dmgr.inUse && dmgr.textArea == textArea)
 			{
 				dmgr.inUse = true;
 				return dmgr;
@@ -72,146 +121,366 @@ public class DisplayManager
 		}
 
 		// if we got here, no unused display manager in list
-		dmgr = new DisplayManager(buffer,textArea,copy);
+		dmgr = new DisplayManager(buffer, textArea, copy);
 		dmgr.inUse = true;
 		l.add(dmgr);
 
 		return dmgr;
-	} //}}}
+	} // }}}
 
-	//{{{ release() method
-	void release()
-	{
-		inUse = false;
-	} //}}}
-
-	//{{{ bufferClosed() method
-	public static void bufferClosed(JEditBuffer buffer)
-	{
-		bufferMap.remove(buffer);
-	} //}}}
-
-	//{{{ textAreaDisposed() method
+	// {{{ textAreaDisposed() method
 	static void textAreaDisposed(TextArea textArea)
 	{
 		for (List<DisplayManager> l : bufferMap.values())
 		{
 			Iterator<DisplayManager> liter = l.iterator();
-			while(liter.hasNext())
+			while (liter.hasNext())
 			{
 				DisplayManager dmgr = liter.next();
-				if(dmgr.textArea == textArea)
+				if (dmgr.textArea == textArea)
 				{
 					dmgr.dispose();
 					liter.remove();
 				}
 			}
 		}
-	} //}}}
+	} // }}}
 
-	private static final Map<JEditBuffer, List<DisplayManager>> bufferMap = new HashMap<JEditBuffer, List<DisplayManager>>();
-	//}}}
-
-	//{{{ getBuffer() method
-	/**
-	 * @since jEdit 4.3pre3
-	 */
-	public JEditBuffer getBuffer()
+	// {{{ bufferClosed() method
+	public static void bufferClosed(JEditBuffer buffer)
 	{
-		return buffer;
-	} //}}}
+		bufferMap.remove(buffer);
+	} // }}}
 
-	//{{{ isLineVisible() method
+	// {{{ bufferLoaded() method
+	void bufferLoaded()
+	{
+		folds.reset(buffer.getLineCount());
+		screenLineMgr.reset();
+
+		if (textArea.getDisplayManager() == this)
+		{
+			textArea.propertiesChanged();
+			init();
+		}
+
+		int collapseFolds = buffer.getIntegerProperty("collapseFolds", 0);
+		if (collapseFolds != 0)
+			expandFolds(collapseFolds);
+	} // }}}
+
+	// {{{ foldHandlerChanged() method
+	void foldHandlerChanged()
+	{
+		if (buffer.isLoading())
+			return;
+
+		folds.reset(buffer.getLineCount());
+		resetAnchors();
+
+		int collapseFolds = buffer.getIntegerProperty("collapseFolds", 0);
+		if (collapseFolds != 0)
+			expandFolds(collapseFolds);
+	} // }}}
+
+	// {{{ init() method
+	void init()
+	{
+		if (initialized)
+		{
+			if (!buffer.isLoading())
+				resetAnchors();
+		}
+		else
+		{
+			initialized = true;
+			folds = new RangeMap();
+			if (buffer.isLoading())
+				folds.reset(buffer.getLineCount());
+			else
+				bufferHandler.foldHandlerChanged(buffer);
+			notifyScreenLineChanges();
+		}
+	} // }}}
+
+	// {{{ invalidateScreenLineCounts() method
+	void invalidateScreenLineCounts()
+	{
+		screenLineMgr.invalidateScreenLineCounts();
+		firstLine.callReset = true;
+		scrollLineCount.callReset = true;
+	} // }}}
+
+	// {{{ notifyScreenLineChanges() method
+	void notifyScreenLineChanges()
+	{
+		if (Debug.SCROLL_DEBUG)
+			Log.log(Log.DEBUG, this, "notifyScreenLineChanges()");
+
+		// when the text area switches to us, it will do
+		// a reset anyway
+		if (textArea.getDisplayManager() != this)
+			return;
+
+		try
+		{
+			if (firstLine.callReset)
+				firstLine.reset();
+			else if (firstLine.callChanged)
+				firstLine.changed();
+
+			if (scrollLineCount.callReset)
+			{
+				scrollLineCount.reset();
+				firstLine.ensurePhysicalLineIsVisible();
+			}
+			else if (scrollLineCount.callChanged)
+				scrollLineCount.changed();
+
+			if (firstLine.callChanged || scrollLineCount.callReset || scrollLineCount.callChanged)
+			{
+				textArea.updateScrollBar();
+				textArea.recalculateLastPhysicalLine();
+			}
+		}
+		finally
+		{
+			firstLine.callReset = firstLine.callChanged = false;
+			scrollLineCount.callReset = scrollLineCount.callChanged = false;
+		}
+	} // }}}
+
+	// {{{ release() method
+	void release()
+	{
+		inUse = false;
+	} // }}}
+		// {{{ setFirstLine() method
+
+	void setFirstLine(int oldFirstLine, int firstLine)
+	{
+		int visibleLines = textArea.getVisibleLines();
+
+		if (firstLine >= oldFirstLine + visibleLines)
+		{
+			this.firstLine.scrollDown(firstLine - oldFirstLine);
+			textArea.chunkCache.invalidateAll();
+		}
+		else if (firstLine <= oldFirstLine - visibleLines)
+		{
+			this.firstLine.scrollUp(oldFirstLine - firstLine);
+			textArea.chunkCache.invalidateAll();
+		}
+		else if (firstLine > oldFirstLine)
+		{
+			this.firstLine.scrollDown(firstLine - oldFirstLine);
+			textArea.chunkCache.scrollDown(firstLine - oldFirstLine);
+		}
+		else if (firstLine < oldFirstLine)
+		{
+			this.firstLine.scrollUp(oldFirstLine - firstLine);
+			textArea.chunkCache.scrollUp(oldFirstLine - firstLine);
+		}
+
+		notifyScreenLineChanges();
+	} // }}}
+		// {{{ setFirstPhysicalLine() method
+
+	void setFirstPhysicalLine(int amount, int skew)
+	{
+		int oldFirstLine = textArea.getFirstLine();
+
+		if (amount == 0)
+		{
+			skew -= this.firstLine.skew;
+
+			// JEditTextArea.scrollTo() needs this to simplify
+			// its code
+			if (skew < 0)
+				this.firstLine.scrollUp(-skew);
+			else if (skew > 0)
+				this.firstLine.scrollDown(skew);
+			else
+			{
+				// nothing to do
+				return;
+			}
+		}
+		else if (amount > 0)
+			this.firstLine.physDown(amount, skew);
+		else if (amount < 0)
+			this.firstLine.physUp(-amount, skew);
+
+		int firstLine = textArea.getFirstLine();
+		int visibleLines = textArea.getVisibleLines();
+
+		if (firstLine == oldFirstLine)
+			/* do nothing */;
+		else if (firstLine >= oldFirstLine + visibleLines || firstLine <= oldFirstLine - visibleLines)
+		{
+			textArea.chunkCache.invalidateAll();
+		}
+		else if (firstLine > oldFirstLine)
+		{
+			textArea.chunkCache.scrollDown(firstLine - oldFirstLine);
+		}
+		else if (firstLine < oldFirstLine)
+		{
+			textArea.chunkCache.scrollUp(oldFirstLine - firstLine);
+		}
+
+		// we have to be careful
+		notifyScreenLineChanges();
+	} // }}}
+		// {{{ updateScreenLineCount() method
+
+	void updateScreenLineCount(int line)
+	{
+		if (!screenLineMgr.isScreenLineCountValid(line))
+		{
+			int newCount = textArea.chunkCache.getLineSubregionCount(line);
+
+			setScreenLineCount(line, newCount);
+		}
+	} // }}}
+
+	// {{{ dispose() method
+	private void dispose()
+	{
+		buffer.removeBufferListener(bufferHandler);
+	} // }}}
+
+	// {{{ hideLineRange() method
+	private void hideLineRange(int start, int end)
+	{
+		if (Debug.FOLD_VIS_DEBUG)
+		{
+			Log.log(Log.DEBUG, this, "hideLineRange(" + start + ',' + end + ')');
+		}
+
+		int i = start;
+		if (!isLineVisible(i))
+			i = getNextVisibleLine(i);
+		while (i != -1 && i <= end)
+		{
+			int screenLines = getScreenLineCount(i);
+			if (i < firstLine.physicalLine)
+			{
+				firstLine.scrollLine -= screenLines;
+				firstLine.skew = 0;
+				firstLine.callChanged = true;
+			}
+
+			scrollLineCount.scrollLine -= screenLines;
+			scrollLineCount.callChanged = true;
+
+			i = getNextVisibleLine(i);
+		}
+
+		/* update fold visibility map. */
+		folds.hide(start, end);
+
+		if (!isLineVisible(firstLine.physicalLine))
+		{
+			int firstVisible = getFirstVisibleLine();
+			if (firstLine.physicalLine < firstVisible)
+			{
+				firstLine.physicalLine = firstVisible;
+				firstLine.scrollLine = 0;
+			}
+			else
+			{
+				firstLine.physicalLine = getPrevVisibleLine(firstLine.physicalLine);
+				firstLine.scrollLine -= getScreenLineCount(firstLine.physicalLine);
+			}
+			firstLine.callChanged = true;
+		}
+	} // }}}
+
+	// {{{ resetAnchors() method
+	private void resetAnchors()
+	{
+		firstLine.callReset = true;
+		scrollLineCount.callReset = true;
+		notifyScreenLineChanges();
+	} // }}}
+
+	// {{{ setScreenLineCount() method
 	/**
-	 * Returns if the specified line is visible.
-	 * @param line A physical line index
+	 * Sets the number of screen lines that the specified physical line is split
+	 * into.
+	 * 
+	 * @param line
+	 *            the line number
+	 * @param count
+	 *            the line count (1 if no wrap)
 	 * @since jEdit 4.2pre1
 	 */
-	public final boolean isLineVisible(int line)
+	private void setScreenLineCount(int line, int count)
 	{
-		return folds.search(line) % 2 == 0;
-	} //}}}
+		int oldCount = screenLineMgr.getScreenLineCount(line);
 
-	//{{{ getFirstVisibleLine() method
-	/**
-	 * Returns the physical line number of the first visible line.
-	 * @since jEdit 4.2pre1
-	 */
-	public int getFirstVisibleLine()
+		// old one so that the screen line manager sets the
+		// validity flag!
+
+		screenLineMgr.setScreenLineCount(line, count);
+
+		if (count == oldCount)
+			return;
+
+		if (!isLineVisible(line))
+			return;
+
+		if (firstLine.physicalLine >= line)
+		{
+			if (firstLine.physicalLine == line)
+				firstLine.callChanged = true;
+			else
+			{
+				firstLine.scrollLine += count - oldCount;
+				firstLine.callChanged = true;
+			}
+		}
+
+		scrollLineCount.scrollLine += count - oldCount;
+		scrollLineCount.callChanged = true;
+	} // }}}
+
+	// {{{ showLineRange() method
+	private void showLineRange(int start, int end)
 	{
-		return folds.first();
-	} //}}}
+		if (Debug.FOLD_VIS_DEBUG)
+		{
+			Log.log(Log.DEBUG, this, "showLineRange(" + start + ',' + end + ')');
+		}
 
-	//{{{ getLastVisibleLine() method
-	/**
-	 * Returns the physical line number of the last visible line.
-	 * @since jEdit 4.2pre1
-	 */
-	public int getLastVisibleLine()
-	{
-		return folds.last();
-	} //}}}
+		for (int i = start; i <= end; i++)
+		{
+			// XXX
+			if (!isLineVisible(i))
+			{
+				// important: not screenLineMgr.getScreenLineCount()
+				int screenLines = getScreenLineCount(i);
+				if (firstLine.physicalLine >= i)
+				{
+					firstLine.scrollLine += screenLines;
+					firstLine.callChanged = true;
+				}
+				scrollLineCount.scrollLine += screenLines;
+				scrollLineCount.callChanged = true;
+			}
+		}
 
-	//{{{ getNextVisibleLine() method
-	/**
-	 * Returns the next visible line after the specified line index.
-	 * @param line A physical line index
-	 * @since jEdit 4.0pre1
-	 */
-	public int getNextVisibleLine(int line)
-	{
-		if(line < 0 || line >= buffer.getLineCount())
-			throw new ArrayIndexOutOfBoundsException(line);
+		/* update fold visibility map. */
+		folds.show(start, end);
+	} // }}}
 
-		return folds.next(line);
-	} //}}}
-
-	//{{{ getPrevVisibleLine() method
-	/**
-	 * Returns the previous visible line before the specified line index.
-	 * @param line a physical line index
-	 * @return the previous visible physical line or -1 if there is no visible line
-	 * @since jEdit 4.0pre1
-	 */
-	public int getPrevVisibleLine(int line)
-	{
-		if(line < 0 || line >= buffer.getLineCount())
-			throw new ArrayIndexOutOfBoundsException(line);
-
-		return folds.prev(line);
-	} //}}}
-
-	//{{{ getScreenLineCount() method
-	/**
-	 * Returns how many screen lines contains the given physical line.
-	 * It can be greater than 1 when using soft wrap
-	 *
-	 * @param line the physical line
-	 * @return the screen line count
-	 */
-	public final int getScreenLineCount(int line)
-	{
-		updateScreenLineCount(line);
-		return screenLineMgr.getScreenLineCount(line);
-	} //}}}
-
-	//{{{ getScrollLineCount() method
-	/**
-	 * Returns the number of displayable lines
-	 * It can be greater than the number of lines of the buffer when using
-	 * soft wrap (a line can count for n lines), or when using folding, if
-	 * the foldings are collapsed
-	 * @return the number of displayable lines
-	 */
-	public final int getScrollLineCount()
-	{
-		return scrollLineCount.scrollLine;
-	} //}}}
-
-	//{{{ collapseFold() method
+	// {{{ collapseFold() method
 	/**
 	 * Collapses the fold at the specified physical line index.
-	 * @param line A physical line index
+	 * 
+	 * @param line
+	 *            A physical line index
 	 * @since jEdit 4.2pre1
 	 */
 	public void collapseFold(int line)
@@ -221,27 +490,23 @@ public class DisplayManager
 
 		// if the caret is on a collapsed fold, collapse the
 		// parent fold
-		if(line != 0
-			&& line != buffer.getLineCount() - 1
-			&& buffer.isFoldStart(line)
-			&& !isLineVisible(line + 1))
+		if (line != 0 && line != buffer.getLineCount() - 1 && buffer.isFoldStart(line) && !isLineVisible(line + 1))
 		{
 			line--;
 		}
 
 		int initialFoldLevel = buffer.getFoldLevel(line);
 
-		//{{{ Find fold start and end...
+		// {{{ Find fold start and end...
 		int start = 0;
-		if(line != lineCount - 1
-			&& buffer.getFoldLevel(line + 1) > initialFoldLevel)
+		if (line != lineCount - 1 && buffer.getFoldLevel(line + 1) > initialFoldLevel)
 		{
 			// this line is the start of a fold
 			start = line + 1;
 
-			for(int i = line + 1; i < lineCount; i++)
+			for (int i = line + 1; i < lineCount; i++)
 			{
-				if(buffer.getFoldLevel(i) <= initialFoldLevel)
+				if (buffer.getFoldLevel(i) <= initialFoldLevel)
 				{
 					end = i - 1;
 					break;
@@ -253,9 +518,9 @@ public class DisplayManager
 			boolean ok = false;
 
 			// scan backwards looking for the start
-			for(int i = line - 1; i >= 0; i--)
+			for (int i = line - 1; i >= 0; i--)
 			{
-				if(buffer.getFoldLevel(i) < initialFoldLevel)
+				if (buffer.getFoldLevel(i) < initialFoldLevel)
 				{
 					start = i + 1;
 					ok = true;
@@ -263,34 +528,50 @@ public class DisplayManager
 				}
 			}
 
-			if(!ok)
+			if (!ok)
 			{
 				// no folds in buffer
 				return;
 			}
 
-			for(int i = line + 1; i < lineCount; i++)
+			for (int i = line + 1; i < lineCount; i++)
 			{
-				if(buffer.getFoldLevel(i) < initialFoldLevel)
+				if (buffer.getFoldLevel(i) < initialFoldLevel)
 				{
 					end = i - 1;
 					break;
 				}
 			}
-		} //}}}
+		} // }}}
 
 		// Collapse the fold...
-		hideLineRange(start,end);
+		hideLineRange(start, end);
 
 		notifyScreenLineChanges();
 		textArea.foldStructureChanged();
-	} //}}}
+	} // }}}
 
-	//{{{ expandFold() method
+	// {{{ expandAllFolds() method
+	/**
+	 * Expands all folds.
+	 * 
+	 * @since jEdit 4.2pre1
+	 */
+	public void expandAllFolds()
+	{
+		showLineRange(0, buffer.getLineCount() - 1);
+		notifyScreenLineChanges();
+		textArea.foldStructureChanged();
+	} // }}}
+
+	// {{{ expandFold() method
 	/**
 	 * Expands the fold at the specified physical line index.
-	 * @param line A physical line index
-	 * @param fully If true, all subfolds will also be expanded
+	 * 
+	 * @param line
+	 *            A physical line index
+	 * @param fully
+	 *            If true, all subfolds will also be expanded
 	 * @since jEdit 4.2pre1
 	 */
 	public int expandFold(int line, boolean fully)
@@ -318,12 +599,12 @@ public class DisplayManager
 				return -1;
 			}
 		}
-		if (isLineVisible(line+1) && !fully)
+		if (isLineVisible(line + 1) && !fully)
 		{
 			return -1;
 		}
 
-		//{{{ Find fold start and fold end...
+		// {{{ Find fold start and fold end...
 		int start;
 		int initialFoldLevel = buffer.getFoldLevel(line);
 		if (buffer.getFoldLevel(line + 1) > initialFoldLevel)
@@ -369,10 +650,10 @@ public class DisplayManager
 			}
 		} // }}}
 
-		//{{{ Expand the fold...
-		if(fully)
+		// {{{ Expand the fold...
+		if (fully)
 		{
-			showLineRange(start,end);
+			showLineRange(start, end);
 		}
 		else
 		{
@@ -397,468 +678,207 @@ public class DisplayManager
 		textArea.foldStructureChanged();
 
 		return returnValue;
-	} //}}}
+	} // }}}
 
-	//{{{ expandAllFolds() method
-	/**
-	 * Expands all folds.
-	 * @since jEdit 4.2pre1
-	 */
-	public void expandAllFolds()
-	{
-		showLineRange(0,buffer.getLineCount() - 1);
-		notifyScreenLineChanges();
-		textArea.foldStructureChanged();
-	} //}}}
+	// }}}
 
-	//{{{ expandFolds() method
+	// {{{ expandFolds() method
 	/**
 	 * This method should only be called from <code>actions.xml</code>.
+	 * 
 	 * @since jEdit 4.2pre1
 	 */
 	public void expandFolds(char digit)
 	{
-		if(digit < '1' || digit > '9')
+		if (digit < '1' || digit > '9')
 		{
 			Toolkit.getDefaultToolkit().beep();
 		}
 		else
 			expandFolds((digit - '1') + 1);
-	} //}}}
+	} // }}}
+		// {{{ expandFolds() method
 
-	//{{{ expandFolds() method
 	/**
 	 * Expands all folds with the specified fold level.
-	 * @param foldLevel The fold level
+	 * 
+	 * @param foldLevel
+	 *            The fold level
 	 * @since jEdit 4.2pre1
 	 */
 	public void expandFolds(int foldLevel)
 	{
-		if(buffer.getFoldHandler() instanceof IndentFoldHandler)
+		if (buffer.getFoldHandler() instanceof IndentFoldHandler)
 			foldLevel = (foldLevel - 1) * buffer.getIndentSize() + 1;
 
-		showLineRange(0,buffer.getLineCount() - 1);
+		showLineRange(0, buffer.getLineCount() - 1);
 
 		/* this ensures that the first line is always visible */
 		boolean seenVisibleLine = false;
 
 		int firstInvisible = 0;
 
-		for(int i = 0; i < buffer.getLineCount(); i++)
+		for (int i = 0; i < buffer.getLineCount(); i++)
 		{
-			if(!seenVisibleLine || buffer.getFoldLevel(i) < foldLevel)
+			if (!seenVisibleLine || buffer.getFoldLevel(i) < foldLevel)
 			{
-				if(firstInvisible != i)
+				if (firstInvisible != i)
 				{
-					hideLineRange(firstInvisible,
-						i - 1);
+					hideLineRange(firstInvisible, i - 1);
 				}
 				firstInvisible = i + 1;
 				seenVisibleLine = true;
 			}
 		}
 
-		if(firstInvisible != buffer.getLineCount())
-			hideLineRange(firstInvisible,buffer.getLineCount() - 1);
+		if (firstInvisible != buffer.getLineCount())
+			hideLineRange(firstInvisible, buffer.getLineCount() - 1);
 
 		notifyScreenLineChanges();
-		if(textArea.getDisplayManager() == this)
+		if (textArea.getDisplayManager() == this)
 		{
 			textArea.foldStructureChanged();
 		}
-	} //}}}
+	} // }}}
+		// {{{ getBuffer() method
 
-	//{{{ narrow() method
 	/**
-	 * Narrows the visible portion of the buffer to the specified
-	 * line range.
-	 * @param start The first line
-	 * @param end The last line
+	 * @since jEdit 4.3pre3
+	 */
+	public JEditBuffer getBuffer()
+	{
+		return buffer;
+	} // }}}
+		// {{{ getFirstVisibleLine() method
+
+	/**
+	 * Returns the physical line number of the first visible line.
+	 * 
+	 * @since jEdit 4.2pre1
+	 */
+	public int getFirstVisibleLine()
+	{
+		return folds.first();
+	} // }}}
+		// {{{ getLastVisibleLine() method
+
+	/**
+	 * Returns the physical line number of the last visible line.
+	 * 
+	 * @since jEdit 4.2pre1
+	 */
+	public int getLastVisibleLine()
+	{
+		return folds.last();
+	} // }}}
+
+	// {{{ getNextVisibleLine() method
+	/**
+	 * Returns the next visible line after the specified line index.
+	 * 
+	 * @param line
+	 *            A physical line index
+	 * @since jEdit 4.0pre1
+	 */
+	public int getNextVisibleLine(int line)
+	{
+		if (line < 0 || line >= buffer.getLineCount())
+			throw new ArrayIndexOutOfBoundsException(line);
+
+		return folds.next(line);
+	} // }}}
+
+	// {{{ getPrevVisibleLine() method
+	/**
+	 * Returns the previous visible line before the specified line index.
+	 * 
+	 * @param line
+	 *            a physical line index
+	 * @return the previous visible physical line or -1 if there is no visible
+	 *         line
+	 * @since jEdit 4.0pre1
+	 */
+	public int getPrevVisibleLine(int line)
+	{
+		if (line < 0 || line >= buffer.getLineCount())
+			throw new ArrayIndexOutOfBoundsException(line);
+
+		return folds.prev(line);
+	} // }}}
+
+	// {{{ getScreenLineCount() method
+	/**
+	 * Returns how many screen lines contains the given physical line. It can be
+	 * greater than 1 when using soft wrap
+	 * 
+	 * @param line
+	 *            the physical line
+	 * @return the screen line count
+	 */
+	public final int getScreenLineCount(int line)
+	{
+		updateScreenLineCount(line);
+		return screenLineMgr.getScreenLineCount(line);
+	} // }}}
+
+	// {{{ getScrollLineCount() method
+	/**
+	 * Returns the number of displayable lines It can be greater than the number
+	 * of lines of the buffer when using soft wrap (a line can count for n
+	 * lines), or when using folding, if the foldings are collapsed
+	 * 
+	 * @return the number of displayable lines
+	 */
+	public final int getScrollLineCount()
+	{
+		return scrollLineCount.scrollLine;
+	} // }}}
+
+	// {{{ isLineVisible() method
+	/**
+	 * Returns if the specified line is visible.
+	 * 
+	 * @param line
+	 *            A physical line index
+	 * @since jEdit 4.2pre1
+	 */
+	public final boolean isLineVisible(int line)
+	{
+		return folds.search(line) % 2 == 0;
+	} // }}}
+
+	// {{{ narrow() method
+	/**
+	 * Narrows the visible portion of the buffer to the specified line range.
+	 * 
+	 * @param start
+	 *            The first line
+	 * @param end
+	 *            The last line
 	 * @since jEdit 4.2pre1
 	 */
 	public void narrow(int start, int end)
 	{
-		if(start > end || start < 0 || end >= buffer.getLineCount())
+		if (start > end || start < 0 || end >= buffer.getLineCount())
 			throw new ArrayIndexOutOfBoundsException(start + ", " + end);
 
-		if(start < getFirstVisibleLine() || end > getLastVisibleLine())
+		if (start < getFirstVisibleLine() || end > getLastVisibleLine())
 			expandAllFolds();
 
-		if(start != 0)
-			hideLineRange(0,start - 1);
-		if(end != buffer.getLineCount() - 1)
-			hideLineRange(end + 1,buffer.getLineCount() - 1);
+		if (start != 0)
+			hideLineRange(0, start - 1);
+		if (end != buffer.getLineCount() - 1)
+			hideLineRange(end + 1, buffer.getLineCount() - 1);
 
 		// if we narrowed to a single collapsed fold
-		if(start != buffer.getLineCount() - 1
-			&& !isLineVisible(start + 1))
-			expandFold(start,false);
+		if (start != buffer.getLineCount() - 1 && !isLineVisible(start + 1))
+			expandFold(start, false);
 
 		textArea.fireNarrowActive();
 
 		notifyScreenLineChanges();
 		textArea.foldStructureChanged();
-	} //}}}
+	} // }}}
 
-	//{{{ Package-private members
-	final FirstLine firstLine;
-	final ScrollLineCount scrollLineCount;
-	final ScreenLineManager screenLineMgr;
-	RangeMap folds;
-
-	//{{{ init() method
-	void init()
-	{
-		if(initialized)
-		{
-			if(!buffer.isLoading())
-				resetAnchors();
-		}
-		else
-		{
-			initialized = true;
-			folds = new RangeMap();
-			if(buffer.isLoading())
-				folds.reset(buffer.getLineCount());
-			else
-				bufferHandler.foldHandlerChanged(buffer);
-			notifyScreenLineChanges();
-		}
-	} //}}}
-
-	//{{{ notifyScreenLineChanges() method
-	void notifyScreenLineChanges()
-	{
-		if(Debug.SCROLL_DEBUG)
-			Log.log(Log.DEBUG,this,"notifyScreenLineChanges()");
-
-		// when the text area switches to us, it will do
-		// a reset anyway
-		if(textArea.getDisplayManager() != this)
-			return;
-
-		try
-		{
-			if(firstLine.callReset)
-				firstLine.reset();
-			else if(firstLine.callChanged)
-				firstLine.changed();
-
-			if(scrollLineCount.callReset)
-			{
-				scrollLineCount.reset();
-				firstLine.ensurePhysicalLineIsVisible();
-			}
-			else if(scrollLineCount.callChanged)
-				scrollLineCount.changed();
-			
-			if(firstLine.callChanged || scrollLineCount.callReset
-				|| scrollLineCount.callChanged)
-			{
-				textArea.updateScrollBar();
-				textArea.recalculateLastPhysicalLine();
-			}
-		}
-		finally
-		{
-			firstLine.callReset = firstLine.callChanged = false;
-			scrollLineCount.callReset = scrollLineCount.callChanged = false;
-		}
-	} //}}}
-
-	//{{{ setFirstLine() method
-	void setFirstLine(int oldFirstLine, int firstLine)
-	{
-		int visibleLines = textArea.getVisibleLines();
-
-		if(firstLine >= oldFirstLine + visibleLines)
-		{
-			this.firstLine.scrollDown(firstLine - oldFirstLine);
-			textArea.chunkCache.invalidateAll();
-		}
-		else if(firstLine <= oldFirstLine - visibleLines)
-		{
-			this.firstLine.scrollUp(oldFirstLine - firstLine);
-			textArea.chunkCache.invalidateAll();
-		}
-		else if(firstLine > oldFirstLine)
-		{
-			this.firstLine.scrollDown(firstLine - oldFirstLine);
-			textArea.chunkCache.scrollDown(firstLine - oldFirstLine);
-		}
-		else if(firstLine < oldFirstLine)
-		{
-			this.firstLine.scrollUp(oldFirstLine - firstLine);
-			textArea.chunkCache.scrollUp(oldFirstLine - firstLine);
-		}
-
-		notifyScreenLineChanges();
-	} //}}}
-
-	//{{{ setFirstPhysicalLine() method
-	void setFirstPhysicalLine(int amount, int skew)
-	{
-		int oldFirstLine = textArea.getFirstLine();
-
-		if(amount == 0)
-		{
-			skew -= this.firstLine.skew;
-
-			// JEditTextArea.scrollTo() needs this to simplify
-			// its code
-			if(skew < 0)
-				this.firstLine.scrollUp(-skew);
-			else if(skew > 0)
-				this.firstLine.scrollDown(skew);
-			else
-			{
-				// nothing to do
-				return;
-			}
-		}
-		else if(amount > 0)
-			this.firstLine.physDown(amount,skew);
-		else if(amount < 0)
-			this.firstLine.physUp(-amount,skew);
-
-		int firstLine = textArea.getFirstLine();
-		int visibleLines = textArea.getVisibleLines();
-
-		if(firstLine == oldFirstLine)
-			/* do nothing */;
-		else if(firstLine >= oldFirstLine + visibleLines
-			|| firstLine <= oldFirstLine - visibleLines)
-		{
-			textArea.chunkCache.invalidateAll();
-		}
-		else if(firstLine > oldFirstLine)
-		{
-			textArea.chunkCache.scrollDown(firstLine - oldFirstLine);
-		}
-		else if(firstLine < oldFirstLine)
-		{
-			textArea.chunkCache.scrollUp(oldFirstLine - firstLine);
-		}
-
-		// we have to be careful
-		notifyScreenLineChanges();
-	} //}}}
-
-	//{{{ invalidateScreenLineCounts() method
-	void invalidateScreenLineCounts()
-	{
-		screenLineMgr.invalidateScreenLineCounts();
-		firstLine.callReset = true;
-		scrollLineCount.callReset = true;
-	} //}}}
-
-	//{{{ updateScreenLineCount() method
-	void updateScreenLineCount(int line)
-	{
-		if(!screenLineMgr.isScreenLineCountValid(line))
-		{
-			int newCount = textArea.chunkCache
-				.getLineSubregionCount(line);
-
-			setScreenLineCount(line,newCount);
-		}
-	} //}}}
-
-	//{{{ bufferLoaded() method
-	void bufferLoaded()
-	{
-		folds.reset(buffer.getLineCount());
-		screenLineMgr.reset();
-
-		if(textArea.getDisplayManager() == this)
-		{
-			textArea.propertiesChanged();
-			init();
-		}
-
-		int collapseFolds = buffer.getIntegerProperty(
-			"collapseFolds",0);
-		if(collapseFolds != 0)
-			expandFolds(collapseFolds);
-	} //}}}
-
-	//{{{ foldHandlerChanged() method
-	void foldHandlerChanged()
-	{
-		if(buffer.isLoading())
-			return;
-
-		folds.reset(buffer.getLineCount());
-		resetAnchors();
-
-		int collapseFolds = buffer.getIntegerProperty(
-			"collapseFolds",0);
-		if(collapseFolds != 0)
-			expandFolds(collapseFolds);
-	} //}}}
-
-	//}}}
-
-	//{{{ Private members
-	private boolean initialized;
-	private boolean inUse;
-	private final JEditBuffer buffer;
-	private final TextArea textArea;
-	private final BufferHandler bufferHandler;
-
-	//{{{ DisplayManager constructor
-	private DisplayManager(JEditBuffer buffer, TextArea textArea,
-		DisplayManager copy)
-	{
-		this.buffer = buffer;
-		this.screenLineMgr = new ScreenLineManager(buffer);
-		this.textArea = textArea;
-
-		scrollLineCount = new ScrollLineCount(this,textArea);
-		firstLine = new FirstLine(this,textArea);
-
-		bufferHandler = new BufferHandler(this,textArea,buffer);
-		// this listener priority thing is a bad hack...
-		buffer.addBufferListener(bufferHandler, JEditBuffer.HIGH_PRIORITY);
-
-		if(copy != null)
-		{
-			folds = new RangeMap(copy.folds);
-			initialized = true;
-		}
-	} //}}}
-
-	//{{{ resetAnchors() method
-	private void resetAnchors()
-	{
-		firstLine.callReset = true;
-		scrollLineCount.callReset = true;
-		notifyScreenLineChanges();
-	} //}}}
-
-	//{{{ dispose() method
-	private void dispose()
-	{
-		buffer.removeBufferListener(bufferHandler);
-	} //}}}
-
-	//{{{ showLineRange() method
-	private void showLineRange(int start, int end)
-	{
-		if(Debug.FOLD_VIS_DEBUG)
-		{
-			Log.log(Log.DEBUG,this,"showLineRange(" + start
-				+ ',' + end + ')');
-		}
-
-		for(int i = start; i <= end; i++)
-		{
-			//XXX
-			if(!isLineVisible(i))
-			{
-				// important: not screenLineMgr.getScreenLineCount()
-				int screenLines = getScreenLineCount(i);
-				if(firstLine.physicalLine >= i)
-				{
-					firstLine.scrollLine += screenLines;
-					firstLine.callChanged = true;
-				}
-				scrollLineCount.scrollLine += screenLines;
-				scrollLineCount.callChanged = true;
-			}
-		}
-
-		/* update fold visibility map. */
-		folds.show(start,end);
-	} //}}}
-
-	//{{{ hideLineRange() method
-	private void hideLineRange(int start, int end)
-	{
-		if(Debug.FOLD_VIS_DEBUG)
-		{
-			Log.log(Log.DEBUG,this,"hideLineRange(" + start
-				+ ',' + end + ')');
-		}
-
-		int i = start;
-		if(!isLineVisible(i))
-			i = getNextVisibleLine(i);
-		while(i != -1 && i <= end)
-		{
-			int screenLines = getScreenLineCount(i);
-			if(i < firstLine.physicalLine)
-			{
-				firstLine.scrollLine -= screenLines;
-				firstLine.skew = 0;
-				firstLine.callChanged = true;
-			}
-
-			scrollLineCount.scrollLine -= screenLines;
-			scrollLineCount.callChanged = true;
-
-			i = getNextVisibleLine(i);
-		}
-
-		/* update fold visibility map. */
-		folds.hide(start,end);
-
-		if(!isLineVisible(firstLine.physicalLine))
-		{
-			int firstVisible = getFirstVisibleLine();
-			if(firstLine.physicalLine < firstVisible)
-			{
-				firstLine.physicalLine = firstVisible;
-				firstLine.scrollLine = 0;
-			}
-			else
-			{
-				firstLine.physicalLine = getPrevVisibleLine(
-					firstLine.physicalLine);
-				firstLine.scrollLine -= getScreenLineCount(
-					firstLine.physicalLine);
-			}
-			firstLine.callChanged = true;
-		}
-	} //}}}
-
-	//{{{ setScreenLineCount() method
-	/**
-	 * Sets the number of screen lines that the specified physical line
-	 * is split into.
-	 * @param line the line number
-	 * @param count the line count (1 if no wrap)
-	 * @since jEdit 4.2pre1
-	 */
-	private void setScreenLineCount(int line, int count)
-	{
-		int oldCount = screenLineMgr.getScreenLineCount(line);
-
-		// old one so that the screen line manager sets the
-		// validity flag!
-
-		screenLineMgr.setScreenLineCount(line,count);
-
-		if(count == oldCount)
-			return;
-
-		if(!isLineVisible(line))
-			return;
-
-		if(firstLine.physicalLine >= line)
-		{
-			if(firstLine.physicalLine == line)
-				firstLine.callChanged = true;
-			else
-			{
-				firstLine.scrollLine += count - oldCount;
-				firstLine.callChanged = true;
-			}
-		}
-
-		scrollLineCount.scrollLine += count - oldCount;
-		scrollLineCount.callChanged = true;
-	} //}}}
-
-	//}}}
+	// }}}
 }

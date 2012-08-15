@@ -4,21 +4,25 @@ package org.grview.syntax.grammar.model;
 public abstract class SimpleOutput extends SyntaxSubpart
 {
 
-static final long serialVersionUID = 1;
+	static final long serialVersionUID = 1;
 
-private static int count;
+	private static int count;
 
-public SimpleOutput() {
-	super(getNewID());
-}
+	public SimpleOutput()
+	{
+		super(getNewID());
+	}
 
-public static String getNewID(){
-	return Integer.toString(count++);
-}
-abstract public boolean getResult();
+	public static String getNewID()
+	{
+		return Integer.toString(count++);
+	}
 
-public void removeOutput(Connection w){
-	outputs.remove(w);
-}
+	abstract public boolean getResult();
+
+	public void removeOutput(Connection w)
+	{
+		outputs.remove(w);
+	}
 
 }

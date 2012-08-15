@@ -8,28 +8,36 @@ import javax.swing.JComponent;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
-public class SimpleTextAreaComponent extends AbstractComponent {
+public class SimpleTextAreaComponent extends AbstractComponent
+{
 
 	/**
 	 * Creates a view component containing a simple text area.
-	 *
-	 *@param param if it is a string instance, then the text is inserted in the text area
+	 * 
+	 * @param param
+	 *            if it is a string instance, then the text is inserted in the
+	 *            text area
 	 * @return the view component
 	 */
 	@Override
-	public JComponent create(Object param) {
+	public JComponent create(Object param)
+	{
 		StringBuffer sb = new StringBuffer();
-		if (param instanceof String) {
-			File f = new File((String)param);
-			try {
+		if (param instanceof String)
+		{
+			File f = new File((String) param);
+			try
+			{
 				FileReader fr = new FileReader(f);
 				BufferedReader br = new BufferedReader(fr);
 				String line;
-				while ((line = br.readLine()) != null) {
+				while ((line = br.readLine()) != null)
+				{
 					sb.append(line + "\n");
 				}
 			}
-			catch (Exception e) {
+			catch (Exception e)
+			{
 				e.printStackTrace();
 			}
 		}
@@ -37,5 +45,7 @@ public class SimpleTextAreaComponent extends AbstractComponent {
 	}
 
 	@Override
-	public void fireContentChanged() {}
+	public void fireContentChanged()
+	{
+	}
 }

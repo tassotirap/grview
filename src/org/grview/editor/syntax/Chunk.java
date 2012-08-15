@@ -24,89 +24,134 @@
 package org.grview.editor.syntax;
 
 //{{{ Imports
-import javax.swing.text.*;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.FontMetrics;
+import java.awt.Graphics2D;
+import java.awt.Rectangle;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
+
+import javax.swing.text.Segment;
+import javax.swing.text.TabExpander;
 
 import org.grview.actions.Debug;
 
-
-import java.awt.font.*;
-import java.awt.geom.*;
-import java.awt.*;
-
-
 /**
- * A syntax token with extra information required for painting it
- * on screen.
+ * A syntax token with extra information required for painting it on screen.
+ * 
  * @since jEdit 4.1pre1
  */
 public class Chunk extends Token
 {
-	//{{{ paintChunkList() method
-	/**
-	 * Paints a chunk list.
-	 * @param chunks The chunk list
-	 * @param gfx The graphics context
-	 * @param x The x co-ordinate
-	 * @param y The y co-ordinate
-	 * @param glyphVector true if we want to use glyphVector, false if we
-	 * want to use drawString
-	 * @return The width of the painted text
-	 * @since jEdit 4.2pre1
-	 */
-	public static float paintChunkList(Chunk chunks,
-		Graphics2D gfx, float x, float y, boolean glyphVector)
+	// {{{ Instance variables
+	public boolean accessable;
+
+	public boolean visible;
+
+	public boolean initialized;
+
+	// set up after init()
+	public SyntaxStyle style;
+
+	// this is either style.getBackgroundColor() or
+	// styles[defaultID].getBackgroundColor()
+	public Color background;
+	public float width;
+	public GlyphVector gv;
+
+	public String str;
+	// }}}
+	// {{{ Private members
+	private float[] positions;
+	// Flag to enable a workaround for a bug in Sun Java 5.
+	private static final boolean SUN_JAVA_5;
+
+	// {{{ Chunk constructor
+	public Chunk(byte id, int offset, int length, ParserRuleSet rules, SyntaxStyle[] styles, byte defaultID)
 	{
-		Rectangle clipRect = gfx.getClipBounds();
+		super(id, offset, length, rules);
+		accessable = true;
+		style = styles[id];
+		background = style.getBackgroundColor();
+		if (background == null)
+			background = styles[defaultID].getBackgroundColor();
+	} // }}}
+		// {{{ Chunk constructor
 
-		float _x = 0.0f;
+	public Chunk(float width, int offset, ParserRuleSet rules)
+	{
+		super(Token.NULL, offset, 0, rules);
+		this.width = width;
+	} // }}}
 
-		while(chunks != null)
+	static
+	{
+		boolean sun_java_5 = false;
+		String vendor = System.getProperty("java.vendor");
+		// Enable the workaround on Apple JVM, too, because the
+		// same problem was reported on Mac OS X.
+		if (vendor != null && (vendor.startsWith("Sun") || vendor.startsWith("Apple")))
 		{
-			// only paint visible chunks
-			if(x + _x + chunks.width > clipRect.x
-				&& x + _x < clipRect.x + clipRect.width)
+			String version = System.getProperty("java.version");
+			if (version != null && version.startsWith("1.5"))
 			{
-				// Useful for debugging purposes
-				if(Debug.CHUNK_PAINT_DEBUG)
-				{
-					gfx.draw(new Rectangle2D.Float(x + _x,y - 10,
-						chunks.width,10));
-				}
-
-				if(chunks.accessable && chunks.visible)
-				{
-					gfx.setFont(chunks.style.getFont());
-					gfx.setColor(chunks.style.getForegroundColor());
-
-					if(glyphVector && chunks.gv != null)
-						gfx.drawGlyphVector(chunks.gv,x + _x,y);
-					else if(chunks.str != null)
-					{
-						gfx.drawString(chunks.str,
-							(int)(x + _x),(int)y);
-					}
-				}
+				sun_java_5 = true;
 			}
+		}
+		SUN_JAVA_5 = sun_java_5;
+	}
 
-			_x += chunks.width;
-			chunks = (Chunk)chunks.next;
+	// }}}
+
+	// {{{ offsetToX() method
+	/**
+	 * Converts an offset in a chunk list into an x co-ordinate.
+	 * 
+	 * @param chunks
+	 *            The chunk list
+	 * @param offset
+	 *            The offset
+	 * @since jEdit 4.1pre1
+	 */
+	public static float offsetToX(Chunk chunks, int offset)
+	{
+		if (chunks != null && offset < chunks.offset)
+		{
+			throw new ArrayIndexOutOfBoundsException(offset + " < " + chunks.offset);
 		}
 
-		return _x;
-	} //}}}
+		float x = 0.0f;
 
-	//{{{ paintChunkBackgrounds() method
+		while (chunks != null)
+		{
+			if (chunks.accessable && offset < chunks.offset + chunks.length)
+				return x + chunks.offsetToX(offset - chunks.offset);
+
+			x += chunks.width;
+			chunks = (Chunk) chunks.next;
+		}
+
+		return x;
+	} // }}}
+
+	// {{{ paintChunkBackgrounds() method
 	/**
 	 * Paints the background highlights of a chunk list.
-	 * @param chunks The chunk list
-	 * @param gfx The graphics context
-	 * @param x The x co-ordinate
-	 * @param y The y co-ordinate
+	 * 
+	 * @param chunks
+	 *            The chunk list
+	 * @param gfx
+	 *            The graphics context
+	 * @param x
+	 *            The x co-ordinate
+	 * @param y
+	 *            The y co-ordinate
 	 * @return The width of the painted backgrounds
 	 * @since jEdit 4.2pre1
 	 */
-	public static float paintChunkBackgrounds(Chunk chunks,
-		Graphics2D gfx, float x, float y)
+	public static float paintChunkBackgrounds(Chunk chunks, Graphics2D gfx, float x, float y)
 	{
 		Rectangle clipRect = gfx.getClipBounds();
 
@@ -117,198 +162,149 @@ public class Chunk extends Token
 		int ascent = forBackground.getAscent();
 		int height = forBackground.getHeight();
 
-		while(chunks != null)
+		while (chunks != null)
 		{
 			// only paint visible chunks
-			if(x + _x + chunks.width > clipRect.x
-				&& x + _x < clipRect.x + clipRect.width)
+			if (x + _x + chunks.width > clipRect.x && x + _x < clipRect.x + clipRect.width)
 			{
-				if(chunks.accessable)
+				if (chunks.accessable)
 				{
-					//{{{ Paint token background color if necessary
+					// {{{ Paint token background color if necessary
 					Color bgColor = chunks.background;
-					if(bgColor != null)
+					if (bgColor != null)
 					{
 						gfx.setColor(bgColor);
 
-						gfx.fill(new Rectangle2D.Float(
-							x + _x,y - ascent,
-							_x + chunks.width - _x,
-							height));
-					} //}}}
+						gfx.fill(new Rectangle2D.Float(x + _x, y - ascent, _x + chunks.width - _x, height));
+					} // }}}
 				}
 			}
 
 			_x += chunks.width;
-			chunks = (Chunk)chunks.next;
+			chunks = (Chunk) chunks.next;
 		}
 
 		return _x;
-	} //}}}
+	} // }}}
 
-	//{{{ offsetToX() method
+	// {{{ paintChunkList() method
 	/**
-	 * Converts an offset in a chunk list into an x co-ordinate.
-	 * @param chunks The chunk list
-	 * @param offset The offset
-	 * @since jEdit 4.1pre1
+	 * Paints a chunk list.
+	 * 
+	 * @param chunks
+	 *            The chunk list
+	 * @param gfx
+	 *            The graphics context
+	 * @param x
+	 *            The x co-ordinate
+	 * @param y
+	 *            The y co-ordinate
+	 * @param glyphVector
+	 *            true if we want to use glyphVector, false if we want to use
+	 *            drawString
+	 * @return The width of the painted text
+	 * @since jEdit 4.2pre1
 	 */
-	public static float offsetToX(Chunk chunks, int offset)
+	public static float paintChunkList(Chunk chunks, Graphics2D gfx, float x, float y, boolean glyphVector)
 	{
-		if(chunks != null && offset < chunks.offset)
+		Rectangle clipRect = gfx.getClipBounds();
+
+		float _x = 0.0f;
+
+		while (chunks != null)
 		{
-			throw new ArrayIndexOutOfBoundsException(offset + " < "
-				+ chunks.offset);
+			// only paint visible chunks
+			if (x + _x + chunks.width > clipRect.x && x + _x < clipRect.x + clipRect.width)
+			{
+				// Useful for debugging purposes
+				if (Debug.CHUNK_PAINT_DEBUG)
+				{
+					gfx.draw(new Rectangle2D.Float(x + _x, y - 10, chunks.width, 10));
+				}
+
+				if (chunks.accessable && chunks.visible)
+				{
+					gfx.setFont(chunks.style.getFont());
+					gfx.setColor(chunks.style.getForegroundColor());
+
+					if (glyphVector && chunks.gv != null)
+						gfx.drawGlyphVector(chunks.gv, x + _x, y);
+					else if (chunks.str != null)
+					{
+						gfx.drawString(chunks.str, (int) (x + _x), (int) y);
+					}
+				}
+			}
+
+			_x += chunks.width;
+			chunks = (Chunk) chunks.next;
 		}
 
-		float x = 0.0f;
+		return _x;
+	} // }}}
 
-		while(chunks != null)
-		{
-			if(chunks.accessable && offset < chunks.offset + chunks.length)
-				return x + chunks.offsetToX(offset - chunks.offset);
-
-			x += chunks.width;
-			chunks = (Chunk)chunks.next;
-		}
-
-		return x;
-	} //}}}
-
-	//{{{ xToOffset() method
+	// {{{ xToOffset() method
 	/**
 	 * Converts an x co-ordinate in a chunk list into an offset.
-	 * @param chunks The chunk list
-	 * @param x The x co-ordinate
-	 * @param round Round up to next letter if past the middle of a letter?
-	 * @return The offset within the line, or -1 if the x co-ordinate is too
-	 * far to the right
+	 * 
+	 * @param chunks
+	 *            The chunk list
+	 * @param x
+	 *            The x co-ordinate
+	 * @param round
+	 *            Round up to next letter if past the middle of a letter?
+	 * @return The offset within the line, or -1 if the x co-ordinate is too far
+	 *         to the right
 	 * @since jEdit 4.1pre1
 	 */
 	public static int xToOffset(Chunk chunks, float x, boolean round)
 	{
 		float _x = 0.0f;
 
-		while(chunks != null)
+		while (chunks != null)
 		{
-			if(chunks.accessable && x < _x + chunks.width)
-				return chunks.xToOffset(x - _x,round);
+			if (chunks.accessable && x < _x + chunks.width)
+				return chunks.xToOffset(x - _x, round);
 
 			_x += chunks.width;
-			chunks = (Chunk)chunks.next;
+			chunks = (Chunk) chunks.next;
 		}
 
 		return -1;
-	} //}}}
+	} // }}}
 
-	//{{{ Instance variables
-	public boolean accessable;
-	public boolean visible;
-	public boolean initialized;
-
-	// set up after init()
-	public SyntaxStyle style;
-	// this is either style.getBackgroundColor() or
-	// styles[defaultID].getBackgroundColor()
-	public Color background;
-	public float width;
-	public GlyphVector gv;
-	public String str;
-	//}}}
-
-	//{{{ Chunk constructor
-	public Chunk(float width, int offset, ParserRuleSet rules)
-	{
-		super(Token.NULL,offset,0,rules);
-		this.width = width;
-	} //}}}
-
-	//{{{ Chunk constructor
-	public Chunk(byte id, int offset, int length, ParserRuleSet rules,
-		SyntaxStyle[] styles, byte defaultID)
-	{
-		super(id,offset,length,rules);
-		accessable = true;
-		style = styles[id];
-		background = style.getBackgroundColor();
-		if(background == null)
-			background = styles[defaultID].getBackgroundColor();
-	} //}}}
-
-	//{{{ getPositions() method
+	// {{{ getPositions() method
 	public final float[] getPositions()
 	{
-		if(gv == null)
+		if (gv == null)
 			return null;
 
-		if(positions == null)
-			positions = gv.getGlyphPositions(0,length,null);
+		if (positions == null)
+			positions = gv.getGlyphPositions(0, length, null);
 
 		return positions;
-	} //}}}
+	} // }}}
 
-	//{{{ offsetToX() method
-	public final float offsetToX(int offset)
-	{
-		if(!visible)
-			return 0.0f;
-		else
-			return getPositions()[offset * 2];
-	} //}}}
-
-	//{{{ xToOffset() method
-	public final int xToOffset(float x, boolean round)
-	{
-		if (!visible)
-		{
-			if (round && width - x < x)
-				return offset + length;
-			else
-				return offset;
-		}
-		
-		float[] pos = getPositions();
-
-		for(int i = 0; i < length; i++)
-		{
-			float glyphX = pos[i*2];
-			float nextX = (i == length - 1
-				? width : pos[i*2+2]);
-
-			if(nextX > x)
-			{
-				if(!round || nextX - x > x - glyphX)
-					return offset + i;
-				else
-					return offset + i + 1;
-			}
-		}
-
-		// wtf?
-		return -1;
-	} //}}}
-
-	//{{{ init() method
-	public void init(Segment seg, TabExpander expander, float x,
-		FontRenderContext fontRenderContext)
+	// {{{ init() method
+	public void init(Segment seg, TabExpander expander, float x, FontRenderContext fontRenderContext)
 	{
 		initialized = true;
 
-		if(!accessable)
+		if (!accessable)
 		{
 			// do nothing
 		}
-		else if(length == 1 && seg.array[seg.offset + offset] == '\t')
+		else if (length == 1 && seg.array[seg.offset + offset] == '\t')
 		{
 			visible = false;
-			float newX = expander.nextTabStop(x,offset + length);
+			float newX = expander.nextTabStop(x, offset + length);
 			width = newX - x;
 		}
 		else
 		{
 			visible = true;
 
-			str = new String(seg.array,seg.offset + offset,length);
+			str = new String(seg.array, seg.offset + offset, length);
 
 			char[] textArray = seg.array;
 			int textStart = seg.offset + offset;
@@ -320,46 +316,57 @@ public class Chunk extends Token
 				// layoutGlyphVector(). So it works only the
 				// case textStart is 0.
 				char[] copy = new char[length];
-				System.arraycopy(textArray, textStart,
-					copy, 0, length);
+				System.arraycopy(textArray, textStart, copy, 0, length);
 				textArray = copy;
 				textStart = 0;
-			} //}}}
+			} // }}}
 			int textLimit = textStart + length;
 			// FIXME: Need BiDi support.
-			int layoutFlags = Font.LAYOUT_LEFT_TO_RIGHT
-				| Font.LAYOUT_NO_START_CONTEXT
-				| Font.LAYOUT_NO_LIMIT_CONTEXT;
-			gv = style.getFont().layoutGlyphVector(
-				fontRenderContext,
-				textArray, textStart, textLimit, layoutFlags);
+			int layoutFlags = Font.LAYOUT_LEFT_TO_RIGHT | Font.LAYOUT_NO_START_CONTEXT | Font.LAYOUT_NO_LIMIT_CONTEXT;
+			gv = style.getFont().layoutGlyphVector(fontRenderContext, textArray, textStart, textLimit, layoutFlags);
 			Rectangle2D logicalBounds = gv.getLogicalBounds();
 
-			width = (float)logicalBounds.getWidth();
+			width = (float) logicalBounds.getWidth();
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ Private members
-	private float[] positions;
-
-	// Flag to enable a workaround for a bug in Sun Java 5.
-	private static final boolean SUN_JAVA_5;
-	static
+	// {{{ offsetToX() method
+	public final float offsetToX(int offset)
 	{
-		boolean sun_java_5 = false;
-		String vendor = System.getProperty("java.vendor");
-		// Enable the workaround on Apple JVM, too, because the
-		// same problem was reported on Mac OS X.
-		if (vendor != null && (vendor.startsWith("Sun") ||
-					vendor.startsWith("Apple")))
+		if (!visible)
+			return 0.0f;
+		else
+			return getPositions()[offset * 2];
+	} // }}}
+		// {{{ xToOffset() method
+
+	public final int xToOffset(float x, boolean round)
+	{
+		if (!visible)
 		{
-			String version = System.getProperty("java.version");
-			if (version != null && version.startsWith("1.5"))
+			if (round && width - x < x)
+				return offset + length;
+			else
+				return offset;
+		}
+
+		float[] pos = getPositions();
+
+		for (int i = 0; i < length; i++)
+		{
+			float glyphX = pos[i * 2];
+			float nextX = (i == length - 1 ? width : pos[i * 2 + 2]);
+
+			if (nextX > x)
 			{
-				sun_java_5 = true;
+				if (!round || nextX - x > x - glyphX)
+					return offset + i;
+				else
+					return offset + i + 1;
 			}
 		}
-		SUN_JAVA_5 = sun_java_5;
-	}
-	//}}}
+
+		// wtf?
+		return -1;
+	} // }}}
 }

@@ -38,13 +38,13 @@ import org.grview.util.Log;
 import org.grview.util.XMLUtilities;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
  * A set of actions, either loaded from an XML file, or constructed at runtime
- * by a plugin. <p>
- *
+ * by a plugin.
+ * <p>
+ * 
  * <h3>Action sets loaded from XML files</h3>
- *
+ * 
  * Action sets are read from these files inside the plugin JAR:
  * <ul>
  * <li><code>actions.xml</code> - actions made available for use in jEdit views,
@@ -52,89 +52,82 @@ import org.xml.sax.helpers.DefaultHandler;
  * <li><code>browser.actions.xml</code> - actions for the file system browser's
  * <b>Plugins</b> menu.</li>
  * </ul>
- *
+ * 
  * An action definition file has the following form:
- *
- * <pre>&lt;?xml version="1.0"?&gt;
- *&lt;!DOCTYPE ACTIONS SYSTEM "actions.dtd"&gt;
- *&lt;ACTIONS&gt;
- *    &lt;ACTION NAME="some-action"&gt;
- *        &lt;CODE&gt;
- *            // BeanShell code evaluated when the action is invoked
- *        &lt;/CODE&gt;
- *    &lt;/ACTION&gt;
- *    &lt;ACTION NAME="some-toggle-action"&gt;
- *        &lt;CODE&gt;
- *            // BeanShell code evaluated when the action is invoked
- *        &lt;/CODE&gt;
- *        &lt;IS_SELECTED&gt;
- *            // BeanShell code that should evaluate to true or false
- *        &lt;/IS_SELECTED&gt;
- *    &lt;/ACTION&gt;
- *&lt;/ACTIONS&gt;</pre>
- *
+ * 
+ * <pre>
+ * &lt;?xml version="1.0"?&gt;
+ * &lt;!DOCTYPE ACTIONS SYSTEM "actions.dtd"&gt;
+ * &lt;ACTIONS&gt;
+ *     &lt;ACTION NAME="some-action"&gt;
+ *         &lt;CODE&gt;
+ *             // BeanShell code evaluated when the action is invoked
+ *         &lt;/CODE&gt;
+ *     &lt;/ACTION&gt;
+ *     &lt;ACTION NAME="some-toggle-action"&gt;
+ *         &lt;CODE&gt;
+ *             // BeanShell code evaluated when the action is invoked
+ *         &lt;/CODE&gt;
+ *         &lt;IS_SELECTED&gt;
+ *             // BeanShell code that should evaluate to true or false
+ *         &lt;/IS_SELECTED&gt;
+ *     &lt;/ACTION&gt;
+ * &lt;/ACTIONS&gt;
+ * </pre>
+ * 
  * The following elements are valid:
- *
+ * 
  * <ul>
  * <li>
- * <code>ACTIONS</code> is the top-level element and refers
- * to the set of actions used by the plugin.
- * </li>
+ * <code>ACTIONS</code> is the top-level element and refers to the set of
+ * actions used by the plugin.</li>
  * <li>
- * An <code>ACTION</code> contains the data for a particular action.
- * It has three attributes: a required <code>NAME</code>;
- * an optional <code>NO_REPEAT</code>, which is a flag
- * indicating whether the action should not be repeated with the
- * <b>C+ENTER</b> command; and an optional
- * <code>NO_RECORD</code> which is a a flag indicating whether the
- * action should be recorded if it is invoked while the user is recording a
- * macro. The two flag attributes
- * can have two possible values, "TRUE" or
- * "FALSE". In both cases, "FALSE" is the
- * default if the attribute is not specified.
- * </li>
+ * An <code>ACTION</code> contains the data for a particular action. It has
+ * three attributes: a required <code>NAME</code>; an optional
+ * <code>NO_REPEAT</code>, which is a flag indicating whether the action should
+ * not be repeated with the <b>C+ENTER</b> command; and an optional
+ * <code>NO_RECORD</code> which is a a flag indicating whether the action should
+ * be recorded if it is invoked while the user is recording a macro. The two
+ * flag attributes can have two possible values, "TRUE" or "FALSE". In both
+ * cases, "FALSE" is the default if the attribute is not specified.</li>
  * <li>
- * An <code>ACTION</code> can have two child elements
- * within it: a required <code>CODE</code> element which
- * specifies the
- * BeanShell code that will be executed when the action is invoked,
- * and an optional <code>IS_SELECTED</code> element, used for
- * checkbox
- * menu items.  The <code>IS_SELECTED</code> element contains
- * BeanShell code that returns a boolean flag that will
- * determine the state of the checkbox.
- * </li>
+ * An <code>ACTION</code> can have two child elements within it: a required
+ * <code>CODE</code> element which specifies the BeanShell code that will be
+ * executed when the action is invoked, and an optional <code>IS_SELECTED</code>
+ * element, used for checkbox menu items. The <code>IS_SELECTED</code> element
+ * contains BeanShell code that returns a boolean flag that will determine the
+ * state of the checkbox.</li>
  * </ul>
- *
+ * 
  * Each action must have a property <code><i>name</i>.label</code> containing
  * the action's menu item label.
- *
+ * 
  * <h3>View actions</h3>
- *
+ * 
  * Actions defined in <code>actions.xml</code> can be added to the view's
- * <b>Plugins</b> menu; see {@link EditPlugin}.
- * The action code may use any standard predefined
- * BeanShell variable; see {@link BeanShell}.
- *
+ * <b>Plugins</b> menu; see {@link EditPlugin}. The action code may use any
+ * standard predefined BeanShell variable; see {@link BeanShell}.
+ * 
  * <h3>File system browser actions</h3>
- *
- * Actions defined in <code>actions.xml</code> can be added to the file
- * system browser's <b>Plugins</b> menu; see {@link EditPlugin}.
- * The action code may use any standard predefined
- * BeanShell variable, in addition to a variable <code>browser</code> which
- * contains a reference to the current
- * {@link org.grview.actions.browser.VFSBrowser} instance.<p>
- *
+ * 
+ * Actions defined in <code>actions.xml</code> can be added to the file system
+ * browser's <b>Plugins</b> menu; see {@link EditPlugin}. The action code may
+ * use any standard predefined BeanShell variable, in addition to a variable
+ * <code>browser</code> which contains a reference to the current
+ * {@link org.grview.actions.browser.VFSBrowser} instance.
+ * <p>
+ * 
  * File system browser actions should not define
  * <code>&lt;IS_SELECTED&gt;</code> blocks.
- *
+ * 
  * <h3>Custom action sets</h3>
- *
+ * 
  * Call {@link jEdit#addActionSet(AsinActionSet)} to add a custom action set to
  * jEdit's action context. You must also call {@link #initKeyBindings()} for new
- * action sets. Don't forget to call {@link jEdit#removeActionSet(AsinActionSet)}
- * before your plugin is unloaded, too.
- *
+ * action sets. Don't forget to call
+ * {@link jEdit#removeActionSet(AsinActionSet)} before your plugin is unloaded,
+ * too.
+ * 
  * @see jEdit#getActionContext()
  * @see org.grview.actions.browser.VFSBrowser#getActionContext()
  * @see AsinActionContext#getActionNames()
@@ -143,7 +136,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * @see jEdit#removeActionSet(AsinActionSet)
  * @see PluginJAR#getActionSet()
  * @see BeanShell
- *
+ * 
  * @author Slava Pestov
  * @author John Gellene (API documentation)
  * @author Gustavo H. Braga (Gr Viewer)
@@ -152,133 +145,183 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public abstract class AsinActionSet<E extends AbstractEditAction> implements InputHandlerProvider
 {
-	//{{{ AsinActionSet constructor
+	// {{{ Package-private members
+	AsinActionContext context;
+
+	// {{{ Private members
+	protected Hashtable<String, Object> actions;
+
+	protected URL uri;
+
+	protected boolean loaded;
+
+	protected static final Object placeholder = new Object();
+
+	// {{{ AsinActionSet constructor
 	/**
 	 * Creates a new action set.
+	 * 
 	 * @since jEdit 4.3pre13
 	 */
 	public AsinActionSet()
 	{
 		actions = new Hashtable<String, Object>();
 		loaded = true;
-	} //}}}
-	
-	//{{{ AsinActionSet constructor
+	} // }}}
+
+	// {{{ AsinActionSet constructor
 	/**
 	 * Creates a new action set.
-	 * @param cachedActionNames The list of cached action names
-	 * @param uri The actions.xml URI
+	 * 
+	 * @param cachedActionNames
+	 *            The list of cached action names
+	 * @param uri
+	 *            The actions.xml URI
 	 * @since jEdit 4.3pre13
 	 */
 	public AsinActionSet(String[] cachedActionNames, URL uri)
 	{
 		this();
 		this.uri = uri;
-		if(cachedActionNames != null)
+		if (cachedActionNames != null)
 		{
-			for(int i = 0; i < cachedActionNames.length; i++)
+			for (int i = 0; i < cachedActionNames.length; i++)
 			{
-				actions.put(cachedActionNames[i],placeholder);
+				actions.put(cachedActionNames[i], placeholder);
 			}
 		}
 		loaded = false;
-	} //}}}
+	} // }}}
 
-	//{{{ addAction() method
+	// {{{ getActionNames() method
+	void getActionNames(List<String> vec)
+	{
+		Enumeration<String> e = actions.keys();
+		while (e.hasMoreElements())
+			vec.add(e.nextElement());
+	} // }}}
+
+	// {{{ createBeanShellAction() method
+	/**
+	 * This method should be implemented to return an action that will execute
+	 * the given code
+	 * 
+	 * @since 4.3pre13
+	 */
+	protected abstract AbstractEditAction createBeanShellAction(String actionName, String code, String selected, boolean noRepeat, boolean noRecord, boolean noRememberLast);
+
+	// }}}
+
+	// {{{ getArray() method
+	/**
+	 * Returns an empty array E[]. I know it is bad, if you find a method to
+	 * instantiate a generic Array, tell me
+	 * 
+	 * @param size
+	 *            the size of the array
+	 * @return the empty array
+	 */
+	protected abstract E[] getArray(int size);
+
+	// }}}
+
+	// {{{ getProperty() method
+	/**
+	 * Returns a property for the given name. In jEdit it will returns a
+	 * jEdit.getProperty(name), but it can return something else for a
+	 * standalone textarea.
+	 * 
+	 * @param name
+	 *            the property name
+	 * @return the property value
+	 * @since 4.3pre13
+	 */
+	protected abstract String getProperty(String name);
+
+	// }}}
+
+	// {{{ addAction() method
 	/**
 	 * Adds an action to the action set.
-	 * @param action The action
+	 * 
+	 * @param action
+	 *            The action
 	 * @since jEdit 4.0pre1
 	 */
 	public void addAction(E action)
 	{
-		actions.put(action.getName(),action);
-		if(context != null)
+		actions.put(action.getName(), action);
+		if (context != null)
 		{
 			context.actionNames = null;
-			context.actionHash.put(action.getName(),this);
+			context.actionHash.put(action.getName(), this);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ removeAction() method
+	// {{{ contains() method
 	/**
-	 * Removes an action from the action set.
-	 * @param name The action name
-	 * @since jEdit 4.0pre1
+	 * Returns if this action set contains the specified action.
+	 * 
+	 * @param action
+	 *            The action
+	 * @since jEdit 4.2pre1
 	 */
-	public void removeAction(String name)
+	public boolean contains(String action)
 	{
-		actions.remove(name);
-		if(context != null)
-		{
-			context.actionNames = null;
-			context.actionHash.remove(name);
-		}
-	} //}}}
+		boolean retval = actions.containsKey(action);
+		return retval;
+		// return actions.containsKey(action);
+	} // }}}
 
-	//{{{ removeAllActions() method
-	/**
-	 * Removes all actions from the action set.
-	 * @since jEdit 4.0pre1
-	 */
-	public void removeAllActions()
+	/** set loaded to false, must be used carefully **/
+	public void forceUnload()
 	{
-		if(context != null)
-		{
-			context.actionNames = null;
-			String[] actions = getActionNames();
-			for(int i = 0; i < actions.length; i++)
-			{
-				context.actionHash.remove(actions[i]);
-			}
-		}
-		this.actions.clear();
-	} //}}}
-
-	/** set loaded to false, must be used carefully  **/
-	public void forceUnload() {
 		loaded = false;
 	}
-	
-	//{{{ getAction() method
+
+	// {{{ getAction() method
 	/**
-	 * Returns an action with the specified name.<p>
-	 *
+	 * Returns an action with the specified name.
+	 * <p>
+	 * 
 	 * <b>Deferred loading:</b> this will load the action set if necessary.
-	 *
-	 * @param name The action name
+	 * 
+	 * @param name
+	 *            The action name
 	 * @since jEdit 4.0pre1
 	 */
 	public E getAction(String name)
 	{
 		Object obj = actions.get(name);
-		if(obj == placeholder)
+		if (obj == placeholder)
 		{
 			load();
 			obj = actions.get(name);
-			if(obj == placeholder)
+			if (obj == placeholder)
 			{
-				Log.log(Log.WARNING,this,"Outdated cache");
+				Log.log(Log.WARNING, this, "Outdated cache");
 				obj = null;
 			}
 		}
 
 		return (E) obj;
-	} //}}}
+	} // }}}
 
-	//{{{ getActionCount() method
+	// {{{ getActionCount() method
 	/**
 	 * Returns the number of actions in the set.
+	 * 
 	 * @since jEdit 4.0pre1
 	 */
 	public int getActionCount()
 	{
 		return actions.size();
-	} //}}}
+	} // }}}
+		// {{{ getActionNames() method
 
-	//{{{ getActionNames() method
 	/**
 	 * Returns an array of all action names in this action set.
+	 * 
 	 * @since jEdit 4.2pre1
 	 */
 	public String[] getActionNames()
@@ -286,56 +329,20 @@ public abstract class AsinActionSet<E extends AbstractEditAction> implements Inp
 		String[] retVal = new String[actions.size()];
 		Enumeration e = actions.keys();
 		int i = 0;
-		while(e.hasMoreElements())
+		while (e.hasMoreElements())
 		{
-			retVal[i++] = (String)e.nextElement();
+			retVal[i++] = (String) e.nextElement();
 		}
 		return retVal;
-	} //}}}
+	} // }}}
 
-	//{{{ getCacheableActionNames() method
+	// {{{ getActions() method
 	/**
-	 * Returns an array of all action names in this action set that should
-	 * be cached; namely, <code>BeanShellAction</code>s.
-	 * @since jEdit 4.2pre1
-	 */
-	public String[] getCacheableActionNames()
-	{
-		LinkedList<String> retVal = new LinkedList<String>();
-		Enumeration e = actions.elements();
-		while(e.hasMoreElements())
-		{
-			Object obj = e.nextElement();
-			if(obj == placeholder)
-			{
-				// ??? this should only be called with
-				// fully loaded action set
-				Log.log(Log.WARNING,this,"Action set not up "
-					+ "to date");
-			}
-			else if(obj instanceof JEditBeanShellAction)
-				retVal.add(((JEditBeanShellAction)obj).getName());
-		}
-		return retVal.toArray(new String[retVal.size()]);
-	} //}}}
-	
-	//{{{ getArray() method
-	/**
-	 * Returns an empty array E[].
-	 * I know it is bad, if you find a method to instantiate a generic Array,
-	 * tell me
-	 * @param size the size of the array
-	 * @return the empty array
-	 */
-	protected abstract E[] getArray(int size);		
-	//}}}
-
-	//{{{ getActions() method
-	/**
-	 * Returns an array of all actions in this action set.<p>
-	 *
+	 * Returns an array of all actions in this action set.
+	 * <p>
+	 * 
 	 * <b>Deferred loading:</b> this will load the action set if necessary.
-	 *
+	 * 
 	 * @since jEdit 4.0pre1
 	 */
 	public E[] getActions()
@@ -344,144 +351,157 @@ public abstract class AsinActionSet<E extends AbstractEditAction> implements Inp
 		E[] retVal = getArray(actions.size());
 		Enumeration e = actions.elements();
 		int i = 0;
-		while(e.hasMoreElements())
+		while (e.hasMoreElements())
 		{
 			retVal[i++] = (E) e.nextElement();
 		}
 		return retVal;
-	} //}}}
+	} // }}}
 
-	//{{{ contains() method
+	// {{{ getCacheableActionNames() method
 	/**
-	 * Returns if this action set contains the specified action.
-	 * @param action The action
+	 * Returns an array of all action names in this action set that should be
+	 * cached; namely, <code>BeanShellAction</code>s.
+	 * 
 	 * @since jEdit 4.2pre1
 	 */
-	public boolean contains(String action)
+	public String[] getCacheableActionNames()
 	{
-		boolean retval = actions.containsKey(action);
-		return retval;
-//		return actions.containsKey(action);
-	} //}}}
-
-	//{{{ size() method
-	/**
-	 * Returns the number of actions in this action set.
-	 * @since jEdit 4.2pre2
-	 */
-	public int size()
-	{
-		return actions.size();
-	} //}}}
-
-	//{{{ load() method
-	/**
-	 * Forces the action set to be loaded. Plugins and macros should not
-	 * call this method.
-	 * @since jEdit 4.2pre1
-	 */
-	public void load()
-	{
-		load(new ActionListHandler(uri.toString(),this));
-	} //}}}
-	
-	public void load(DefaultHandler dh) {
-		if(loaded)
-			return;
-
-		loaded = true;
-		//actions.clear();
-
-		if (uri == null)
-			return;
-		try
+		LinkedList<String> retVal = new LinkedList<String>();
+		Enumeration e = actions.elements();
+		while (e.hasMoreElements())
 		{
-			Log.log(Log.DEBUG,this,"Loading actions from " + uri);
-			if ( XMLUtilities.parseXML(uri.openStream(), dh)) {
-				Log.log(Log.ERROR, this, "Unable to parse: " + uri);
+			Object obj = e.nextElement();
+			if (obj == placeholder)
+			{
+				// ??? this should only be called with
+				// fully loaded action set
+				Log.log(Log.WARNING, this, "Action set not up " + "to date");
 			}
+			else if (obj instanceof JEditBeanShellAction)
+				retVal.add(((JEditBeanShellAction) obj).getName());
 		}
-		catch(IOException e)
-		{
-			Log.log(Log.ERROR,this,uri,e);
-		}
-	}
-	//{{{ createBeanShellAction() method
+		return retVal.toArray(new String[retVal.size()]);
+	} // }}}
+
+	// {{{ initKeyBindings() method
 	/**
-	 * This method should be implemented to return an action that will execute
-	 * the given code
-	 * @since 4.3pre13
-	 */
-	protected abstract AbstractEditAction createBeanShellAction(String actionName,
-									   String code,
-									   String selected,
-									   boolean noRepeat,
-									   boolean noRecord,
-									   boolean noRememberLast);
-	//}}}
-	
-	//{{{ initKeyBindings() method
-	/**
-	 * Initializes the action set's key bindings.
-	 * jEdit calls this method for all registered action sets when the
-	 * user changes key bindings in the <b>Global Options</b> dialog box.<p>
-	 *
-	 * Note if your plugin adds a custom action set to jEdit's collection,
-	 * it must also call this method on the action set after adding it.
-	 *
+	 * Initializes the action set's key bindings. jEdit calls this method for
+	 * all registered action sets when the user changes key bindings in the
+	 * <b>Global Options</b> dialog box.
+	 * <p>
+	 * 
+	 * Note if your plugin adds a custom action set to jEdit's collection, it
+	 * must also call this method on the action set after adding it.
+	 * 
 	 * @since jEdit 4.2pre1
 	 */
 	public void initKeyBindings()
 	{
 		AbstractInputHandler inputHandler = getInputHandler();
 
-		Iterator<Map.Entry<String,Object>> iter = actions.entrySet().iterator();
-		while(iter.hasNext())
+		Iterator<Map.Entry<String, Object>> iter = actions.entrySet().iterator();
+		while (iter.hasNext())
 		{
-			Map.Entry<String,Object> entry = iter.next();
+			Map.Entry<String, Object> entry = iter.next();
 			String name = entry.getKey();
 
 			String shortcut1 = getProperty(name + ".shortcut");
-			if(shortcut1 != null)
-				inputHandler.addKeyBinding(shortcut1,name);
+			if (shortcut1 != null)
+				inputHandler.addKeyBinding(shortcut1, name);
 
 			String shortcut2 = getProperty(name + ".shortcut2");
-			if(shortcut2 != null)
-				inputHandler.addKeyBinding(shortcut2,name);
+			if (shortcut2 != null)
+				inputHandler.addKeyBinding(shortcut2, name);
 		}
-	} //}}}
-	
-	//{{{ getProperty() method
+	} // }}}
+
+	// {{{ load() method
 	/**
-	 * Returns a property for the given name.
-	 * In jEdit it will returns a jEdit.getProperty(name), but it can
-	 * return something else for a standalone textarea.
-	 * @param name the property name
-	 * @return the property value
-	 * @since 4.3pre13
+	 * Forces the action set to be loaded. Plugins and macros should not call
+	 * this method.
+	 * 
+	 * @since jEdit 4.2pre1
 	 */
-	protected abstract String getProperty(String name);
-	//}}}
-
-	//{{{ Package-private members
-	AsinActionContext context;
-
-	//{{{ getActionNames() method
-	void getActionNames(List<String> vec)
+	public void load()
 	{
-		Enumeration<String> e = actions.keys();
-		while(e.hasMoreElements())
-			vec.add(e.nextElement());
-	} //}}}
+		load(new ActionListHandler(uri.toString(), this));
+	} // }}}
 
-	//}}}
+	// }}}
 
-	//{{{ Private members
-	protected Hashtable<String,Object> actions;
-	protected URL uri;
-	protected boolean loaded;
+	public void load(DefaultHandler dh)
+	{
+		if (loaded)
+			return;
 
-	protected static final Object placeholder = new Object();
+		loaded = true;
+		// actions.clear();
 
-	//}}}
+		if (uri == null)
+			return;
+		try
+		{
+			Log.log(Log.DEBUG, this, "Loading actions from " + uri);
+			if (XMLUtilities.parseXML(uri.openStream(), dh))
+			{
+				Log.log(Log.ERROR, this, "Unable to parse: " + uri);
+			}
+		}
+		catch (IOException e)
+		{
+			Log.log(Log.ERROR, this, uri, e);
+		}
+	}
+
+	// {{{ removeAction() method
+	/**
+	 * Removes an action from the action set.
+	 * 
+	 * @param name
+	 *            The action name
+	 * @since jEdit 4.0pre1
+	 */
+	public void removeAction(String name)
+	{
+		actions.remove(name);
+		if (context != null)
+		{
+			context.actionNames = null;
+			context.actionHash.remove(name);
+		}
+	} // }}}
+		// {{{ removeAllActions() method
+
+	/**
+	 * Removes all actions from the action set.
+	 * 
+	 * @since jEdit 4.0pre1
+	 */
+	public void removeAllActions()
+	{
+		if (context != null)
+		{
+			context.actionNames = null;
+			String[] actions = getActionNames();
+			for (int i = 0; i < actions.length; i++)
+			{
+				context.actionHash.remove(actions[i]);
+			}
+		}
+		this.actions.clear();
+	} // }}}
+
+	// {{{ size() method
+	/**
+	 * Returns the number of actions in this action set.
+	 * 
+	 * @since jEdit 4.2pre2
+	 */
+	public int size()
+	{
+		return actions.size();
+	} // }}}
+
+	// }}}
 }

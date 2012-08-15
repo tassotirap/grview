@@ -26,26 +26,32 @@ import javax.swing.text.Segment;
 
 /**
  * A fold handler that does nothing.
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 4.0pre1
  */
 public class DummyFoldHandler extends FoldHandler
 {
-	//{{{ DummyFoldHandler constructor
+	// {{{ DummyFoldHandler constructor
 	public DummyFoldHandler()
 	{
 		super("none");
 	}
-	//}}}
 
-	//{{{ getFoldLevel() method
+	// }}}
+
+	// {{{ getFoldLevel() method
 	/**
 	 * Returns the fold level of the specified line.
-	 * @param buffer The buffer in question
-	 * @param lineIndex The line index
-	 * @param seg A segment the fold handler can use to obtain any
-	 * text from the buffer, if necessary
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param lineIndex
+	 *            The line index
+	 * @param seg
+	 *            A segment the fold handler can use to obtain any text from the
+	 *            buffer, if necessary
 	 * @return The fold level of the specified line
 	 * @since jEdit 4.0pre1
 	 */
@@ -53,5 +59,5 @@ public class DummyFoldHandler extends FoldHandler
 	public int getFoldLevel(JEditBuffer buffer, int lineIndex, Segment seg)
 	{
 		return 0;
-	} //}}}
+	} // }}}
 }

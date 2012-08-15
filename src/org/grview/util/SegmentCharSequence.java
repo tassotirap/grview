@@ -21,15 +21,24 @@
 package org.grview.util;
 
 import java.io.Serializable;
+
 import javax.swing.text.Segment;
 
 /**
  * Class that lets java.util.regex search within a javax.swing.text.Segment.
- *
+ * 
  * @author Marcelo Vanzin
  */
 public class SegmentCharSequence implements CharSequence, Serializable
 {
+
+	private boolean reverse;
+
+	private int offset;
+
+	private int length;
+
+	private Segment seg;
 
 	public SegmentCharSequence(Segment seg)
 	{
@@ -37,10 +46,9 @@ public class SegmentCharSequence implements CharSequence, Serializable
 	}
 
 	/**
-	 * @deprecated
-	 *   Use ReverseCharSequence to get reverse view of this class (or
-	 *   any other CharSequence). This class doesn't support
-	 *   subSequence() and toString() for reversed instance.
+	 * @deprecated Use ReverseCharSequence to get reverse view of this class (or
+	 *             any other CharSequence). This class doesn't support
+	 *             subSequence() and toString() for reversed instance.
 	 */
 	@Deprecated
 	public SegmentCharSequence(Segment seg, boolean reverse)
@@ -56,6 +64,7 @@ public class SegmentCharSequence implements CharSequence, Serializable
 		this.seg = seg;
 	}
 
+	@Override
 	public char charAt(int index)
 	{
 		if (reverse)
@@ -63,11 +72,13 @@ public class SegmentCharSequence implements CharSequence, Serializable
 		return seg.array[seg.offset + offset + index];
 	}
 
+	@Override
 	public int length()
 	{
 		return length;
 	}
 
+	@Override
 	public CharSequence subSequence(int start, int end)
 	{
 		if (reverse)
@@ -78,13 +89,7 @@ public class SegmentCharSequence implements CharSequence, Serializable
 	@Override
 	public String toString()
 	{
-		return new String(seg.array, offset+seg.offset, length);
+		return new String(seg.array, offset + seg.offset, length);
 	}
 
-	private boolean reverse;
-	private int 	offset;
-	private int 	length;
-	private Segment seg;
-
 }
-

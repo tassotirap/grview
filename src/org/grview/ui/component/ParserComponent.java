@@ -43,38 +43,22 @@ public class ParserComponent extends AbstractComponent
 
 	public final static String ICONS_PATH = "/org/grview/images/";
 
-	@Override
-	public JComponent create(Object param) throws BadParameterException
+	private void createLayout(final ParsingEditor parser)
 	{
-		final ParsingEditor parser;
-		if (param instanceof String)
-		{
-			rootPath = (String) param;
-		}
-		else
-		{
-			throw new BadParameterException("A string refering to the root path was expected");
-		}
-		modesLabel = new JLabel("Modes: ");
-		createModelComboBox();
-		createOpenButton();
-		createSaveButton();
-		createParseButton();
-		createNextStepButton();
-		Mode mode = loadDefaultMode();
-		
-		if (ParsingEditor.getInstance() == null)
-		{
-			parser = new ParsingEditor(null, mode, rootPath);
-		}
-		else
-		{
-			parser = ParsingEditor.getInstance();
-		}
-		parser.addParsingButtons(parse, parseNextStep);
-		createListener(parser);
-		createLayout(parser);
-		return main;
+		btBarLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		btBarLeft.add(modesLabel);
+		btBarLeft.add(modes);
+		btBarRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+		btBarRight.add(open);
+		btBarRight.add(save);
+		btBarRight.add(parseNextStep);
+		btBarRight.add(parse);
+		btBar = new JPanel(new BorderLayout());
+		btBar.add(btBarLeft, BorderLayout.WEST);
+		btBar.add(btBarRight, BorderLayout.EAST);
+		main = new JPanel(new BorderLayout());
+		main.add(btBar, BorderLayout.NORTH);
+		main.add(parser.getView(), BorderLayout.CENTER);
 	}
 
 	private void createListener(final ParsingEditor parser)
@@ -127,31 +111,14 @@ public class ParserComponent extends AbstractComponent
 		});
 	}
 
-	private void createLayout(final ParsingEditor parser)
+	private void createModelComboBox()
 	{
-		btBarLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
-		btBarLeft.add(modesLabel);
-		btBarLeft.add(modes);
-		btBarRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		btBarRight.add(open);
-		btBarRight.add(save);
-		btBarRight.add(parseNextStep);
-		btBarRight.add(parse);
-		btBar = new JPanel(new BorderLayout());
-		btBar.add(btBarLeft, BorderLayout.WEST);
-		btBar.add(btBarRight, BorderLayout.EAST);
-		main = new JPanel(new BorderLayout());
-		main.add(btBar, BorderLayout.NORTH);
-		main.add(parser.getView(), BorderLayout.CENTER);
-	}
-
-	private Mode loadDefaultMode()
-	{	
-		String modeDef = (String) modes.getSelectedItem();
-		Mode mode = new Mode(modeDef);
-		mode.setProperty("file", "modes/" + modeDef + ".xml");
-		ModeProvider.instance.addMode(mode);
-		return mode;
+		modes = new JComboBox<String>(getModeNames());
+		modes.setSelectedItem("java");
+		modes.setEditable(false);
+		modes.setPreferredSize(new Dimension(120, 16));
+		modes.setFont(new Font("Arial", Font.PLAIN, 12));
+		modes.setBackground(Color.WHITE);
 	}
 
 	private void createNextStepButton()
@@ -165,6 +132,18 @@ public class ParserComponent extends AbstractComponent
 		parseNextStep.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) parseNextStep.getIcon()).getImage())));
 		parseNextStep.setToolTipText("Parse Next Step");
 		parseNextStep.setEnabled(false);
+	}
+
+	private void createOpenButton()
+	{
+		open = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-open.png")));
+		open.setOpaque(false);
+		open.setBorder(new EmptyBorder(0, 0, 0, 0));
+		open.setRolloverEnabled(true);
+		open.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) open.getIcon()).getImage())));
+		open.setToolTipText("Open File With Expression");
 	}
 
 	private void createParseButton()
@@ -192,28 +171,6 @@ public class ParserComponent extends AbstractComponent
 		save.setToolTipText("Save Parser Content on File");
 	}
 
-	private void createOpenButton()
-	{
-		open = new JButton(new ImageIcon(getClass().getResource(ICONS_PATH + "parser-open.png")));
-		open.setOpaque(false);
-		open.setBorder(new EmptyBorder(0, 0, 0, 0));
-		open.setRolloverEnabled(true);
-		open.setSelectedIcon(new ImageIcon(ColorFilter.createDarkerImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setRolloverIcon(new ImageIcon(ColorFilter.createBrighterImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setDisabledIcon(new ImageIcon(GrayFilter.createDisabledImage(((ImageIcon) open.getIcon()).getImage())));
-		open.setToolTipText("Open File With Expression");
-	}
-
-	private void createModelComboBox()
-	{
-		modes = new JComboBox<String>(getModeNames());
-		modes.setSelectedItem("java");
-		modes.setEditable(false);
-		modes.setPreferredSize(new Dimension(120, 16));
-		modes.setFont(new Font("Arial", Font.PLAIN, 12));
-		modes.setBackground(Color.WHITE);
-	}
-
 	private String[] getModeNames()
 	{
 		ArrayList<String> modes = new ArrayList<String>();
@@ -230,7 +187,50 @@ public class ParserComponent extends AbstractComponent
 			}
 		}
 		Collections.sort(modes);
-		return (String[]) modes.toArray(new String[modes.size()]);
+		return modes.toArray(new String[modes.size()]);
+	}
+
+	private Mode loadDefaultMode()
+	{
+		String modeDef = (String) modes.getSelectedItem();
+		Mode mode = new Mode(modeDef);
+		mode.setProperty("file", "modes/" + modeDef + ".xml");
+		ModeProvider.instance.addMode(mode);
+		return mode;
+	}
+
+	@Override
+	public JComponent create(Object param) throws BadParameterException
+	{
+		final ParsingEditor parser;
+		if (param instanceof String)
+		{
+			rootPath = (String) param;
+		}
+		else
+		{
+			throw new BadParameterException("A string refering to the root path was expected");
+		}
+		modesLabel = new JLabel("Modes: ");
+		createModelComboBox();
+		createOpenButton();
+		createSaveButton();
+		createParseButton();
+		createNextStepButton();
+		Mode mode = loadDefaultMode();
+
+		if (ParsingEditor.getInstance() == null)
+		{
+			parser = new ParsingEditor(null, mode, rootPath);
+		}
+		else
+		{
+			parser = ParsingEditor.getInstance();
+		}
+		parser.addParsingButtons(parse, parseNextStep);
+		createListener(parser);
+		createLayout(parser);
+		return main;
 	}
 
 	@Override

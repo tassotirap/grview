@@ -22,45 +22,41 @@
 
 package org.grview.editor;
 
-
 import org.grview.actions.Debug;
 import org.grview.util.Log;
-
-
 
 /**
  * Maintains the vertical scrollbar.
  */
 class ScrollLineCount extends Anchor
 {
-	//{{{ ScrollLineCount constructor
-	ScrollLineCount(DisplayManager displayManager,
-		TextArea textArea)
+	// {{{ ScrollLineCount constructor
+	ScrollLineCount(DisplayManager displayManager, TextArea textArea)
 	{
-		super(displayManager,textArea);
-	} //}}}
+		super(displayManager, textArea);
+	} // }}}
 
 	@Override
-	public void changed() {}
+	public void changed()
+	{
+	}
 
-	//{{{ reset() method
+	// {{{ reset() method
 	@Override
 	public void reset()
 	{
-		if(Debug.SCROLL_DEBUG)
-			Log.log(Log.DEBUG,this,"reset()");
+		if (Debug.SCROLL_DEBUG)
+			Log.log(Log.DEBUG, this, "reset()");
 
 		physicalLine = displayManager.getFirstVisibleLine();
 		int scrollLine = 0;
-		while(physicalLine != -1)
+		while (physicalLine != -1)
 		{
-			scrollLine += displayManager
-				.getScreenLineCount(physicalLine);
-			physicalLine = displayManager
-				.getNextVisibleLine(physicalLine);
+			scrollLine += displayManager.getScreenLineCount(physicalLine);
+			physicalLine = displayManager.getNextVisibleLine(physicalLine);
 		}
 
 		this.scrollLine = scrollLine;
 		physicalLine = displayManager.getBuffer().getLineCount();
-	} //}}}
+	} // }}}
 }

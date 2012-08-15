@@ -23,78 +23,6 @@ public class WindowAdapter extends DockingWindowAdapter
 		this.window = window;
 	}
 
-	@Override
-	public void viewFocusChanged(View ov, View nv)
-	{
-		super.viewFocusChanged(ov, nv);
-		if (nv instanceof DynamicView)
-		{
-			AbstractComponent comp = ((DynamicView) nv).getComponentModel();
-			window.updateFocusedComponent(comp);
-		}
-	}
-
-	@Override
-	public void windowAdded(DockingWindow addedToWindow, DockingWindow addedWindow)
-	{
-		if (addedWindow instanceof DynamicView)
-		{
-			updateViews(addedWindow, true);
-			AbstractComponent comp = ((DynamicView) addedWindow).getComponentModel();
-			if (!(comp instanceof EmptyComponent))
-			{
-				if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(addedWindow) >= 0)
-				{
-					window.removeDummyView(Window.CENTER_TABS);
-				}
-			}
-		}
-	}
-
-	@Override
-	public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow)
-	{
-		updateViews(removedWindow, false);
-	}
-
-	@Override
-	public void windowClosing(DockingWindow dWindow) throws OperationAbortedException
-	{
-		if (dWindow instanceof DynamicView)
-		{
-			DynamicView dynamicView = (DynamicView) dWindow;
-			if (ProjectManager.hasUnsavedView(dynamicView))
-			{
-				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
-				if (option == JOptionPane.CANCEL_OPTION)
-					throw new OperationAbortedException("Window close was aborted!");
-				if (option == JOptionPane.YES_OPTION)
-				{
-					ProjectManager.saveFile(dynamicView.getComponentModel());	
-				}
-			}
-			window.removeDynamicView(dynamicView);
-		}
-		if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(dWindow) >= 0 && window.getTabPage()[Window.CENTER_TABS].getChildWindowCount() == 1)
-		{
-			window.addDummyView(Window.CENTER_TABS);
-		}
-	}
-
-	@Override
-	public void windowClosed(DockingWindow dWindow)
-	{
-		if (dWindow instanceof DynamicView)
-		{
-			DynamicView view = (DynamicView) dWindow;
-			if (view.getComponentModel() instanceof FileComponent)
-			{
-				String path = ((FileComponent) view.getComponentModel()).getPath();
-				window.removeFileFromProject(path);
-			}
-		}
-	}
-
 	/**
 	 * Update view menu items and dynamic view map.
 	 * 
@@ -135,5 +63,76 @@ public class WindowAdapter extends DockingWindowAdapter
 			for (int i = 0; i < dWindow.getChildWindowCount(); i++)
 				updateViews(dWindow.getChildWindow(i), added);
 		}
+	}
+
+	@Override
+	public void viewFocusChanged(View ov, View nv)
+	{
+		super.viewFocusChanged(ov, nv);
+		if (nv instanceof DynamicView)
+		{
+			AbstractComponent comp = ((DynamicView) nv).getComponentModel();
+			window.updateFocusedComponent(comp);
+		}
+	}
+
+	@Override
+	public void windowAdded(DockingWindow addedToWindow, DockingWindow addedWindow)
+	{
+		if (addedWindow instanceof DynamicView)
+		{
+			updateViews(addedWindow, true);
+			AbstractComponent comp = ((DynamicView) addedWindow).getComponentModel();
+			if (!(comp instanceof EmptyComponent))
+			{
+				if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(addedWindow) >= 0)
+				{
+					window.removeDummyView(Window.CENTER_TABS);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void windowClosed(DockingWindow dWindow)
+	{
+		if (dWindow instanceof DynamicView)
+		{
+			DynamicView view = (DynamicView) dWindow;
+			if (view.getComponentModel() instanceof FileComponent)
+			{
+				String path = ((FileComponent) view.getComponentModel()).getPath();
+				window.removeFileFromProject(path);
+			}
+		}
+	}
+
+	@Override
+	public void windowClosing(DockingWindow dWindow) throws OperationAbortedException
+	{
+		if (dWindow instanceof DynamicView)
+		{
+			DynamicView dynamicView = (DynamicView) dWindow;
+			if (ProjectManager.hasUnsavedView(dynamicView))
+			{
+				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
+				if (option == JOptionPane.CANCEL_OPTION)
+					throw new OperationAbortedException("Window close was aborted!");
+				if (option == JOptionPane.YES_OPTION)
+				{
+					ProjectManager.saveFile(dynamicView.getComponentModel());
+				}
+			}
+		}
+		if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(dWindow) >= 0 && window.getTabPage()[Window.CENTER_TABS].getChildWindowCount() == 1)
+		{
+			window.addDummyView(Window.CENTER_TABS);
+		}
+	}
+
+	@Override
+	public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow)
+	{
+		updateViews(removedWindow, false);
 	}
 }

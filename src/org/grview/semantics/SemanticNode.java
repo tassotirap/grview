@@ -8,23 +8,32 @@ package org.grview.semantics;
 
 /**
  * @author Fernando
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * 
+ *         To change the template for this generated type comment go to
+ *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class SemanticNode {
+public class SemanticNode
+{
 	private Object Tab;
 	private int index;
-	public Object Tab(){
-		return Tab;
-	}
-	public void Tab(Object t){
-		Tab = t;
-	}
-	public int Index(){
+
+	public int Index()
+	{
 		return index;
 	}
-	public void Index(int numb){
+
+	public void Index(int numb)
+	{
 		index = numb;
+	}
+
+	public Object Tab()
+	{
+		return Tab;
+	}
+
+	public void Tab(Object t)
+	{
+		Tab = t;
 	}
 }

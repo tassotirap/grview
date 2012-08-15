@@ -8,7 +8,6 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.action.WidgetActionRepositoryFactory;
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.TextArea;
@@ -25,7 +24,7 @@ import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GrammarComponent;
-import org.grview.ui.component.GrammarRepo;
+import org.grview.ui.component.GrammarFactory;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.JavaComponent;
 import org.grview.ui.component.LexComponent;
@@ -44,11 +43,25 @@ public final class ProjectManager
 
 	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
 
+	private static boolean hasUnsavedViewByPath(AbstractComponent component)
+	{
+		for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
+		{
+			if (dynamicView.getComponentModel() == component)
+				return true;
+		}
+		return false;
+	}
+
 	private static String saveGrammarFile(Canvas canvas)
 	{
-		GrammarComponent gramComponent = GrammarRepo.getCompByCanvas();
-		gramComponent.saveFile();
-		return gramComponent.getPath();
+		GrammarComponent gramComponent = GrammarFactory.getCompByCanvas();
+		if (hasUnsavedViewByPath(gramComponent))
+		{
+			gramComponent.saveFile();
+			return gramComponent.getPath();
+		}
+		return null;
 	}
 
 	private static String saveTextAreaOrFileComponent(Object object)
@@ -186,6 +199,11 @@ public final class ProjectManager
 		System.exit(0);
 	}
 
+	public static MainWindow getMainWindow()
+	{
+		return mainWindow;
+	}
+
 	public static Project getProject()
 	{
 		return project;
@@ -194,11 +212,6 @@ public final class ProjectManager
 	public static ArrayList<DynamicView> getUnsavedViews()
 	{
 		return new ArrayList<DynamicView>(unsavedViews.values());
-	}
-
-	public static MainWindow getMainWindow()
-	{
-		return mainWindow;
 	}
 
 	public static boolean hasUnsavedView(DynamicView value)
@@ -311,7 +324,7 @@ public final class ProjectManager
 	}
 
 	public static void renameFile(String oldName, String newName)
-	{		
+	{
 		if (oldName.endsWith(FileNames.GRAM_EXTENSION))
 		{
 			project.setGrammarFile(new GrammarFile(newName));
@@ -378,6 +391,9 @@ public final class ProjectManager
 				path = (String) object;
 			}
 		}
+
+		if (path == null)
+			return;
 
 		if (getProject() != null)
 		{

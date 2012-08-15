@@ -24,8 +24,6 @@ import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.AsinEditor;
 import org.grview.ui.ThemeManager.Theme;
-import org.grview.ui.component.GrammarComponent;
-import org.grview.ui.component.GrammarRepo;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
 
@@ -75,11 +73,6 @@ public class Project implements Serializable
 	 **/
 	private AsinEditor asinEditor;
 
-	public Project(String projectsRootPath)
-	{
-		this(projectsRootPath, null);
-	}
-
 	private Project(String projectsRootPath, ArrayList<File> openedFiles)
 	{
 		this.projectDir = new File(projectsRootPath);
@@ -100,112 +93,9 @@ public class Project implements Serializable
 		}
 	}
 
-	/**
-	 * Here goes stuff that needs to be done anyway, no matter if you have a
-	 * project serialized or a new one
-	 */
-	private void init()
+	public Project(String projectsRootPath)
 	{
-		try
-		{
-			new SemanticRoutinesIvoker(this);
-			SemanticRoutinesRepo.setRoutineCode(codeByRoutine);
-		}
-		catch (MalformedURLException e)
-		{
-			Log.log(Log.ERROR, this, "Could not find path to semantic file!", e);
-		}
-	}
-
-	/**
-	 * Restores a project stored in a METADATA file
-	 * 
-	 * @param projectRootPath
-	 *            the root path of the project
-	 * @return true if a serialized project was found
-	 */
-	public static Project restoreProject(String projectRootPath)
-	{
-		try
-		{
-			if (!(projectRootPath.endsWith("/") || projectRootPath.endsWith("\\")))
-			{
-				projectRootPath += "/";
-			}
-			File metaFile = new File(projectRootPath + FileNames.METADATA_FILENAME);
-			FileInputStream fileInputStream = new FileInputStream(metaFile);
-			if (metaFile.length() > 0)
-			{
-				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-				Object object = objectInputStream.readObject();
-				if (object instanceof Project)
-				{
-					Project result = (Project) object;
-					AsinEditor.setInstance(result.asinEditor);
-					result.init();
-					objectInputStream.close();
-					return result;
-				}
-				objectInputStream.close();
-			}
-			return null;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
-		return null;
-	}
-
-	/**
-	 * Saves this project to disk. This project instance will be serialized and
-	 * all its info will be saved on METADATA_FILENAME;
-	 * 
-	 * @return true if successfully saved the project, false otherwise
-	 */
-	public boolean writeProject()
-	{
-		try
-		{
-			this.codeByRoutine = SemanticRoutinesRepo.getRoutineCode();
-			this.asinEditor = AsinEditor.getInstance();
-			FileOutputStream fileOutputStream = new FileOutputStream(metadataFile);
-			new ObjectOutputStream(fileOutputStream).writeObject(this);
-			fileOutputStream.close();
-			return true;
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			return false;
-		}
-	}
-
-	/**
-	 * Puts all properties to a file.
-	 * 
-	 * @param propertiesFile
-	 */
-	public void putPropertiesToFile(String propertiesFile)
-	{
-		final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n" + "<properties>\n" + "\t<comment>Self generated properties</comment>\n";
-		final String tail = "</properties>";
-		String body = "";
-		try
-		{
-			for (Object key : properties.keySet())
-			{
-				body += "\t<entry key=\"" + key.toString() + "\">" + properties.get(key).toString() + "</entry>\n";
-			}
-			File pf = new File(propertiesFile);
-			FileWriter fw = new FileWriter(pf);
-			fw.write(header + body + tail);
-			fw.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-		}
+		this(projectsRootPath, null);
 	}
 
 	/**
@@ -294,19 +184,61 @@ public class Project implements Serializable
 		return hasGrammarFile && hasSemanticFile && hasLexicalFile && hasPropertiesFile && hasMetaFile;
 	}
 
-	public ArrayList<File> getOpenedFiles()
+	/**
+	 * Restores a project stored in a METADATA file
+	 * 
+	 * @param projectRootPath
+	 *            the root path of the project
+	 * @return true if a serialized project was found
+	 */
+	public static Project restoreProject(String projectRootPath)
 	{
-		return openedFiles;
+		try
+		{
+			if (!(projectRootPath.endsWith("/") || projectRootPath.endsWith("\\")))
+			{
+				projectRootPath += "/";
+			}
+			File metaFile = new File(projectRootPath + FileNames.METADATA_FILENAME);
+			FileInputStream fileInputStream = new FileInputStream(metaFile);
+			if (metaFile.length() > 0)
+			{
+				ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
+				Object object = objectInputStream.readObject();
+				if (object instanceof Project)
+				{
+					Project result = (Project) object;
+					AsinEditor.setInstance(result.asinEditor);
+					result.init();
+					objectInputStream.close();
+					return result;
+				}
+				objectInputStream.close();
+			}
+			return null;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+		return null;
 	}
 
-	public String getProjectsRootPath()
+	/**
+	 * Here goes stuff that needs to be done anyway, no matter if you have a
+	 * project serialized or a new one
+	 */
+	private void init()
 	{
-		return projectDir.getAbsolutePath();
-	}
-
-	public File getProjectDir()
-	{
-		return projectDir;
+		try
+		{
+			new SemanticRoutinesIvoker(this);
+			SemanticRoutinesRepo.setRoutineCode(codeByRoutine);
+		}
+		catch (MalformedURLException e)
+		{
+			Log.log(Log.ERROR, this, "Could not find path to semantic file!", e);
+		}
 	}
 
 	public File getGrammarFile()
@@ -314,39 +246,9 @@ public class Project implements Serializable
 		return grammarFile;
 	}
 
-	public void setGrammarFile(GrammarFile grammarFile)
-	{
-		this.grammarFile = grammarFile;
-	}
-
 	public File getLexFile()
 	{
 		return lexicalFile;
-	}
-
-	public void setLexFile(LexicalFile lexFile)
-	{
-		this.lexicalFile = lexFile;
-	}
-
-	public File getSemFile()
-	{
-		return semanticFile;
-	}
-
-	public void setSemFile(SemanticFile semFile)
-	{
-		this.semanticFile = semFile;
-	}
-
-	public File getPropertiesFile()
-	{
-		return propertiesFile;
-	}
-
-	public void setPropertiesFile(PropertiesFile propertiesFile)
-	{
-		this.propertiesFile = propertiesFile;
 	}
 
 	public File getMetadataFile()
@@ -354,14 +256,91 @@ public class Project implements Serializable
 		return metadataFile;
 	}
 
-	public void setMetadataFile(MetaFile metadataFile)
-	{
-		this.metadataFile = metadataFile;
-	}
-
 	public String getName()
 	{
 		return name;
+	}
+
+	public ArrayList<File> getOpenedFiles()
+	{
+		return openedFiles;
+	}
+
+	public File getProjectDir()
+	{
+		return projectDir;
+	}
+
+	public String getProjectsRootPath()
+	{
+		return projectDir.getAbsolutePath();
+	}
+
+	public File getPropertiesFile()
+	{
+		return propertiesFile;
+	}
+
+	public String getProperty(String propertyName)
+	{
+		return properties.getProperty(propertyName);
+	}
+
+	public File getSemFile()
+	{
+		return semanticFile;
+	}
+
+	public Theme getTheme()
+	{
+		return this.theme;
+	}
+
+	public File getYyLexFile()
+	{
+		return yyLexFile;
+	}
+
+	/**
+	 * Puts all properties to a file.
+	 * 
+	 * @param propertiesFile
+	 */
+	public void putPropertiesToFile(String propertiesFile)
+	{
+		final String header = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" + "<!DOCTYPE properties SYSTEM \"http://java.sun.com/dtd/properties.dtd\">\n" + "<properties>\n" + "\t<comment>Self generated properties</comment>\n";
+		final String tail = "</properties>";
+		String body = "";
+		try
+		{
+			for (Object key : properties.keySet())
+			{
+				body += "\t<entry key=\"" + key.toString() + "\">" + properties.get(key).toString() + "</entry>\n";
+			}
+			File pf = new File(propertiesFile);
+			FileWriter fw = new FileWriter(pf);
+			fw.write(header + body + tail);
+			fw.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+	}
+
+	public void setGrammarFile(GrammarFile grammarFile)
+	{
+		this.grammarFile = grammarFile;
+	}
+
+	public void setLexFile(LexicalFile lexFile)
+	{
+		this.lexicalFile = lexFile;
+	}
+
+	public void setMetadataFile(MetaFile metadataFile)
+	{
+		this.metadataFile = metadataFile;
 	}
 
 	public void setName(String name)
@@ -374,9 +353,19 @@ public class Project implements Serializable
 		this.openedFiles = openedFiles;
 	}
 
-	public String getProperty(String propertyName)
+	public void setPropertiesFile(PropertiesFile propertiesFile)
 	{
-		return properties.getProperty(propertyName);
+		this.propertiesFile = propertiesFile;
+	}
+
+	public void setSemFile(SemanticFile semFile)
+	{
+		this.semanticFile = semFile;
+	}
+
+	public void setTheme(Theme theme)
+	{
+		this.theme = theme;
 	}
 
 	public void setYyLexFile(File yyLexFile)
@@ -384,18 +373,27 @@ public class Project implements Serializable
 		this.yyLexFile = yyLexFile;
 	}
 
-	public File getYyLexFile()
+	/**
+	 * Saves this project to disk. This project instance will be serialized and
+	 * all its info will be saved on METADATA_FILENAME;
+	 * 
+	 * @return true if successfully saved the project, false otherwise
+	 */
+	public boolean writeProject()
 	{
-		return yyLexFile;
-	}
-
-	public Theme getTheme()
-	{
-		return this.theme;
-	}
-
-	public void setTheme(Theme theme)
-	{
-		this.theme = theme;
+		try
+		{
+			this.codeByRoutine = SemanticRoutinesRepo.getRoutineCode();
+			this.asinEditor = AsinEditor.getInstance();
+			FileOutputStream fileOutputStream = new FileOutputStream(metadataFile);
+			new ObjectOutputStream(fileOutputStream).writeObject(this);
+			fileOutputStream.close();
+			return true;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

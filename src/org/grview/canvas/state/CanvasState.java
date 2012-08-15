@@ -31,32 +31,96 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 
 	private String id;
 
-	public String getID()
-	{
-		return id;
-	}
-
 	public CanvasState(String id)
 	{
 		this.id = id;
 	}
 
-	public void focusChanged(ObjectSceneEvent arg0, Object arg1, Object arg2)
+	public void addConnection(Connection c)
 	{
-	}
-
-	public void highlightingChanged(ObjectSceneEvent arg0, Set<Object> arg1, Set<Object> arg2)
-	{
-
-	}
-
-	public void hoverChanged(ObjectSceneEvent arg0, Object arg1, Object arg2)
-	{
+		connections.put(c.getName(), c);
 	}
 
 	public void addNode(Node node)
 	{
 		nodes.put(node.getName(), node);
+	}
+
+	public Connection findConnection(Object conn)
+	{
+		if (connections.containsKey(conn))
+		{
+			return connections.get(conn);
+		}
+		return null;
+	}
+
+	public Node findNode(Object node)
+	{
+		if (nodes.containsKey(node))
+		{
+			return nodes.get(node);
+		}
+		return null;
+	}
+
+	@Override
+	public void focusChanged(ObjectSceneEvent arg0, Object arg1, Object arg2)
+	{
+	}
+
+	/**
+	 * Returns an ordered set of connections. The connections are ordered
+	 * according to their names, so that this collection reflects the order of
+	 * these connections's creation.
+	 * 
+	 * @return an ordered set of connections
+	 */
+	public List<String> getConnections()
+	{
+		ArrayList<String> list = new ArrayList<String>();
+		list.addAll(connections.keySet());
+		Collections.sort(list);
+		return list;
+	}
+
+	public String getID()
+	{
+		return id;
+	}
+
+	public Set<String> getNodes()
+	{
+		return nodes.keySet();
+	}
+
+	public Preferences getPreferences()
+	{
+		return preferences;
+	}
+
+	public Object getType(Object obj)
+	{
+		if (nodes.containsKey(obj))
+		{
+			return nodes.get(obj).getType();
+		}
+		if (connections.containsKey(obj))
+		{
+			return connections.get(obj).getType();
+		}
+		return null;
+	}
+
+	@Override
+	public void highlightingChanged(ObjectSceneEvent arg0, Set<Object> arg1, Set<Object> arg2)
+	{
+
+	}
+
+	@Override
+	public void hoverChanged(ObjectSceneEvent arg0, Object arg1, Object arg2)
+	{
 	}
 
 	@Override
@@ -117,14 +181,34 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 
 	}
 
+	@Override
 	public void objectStateChanged(ObjectSceneEvent arg0, Object arg1, ObjectState arg2, ObjectState arg3)
 	{
 	}
 
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
+	{
+		if (evt.getPropertyName().equals("writing"))
+		{
+			Canvas canvas = CanvasFactory.getCanvas(this.id);
+			if (canvas != null)
+			{
+				update(canvas);
+			}
+		}
+	}
+
+	@Override
 	public void selectionChanged(ObjectSceneEvent arg0, Set<Object> arg1, Set<Object> arg2)
 	{
 		// TODO Auto-generated method stub
 
+	}
+
+	public void setId(String id)
+	{
+		this.id = id;
 	}
 
 	public void update(Canvas canvas)
@@ -154,83 +238,5 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 				connections.get(conn).setTarget(canvas.getEdgeTarget(conn));
 			}
 		}
-	}
-
-	public void propertyChange(PropertyChangeEvent evt)
-	{
-		if (evt.getPropertyName().equals("writing"))
-		{
-			Canvas canvas = CanvasFactory.getCanvas(this.id);
-			if (canvas != null)
-			{
-				update(canvas);
-			}
-		}
-	}
-
-	public Node findNode(Object node)
-	{
-		if (nodes.containsKey(node))
-		{
-			return nodes.get(node);
-		}
-		return null;
-	}
-
-	public Connection findConnection(Object conn)
-	{
-		if (connections.containsKey(conn))
-		{
-			return connections.get(conn);
-		}
-		return null;
-	}
-
-	public Object getType(Object obj)
-	{
-		if (nodes.containsKey(obj))
-		{
-			return nodes.get(obj).getType();
-		}
-		if (connections.containsKey(obj))
-		{
-			return connections.get(obj).getType();
-		}
-		return null;
-	}
-
-	public Set<String> getNodes()
-	{
-		return nodes.keySet();
-	}
-
-	/**
-	 * Returns an ordered set of connections. The connections are ordered
-	 * according to their names, so that this collection reflects the order of
-	 * these connections's creation.
-	 * 
-	 * @return an ordered set of connections
-	 */
-	public List<String> getConnections()
-	{
-		ArrayList<String> list = new ArrayList<String>();
-		list.addAll(connections.keySet());
-		Collections.sort(list);
-		return list;
-	}
-
-	public void addConnection(Connection c)
-	{
-		connections.put(c.getName(), c);
-	}
-
-	public Preferences getPreferences()
-	{
-		return preferences;
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;		
 	}
 }

@@ -34,86 +34,16 @@ import org.grview.editor.syntax.Token;
 import org.grview.editor.syntax.TokenHandler;
 import org.grview.editor.syntax.TokenMarker;
 
-
-
 /**
  * @author Slava Pestov
  * @version $Id$
  */
 public class RegexpIndentRule implements IndentRule
 {
-	//{{{ RegexpIndentRule constructor
+	// {{{ class TokenFilter
 	/**
-	 * @param collapse If true, then if the next indent rule is
-	 * an opening bracket, this rule will not increase indent.
-	 */
-	public RegexpIndentRule(String regexp, IndentAction prevPrev,
-		IndentAction prev, IndentAction thisLine, boolean collapse)
-	throws PatternSyntaxException
-	{
-		prevPrevAction = prevPrev;
-		prevAction = prev;
-		thisAction = thisLine;
-		this.regexp = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE );
-		this.collapse = collapse;
-	} //}}}
-
-	//{{{ apply() method
-	public void apply(JEditBuffer buffer, int thisLineIndex,
-		int prevLineIndex, int prevPrevLineIndex,
-		List<IndentAction> indentActions)
-	{
-		if(thisAction != null
-			&& lineMatches(buffer, thisLineIndex))
-		{
-			indentActions.add(thisAction);
-		}
-		if(prevAction != null
-			&& prevLineIndex != -1
-			&& lineMatches(buffer, prevLineIndex))
-		{
-			indentActions.add(prevAction);
-			if (collapse)
-				indentActions.add(IndentAction.PrevCollapse);
-		}
-		if(prevPrevAction != null
-			&& prevPrevLineIndex != -1
-			&& lineMatches(buffer, prevPrevLineIndex))
-		{
-			indentActions.add(prevPrevAction);
-			if (collapse)
-				indentActions.add(IndentAction.PrevPrevCollapse);
-		}
-	} //}}}
-
-	//{{{ isMatch() method
-	/**
-	 * @deprecated
-	 *   Do not use this. This is here only for compatibility.
-	 */
-	@Deprecated
-	public boolean isMatch(String line)
-	{
-		Matcher m = regexp.matcher(line);
-//		return regexp.isMatch(line);
-		return m.matches();
-	} //}}}
-
-	//{{{ toString() method
-	@Override
-	public String toString()
-	{
-		return getClass().getName() + '[' + regexp + ']';
-	} //}}}
-
-	private IndentAction prevPrevAction, prevAction, thisAction;
-	private Pattern regexp;
-	private boolean collapse;
-
-	//{{{ class TokenFilter
-	/**
-	 * A filter which removes non syntactic characters in comments
-	 * or literals which might confuse regexp matchings for indent.
+	 * A filter which removes non syntactic characters in comments or literals
+	 * which might confuse regexp matchings for indent.
 	 */
 	private static class TokenFilter implements TokenHandler
 	{
@@ -124,9 +54,8 @@ public class RegexpIndentRule implements IndentRule
 			result = new StringBuilder(originalLength);
 		}
 
-		public void handleToken(Segment seg
-			, byte id, int offset, int length
-			, TokenMarker.LineContext context)
+		@Override
+		public void handleToken(Segment seg, byte id, int offset, int length, TokenMarker.LineContext context)
 		{
 			// Avoid replacing an empty token into a non empty
 			// string.
@@ -134,45 +63,105 @@ public class RegexpIndentRule implements IndentRule
 			{
 				return;
 			}
-			
+
 			switch (id)
 			{
-			case Token.COMMENT1:
-			case Token.COMMENT2:
-			case Token.COMMENT3:
-			case Token.COMMENT4:
-				// Replace any comments to a white space
-				// so that they are simply ignored.
-				result.append(' ');
-				break;
-			case Token.LITERAL1:
-			case Token.LITERAL2:
-			case Token.LITERAL3:
-			case Token.LITERAL4:
-				// Replace any literals to a '0' which means
-				// a simple integer literal in most programming
-				// languages.
-				result.append('0');
-				break;
-			default:
-				result.append(seg.array
-					, seg.offset + offset
-					, length);
-				break;
+				case Token.COMMENT1:
+				case Token.COMMENT2:
+				case Token.COMMENT3:
+				case Token.COMMENT4:
+					// Replace any comments to a white space
+					// so that they are simply ignored.
+					result.append(' ');
+					break;
+				case Token.LITERAL1:
+				case Token.LITERAL2:
+				case Token.LITERAL3:
+				case Token.LITERAL4:
+					// Replace any literals to a '0' which means
+					// a simple integer literal in most programming
+					// languages.
+					result.append('0');
+					break;
+				default:
+					result.append(seg.array, seg.offset + offset, length);
+					break;
 			}
 		}
 
+		@Override
 		public void setLineContext(TokenMarker.LineContext lineContext)
 		{
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ lineMatches() method
+	private IndentAction prevPrevAction, prevAction, thisAction;
+
+	private Pattern regexp;
+
+	private boolean collapse;
+
+	// {{{ RegexpIndentRule constructor
+	/**
+	 * @param collapse
+	 *            If true, then if the next indent rule is an opening bracket,
+	 *            this rule will not increase indent.
+	 */
+	public RegexpIndentRule(String regexp, IndentAction prevPrev, IndentAction prev, IndentAction thisLine, boolean collapse) throws PatternSyntaxException
+	{
+		prevPrevAction = prevPrev;
+		prevAction = prev;
+		thisAction = thisLine;
+		this.regexp = Pattern.compile(regexp, Pattern.CASE_INSENSITIVE);
+		this.collapse = collapse;
+	} // }}}
+		// {{{ lineMatches() method
+
 	private boolean lineMatches(JEditBuffer buffer, int lineIndex)
 	{
-		TokenFilter filter
-			= new TokenFilter(buffer.getLineLength(lineIndex));
+		TokenFilter filter = new TokenFilter(buffer.getLineLength(lineIndex));
 		buffer.markTokens(lineIndex, filter);
 		return regexp.matcher(filter.result).matches();
-	} //}}}
+	} // }}}
+		// {{{ apply() method
+
+	@Override
+	public void apply(JEditBuffer buffer, int thisLineIndex, int prevLineIndex, int prevPrevLineIndex, List<IndentAction> indentActions)
+	{
+		if (thisAction != null && lineMatches(buffer, thisLineIndex))
+		{
+			indentActions.add(thisAction);
+		}
+		if (prevAction != null && prevLineIndex != -1 && lineMatches(buffer, prevLineIndex))
+		{
+			indentActions.add(prevAction);
+			if (collapse)
+				indentActions.add(IndentAction.PrevCollapse);
+		}
+		if (prevPrevAction != null && prevPrevLineIndex != -1 && lineMatches(buffer, prevPrevLineIndex))
+		{
+			indentActions.add(prevPrevAction);
+			if (collapse)
+				indentActions.add(IndentAction.PrevPrevCollapse);
+		}
+	} // }}}
+
+	// {{{ isMatch() method
+	/**
+	 * @deprecated Do not use this. This is here only for compatibility.
+	 */
+	@Deprecated
+	public boolean isMatch(String line)
+	{
+		Matcher m = regexp.matcher(line);
+		// return regexp.isMatch(line);
+		return m.matches();
+	} // }}}
+
+	// {{{ toString() method
+	@Override
+	public String toString()
+	{
+		return getClass().getName() + '[' + regexp + ']';
+	} // }}}
 }

@@ -9,8 +9,6 @@ public abstract class AbstractComponent
 	protected JComponent jComponent;
 	protected ArrayList<ComponentListener> listeners = new ArrayList<ComponentListener>();
 
-	public abstract JComponent create(Object param) throws BadParameterException;
-
 	public void addComponentListener(ComponentListener listener)
 	{
 		if (!listeners.contains(listener))
@@ -19,20 +17,7 @@ public abstract class AbstractComponent
 		}
 	}
 
-	public void removeComponentListener(ComponentListener listener)
-	{
-		if (listeners.contains(listener))
-		{
-			listeners.remove(listener);
-		}
-	}
-	
-	public void removeAllComponentListener()
-	{
-		ArrayList<ComponentListener> clone = (ArrayList<ComponentListener>)listeners.clone();
-		for(ComponentListener listener : clone)
-			listeners.remove(listener);
-	}
+	public abstract JComponent create(Object param) throws BadParameterException;
 
 	public abstract void fireContentChanged();
 
@@ -45,5 +30,13 @@ public abstract class AbstractComponent
 	public JComponent getJComponent()
 	{
 		return jComponent;
+	}
+
+	public void removeComponentListener(ComponentListener listener)
+	{
+		if (listeners.contains(listener))
+		{
+			listeners.remove(listener);
+		}
 	}
 }

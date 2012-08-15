@@ -25,30 +25,87 @@ package org.grview.actions;
 
 import java.awt.Component;
 
-import bsh.*;
-
 import org.grview.editor.TextArea;
 import org.grview.util.Log;
+
+import bsh.BshMethod;
+import bsh.NameSpace;
+import bsh.UtilEvalError;
 
 /**
  * An action that evaluates BeanShell code when invoked. BeanShell actions are
  * usually loaded from <code>actions.xml</code> and
  * <code>browser.actions.xml</code> files; see {@link AsinActionSet} for syntax
  * information.
- *
+ * 
  * @see jEdit#getAction(String)
  * @see jEdit#getActionNames()
  * @see AsinActionSet
- *
+ * 
  * @author Slava Pestov
  * @author Matthieu Casanova
  * @version $Id: BeanShellAction.java 10803 2007-10-04 20:45:31Z kpouer $
  */
 public class JEditBeanShellAction extends AbstractEditAction<TextArea>
 {
-	//{{{ BeanShellAction constructor
-	public JEditBeanShellAction(String name, String code, String isSelected,
-		boolean noRepeat, boolean noRecord, boolean noRememberLast)
+	// {{{ MyBeanShellFacade class
+	private static class MyBeanShellFacade extends BeanShellFacade<TextArea>
+	{
+		@Override
+		protected void handleException(TextArea textArea, String path, Throwable t)
+		{
+			Log.log(Log.ERROR, this, t, t);
+		}
+
+		@Override
+		protected void init()
+		{
+			global.importPackage("org.grview.actions");
+			global.importPackage("org.grview.editor.buffer");
+			global.importPackage("org.grview.editor.syntax");
+			global.importPackage("org.grview.editor");
+			global.importPackage("org.grview.util");
+			global.importPackage("org.grview.project");
+		}
+
+		@Override
+		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
+		{
+			namespace.setVariable("buffer", null, false);
+			namespace.setVariable("textArea", null, false);
+		}
+
+		@Override
+		protected void setupDefaultVariables(NameSpace namespace, TextArea textArea) throws UtilEvalError
+		{
+			if (textArea != null)
+			{
+				namespace.setVariable("buffer", textArea.getBuffer(), false);
+				namespace.setVariable("textArea", textArea, false);
+			}
+		}
+	} // }}}
+
+	// {{{ Private members
+	private boolean noRepeat;
+
+	private boolean noRecord;
+
+	private boolean noRememberLast;
+
+	private String code;
+
+	private String isSelected;
+
+	private BshMethod cachedCode;
+
+	private BshMethod cachedIsSelected;
+	private String sanitizedName;
+	private static final BeanShellFacade<TextArea> bsh = new MyBeanShellFacade();
+
+	// }}}
+	// {{{ BeanShellAction constructor
+	public JEditBeanShellAction(String name, String code, String isSelected, boolean noRepeat, boolean noRecord, boolean noRememberLast)
 	{
 		super(name);
 
@@ -58,65 +115,67 @@ public class JEditBeanShellAction extends AbstractEditAction<TextArea>
 		this.noRecord = noRecord;
 		this.noRememberLast = noRememberLast;
 
-		/* Some characters that we like to use in action names
-		 * ('.', '-') are not allowed in BeanShell identifiers. */
-		sanitizedName = name.replace('.','_').replace('-','_');
-	} //}}}
+		/*
+		 * Some characters that we like to use in action names ('.', '-') are
+		 * not allowed in BeanShell identifiers.
+		 */
+		sanitizedName = name.replace('.', '_').replace('-', '_');
+	} // }}}
+		// {{{ getCode() method
 
-	//{{{ invoke() method
+	public String getCode()
+	{
+		return code.trim();
+	} // }}}
+		// {{{ invoke() method
+
 	@Override
 	public void invoke(TextArea textArea)
 	{
 		try
 		{
-			if(cachedCode == null)
+			if (cachedCode == null)
 			{
 				String cachedCodeName = "action_" + sanitizedName;
-				cachedCode = bsh.cacheBlock(cachedCodeName,code,true);
+				cachedCode = bsh.cacheBlock(cachedCodeName, code, true);
 			}
 
-			bsh.runCachedBlock(cachedCode,textArea,
-				new NameSpace(bsh.getNameSpace(),
-				"BeanShellAction.invoke()"));
+			bsh.runCachedBlock(cachedCode, textArea, new NameSpace(bsh.getNameSpace(), "BeanShellAction.invoke()"));
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
-			Log.log(Log.ERROR,this,e);
+			Log.log(Log.ERROR, this, e);
 		}
-	} //}}}
+	} // }}}
+		// {{{ isSelected() method
 
-	//{{{ isSelected() method
 	public boolean isSelected(Component comp)
 	{
-		if(isSelected == null)
+		if (isSelected == null)
 			return false;
 
 		NameSpace global = bsh.getNameSpace();
 
 		try
 		{
-			if(cachedIsSelected == null)
+			if (cachedIsSelected == null)
 			{
 				String cachedIsSelectedName = "selected_" + sanitizedName;
-				cachedIsSelected = bsh.cacheBlock(cachedIsSelectedName,
-					isSelected,true);
+				cachedIsSelected = bsh.cacheBlock(cachedIsSelectedName, isSelected, true);
 			}
 
 			// undocumented hack to allow browser actions to work.
 			// XXX - clean up in 4.3
-			global.setVariable("_comp",comp);
+			global.setVariable("_comp", comp);
 
-			return Boolean.TRUE.equals(bsh.runCachedBlock(
-				cachedIsSelected,null,
-				new NameSpace(bsh.getNameSpace(),
-				"BeanShellAction.isSelected()")));
+			return Boolean.TRUE.equals(bsh.runCachedBlock(cachedIsSelected, null, new NameSpace(bsh.getNameSpace(), "BeanShellAction.isSelected()")));
 		}
-		catch(Throwable e)
+		catch (Throwable e)
 		{
-			Log.log(Log.ERROR,this,e);
+			Log.log(Log.ERROR, this, e);
 
 			// dialogs fuck things up if a menu is visible, etc!
-			//new BeanShellErrorDialog(view,e);
+			// new BeanShellErrorDialog(view,e);
 
 			// so that in the future we don't see streams of
 			// exceptions
@@ -128,92 +187,37 @@ public class JEditBeanShellAction extends AbstractEditAction<TextArea>
 		{
 			try
 			{
-				global.setVariable("_comp",null);
+				global.setVariable("_comp", null);
 			}
-			catch(UtilEvalError err)
+			catch (UtilEvalError err)
 			{
-				Log.log(Log.ERROR,this,err);
+				Log.log(Log.ERROR, this, err);
 			}
 		}
-	} //}}}
+	} // }}}
+		// {{{ noRecord() method
 
-	//{{{ noRepeat() method
-	public boolean noRepeat()
-	{
-		return noRepeat;
-	} //}}}
-
-	//{{{ noRecord() method
 	public boolean noRecord()
 	{
 		return noRecord;
-	} //}}}
+	} // }}}
+		// {{{ noRememberLast() method
 
-	//{{{ noRememberLast() method
 	/**
-	 * Returns if this edit action should not be remembered as the most
-	 * recently invoked action.
+	 * Returns if this edit action should not be remembered as the most recently
+	 * invoked action.
+	 * 
 	 * @since jEdit 4.2pre1
 	 */
 	public boolean noRememberLast()
 	{
 		return noRememberLast;
-	} //}}}
+	} // }}}
 
-	//{{{ getCode() method
-	public String getCode()
+	// {{{ noRepeat() method
+	public boolean noRepeat()
 	{
-		return code.trim();
-	} //}}}
-
-	//{{{ Private members
-	private boolean noRepeat;
-	private boolean noRecord;
-	private boolean noRememberLast;
-	private String code;
-	private String isSelected;
-	private BshMethod cachedCode;
-	private BshMethod cachedIsSelected;
-	private String sanitizedName;
-	private static final BeanShellFacade<TextArea> bsh = new MyBeanShellFacade();
-	//}}}
-	
-	//{{{ MyBeanShellFacade class
-	private static class MyBeanShellFacade extends BeanShellFacade<TextArea>
-	{
-		@Override
-		protected void init()
-		{
-			global.importPackage("org.grview.actions");
-			global.importPackage("org.grview.editor.buffer");
-			global.importPackage("org.grview.editor.syntax");
-			global.importPackage("org.grview.editor");
-			global.importPackage("org.grview.util");
-			global.importPackage("org.grview.project");
-		} 
-		
-		@Override
-		protected void setupDefaultVariables(NameSpace namespace, TextArea textArea) throws UtilEvalError 
-		{
-			if(textArea != null)
-			{
-				namespace.setVariable("buffer",textArea.getBuffer(), false);
-				namespace.setVariable("textArea",textArea, false);
-			}
-		}
-
-		@Override
-		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
-		{
-			namespace.setVariable("buffer",null, false);
-			namespace.setVariable("textArea",null, false);
-		}
-
-		@Override
-		protected void handleException(TextArea textArea, String path, Throwable t)
-		{
-			Log.log(Log.ERROR,this, t, t);
-		}
-	} //}}}
+		return noRepeat;
+	} // }}}
 
 }

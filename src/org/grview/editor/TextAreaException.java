@@ -22,9 +22,9 @@
 package org.grview.editor;
 
 /**
- * Exception that the TextArea can throw when an error occurs.
- * It can be catched and an error dialog can be displayed.
- *
+ * Exception that the TextArea can throw when an error occurs. It can be catched
+ * and an error dialog can be displayed.
+ * 
  * @author Matthieu Casanova
  * @version $Id: FoldHandler.java 5568 2006-07-10 20:52:23Z kpouer $
  */

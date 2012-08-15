@@ -25,6 +25,9 @@ package org.grview.actions;
 //{{{ Imports
 import java.lang.reflect.InvocationTargetException;
 
+import org.grview.editor.TextArea;
+import org.grview.util.Log;
+
 import bsh.BshClassManager;
 import bsh.BshMethod;
 import bsh.CallStack;
@@ -34,116 +37,135 @@ import bsh.Primitive;
 import bsh.TargetError;
 import bsh.UtilEvalError;
 import bsh.classpath.ClassManagerImpl;
-import org.grview.editor.TextArea;
-import org.grview.util.Log;
+
 //}}}
 
-
 /**
- * This class will be the interface for beanshell interaction.
- * In jEdit it will be used with the static methods of {@link BeanShell}
+ * This class will be the interface for beanshell interaction. In jEdit it will
+ * be used with the static methods of {@link BeanShell}
+ * 
  * @author Matthieu Casanova
  * @since jEdit 4.3pre13
  */
 public abstract class BeanShellFacade<T>
 {
-	//{{{ BeanShellFacade constructor
+	// {{{ Static variables
+	protected NameSpace global;
+
+	protected BshClassManager classManager;
+
+	private static Interpreter interpForMethods;
+
+	private static final Object[] NO_ARGS = new Object[0];
+
+	// }}}
+
+	// {{{ BeanShellFacade constructor
 	protected BeanShellFacade()
 	{
 		classManager = new ClassManagerImpl();
-		global = new NameSpace(classManager,
-			"jEdit embedded BeanShell interpreter");
+		global = new NameSpace(classManager, "jEdit embedded BeanShell interpreter");
 
 		interpForMethods = createInterpreter(global);
 		init();
-	} //}}}
+	} // }}}
 
-	//{{{ init() method
+	// {{{ createInterpreter() method
+	protected static Interpreter createInterpreter(NameSpace nameSpace)
+	{
+		return new Interpreter(null, System.out, System.err, false, nameSpace);
+	} // }}}
+
+	// {{{ unwrapException() method
 	/**
-	 * Initialize things. It is called by the constructor.
-	 * You can override it to import other packages
+	 * This extracts an exception from a 'wrapping' exception, as BeanShell
+	 * sometimes throws. This gives the user a more accurate error traceback
+	 */
+	protected static void unwrapException(Exception e) throws Exception
+	{
+		if (e instanceof TargetError)
+		{
+			Throwable t = ((TargetError) e).getTarget();
+			if (t instanceof Exception)
+				throw (Exception) t;
+			else if (t instanceof Error)
+				throw (Error) t;
+		}
+
+		if (e instanceof InvocationTargetException)
+		{
+			Throwable t = ((InvocationTargetException) e).getTargetException();
+			if (t instanceof Exception)
+				throw (Exception) t;
+			else if (t instanceof Error)
+				throw (Error) t;
+		}
+
+		throw e;
+	} // }}}
+
+	// {{{ resetClassManager() method
+	/**
+	 * Causes BeanShell internal structures to drop references to cached Class
+	 * instances.
+	 */
+	void resetClassManager()
+	{
+		classManager.reset();
+	} // }}}
+
+	// {{{ handleException() method
+	protected abstract void handleException(T param, String path, Throwable t);
+
+	// }}}
+
+	// {{{ init() method
+	/**
+	 * Initialize things. It is called by the constructor. You can override it
+	 * to import other packages
 	 */
 	protected abstract void init();
-	//}}}
 
-	//{{{ evalSelection() method
+	// }}}
+
+	// {{{ resetDefaultVariables() method
+	protected abstract void resetDefaultVariables(NameSpace namespace) throws UtilEvalError;
+
+	// }}}
+
+	// {{{ setupDefaultVariables() method
+	protected abstract void setupDefaultVariables(NameSpace namespace, T param) throws UtilEvalError;
+
+	// }}}
+
+	// {{{ _eval() method
 	/**
-	 * Evaluates the text selected in the specified text area.
+	 * Evaluates the specified BeanShell expression. Unlike <code>eval()</code>,
+	 * this method passes any exceptions to the caller.
+	 * 
+	 * @param view
+	 *            The view. Within the script, references to <code>buffer</code>
+	 *            , <code>textArea</code> and <code>editPane</code> are
+	 *            determined with reference to this parameter.
+	 * @param namespace
+	 *            The namespace
+	 * @param command
+	 *            The expression
+	 * @exception Exception
+	 *                instances are thrown when various BeanShell errors occur
 	 */
-	public void evalSelection(T param, TextArea textArea)
-	{
-		String command = textArea.getSelectedText();
-		if(command == null)
-		{
-			textArea.getToolkit().beep();
-			return;
-		}
-		Object returnValue = eval(param,global,command);
-		if(returnValue != null)
-			textArea.setSelectedText(returnValue.toString());
-	} //}}}
-
-	//{{{ eval() method
-	/**
-	 * Evaluates the specified BeanShell expression with the global namespace
-	 * @param param The parameter
-	 * @param command The expression
-	 */
-	public Object eval(T param, String command)
-	{
-		return eval(param, global, command);
-	} //}}}
-
-	//{{{ eval() method
-	/**
-	 * Evaluates the specified BeanShell expression. Errors are reported in
-	 * a dialog box.
-	 * @param param The parameter
-	 * @param namespace The namespace
-	 * @param command The expression
-	 */
-	public Object eval(T param, NameSpace namespace, String command)
-	{
-		try
-		{
-			return _eval(param,namespace,command);
-		}
-		catch(Throwable e)
-		{
-			Log.log(Log.ERROR,BeanShellFacade.class,e);
-
-			handleException(param,null,e);
-		}
-
-		return null;
-	} //}}}
-
-	//{{{ _eval() method
-	/**
-	 * Evaluates the specified BeanShell expression. Unlike
-	 * <code>eval()</code>, this method passes any exceptions to the caller.
-	 *
-	 * @param view The view. Within the script, references to
-	 * <code>buffer</code>, <code>textArea</code> and <code>editPane</code>
-	 * are determined with reference to this parameter.
-	 * @param namespace The namespace
-	 * @param command The expression
-	 * @exception Exception instances are thrown when various BeanShell
-	 * errors occur
-	 */
-	public Object _eval(T view, NameSpace namespace, String command)
-		throws Exception
+	public Object _eval(T view, NameSpace namespace, String command) throws Exception
 	{
 		Interpreter interp = createInterpreter(namespace);
 
 		try
 		{
-			setupDefaultVariables(namespace,view);
-			if(Debug.BEANSHELL_DEBUG)
-				Log.log(Log.DEBUG,BeanShellFacade.class,command);
+			setupDefaultVariables(namespace, view);
+			if (Debug.BEANSHELL_DEBUG)
+				Log.log(Log.DEBUG, BeanShellFacade.class, command);
 			return interp.eval(command);
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			unwrapException(e);
 			// never called
@@ -155,25 +177,28 @@ public abstract class BeanShellFacade<T>
 			{
 				resetDefaultVariables(namespace);
 			}
-			catch(UtilEvalError e)
+			catch (UtilEvalError e)
 			{
 				// do nothing
 			}
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ cacheBlock() method
+	// {{{ cacheBlock() method
 	/**
 	 * Caches a block of code, returning a handle that can be passed to
 	 * runCachedBlock().
-	 * @param id An identifier.
-	 * @param code The code
-	 * @param namespace If true, the namespace will be set
-	 * @exception Exception instances are thrown when various BeanShell errors
-	 * occur
+	 * 
+	 * @param id
+	 *            An identifier.
+	 * @param code
+	 *            The code
+	 * @param namespace
+	 *            If true, the namespace will be set
+	 * @exception Exception
+	 *                instances are thrown when various BeanShell errors occur
 	 */
-	public BshMethod cacheBlock(String id, String code, boolean namespace)
-		throws Exception
+	public BshMethod cacheBlock(String id, String code, boolean namespace) throws Exception
 	{
 		// Make local namespace so that the method could be GCed
 		// if it becomes unnecessary.
@@ -181,32 +206,102 @@ public abstract class BeanShellFacade<T>
 		// This name should be unique enough not to shadow any outer
 		// identifier.
 		String name = "__runCachedMethod";
-		if(namespace)
+		if (namespace)
 		{
-			_eval(null,local,name + "(ns) {\nthis.callstack.set(0,ns);\n" + code + "\n}");
-			return local.getMethod(name,new Class[] { NameSpace.class });
+			_eval(null, local, name + "(ns) {\nthis.callstack.set(0,ns);\n" + code + "\n}");
+			return local.getMethod(name, new Class[]{ NameSpace.class });
 		}
 		else
 		{
-			_eval(null,local,name + "() {\n" + code + "\n}");
-			return local.getMethod(name,new Class[0]);
+			_eval(null, local, name + "() {\n" + code + "\n}");
+			return local.getMethod(name, new Class[0]);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ runCachedBlock() method
+	// {{{ eval() method
+	/**
+	 * Evaluates the specified BeanShell expression. Errors are reported in a
+	 * dialog box.
+	 * 
+	 * @param param
+	 *            The parameter
+	 * @param namespace
+	 *            The namespace
+	 * @param command
+	 *            The expression
+	 */
+	public Object eval(T param, NameSpace namespace, String command)
+	{
+		try
+		{
+			return _eval(param, namespace, command);
+		}
+		catch (Throwable e)
+		{
+			Log.log(Log.ERROR, BeanShellFacade.class, e);
+
+			handleException(param, null, e);
+		}
+
+		return null;
+	} // }}}
+
+	// {{{ eval() method
+	/**
+	 * Evaluates the specified BeanShell expression with the global namespace
+	 * 
+	 * @param param
+	 *            The parameter
+	 * @param command
+	 *            The expression
+	 */
+	public Object eval(T param, String command)
+	{
+		return eval(param, global, command);
+	} // }}}
+		// {{{ evalSelection() method
+
+	/**
+	 * Evaluates the text selected in the specified text area.
+	 */
+	public void evalSelection(T param, TextArea textArea)
+	{
+		String command = textArea.getSelectedText();
+		if (command == null)
+		{
+			textArea.getToolkit().beep();
+			return;
+		}
+		Object returnValue = eval(param, global, command);
+		if (returnValue != null)
+			textArea.setSelectedText(returnValue.toString());
+	} // }}}
+		// {{{ getNameSpace() method
+
+	/**
+	 * Returns the global namespace.
+	 */
+	public NameSpace getNameSpace()
+	{
+		return global;
+	} // }}}
+		// {{{ runCachedBlock() method
+
 	/**
 	 * Runs a cached block of code in the specified namespace. Faster than
 	 * evaluating the block each time.
-	 * @param method The method instance returned by cacheBlock()
-	 * @param namespace The namespace to run the code in
-	 * @exception Exception instances are thrown when various BeanShell
-	 * errors occur
+	 * 
+	 * @param method
+	 *            The method instance returned by cacheBlock()
+	 * @param namespace
+	 *            The namespace to run the code in
+	 * @exception Exception
+	 *                instances are thrown when various BeanShell errors occur
 	 */
-	public Object runCachedBlock(BshMethod method, T param,
-		NameSpace namespace) throws Exception
+	public Object runCachedBlock(BshMethod method, T param, NameSpace namespace) throws Exception
 	{
 		boolean useNamespace;
-		if(namespace == null)
+		if (namespace == null)
 		{
 			useNamespace = false;
 			namespace = global;
@@ -216,23 +311,20 @@ public abstract class BeanShellFacade<T>
 
 		try
 		{
-			setupDefaultVariables(namespace,param);
+			setupDefaultVariables(namespace, param);
 
-			Object retVal = method.invoke(useNamespace
-				? new Object[] { namespace }
-				: NO_ARGS,
-				interpForMethods,new CallStack(), null);
-			if(retVal instanceof Primitive)
+			Object retVal = method.invoke(useNamespace ? new Object[]{ namespace } : NO_ARGS, interpForMethods, new CallStack(), null);
+			if (retVal instanceof Primitive)
 			{
-				if(retVal == Primitive.VOID)
+				if (retVal == Primitive.VOID)
 					return null;
 				else
-					return ((Primitive)retVal).getValue();
+					return ((Primitive) retVal).getValue();
 			}
 			else
 				return retVal;
 		}
-		catch(Exception e)
+		catch (Exception e)
 		{
 			unwrapException(e);
 			// never called
@@ -242,79 +334,5 @@ public abstract class BeanShellFacade<T>
 		{
 			resetDefaultVariables(namespace);
 		}
-	} //}}}
-
-	//{{{ getNameSpace() method
-	/**
-	 * Returns the global namespace.
-	 */
-	public NameSpace getNameSpace()
-	{
-		return global;
-	} //}}}
-
-	//{{{ resetClassManager() method
-	/**
-	 * Causes BeanShell internal structures to drop references to cached
-	 * Class instances.
-	 */
-	void resetClassManager()
-	{
-		classManager.reset();
-	} //}}}
-
-	//{{{ setupDefaultVariables() method
-	protected abstract void setupDefaultVariables(NameSpace namespace, T param)
-		throws UtilEvalError;
-	//}}}
-
-	//{{{ resetDefaultVariables() method
-	protected abstract void resetDefaultVariables(NameSpace namespace)
-		throws UtilEvalError;
-	//}}}
-
-	//{{{ handleException() method
-	protected abstract void handleException(T param, String path, Throwable t);
-	//}}}
-
-	//{{{ createInterpreter() method
-	protected static Interpreter createInterpreter(NameSpace nameSpace)
-	{
-		return new Interpreter(null,System.out,System.err,false,nameSpace);
-	} //}}}
-
-	//{{{ unwrapException() method
-	/**
-	 * This extracts an exception from a 'wrapping' exception, as BeanShell
-	 * sometimes throws. This gives the user a more accurate error traceback
-	 */
-	protected static void unwrapException(Exception e) throws Exception
-	{
-		if(e instanceof TargetError)
-		{
-			Throwable t = ((TargetError)e).getTarget();
-			if(t instanceof Exception)
-				throw (Exception)t;
-			else if(t instanceof Error)
-				throw (Error)t;
-		}
-
-		if(e instanceof InvocationTargetException)
-		{
-			Throwable t = ((InvocationTargetException)e).getTargetException();
-			if(t instanceof Exception)
-				throw (Exception)t;
-			else if(t instanceof Error)
-				throw (Error)t;
-		}
-
-		throw e;
-	} //}}}
-
-	//{{{ Static variables
-	protected NameSpace global;
-	protected BshClassManager classManager;
-	private static Interpreter interpForMethods;
-	private static final Object[] NO_ARGS = new Object[0];
-	//}}}
+	} // }}}
 }

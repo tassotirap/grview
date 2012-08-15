@@ -1,5 +1,6 @@
 package org.grview.canvas.state;
 
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -12,13 +13,33 @@ public class StaticStateManager
 {
 	private Object object;
 
-	//private PropertyChangeSupport monitor;
+	private PropertyChangeSupport monitor;
 
 	private File file;
 
 	public StaticStateManager()
 	{
-		//monitor = new PropertyChangeSupport(this);
+		monitor = new PropertyChangeSupport(this);
+	}
+
+	public String getAbsolutePath()
+	{
+		return file.getAbsolutePath();
+	}
+
+	public File getFile()
+	{
+		return this.file;
+	}
+
+	public Object getObject()
+	{
+		return this.object;
+	}
+
+	public String getParentDirectory()
+	{
+		return file.getParent();
 	}
 
 	public Object read() throws IOException, ClassNotFoundException
@@ -36,24 +57,9 @@ public class StaticStateManager
 		return null;
 	}
 
-	public void write() throws IOException
+	public void setFile(File file)
 	{
-		//monitor.firePropertyChange("writing", null, object);
-		FileOutputStream fileOutputStream = new FileOutputStream(file);
-		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
-		objectOutputStream.writeObject(object);
-		objectOutputStream.close();
-		fileOutputStream.close();
-	}
-
-	public String getParentDirectory()
-	{
-		return file.getParent();
-	}
-
-	public String getAbsolutePath()
-	{
-		return file.getAbsolutePath();
+		this.file = file;
 	}
 
 	public void setObject(Serializable object)
@@ -61,18 +67,13 @@ public class StaticStateManager
 		this.object = object;
 	}
 
-	public Object getObject()
+	public void write() throws IOException
 	{
-		return this.object;
-	}
-
-	public void setFile(File file)
-	{
-		this.file = file;
-	}
-
-	public File getFile()
-	{
-		return this.file;
+		monitor.firePropertyChange("writing", null, object);
+		FileOutputStream fileOutputStream = new FileOutputStream(file);
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(fileOutputStream);
+		objectOutputStream.writeObject(object);
+		objectOutputStream.close();
+		fileOutputStream.close();
 	}
 }

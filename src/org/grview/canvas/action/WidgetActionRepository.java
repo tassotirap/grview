@@ -5,12 +5,11 @@ import java.util.Observer;
 import org.grview.canvas.Canvas;
 import org.netbeans.api.visual.action.WidgetAction;
 
+public interface WidgetActionRepository extends Observer
+{
 
-
-public interface WidgetActionRepository extends Observer{
-	
-    public final static String CREATE = "Create";
-    public final static String SELECT = "Select";
+	public final static String CREATE = "Create";
+	public final static String SELECT = "Select";
 	public final static String MULTI_SELECT = "Multi Select";
 	public final static String NODE_HOVER = "NodeHover";
 	public final static String ALTERNATIVE = "Alternative";
@@ -35,9 +34,8 @@ public interface WidgetActionRepository extends Observer{
 	public final static String DELETE = "Delete";
 	public final static String COPY_PASTE = "CopyPaste";
 
+	public abstract void clearAction(String action);
 
 	public abstract WidgetAction getAction(String action, Canvas canvas);
-	
-	public abstract void clearAction(String action);
-	
+
 }

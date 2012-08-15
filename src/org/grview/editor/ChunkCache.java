@@ -24,78 +24,294 @@
 package org.grview.editor;
 
 //{{{ Imports
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.grview.actions.Debug;
 import org.grview.editor.buffer.JEditBuffer;
-import org.grview.editor.syntax.*;
+import org.grview.editor.syntax.Chunk;
+import org.grview.editor.syntax.DisplayTokenHandler;
+import org.grview.editor.syntax.TokenMarker;
 import org.grview.util.Log;
 
 //}}}
-
 
 /**
  * Manages low-level text display tasks - the visible lines in the TextArea.
  * 
  * 
- *
+ * 
  * @author Slava Pestov
  * @version $Id$
  */
 class ChunkCache
 {
-	//{{{ ChunkCache constructor
+	// {{{ LineInfo class
+	/** The informations on a line. (for fast access) */
+	static class LineInfo
+	{
+		int physicalLine;
+		int offset;
+		int length;
+		boolean firstSubregion;
+		boolean lastSubregion;
+		Chunk chunks;
+		/** The line width. */
+		int width;
+		TokenMarker.LineContext lineContext;
+	} // }}}
+
+	// {{{ Instance variables
+	private final TextArea textArea;
+
+	private JEditBuffer buffer;
+
+	/**
+	 * The lineInfo array. There is LineInfo for each line that is visible in
+	 * the textArea. it can be resized by {@link #recalculateVisibleLines()}.
+	 * The content is valid from 0 to {@link #firstInvalidLine}
+	 */
+	private LineInfo[] lineInfo;
+
+	private final List<Chunk> out;
+
+	/** The first invalid line. All lines before this one are valid. */
+	private int firstInvalidLine;
+
+	private int lastScreenLineP;
+
+	private int lastScreenLine;
+
+	private boolean needFullRepaint;
+
+	private final DisplayTokenHandler tokenHandler;
+
+	// }}}
+
+	// {{{ ChunkCache constructor
 	ChunkCache(TextArea textArea)
 	{
 		this.textArea = textArea;
 		out = new ArrayList<Chunk>();
 		tokenHandler = new DisplayTokenHandler();
-	} //}}}
+	} // }}}
 
-	//{{{ getMaxHorizontalScrollWidth() method
+	// {{{ getSubregionOfOffset() method
 	/**
-	 * Returns the max line width of the textarea.
-	 * It will check all lines the first invalid line.
-	 *
+	 * Returns the subregion containing the specified offset. A subregion is a
+	 * subset of a physical line. Each screen line corresponds to one subregion.
+	 * Unlike the {@link #getScreenLineOfOffset(int, int)} method, this method
+	 * works with non-visible lines too.
+	 * 
+	 * @param offset
+	 *            the offset
+	 * @param lineInfos
+	 *            a lineInfos array. Usualy the array is the result of
+	 *            {@link #getLineInfosForPhysicalLine(int)} call
+	 * 
+	 * @return the subregion of the offset, or -1 if the offset was not in one
+	 *         of the given lineInfos
+	 */
+	static int getSubregionOfOffset(int offset, LineInfo[] lineInfos)
+	{
+		for (int i = 0; i < lineInfos.length; i++)
+		{
+			LineInfo info = lineInfos[i];
+			if (offset >= info.offset && offset < info.offset + info.length)
+				return i;
+		}
+
+		return -1;
+	} // }}}
+
+	// {{{ subregionOffsetToX() method
+	/**
+	 * Converts an offset within a subregion into an x co-ordinate.
+	 * 
+	 * @param info
+	 *            The line info object
+	 * @param offset
+	 *            The offset
+	 */
+	static int subregionOffsetToX(LineInfo info, int offset)
+	{
+		return (int) Chunk.offsetToX(info.chunks, offset);
+	} // }}}
+
+	// {{{ xToSubregionOffset() method
+	/**
+	 * Converts an x co-ordinate within a subregion into an offset from the
+	 * start of that subregion.
+	 * 
+	 * @param info
+	 *            The line info object
+	 * @param x
+	 *            The x co-ordinate
+	 * @param round
+	 *            Round up to next character if x is past the middle of a
+	 *            character?
+	 */
+	static int xToSubregionOffset(LineInfo info, int x, boolean round)
+	{
+		int offset = Chunk.xToOffset(info.chunks, x, round);
+		if (offset == -1 || offset == info.offset + info.length)
+			offset = info.offset + info.length - 1;
+
+		return offset;
+	} // }}}
+
+	// {{{ getAbovePosition() method
+	/**
+	 * @param physicalLine
+	 *            The physical line number
+	 * @param offset
+	 *            The offset
+	 * @param x
+	 *            The location
+	 * @param ignoreWrap
+	 *            If true, behave as if soft wrap is off even if it is on
+	 */
+	int getAbovePosition(int physicalLine, int offset, int x, boolean ignoreWrap)
+	{
+		LineInfo[] lineInfos = getLineInfosForPhysicalLine(physicalLine);
+
+		int subregion = getSubregionOfOffset(offset, lineInfos);
+
+		if (subregion != 0 && !ignoreWrap)
+		{
+			return textArea.getLineStartOffset(physicalLine) + xToSubregionOffset(lineInfos[subregion - 1], x, true);
+		}
+		else
+		{
+			int prevLine = textArea.displayManager.getPrevVisibleLine(physicalLine);
+
+			if (prevLine == -1)
+				return -1;
+			else
+			{
+				return textArea.getLineStartOffset(prevLine) + xToSubregionOffset(prevLine, -1, x, true);
+			}
+		}
+	} // }}}
+
+	// {{{ getBelowPosition() method
+	/**
+	 * @param physicalLine
+	 *            The physical line number
+	 * @param offset
+	 *            The offset
+	 * @param x
+	 *            The location
+	 * @param ignoreWrap
+	 *            If true, behave as if soft wrap is off even if it is on
+	 */
+	int getBelowPosition(int physicalLine, int offset, int x, boolean ignoreWrap)
+	{
+		LineInfo[] lineInfos = getLineInfosForPhysicalLine(physicalLine);
+
+		int subregion = getSubregionOfOffset(offset, lineInfos);
+
+		if (subregion != lineInfos.length - 1 && !ignoreWrap)
+		{
+			return textArea.getLineStartOffset(physicalLine) + xToSubregionOffset(lineInfos[subregion + 1], x, true);
+		}
+		else
+		{
+			int nextLine = textArea.displayManager.getNextVisibleLine(physicalLine);
+
+			if (nextLine == -1)
+				return -1;
+			else
+			{
+				return textArea.getLineStartOffset(nextLine) + xToSubregionOffset(nextLine, 0, x, true);
+			}
+		}
+	} // }}}
+
+	// {{{ getLineInfo() method
+	LineInfo getLineInfo(int screenLine)
+	{
+		updateChunksUpTo(screenLine);
+		return lineInfo[screenLine];
+	} // }}}
+
+	// {{{ getLineInfosForPhysicalLine() method
+	LineInfo[] getLineInfosForPhysicalLine(int physicalLine)
+	{
+		out.clear();
+
+		if (!buffer.isLoading())
+			lineToChunkList(physicalLine, out);
+
+		if (out.isEmpty())
+			out.add(null);
+
+		List<LineInfo> returnValue = new ArrayList<LineInfo>(out.size());
+		getLineInfosForPhysicalLine(physicalLine, returnValue);
+		return returnValue.toArray(new LineInfo[out.size()]);
+	} // }}}
+
+	// {{{ getLineSubregionCount() method
+	int getLineSubregionCount(int physicalLine)
+	{
+		if (!textArea.softWrap)
+			return 1;
+
+		out.clear();
+		lineToChunkList(physicalLine, out);
+
+		int size = out.size();
+		if (size == 0)
+			return 1;
+		else
+			return size;
+	} // }}}
+
+	// {{{ getMaxHorizontalScrollWidth() method
+	/**
+	 * Returns the max line width of the textarea. It will check all lines the
+	 * first invalid line.
+	 * 
 	 * @return the max line width
 	 */
 	int getMaxHorizontalScrollWidth()
 	{
 		int max = 0;
-		for(int i = 0; i < firstInvalidLine; i++)
+		for (int i = 0; i < firstInvalidLine; i++)
 		{
 			LineInfo info = lineInfo[i];
-			if(info.width > max)
+			if (info.width > max)
 				max = info.width;
 		}
 		return max;
-	} //}}}
+	} // }}}
 
-	//{{{ getScreenLineOfOffset() method
+	// {{{ getScreenLineOfOffset() method
 	/**
-	 * @param line physical line number of document 
-	 * @param offset number of characters from the left of the line. 
-	 * @return number of pixels from the left of the textArea where the
-	 * cursor should be
+	 * @param line
+	 *            physical line number of document
+	 * @param offset
+	 *            number of characters from the left of the line.
+	 * @return number of pixels from the left of the textArea where the cursor
+	 *         should be
 	 */
 	int getScreenLineOfOffset(int line, int offset)
 	{
-		if(lineInfo.length == 0)
+		if (lineInfo.length == 0)
 			return -1;
-		if(line < textArea.getFirstPhysicalLine())
+		if (line < textArea.getFirstPhysicalLine())
 			return -1;
-		if(line == textArea.getFirstPhysicalLine()
-			&& offset < getLineInfo(0).offset)
+		if (line == textArea.getFirstPhysicalLine() && offset < getLineInfo(0).offset)
 			return -1;
-		if(line > textArea.getLastPhysicalLine())
+		if (line > textArea.getLastPhysicalLine())
 			return -1;
-		
-		if(line == lastScreenLineP)
+
+		if (line == lastScreenLineP)
 		{
 			LineInfo last = getLineInfo(lastScreenLine);
 
-			if(offset >= last.offset
-				&& offset < last.offset + last.length) {
+			if (offset >= last.offset && offset < last.offset + last.length)
+			{
 				return lastScreenLine;
 			}
 		}
@@ -103,19 +319,18 @@ class ChunkCache
 		int screenLine = -1;
 
 		// Find the screen line containing this offset
-		for(int i = 0; i < textArea.getVisibleLines(); i++)
+		for (int i = 0; i < textArea.getVisibleLines(); i++)
 		{
 			LineInfo info = getLineInfo(i);
-			if(info.physicalLine > line)
+			if (info.physicalLine > line)
 			{
 				// line is invisible?
 				return i - 1;
-				//return -1;
+				// return -1;
 			}
-			if(info.physicalLine == line)
+			if (info.physicalLine == line)
 			{
-				if(offset >= info.offset
-					&& offset < info.offset + info.length)
+				if (offset >= info.offset && offset < info.offset + info.length)
 				{
 					screenLine = i;
 					break;
@@ -123,81 +338,153 @@ class ChunkCache
 			}
 		}
 
-		if(screenLine == -1)
+		if (screenLine == -1)
 			return -1;
-
 
 		lastScreenLineP = line;
 		lastScreenLine = screenLine;
 
 		return screenLine;
-	} //}}}
+	} // }}}
 
-	//{{{ recalculateVisibleLines() method
+	// {{{ getSubregionEndOffset() method
 	/**
-	 * Recalculate visible lines.
-	 * This is called when the TextArea geometry is changed or when the font is changed.
+	 * Returns the end offset of the specified subregion of the specified
+	 * physical line.
+	 * 
+	 * @param line
+	 *            The physical line number
+	 * @param offset
+	 *            An offset
+	 */
+	int getSubregionEndOffset(int line, int offset)
+	{
+		LineInfo[] lineInfos = getLineInfosForPhysicalLine(line);
+		LineInfo info = lineInfos[getSubregionOfOffset(offset, lineInfos)];
+		return textArea.getLineStartOffset(info.physicalLine) + info.offset + info.length;
+	} // }}}
+
+	// {{{ getSubregionStartOffset() method
+	/**
+	 * Returns the start offset of the specified subregion of the specified
+	 * physical line.
+	 * 
+	 * @param line
+	 *            The physical line number
+	 * @param offset
+	 *            An offset
+	 */
+	int getSubregionStartOffset(int line, int offset)
+	{
+		LineInfo[] lineInfos = getLineInfosForPhysicalLine(line);
+		LineInfo info = lineInfos[getSubregionOfOffset(offset, lineInfos)];
+		return textArea.getLineStartOffset(info.physicalLine) + info.offset;
+	} // }}}
+
+	// {{{ Private members
+
+	// {{{ invalidateAll() method
+	void invalidateAll()
+	{
+		firstInvalidLine = 0;
+		lastScreenLine = lastScreenLineP = -1;
+	} // }}}
+		// {{{ invalidateChunksFrom() method
+
+	void invalidateChunksFrom(int screenLine)
+	{
+		if (Debug.CHUNK_CACHE_DEBUG)
+			Log.log(Log.DEBUG, this, "Invalidate from " + screenLine);
+		firstInvalidLine = Math.min(screenLine, firstInvalidLine);
+
+		if (screenLine <= lastScreenLine)
+			lastScreenLine = lastScreenLineP = -1;
+	} // }}}
+		// {{{ invalidateChunksFromPhys() method
+
+	void invalidateChunksFromPhys(int physicalLine)
+	{
+		for (int i = 0; i < firstInvalidLine; i++)
+		{
+			LineInfo info = lineInfo[i];
+			if (info.physicalLine == -1 || info.physicalLine >= physicalLine)
+			{
+				firstInvalidLine = i;
+				if (i <= lastScreenLine)
+					lastScreenLine = lastScreenLineP = -1;
+				break;
+			}
+		}
+	} // }}}
+		// {{{ needFullRepaint() method
+
+	/**
+	 * The needFullRepaint variable becomes true when the number of screen lines
+	 * in a physical line changes.
+	 */
+	boolean needFullRepaint()
+	{
+		boolean retVal = needFullRepaint;
+		needFullRepaint = false;
+		return retVal;
+	} // }}}
+
+	// {{{ recalculateVisibleLines() method
+	/**
+	 * Recalculate visible lines. This is called when the TextArea geometry is
+	 * changed or when the font is changed.
 	 */
 	void recalculateVisibleLines()
 	{
 		LineInfo[] newLineInfo = new LineInfo[textArea.getVisibleLines()];
 
 		int start;
-		if(lineInfo == null)
+		if (lineInfo == null)
 			start = 0;
 		else
 		{
-			start = Math.min(lineInfo.length,newLineInfo.length);
-			System.arraycopy(lineInfo,0,newLineInfo,0,start);
+			start = Math.min(lineInfo.length, newLineInfo.length);
+			System.arraycopy(lineInfo, 0, newLineInfo, 0, start);
 		}
 
-		for(int i = start; i < newLineInfo.length; i++)
+		for (int i = start; i < newLineInfo.length; i++)
 			newLineInfo[i] = new LineInfo();
 
 		lineInfo = newLineInfo;
 
 		lastScreenLine = lastScreenLineP = -1;
-	} //}}}
+	} // }}}
+		// {{{ scrollDown() method
 
-	//{{{ setBuffer() method
-	void setBuffer(JEditBuffer buffer)
-	{
-		this.buffer = buffer;
-		lastScreenLine = lastScreenLineP = -1;
-	} //}}}
-
-	//{{{ scrollDown() method
 	void scrollDown(int amount)
 	{
 		int visibleLines = textArea.getVisibleLines();
 
-		System.arraycopy(lineInfo,amount,lineInfo,0,visibleLines - amount);
+		System.arraycopy(lineInfo, amount, lineInfo, 0, visibleLines - amount);
 
-		for(int i = visibleLines - amount; i < visibleLines; i++)
+		for (int i = visibleLines - amount; i < visibleLines; i++)
 		{
 			lineInfo[i] = new LineInfo();
 		}
 
 		firstInvalidLine -= amount;
-		if(firstInvalidLine < 0)
+		if (firstInvalidLine < 0)
 			firstInvalidLine = 0;
 
-		if(Debug.CHUNK_CACHE_DEBUG)
+		if (Debug.CHUNK_CACHE_DEBUG)
 		{
-			System.err.println("f > t.f: only " + amount
-				+ " need updates");
+			System.err.println("f > t.f: only " + amount + " need updates");
 		}
 
 		lastScreenLine = lastScreenLineP = -1;
-	} //}}}
+	} // }}}
+		// {{{ scrollUp() method
 
-	//{{{ scrollUp() method
 	void scrollUp(int amount)
 	{
-		System.arraycopy(lineInfo,0,lineInfo,amount,
-			textArea.getVisibleLines() - amount);
+		System.arraycopy(lineInfo, 0, lineInfo, amount, textArea.getVisibleLines() - amount);
 
-		for(int i = 0; i < amount; i++)
+		for (int i = 0; i < amount; i++)
 		{
 			lineInfo[i] = new LineInfo();
 		}
@@ -207,327 +494,87 @@ class ChunkCache
 		firstInvalidLine = 0;
 		updateChunksUpTo(amount);
 		firstInvalidLine = oldFirstInvalidLine + amount;
-		if(firstInvalidLine > textArea.getVisibleLines())
+		if (firstInvalidLine > textArea.getVisibleLines())
 			firstInvalidLine = textArea.getVisibleLines();
 
-		if(Debug.CHUNK_CACHE_DEBUG)
+		if (Debug.CHUNK_CACHE_DEBUG)
 		{
-			Log.log(Log.DEBUG,this,"f > t.f: only " + amount
-				+ " need updates");
+			Log.log(Log.DEBUG, this, "f > t.f: only " + amount + " need updates");
 		}
 
 		lastScreenLine = lastScreenLineP = -1;
-	} //}}}
+	} // }}}
 
-	//{{{ invalidateAll() method
-	void invalidateAll()
+	// {{{ setBuffer() method
+	void setBuffer(JEditBuffer buffer)
 	{
-		firstInvalidLine = 0;
+		this.buffer = buffer;
 		lastScreenLine = lastScreenLineP = -1;
-	} //}}}
+	} // }}}
 
-	//{{{ invalidateChunksFrom() method
-	void invalidateChunksFrom(int screenLine)
-	{
-		if(Debug.CHUNK_CACHE_DEBUG)
-			Log.log(Log.DEBUG,this,"Invalidate from " + screenLine);
-		firstInvalidLine = Math.min(screenLine,firstInvalidLine);
-
-		if(screenLine <= lastScreenLine)
-			lastScreenLine = lastScreenLineP = -1;
-	} //}}}
-
-	//{{{ invalidateChunksFromPhys() method
-	void invalidateChunksFromPhys(int physicalLine)
-	{
-		for(int i = 0; i < firstInvalidLine; i++)
-		{
-			LineInfo info = lineInfo[i];
-			if(info.physicalLine == -1 || info.physicalLine >= physicalLine)
-			{
-				firstInvalidLine = i;
-				if(i <= lastScreenLine)
-					lastScreenLine = lastScreenLineP = -1;
-				break;
-			}
-		}
-	} //}}}
-
-	//{{{ getLineInfo() method
-	LineInfo getLineInfo(int screenLine)
-	{
-		updateChunksUpTo(screenLine);
-		return lineInfo[screenLine];
-	} //}}}
-
-	//{{{ getLineSubregionCount() method
-	int getLineSubregionCount(int physicalLine)
-	{
-		if(!textArea.softWrap)
-			return 1;
-
-		out.clear();
-		lineToChunkList(physicalLine,out);
-
-		int size = out.size();
-		if(size == 0)
-			return 1;
-		else
-			return size;
-	} //}}}
-
-	//{{{ getSubregionOfOffset() method
-	/**
-	 * Returns the subregion containing the specified offset. A subregion
-	 * is a subset of a physical line. Each screen line corresponds to one
-	 * subregion. Unlike the {@link #getScreenLineOfOffset(int, int)} method,
-	 * this method works with non-visible lines too.
-	 *
-	 * @param offset the offset
-	 * @param lineInfos a lineInfos array. Usualy the array is the result of
-	 *	{@link #getLineInfosForPhysicalLine(int)} call
-	 *
-	 * @return the subregion of the offset, or -1 if the offset was not in one of the given lineInfos
-	 */
-	static int getSubregionOfOffset(int offset, LineInfo[] lineInfos)
-	{
-		for(int i = 0; i < lineInfos.length; i++)
-		{
-			LineInfo info = lineInfos[i];
-			if(offset >= info.offset && offset < info.offset + info.length)
-				return i;
-		}
-
-		return -1;
-	} //}}}
-
-	//{{{ xToSubregionOffset() method
-	/**
-	 * Converts an x co-ordinate within a subregion into an offset from the
-	 * start of that subregion.
-	 * @param physicalLine The physical line number
-	 * @param subregion The subregion; if -1, then this is the last
-	 * subregion.
-	 * @param x The x co-ordinate
-	 * @param round Round up to next character if x is past the middle of a
-	 * character?
-	 */
-	int xToSubregionOffset(int physicalLine, int subregion, int x,
-		boolean round)
-	{
-		LineInfo[] infos = getLineInfosForPhysicalLine(physicalLine);
-		if(subregion == -1)
-			subregion += infos.length;
-		return xToSubregionOffset(infos[subregion],x,round);
-	} //}}}
-
-	//{{{ xToSubregionOffset() method
-	/**
-	 * Converts an x co-ordinate within a subregion into an offset from the
-	 * start of that subregion.
-	 * @param info The line info object
-	 * @param x The x co-ordinate
-	 * @param round Round up to next character if x is past the middle of a
-	 * character?
-	 */
-	static int xToSubregionOffset(LineInfo info, int x,
-		boolean round)
-	{
-		int offset = Chunk.xToOffset(info.chunks,x,round);
-		if(offset == -1 || offset == info.offset + info.length)
-			offset = info.offset + info.length - 1;
-
-		return offset;
-	} //}}}
-
-	//{{{ subregionOffsetToX() method
+	// {{{ subregionOffsetToX() method
 	/**
 	 * Converts an offset within a subregion into an x co-ordinate.
-	 * @param physicalLine The physical line
-	 * @param offset The offset
+	 * 
+	 * @param physicalLine
+	 *            The physical line
+	 * @param offset
+	 *            The offset
 	 */
 	int subregionOffsetToX(int physicalLine, int offset)
 	{
 		LineInfo[] infos = getLineInfosForPhysicalLine(physicalLine);
-		LineInfo info = infos[getSubregionOfOffset(offset,infos)];
-		return subregionOffsetToX(info,offset);
-	} //}}}
+		LineInfo info = infos[getSubregionOfOffset(offset, infos)];
+		return subregionOffsetToX(info, offset);
+	} // }}}
 
-	//{{{ subregionOffsetToX() method
+	// {{{ xToSubregionOffset() method
 	/**
-	 * Converts an offset within a subregion into an x co-ordinate.
-	 * @param info The line info object
-	 * @param offset The offset
+	 * Converts an x co-ordinate within a subregion into an offset from the
+	 * start of that subregion.
+	 * 
+	 * @param physicalLine
+	 *            The physical line number
+	 * @param subregion
+	 *            The subregion; if -1, then this is the last subregion.
+	 * @param x
+	 *            The x co-ordinate
+	 * @param round
+	 *            Round up to next character if x is past the middle of a
+	 *            character?
 	 */
-	static int subregionOffsetToX(LineInfo info, int offset)
+	int xToSubregionOffset(int physicalLine, int subregion, int x, boolean round)
 	{
-		return (int)Chunk.offsetToX(info.chunks,offset);
-	} //}}}
+		LineInfo[] infos = getLineInfosForPhysicalLine(physicalLine);
+		if (subregion == -1)
+			subregion += infos.length;
+		return xToSubregionOffset(infos[subregion], x, round);
+	} // }}}
 
-	//{{{ getSubregionStartOffset() method
+	// {{{ getFirstScreenLine() method
 	/**
-	 * Returns the start offset of the specified subregion of the specified
-	 * physical line.
-	 * @param line The physical line number
-	 * @param offset An offset
+	 * Find a valid line closest to the last screen line.
 	 */
-	int getSubregionStartOffset(int line, int offset)
+	private int getFirstScreenLine()
 	{
-		LineInfo[] lineInfos = getLineInfosForPhysicalLine(line);
-		LineInfo info = lineInfos[getSubregionOfOffset(offset,lineInfos)];
-		return textArea.getLineStartOffset(info.physicalLine)
-			+ info.offset;
-	} //}}}
-
-	//{{{ getSubregionEndOffset() method
-	/**
-	 * Returns the end offset of the specified subregion of the specified
-	 * physical line.
-	 * @param line The physical line number
-	 * @param offset An offset
-	 */
-	int getSubregionEndOffset(int line, int offset)
-	{
-		LineInfo[] lineInfos = getLineInfosForPhysicalLine(line);
-		LineInfo info = lineInfos[getSubregionOfOffset(offset,lineInfos)];
-		return textArea.getLineStartOffset(info.physicalLine)
-			+ info.offset + info.length;
-	} //}}}
-
-	//{{{ getBelowPosition() method
-	/**
-	 * @param physicalLine The physical line number
-	 * @param offset The offset
-	 * @param x The location
-	 * @param ignoreWrap If true, behave as if soft wrap is off even if it
-	 * is on
-	 */
-	int getBelowPosition(int physicalLine, int offset, int x,
-		boolean ignoreWrap)
-	{
-		LineInfo[] lineInfos = getLineInfosForPhysicalLine(physicalLine);
-
-		int subregion = getSubregionOfOffset(offset,lineInfos);
-
-		if(subregion != lineInfos.length - 1 && !ignoreWrap)
+		for (int i = firstInvalidLine - 1; i >= 0; i--)
 		{
-			return textArea.getLineStartOffset(physicalLine)
-				+ xToSubregionOffset(lineInfos[subregion + 1],
-				x,true);
+			if (lineInfo[i].lastSubregion)
+				return i + 1;
 		}
-		else
-		{
-			int nextLine = textArea.displayManager
-				.getNextVisibleLine(physicalLine);
 
-			if(nextLine == -1)
-				return -1;
-			else
-			{
-				return textArea.getLineStartOffset(nextLine)
-					+ xToSubregionOffset(nextLine,0,
-					x,true);
-			}
-		}
-	} //}}}
+		return 0;
+	} // }}}
 
-	//{{{ getAbovePosition() method
-	/**
-	 * @param physicalLine The physical line number
-	 * @param offset The offset
-	 * @param x The location
-	 * @param ignoreWrap If true, behave as if soft wrap is off even if it
-	 * is on
-	 */
-	int getAbovePosition(int physicalLine, int offset, int x,
-		boolean ignoreWrap)
-	{
-		LineInfo[] lineInfos = getLineInfosForPhysicalLine(physicalLine);
-
-		int subregion = getSubregionOfOffset(offset,lineInfos);
-
-		if(subregion != 0 && !ignoreWrap)
-		{
-			return textArea.getLineStartOffset(physicalLine)
-				+ xToSubregionOffset(lineInfos[subregion - 1],
-				x,true);
-		}
-		else
-		{
-			int prevLine = textArea.displayManager
-				.getPrevVisibleLine(physicalLine);
-
-			if(prevLine == -1)
-				return -1;
-			else
-			{
-				return textArea.getLineStartOffset(prevLine)
-					+ xToSubregionOffset(prevLine,-1,
-					x,true);
-			}
-		}
-	} //}}}
-
-	//{{{ needFullRepaint() method
-	/**
-	 * The needFullRepaint variable becomes true when the number of screen
-	 * lines in a physical line changes.
-	 */
-	boolean needFullRepaint()
-	{
-		boolean retVal = needFullRepaint;
-		needFullRepaint = false;
-		return retVal;
-	} //}}}
-
-	//{{{ getLineInfosForPhysicalLine() method
-	LineInfo[] getLineInfosForPhysicalLine(int physicalLine)
-	{
-		out.clear();
-
-		if(!buffer.isLoading())
-			lineToChunkList(physicalLine,out);
-
-		if(out.isEmpty())
-			out.add(null);
-
-		List<LineInfo> returnValue = new ArrayList<LineInfo>(out.size());
-		getLineInfosForPhysicalLine(physicalLine,returnValue);
-		return returnValue.toArray(new LineInfo[out.size()]);
-	} //}}}
-
-	//{{{ Private members
-
-	//{{{ Instance variables
-	private final TextArea textArea;
-	private JEditBuffer buffer;
-	/**
-	 * The lineInfo array. There is LineInfo for each line that is visible in the textArea.
-	 * it can be resized by {@link #recalculateVisibleLines()}.
-	 * The content is valid from 0 to {@link #firstInvalidLine}
-	 */
-	private LineInfo[] lineInfo;
-	private final List<Chunk> out;
-
-	/** The first invalid line. All lines before this one are valid. */
-	private int firstInvalidLine;
-	private int lastScreenLineP;
-	private int lastScreenLine;
-
-	private boolean needFullRepaint;
-
-	private final DisplayTokenHandler tokenHandler;
-	//}}}
-
-	//{{{ getLineInfosForPhysicalLine() method
+	// {{{ getLineInfosForPhysicalLine() method
 	private void getLineInfosForPhysicalLine(int physicalLine, List<LineInfo> list)
 	{
-		for(int i = 0; i < out.size(); i++)
+		for (int i = 0; i < out.size(); i++)
 		{
 			Chunk chunks = out.get(i);
 			LineInfo info = new LineInfo();
 			info.physicalLine = physicalLine;
-			if(i == 0)
+			if (i == 0)
 			{
 				info.firstSubregion = true;
 				info.offset = 0;
@@ -535,40 +582,23 @@ class ChunkCache
 			else
 				info.offset = chunks.offset;
 
-			if(i == out.size() - 1)
+			if (i == out.size() - 1)
 			{
 				info.lastSubregion = true;
-				info.length = textArea.getLineLength(physicalLine)
-					- info.offset + 1;
+				info.length = textArea.getLineLength(physicalLine) - info.offset + 1;
 			}
 			else
 			{
-				info.length = out.get(i + 1).offset
-					- info.offset;
+				info.length = out.get(i + 1).offset - info.offset;
 			}
 
 			info.chunks = chunks;
 
 			list.add(info);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ getFirstScreenLine() method
-	/**
-	 * Find a valid line closest to the last screen line.
-	 */
-	private int getFirstScreenLine()
-	{
-		for(int i = firstInvalidLine - 1; i >= 0; i--)
-		{
-			if(lineInfo[i].lastSubregion)
-				return i + 1;
-		}
-
-		return 0;
-	} //}}}
-
-	//{{{ getUpdateStartLine() method
+	// {{{ getUpdateStartLine() method
 	/**
 	 * Return a physical line number.
 	 */
@@ -576,47 +606,54 @@ class ChunkCache
 	{
 		// for the first line displayed, take its physical line to be
 		// the text area's first physical line
-		if(firstScreenLine == 0)
+		if (firstScreenLine == 0)
 		{
 			return textArea.getFirstPhysicalLine();
 		}
 		// otherwise, determine the next visible line
 		else
 		{
-			int prevPhysLine = lineInfo[
-				firstScreenLine - 1]
-				.physicalLine;
+			int prevPhysLine = lineInfo[firstScreenLine - 1].physicalLine;
 			// if -1, the empty space at the end of the text area
 			// when the buffer has less lines than are visible
-			if(prevPhysLine == -1)
+			if (prevPhysLine == -1)
 				return -1;
 			else
 			{
-				return textArea.displayManager
-					.getNextVisibleLine(prevPhysLine);
+				return textArea.displayManager.getNextVisibleLine(prevPhysLine);
 			}
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ updateChunksUpTo() method
+	// {{{ lineToChunkList() method
+	private void lineToChunkList(int physicalLine, List<Chunk> out)
+	{
+		TextAreaPainter painter = textArea.getPainter();
+
+		tokenHandler.init(painter.getStyles(), painter.getFontRenderContext(), painter, out, textArea.softWrap ? textArea.wrapMargin : 0.0f);
+		buffer.markTokens(physicalLine, tokenHandler);
+	} // }}}
+
+	// }}}
+
+	// {{{ updateChunksUpTo() method
 	private void updateChunksUpTo(int lastScreenLine)
 	{
 		// this method is a nightmare
-		if(lastScreenLine >= lineInfo.length)
+		if (lastScreenLine >= lineInfo.length)
 			throw new ArrayIndexOutOfBoundsException(lastScreenLine);
 
 		// if one line's chunks are invalid, remaining lines are also
 		// invalid
-		if(lastScreenLine < firstInvalidLine)
+		if (lastScreenLine < firstInvalidLine)
 			return;
 
 		int firstScreenLine = getFirstScreenLine();
 		int physicalLine = getUpdateStartLine(firstScreenLine);
 
-		if(Debug.CHUNK_CACHE_DEBUG)
+		if (Debug.CHUNK_CACHE_DEBUG)
 		{
-			Log.log(Log.DEBUG,this,"Updating chunks from " + firstScreenLine
-				+ " to " + lastScreenLine);
+			Log.log(Log.DEBUG, this, "Updating chunks from " + firstScreenLine + " to " + lastScreenLine);
 		}
 
 		// Note that we rely on the fact that when a physical line is
@@ -629,25 +666,24 @@ class ChunkCache
 		int offset = 0;
 		int length = 0;
 
-		for(int i = firstScreenLine; i <= lastScreenLine; i++)
+		for (int i = firstScreenLine; i <= lastScreenLine; i++)
 		{
 			LineInfo info = lineInfo[i];
 
 			Chunk chunks;
 
 			// get another line of chunks
-			if(out.isEmpty())
+			if (out.isEmpty())
 			{
 				// unless this is the first time, increment
 				// the line number
-				if(physicalLine != -1 && i != firstScreenLine)
+				if (physicalLine != -1 && i != firstScreenLine)
 				{
-					physicalLine = textArea.displayManager
-						.getNextVisibleLine(physicalLine);
+					physicalLine = textArea.displayManager.getNextVisibleLine(physicalLine);
 				}
 
 				// empty space
-				if(physicalLine == -1)
+				if (physicalLine == -1)
 				{
 					info.chunks = null;
 					info.physicalLine = -1;
@@ -659,22 +695,22 @@ class ChunkCache
 				}
 
 				// chunk the line.
-				lineToChunkList(physicalLine,out);
+				lineToChunkList(physicalLine, out);
 
 				info.firstSubregion = true;
 
 				int screenLines;
 
 				// if the line has no text, out.size() == 0
-				if(out.isEmpty())
+				if (out.isEmpty())
 				{
 					screenLines = 1;
 
-					if(i == 0)
+					if (i == 0)
 					{
-						if(textArea.displayManager.firstLine.skew > 0)
+						if (textArea.displayManager.firstLine.skew > 0)
 						{
-							Log.log(Log.ERROR,this,"BUG: skew=" + textArea.displayManager.firstLine.skew + ",out.size()=" + out.size());
+							Log.log(Log.ERROR, this, "BUG: skew=" + textArea.displayManager.firstLine.skew + ",out.size()=" + out.size());
 							textArea.displayManager.firstLine.skew = 0;
 							needFullRepaint = true;
 							lastScreenLine = lineInfo.length - 1;
@@ -689,20 +725,20 @@ class ChunkCache
 				{
 					screenLines = out.size();
 
-					if(i == 0)
+					if (i == 0)
 					{
 						int skew = textArea.displayManager.firstLine.skew;
-						if(skew >= out.size())
+						if (skew >= out.size())
 						{
-							Log.log(Log.ERROR,this,"BUG: skew=" + skew + ",out.size()=" + out.size());
+							Log.log(Log.ERROR, this, "BUG: skew=" + skew + ",out.size()=" + out.size());
 							skew = 0;
 							needFullRepaint = true;
 							lastScreenLine = lineInfo.length - 1;
 						}
-						else if(skew > 0)
+						else if (skew > 0)
 						{
 							info.firstSubregion = false;
-							for(int j = 0; j < skew; j++)
+							for (int j = 0; j < skew; j++)
 								out.remove(0);
 						}
 					}
@@ -728,35 +764,36 @@ class ChunkCache
 
 			boolean lastSubregion = out.isEmpty();
 
-			if(i == lastScreenLine
-				&& lastScreenLine != lineInfo.length - 1)
+			if (i == lastScreenLine && lastScreenLine != lineInfo.length - 1)
 			{
-				/* if the user changes the syntax token at the
-				 * end of a line, need to do a full repaint. */
-				if(tokenHandler.getLineContext() !=
-					info.lineContext)
+				/*
+				 * if the user changes the syntax token at the end of a line,
+				 * need to do a full repaint.
+				 */
+				if (tokenHandler.getLineContext() != info.lineContext)
 				{
 					lastScreenLine++;
 					needFullRepaint = true;
 				}
-				/* If this line has become longer or shorter
-				 * (in which case the new physical line number
-				 * is different from the cached one) we need to:
-				 * - continue updating past the last line
-				 * - advise the text area to repaint
-				 * On the other hand, if the line wraps beyond
-				 * lastScreenLine, we need to keep updating the
-				 * chunk list to ensure proper alignment of
-				 * invalidation flags (see start of method) */
-				else if(info.physicalLine != physicalLine
-					|| info.lastSubregion != lastSubregion)
+				/*
+				 * If this line has become longer or shorter (in which case the
+				 * new physical line number is different from the cached one) we
+				 * need to: - continue updating past the last line - advise the
+				 * text area to repaint On the other hand, if the line wraps
+				 * beyond lastScreenLine, we need to keep updating the chunk
+				 * list to ensure proper alignment of invalidation flags (see
+				 * start of method)
+				 */
+				else if (info.physicalLine != physicalLine || info.lastSubregion != lastSubregion)
 				{
 					lastScreenLine++;
 					needFullRepaint = true;
 				}
-				/* We only cache entire physical lines at once;
-				 * don't want to split a physical line into
-				 * screen lines and only have some valid. */
+				/*
+				 * We only cache entire physical lines at once; don't want to
+				 * split a physical line into screen lines and only have some
+				 * valid.
+				 */
 				else if (!out.isEmpty())
 					lastScreenLine++;
 			}
@@ -769,36 +806,6 @@ class ChunkCache
 			info.lineContext = tokenHandler.getLineContext();
 		}
 
-		firstInvalidLine = Math.max(lastScreenLine + 1,firstInvalidLine);
-	} //}}}
-
-	//{{{ lineToChunkList() method
-	private void lineToChunkList(int physicalLine, List<Chunk> out)
-	{
-		TextAreaPainter painter = textArea.getPainter();
-
-		tokenHandler.init(painter.getStyles(),
-			painter.getFontRenderContext(),
-			painter,out,
-			textArea.softWrap
-			? textArea.wrapMargin : 0.0f);
-		buffer.markTokens(physicalLine,tokenHandler);
-	} //}}}
-
-	//}}}
-
-	//{{{ LineInfo class
-	/** The informations on a line. (for fast access) */
-	static class LineInfo
-	{
-		int physicalLine;
-		int offset;
-		int length;
-		boolean firstSubregion;
-		boolean lastSubregion;
-		Chunk chunks;
-		/** The line width. */
-		int width;
-		TokenMarker.LineContext lineContext;
-	} //}}}
+		firstInvalidLine = Math.max(lastScreenLine + 1, firstInvalidLine);
+	} // }}}
 }

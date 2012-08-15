@@ -17,6 +17,22 @@ public abstract class CanvasDecorator
 	protected static final ConnectDecorator CONNECT_DECORATOR_SUCCESSOR = new SuccessorConnectorDecorator();
 	protected static final ConnectDecorator CONNECT_DECORATOR_ALTERNATIVE = new AlternativeConnectorDecorator();
 
+	public abstract ConnectionWidget drawConnection(String type, Canvas canvas, String label);
+
+	public abstract Widget drawIcon(String type, Canvas canvas, String label) throws Exception;
+
+	public void drawSelected(Widget widget)
+	{
+		widget.setBackground(Color.WHITE);
+		widget.setForeground(Color.BLACK);
+	}
+
+	public void drawUnselected(Widget widget)
+	{
+		widget.setBackground(Color.BLUE);
+		widget.setForeground(Color.WHITE);
+	}
+
 	public URL findIconPath(String type)
 	{
 		for (int i = 0; i < icons.length && i < iconName.length; i++)
@@ -29,29 +45,13 @@ public abstract class CanvasDecorator
 		return null;
 	}
 
-	public abstract Widget drawIcon(String type, Canvas canvas, String label) throws Exception;
-
-	public abstract ConnectionWidget drawConnection(String type, Canvas canvas, String label);
-
-	public ConnectDecorator getConnDecoratorSuc()
-	{
-		return CONNECT_DECORATOR_SUCCESSOR;
-	}
-
 	public ConnectDecorator getConnDecoratorAlt()
 	{
 		return CONNECT_DECORATOR_ALTERNATIVE;
 	}
 
-	public void drawSelected(Widget widget)
+	public ConnectDecorator getConnDecoratorSuc()
 	{
-		widget.setBackground(Color.WHITE);
-		widget.setForeground(Color.BLACK);
-	}
-
-	public void drawUnselected(Widget widget)
-	{
-		widget.setBackground(Color.BLUE);
-		widget.setForeground(Color.WHITE);
+		return CONNECT_DECORATOR_SUCCESSOR;
 	}
 }

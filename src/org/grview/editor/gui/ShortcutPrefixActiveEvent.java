@@ -31,12 +31,10 @@ import javax.swing.event.EventListenerList;
 
 import org.grview.util.Log;
 
-
 /**
- *  Description of the Class
- *
- * @author     jchoyt
- * created    December 17, 2005
+ * Description of the Class
+ * 
+ * @author jchoyt created December 17, 2005
  */
 public class ShortcutPrefixActiveEvent extends ChangeEvent
 {
@@ -55,90 +53,100 @@ public class ShortcutPrefixActiveEvent extends ChangeEvent
 	 */
 	protected static EventListenerList listenerList = new EventListenerList();
 
-	//{{{  Constructor
+	// {{{ Constructor
 	/**
 	 * Constructor for the ShortcutPrefixActiveEvent object
-	 *
-	 * @param bindings Description of the Parameter
-	 * @param active   Description of the Parameter
+	 * 
+	 * @param bindings
+	 *            Description of the Parameter
+	 * @param active
+	 *            Description of the Parameter
 	 */
 	public ShortcutPrefixActiveEvent(Hashtable bindings, boolean active)
 	{
 		super(new Object());
 		this.bindings = bindings;
 		this.active = active;
-	} //}}}
+	} // }}}
 
-	//{{{ addChangeEventListener() method
+	// {{{ addChangeEventListener() method
 	/**
 	 * Adds a feature to the ChangeEventListener attribute of the
 	 * ShortcutPrefixActiveEvent class
-	 *
-	 * @param l The feature to be added to the ChangeEventListener attribute
+	 * 
+	 * @param l
+	 *            The feature to be added to the ChangeEventListener attribute
 	 */
 	public static void addChangeEventListener(ChangeListener l)
 	{
 		listenerList.add(ChangeListener.class, l);
 		Log.log(Log.DEBUG, ShortcutPrefixActiveEvent.class, "Listener added.  " + listenerList.getListenerList().length + " left.");
-	}//}}}
+	}// }}}
 
-	//{{{ removeChangeEventListener() method
+	// {{{ firePrefixStateChange() method
 	/**
 	 * Description of the Method
-	 *
-	 * @param l Description of the Parameter
+	 * 
+	 * @param bindings
+	 *            Description of the Parameter
+	 * @param listeningForShortcutCompletion
+	 *            Description of the Parameter
+	 */
+	public static void firePrefixStateChange(Hashtable bindings, boolean listeningForShortcutCompletion)
+	{
+		// Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class,
+		// "firePrefixStateChange() called, listening? " +
+		// listeningForShortcutCompletion );
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class, listeners.length
+		// + " listeners." );
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2)
+		{
+			// Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class,
+			// "firePrefixStateChange() called, listening? " +
+			// listeningForShortcutCompletion );
+			ChangeEvent event = new ShortcutPrefixActiveEvent(bindings, listeningForShortcutCompletion);
+			((ChangeListener) listeners[i + 1]).stateChanged(event);
+		}
+	}// }}}
+
+	// {{{ removeChangeEventListener() method
+	/**
+	 * Description of the Method
+	 * 
+	 * @param l
+	 *            Description of the Parameter
 	 */
 	public static void removeChangeEventListener(ChangeListener l)
 	{
 		listenerList.remove(ChangeListener.class, l);
 		Log.log(Log.DEBUG, ShortcutPrefixActiveEvent.class, "Listener removed.  " + listenerList.getListenerList().length + " left.");
-	}//}}}
+	}// }}}
 
-	//{{{ firePrefixStateChange() method
-	/**
-	 * Description of the Method
-	 *
-	 * @param bindings                       Description of the Parameter
-	 * @param listeningForShortcutCompletion Description of the Parameter
-	 */
-	public static void firePrefixStateChange(Hashtable bindings, boolean listeningForShortcutCompletion)
-	{
-		//Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class, "firePrefixStateChange() called, listening? " + listeningForShortcutCompletion );
-		// Guaranteed to return a non-null array
-		Object[] listeners = listenerList.getListenerList();
-		//Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class, listeners.length + " listeners." );
-		// Process the listeners last to first, notifying
-		// those that are interested in this event
-		for (int i = listeners.length - 2; i >= 0; i -= 2)
-		{
-			//Log.log( Log.DEBUG, ShortcutPrefixActiveEvent.class, "firePrefixStateChange() called, listening? " + listeningForShortcutCompletion );
-			ChangeEvent event = new ShortcutPrefixActiveEvent(bindings, listeningForShortcutCompletion);
-			((ChangeListener) listeners[i + 1]).stateChanged(event);
-		}
-	}//}}}
-
-
-	//{{{  getBindings()
-	/**
-	 * Gets the bindings attribute of the ShortcutPrefixActiveEvent object
-	 *
-	 * @return The bindings value
-	 */
-	public Hashtable getBindings()
-	{
-		return bindings;
-	}//}}}
-
-	//{{{  getActive()
+	// {{{ getActive()
 	/**
 	 * Gets the active attribute of the ShortcutPrefixActiveEvent object
-	 *
+	 * 
 	 * @return The active value
 	 */
 	public boolean getActive()
 	{
 		return active;
 	}
-	//}}}
-}
 
+	// }}}
+
+	// {{{ getBindings()
+	/**
+	 * Gets the bindings attribute of the ShortcutPrefixActiveEvent object
+	 * 
+	 * @return The bindings value
+	 */
+	public Hashtable getBindings()
+	{
+		return bindings;
+	}// }}}
+}

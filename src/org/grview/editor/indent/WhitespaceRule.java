@@ -22,25 +22,24 @@
 
 package org.grview.editor.indent;
 
-
 import java.util.List;
 
 import org.grview.editor.buffer.JEditBuffer;
 
-
 /**
- * Whitespace rule. This rule cancels all indent actions in the
- * following case:
- *
+ * Whitespace rule. This rule cancels all indent actions in the following case:
+ * 
  * <ul>
  * <li>The previous line is all whitespace</li>
  * <li>The current line is not empty</li>
  * </ul>
- *
- * <p>The result is that this rule won't allow the indentation to be
- * increased, only decreased (by rules triggered by unindentThisLine).
- * If the requirements above do not apply, this rule does nothing.</p>
- *
+ * 
+ * <p>
+ * The result is that this rule won't allow the indentation to be increased,
+ * only decreased (by rules triggered by unindentThisLine). If the requirements
+ * above do not apply, this rule does nothing.
+ * </p>
+ * 
  * @author Marcelo Vanzin
  * @version $Id$
  * @since jEdit 4.3pre10
@@ -48,9 +47,8 @@ import org.grview.editor.buffer.JEditBuffer;
 public class WhitespaceRule implements IndentRule
 {
 
-	public void apply(JEditBuffer buffer, int thisLineIndex,
-			  int prevLineIndex, int prevPrevLineIndex,
-			  List<IndentAction> indentActions)
+	@Override
+	public void apply(JEditBuffer buffer, int thisLineIndex, int prevLineIndex, int prevPrevLineIndex, List<IndentAction> indentActions)
 	{
 		/* Don't apply this rule if the current line is empty. */
 		CharSequence current = buffer.getLineSegment(thisLineIndex);
@@ -67,7 +65,8 @@ public class WhitespaceRule implements IndentRule
 			return;
 
 		/* Check if the previous line is empty. */
-		if (prevLineIndex >= 0) {
+		if (prevLineIndex >= 0)
+		{
 			CharSequence previous = buffer.getLineSegment(prevLineIndex);
 			for (int i = 0; i < previous.length(); i++)
 			{
@@ -79,4 +78,3 @@ public class WhitespaceRule implements IndentRule
 	}
 
 }
-

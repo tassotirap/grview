@@ -22,6 +22,13 @@
 package org.grview.editor.syntax;
 
 //{{{ Imports
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.grview.actions.Mode;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
@@ -30,14 +37,6 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.XMLReaderFactory;
 
-
-
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 //}}}
 
 /**
@@ -53,59 +52,77 @@ public class ModeProvider
 
 	private List<Mode> modes = new ArrayList<Mode>(160);
 
-	//{{{ removeAll() method
-	public void removeAll()
+	// {{{ error() method
+	protected void error(String file, Throwable e)
 	{
-		modes = new ArrayList<Mode>(160);
-	} //}}}
+		Log.log(Log.ERROR, this, e);
+	} // }}}
 
-	//{{{ getMode() method
+	// {{{ addMode() method
+	/**
+	 * Do not call this method. It is only public so that classes in the
+	 * org.gjt.sp.jedit.syntax package can access it.
+	 * 
+	 * @since jEdit 4.3pre10
+	 * @param mode
+	 *            The edit mode
+	 */
+	public void addMode(Mode mode)
+	{
+		modes.add(mode);
+	} // }}}
+
+	// {{{ getMode() method
 	/**
 	 * Returns the edit mode with the specified name.
-	 * @param name The edit mode
+	 * 
+	 * @param name
+	 *            The edit mode
 	 * @since jEdit 4.3pre10
 	 */
 	public Mode getMode(String name)
 	{
-		for(int i = 0; i < modes.size(); i++)
+		for (int i = 0; i < modes.size(); i++)
 		{
 			Mode mode = modes.get(i);
-			if(mode.getName().equals(name))
+			if (mode.getName().equals(name))
 				return mode;
 		}
 		return null;
-	} //}}}
+	} // }}}
 
-	//{{{ getModeForFile() method
+	// {{{ getModeForFile() method
 	/**
 	 * Get the appropriate mode that must be used for the file
-	 * @param filename the filename
-	 * @param firstLine the first line of the file
+	 * 
+	 * @param filename
+	 *            the filename
+	 * @param firstLine
+	 *            the first line of the file
 	 * @return the edit mode, or null if no mode match the file
 	 * @since jEdit 4.3pre12
 	 */
 	public Mode getModeForFile(String filename, String firstLine)
 	{
-		String nogzName = filename.substring(0,filename.length() -
-			(filename.endsWith(".gz") ? 3 : 0));
+		String nogzName = filename.substring(0, filename.length() - (filename.endsWith(".gz") ? 3 : 0));
 		Mode[] modes = getModes();
 
 		// this must be in reverse order so that modes from the user
 		// catalog get checked first!
-		for(int i = modes.length - 1; i >= 0; i--)
+		for (int i = modes.length - 1; i >= 0; i--)
 		{
-			if(modes[i].accept(nogzName,firstLine))
+			if (modes[i].accept(nogzName, firstLine))
 			{
 				return modes[i];
 			}
 		}
 		return null;
-	} //}}}
+	} // }}}
 
-	
-	//{{{ getModes() method
+	// {{{ getModes() method
 	/**
 	 * Returns an array of installed edit modes.
+	 * 
 	 * @since jEdit 4.3pre10
 	 */
 	public Mode[] getModes()
@@ -113,31 +130,46 @@ public class ModeProvider
 		Mode[] array = new Mode[modes.size()];
 		modes.toArray(array);
 		return array;
-	} //}}}
+	} // }}}
 
-	//{{{ addMode() method
-	/**
-	 * Do not call this method. It is only public so that classes
-	 * in the org.gjt.sp.jedit.syntax package can access it.
-	 * @since jEdit 4.3pre10
-	 * @param mode The edit mode
-	 */
-	public void addMode(Mode mode)
+	// {{{ loadMode() method
+	public void loadMode(Mode mode)
 	{
-		modes.add(mode);
-	} //}}}
+		XModeHandler xmh = new XModeHandler(mode.getName())
+		{
+			@Override
+			public void error(String what, Object subst)
+			{
+				// Log.log(Log.ERROR, this, subst);
+			}
 
-	//{{{ loadMode() method
+			@Override
+			public TokenMarker getTokenMarker(String modeName)
+			{
+				Mode mode = getMode(modeName);
+				if (mode == null)
+					return null;
+				else
+					return mode.getTokenMarker();
+			}
+		};
+		loadMode(mode, xmh);
+	} // }}}
+
+	// {{{ loadMode() method
 	public void loadMode(Mode mode, XModeHandler xmh)
 	{
-		String fileName = (String)mode.getProperty("file");
+		String fileName = (String) mode.getProperty("file");
 
-		Log.log(Log.NOTICE,this,"Loading edit mode " + fileName);
+		Log.log(Log.NOTICE, this, "Loading edit mode " + fileName);
 
 		XMLReader parser;
-		try {
+		try
+		{
 			parser = XMLReaderFactory.createXMLReader();
-		} catch (SAXException saxe) {
+		}
+		catch (SAXException saxe)
+		{
 			Log.log(Log.ERROR, this, saxe);
 			return;
 		}
@@ -147,8 +179,7 @@ public class ModeProvider
 
 		try
 		{
-			grammar = new BufferedInputStream(
-					new FileInputStream(fileName));
+			grammar = new BufferedInputStream(new FileInputStream(fileName));
 		}
 		catch (FileNotFoundException e1)
 		{
@@ -178,35 +209,11 @@ public class ModeProvider
 		{
 			IOUtilities.closeQuietly(grammar);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ loadMode() method
-	public void loadMode(Mode mode)
+	// {{{ removeAll() method
+	public void removeAll()
 	{
-		XModeHandler xmh = new XModeHandler(mode.getName())
-		{
-			@Override
-			public void error(String what, Object subst)
-			{
-				//Log.log(Log.ERROR, this, subst);
-			}
-
-			@Override
-			public TokenMarker getTokenMarker(String modeName)
-			{
-				Mode mode = getMode(modeName);
-				if(mode == null)
-					return null;
-				else
-					return mode.getTokenMarker();
-			}
-		};
-		loadMode(mode, xmh);
-	} //}}}
-
-	//{{{ error() method
-	protected void error(String file, Throwable e)
-	{
-		Log.log(Log.ERROR, this, e);
-	} //}}}
+		modes = new ArrayList<Mode>(160);
+	} // }}}
 }

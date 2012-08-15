@@ -51,32 +51,13 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 			canvasPanel.add(jsp, BorderLayout.CENTER);
 			canvas.setPreferredSize(new Dimension(jsp.getWidth(), jsp.getHeight()));
 			CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().addPropertyChangeListener("writing", this);
-			GrammarRepo.addGramComponent(this);
+			GrammarFactory.addGramComponent(this);
 			return canvasPanel;
 		}
 		else
 		{
 			throw new BadParameterException("A reference to a Canvas was expected.");
 		}
-	}
-
-	@Override
-	public void removeAllComponentListener()
-	{
-		super.removeAllComponentListener();
-
-		PropertyChangeListener[] propertyChangeListener = canvas.getMonitor().getPropertyChangeListeners();
-		for (int i = 0; i < propertyChangeListener.length; i++)
-		{
-			canvas.getMonitor().removePropertyChangeListener(propertyChangeListener[i]);
-		}
-
-		propertyChangeListener = CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().getPropertyChangeListeners();
-		for (int i = 0; i < propertyChangeListener.length; i++)
-		{
-			CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().removePropertyChangeListener(propertyChangeListener[i]);
-		}
-
 	}
 
 	@Override
@@ -94,10 +75,13 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 		return path;
 	}
 
-	public void setPath(String path)
+	@Override
+	public void propertyChange(PropertyChangeEvent evt)
 	{
-		canvas = CanvasFactory.getCanvasFromFile(path);
-		this.path = path;
+		if (evt.getPropertyName().equals("writing"))
+		{
+			fireContentChanged();
+		}
 	}
 
 	@Override
@@ -114,12 +98,9 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 		}
 	}
 
-	@Override
-	public void propertyChange(PropertyChangeEvent evt)
+	public void setPath(String path)
 	{
-		if (evt.getPropertyName().equals("writing"))
-		{
-			fireContentChanged();
-		}
+		canvas = CanvasFactory.getCanvasFromFile(path);
+		this.path = path;
 	}
 }

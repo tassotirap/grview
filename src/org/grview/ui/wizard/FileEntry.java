@@ -18,9 +18,9 @@ public class FileEntry
 		this.extension = extension;
 	}
 
-	public String getTitle()
+	public FileNames getExtension()
 	{
-		return title;
+		return extension;
 	}
 
 	public ImageIcon getImage()
@@ -32,8 +32,8 @@ public class FileEntry
 		return image;
 	}
 
-	public FileNames getExtension()
+	public String getTitle()
 	{
-		return extension;
+		return title;
 	}
 }

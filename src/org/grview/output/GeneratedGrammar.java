@@ -1,15 +1,19 @@
 package org.grview.output;
 
-public class GeneratedGrammar extends Output {
+public class GeneratedGrammar extends Output
+{
 
 	private static GeneratedGrammar instance;
-	
-	private GeneratedGrammar() {
+
+	private GeneratedGrammar()
+	{
 		super();
 	}
-	
-	public static GeneratedGrammar getInstance() {
-		if (instance == null) {
+
+	public static GeneratedGrammar getInstance()
+	{
+		if (instance == null)
+		{
 			instance = new GeneratedGrammar();
 		}
 		return instance;

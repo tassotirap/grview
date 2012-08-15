@@ -45,7 +45,6 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.event.InputEvent;
-import java.awt.event.MouseEvent;
 import java.util.EnumSet;
 
 import javax.swing.ActionMap;
@@ -138,6 +137,7 @@ public final class ActionFactory
 
 	private static final MoveStrategy MOVE_STRATEGY_FREE = new MoveStrategy()
 	{
+		@Override
 		public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation)
 		{
 			return suggestedLocation;
@@ -146,19 +146,23 @@ public final class ActionFactory
 
 	private static final MoveProvider MOVE_PROVIDER_DEFAULT = new MoveProvider()
 	{
-		public void movementStarted(Widget widget)
-		{
-		}
-
-		public void movementFinished(Widget widget)
-		{
-		}
-
+		@Override
 		public Point getOriginalLocation(Widget widget)
 		{
 			return widget.getPreferredLocation();
 		}
 
+		@Override
+		public void movementFinished(Widget widget)
+		{
+		}
+
+		@Override
+		public void movementStarted(Widget widget)
+		{
+		}
+
+		@Override
 		public void setNewLocation(Widget widget, Point location)
 		{
 			widget.setPreferredLocation(location);
@@ -167,6 +171,7 @@ public final class ActionFactory
 
 	private static final AlignWithMoveDecorator ALIGN_WITH_MOVE_DECORATOR_DEFAULT = new AlignWithMoveDecorator()
 	{
+		@Override
 		public ConnectionWidget createLineWidget(Scene scene)
 		{
 			ConnectionWidget widget = new ConnectionWidget(scene);
@@ -182,6 +187,7 @@ public final class ActionFactory
 
 	private static final ConnectDecorator CONNECT_DECORATOR_DEFAULT = new ConnectDecorator()
 	{
+		@Override
 		public ConnectionWidget createConnectionWidget(Scene scene)
 		{
 			ConnectionWidget widget = new ConnectionWidget(scene);
@@ -189,48 +195,56 @@ public final class ActionFactory
 			return widget;
 		}
 
+		@Override
+		public Anchor createFloatAnchor(Point location)
+		{
+			return AnchorFactory.createFixedAnchor(location);
+		}
+
+		@Override
 		public Anchor createSourceAnchor(Widget sourceWidget)
 		{
 			return AnchorFactory.createCenterAnchor(sourceWidget);
 		}
 
+		@Override
 		public Anchor createTargetAnchor(Widget targetWidget)
 		{
 			return AnchorFactory.createCenterAnchor(targetWidget);
-		}
-
-		public Anchor createFloatAnchor(Point location)
-		{
-			return AnchorFactory.createFixedAnchor(location);
 		}
 	};
 
 	private static final ReconnectDecorator RECONNECT_DECORATOR_DEFAULT = new ReconnectDecorator()
 	{
-		public Anchor createReplacementWidgetAnchor(Widget replacementWidget)
-		{
-			return AnchorFactory.createCenterAnchor(replacementWidget);
-		}
-
+		@Override
 		public Anchor createFloatAnchor(Point location)
 		{
 			return AnchorFactory.createFixedAnchor(location);
+		}
+
+		@Override
+		public Anchor createReplacementWidgetAnchor(Widget replacementWidget)
+		{
+			return AnchorFactory.createCenterAnchor(replacementWidget);
 		}
 	};
 
 	private static final ResizeProvider RESIZE_PROVIDER_DEFAULT = new ResizeProvider()
 	{
-		public void resizingStarted(Widget widget)
+		@Override
+		public void resizingFinished(Widget widget)
 		{
 		}
 
-		public void resizingFinished(Widget widget)
+		@Override
+		public void resizingStarted(Widget widget)
 		{
 		}
 	};
 
 	private static final ResizeStrategy RESIZE_STRATEGY_FREE = new ResizeStrategy()
 	{
+		@Override
 		public Rectangle boundsSuggested(Widget widget, Rectangle originalBounds, Rectangle suggestedBounds, ResizeProvider.ControlPoint controlPoint)
 		{
 			return suggestedBounds;
@@ -261,33 +275,6 @@ public final class ActionFactory
 
 	private ActionFactory()
 	{
-	}
-
-	/**
-	 * Creates a delete action that delete selected nodes on the scene
-	 * 
-	 * @param wdp
-	 *            a provider to the delete action
-	 * @return the delete action
-	 */
-	public static WidgetDeleteAction createDeleteAction(WidgetDeleteProvider wdp)
-	{
-		DELETE_ACTION = new WidgetDeleteAction(wdp);
-		return DELETE_ACTION;
-	}
-
-	/**
-	 * Creates a copy/paste/cut action that acts on the selectes elements on the
-	 * scene
-	 * 
-	 * @param wcpp
-	 *            a provider
-	 * @return a copy paste action
-	 */
-	public static WidgetCopyPasteAction createCopyPasteAction(WidgetCopyPasteProvider wcpp)
-	{
-		COPY_PASTE_ACTION = new WidgetCopyPasteAction(wcpp);
-		return COPY_PASTE_ACTION;
 	}
 
 	/**
@@ -380,46 +367,6 @@ public final class ActionFactory
 	/**
 	 * Creates a align-with move action.
 	 * 
-	 * @param collectionLayer
-	 *            the layer with objects that the alignment is checked against.
-	 * @param interractionLayer
-	 *            the interraction layer where the align-with hint lines are
-	 *            placed
-	 * @param decorator
-	 *            the align-with move decorator
-	 * @return the align-with move action
-	 */
-	public static WidgetAction createAlignWithMoveAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator)
-	{
-		return createAlignWithMoveAction(collectionLayer, interractionLayer, decorator, true);
-	}
-
-	/**
-	 * Creates a align-with move action.
-	 * 
-	 * @param collectionLayer
-	 *            the layer with objects that the alignment is checked against.
-	 * @param interractionLayer
-	 *            the interraction layer where the align-with hint lines are
-	 *            placed
-	 * @param decorator
-	 *            the align-with move decorator
-	 * @param outerBounds
-	 *            if true, then the align-with is check against whole bounds of
-	 *            widgets in collection layer; if false, then the align-with is
-	 *            check against client area (widget bounds without border insets
-	 * @return the align-with move action
-	 * @since 2.7
-	 */
-	public static WidgetAction createAlignWithMoveAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
-	{
-		assert collectionLayer != null;
-		return createAlignWithMoveAction(new SingleLayerAlignWithWidgetCollector(collectionLayer, outerBounds), interractionLayer, decorator != null ? decorator : ALIGN_WITH_MOVE_DECORATOR_DEFAULT, outerBounds);
-	}
-
-	/**
-	 * Creates a align-with move action.
-	 * 
 	 * @param collector
 	 *            the collector of objects that the alignment is checked
 	 *            against.
@@ -460,15 +407,8 @@ public final class ActionFactory
 		return createMoveAction(sp, sp);
 	}
 
-	public static WidgetAction createAlignWithMultiMoveAction(Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
-	{
-		assert collector != null && interractionLayer != null && decorator != null;
-		AlignWithMultiMoveProvider sp = new AlignWithMultiMoveProvider(canvas, collector, interractionLayer, decorator, outerBounds);
-		return createMoveAction(sp, sp);
-	}
-
 	/**
-	 * Creates a align-with resize action.
+	 * Creates a align-with move action.
 	 * 
 	 * @param collectionLayer
 	 *            the layer with objects that the alignment is checked against.
@@ -477,15 +417,15 @@ public final class ActionFactory
 	 *            placed
 	 * @param decorator
 	 *            the align-with move decorator
-	 * @return the align-with resize action
+	 * @return the align-with move action
 	 */
-	public static WidgetAction createAlignWithResizeAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator)
+	public static WidgetAction createAlignWithMoveAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator)
 	{
-		return createAlignWithResizeAction(collectionLayer, interractionLayer, decorator, true);
+		return createAlignWithMoveAction(collectionLayer, interractionLayer, decorator, true);
 	}
 
 	/**
-	 * Creates a align-with resize action.
+	 * Creates a align-with move action.
 	 * 
 	 * @param collectionLayer
 	 *            the layer with objects that the alignment is checked against.
@@ -498,13 +438,20 @@ public final class ActionFactory
 	 *            if true, then the align-with is check against whole bounds of
 	 *            widgets in collection layer; if false, then the align-with is
 	 *            check against client area (widget bounds without border insets
-	 * @return the align-with resize action
+	 * @return the align-with move action
 	 * @since 2.7
 	 */
-	public static WidgetAction createAlignWithResizeAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
+	public static WidgetAction createAlignWithMoveAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
 	{
 		assert collectionLayer != null;
-		return createAlignWithResizeAction(new SingleLayerAlignWithWidgetCollector(collectionLayer, outerBounds), interractionLayer, decorator != null ? decorator : ALIGN_WITH_MOVE_DECORATOR_DEFAULT, outerBounds);
+		return createAlignWithMoveAction(new SingleLayerAlignWithWidgetCollector(collectionLayer, outerBounds), interractionLayer, decorator != null ? decorator : ALIGN_WITH_MOVE_DECORATOR_DEFAULT, outerBounds);
+	}
+
+	public static WidgetAction createAlignWithMultiMoveAction(Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
+	{
+		assert collector != null && interractionLayer != null && decorator != null;
+		AlignWithMultiMoveProvider sp = new AlignWithMultiMoveProvider(canvas, collector, interractionLayer, decorator, outerBounds);
+		return createMoveAction(sp, sp);
 	}
 
 	/**
@@ -551,18 +498,56 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates a connect action with a default decorator.
+	 * Creates a align-with resize action.
 	 * 
+	 * @param collectionLayer
+	 *            the layer with objects that the alignment is checked against.
 	 * @param interractionLayer
-	 *            the interraction layer where the temporary connection is
-	 *            visualization placed.
-	 * @param provider
-	 *            the connect logic provider
-	 * @return the connect action
+	 *            the interraction layer where the align-with hint lines are
+	 *            placed
+	 * @param decorator
+	 *            the align-with move decorator
+	 * @return the align-with resize action
 	 */
-	public static ConnectAction createConnectAction(LayerWidget interractionLayer, ConnectProvider provider)
+	public static WidgetAction createAlignWithResizeAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator)
 	{
-		return createConnectAction(null, interractionLayer, provider);
+		return createAlignWithResizeAction(collectionLayer, interractionLayer, decorator, true);
+	}
+
+	/**
+	 * Creates a align-with resize action.
+	 * 
+	 * @param collectionLayer
+	 *            the layer with objects that the alignment is checked against.
+	 * @param interractionLayer
+	 *            the interraction layer where the align-with hint lines are
+	 *            placed
+	 * @param decorator
+	 *            the align-with move decorator
+	 * @param outerBounds
+	 *            if true, then the align-with is check against whole bounds of
+	 *            widgets in collection layer; if false, then the align-with is
+	 *            check against client area (widget bounds without border insets
+	 * @return the align-with resize action
+	 * @since 2.7
+	 */
+	public static WidgetAction createAlignWithResizeAction(LayerWidget collectionLayer, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
+	{
+		assert collectionLayer != null;
+		return createAlignWithResizeAction(new SingleLayerAlignWithWidgetCollector(collectionLayer, outerBounds), interractionLayer, decorator != null ? decorator : ALIGN_WITH_MOVE_DECORATOR_DEFAULT, outerBounds);
+	}
+
+	/**
+	 * Creates a action that controls a zoom factor of a scene where the action
+	 * is assigned. During zooming the view will be centered still.
+	 * 
+	 * @param zoomMultiplier
+	 *            the zoom multiplier
+	 * @return the zoom action
+	 */
+	public static WidgetAction createCenteredZoomAction(double zoomMultiplier)
+	{
+		return new CenteredZoomAction(zoomMultiplier);
 	}
 
 	/**
@@ -585,19 +570,159 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates an extended connect action with a default decorator. User can
-	 * invoke the action only with pressed CTRL key.
+	 * Creates a connect action with a default decorator.
 	 * 
 	 * @param interractionLayer
 	 *            the interraction layer where the temporary connection is
 	 *            visualization placed.
 	 * @param provider
 	 *            the connect logic provider
-	 * @return the extended connect action
+	 * @return the connect action
 	 */
-	public static WidgetAction createExtendedConnectAction(LayerWidget interractionLayer, ConnectProvider provider)
+	public static ConnectAction createConnectAction(LayerWidget interractionLayer, ConnectProvider provider)
 	{
-		return createExtendedConnectAction(null, interractionLayer, provider);
+		return createConnectAction(null, interractionLayer, provider);
+	}
+
+	/**
+	 * Creates a copy/paste/cut action that acts on the selectes elements on the
+	 * scene
+	 * 
+	 * @param wcpp
+	 *            a provider
+	 * @return a copy paste action
+	 */
+	public static WidgetCopyPasteAction createCopyPasteAction(WidgetCopyPasteProvider wcpp)
+	{
+		COPY_PASTE_ACTION = new WidgetCopyPasteAction(wcpp);
+		return COPY_PASTE_ACTION;
+	}
+
+	/**
+	 * Creates a cycle focus action.
+	 * 
+	 * @param provider
+	 *            the cycle focus provider
+	 * @return the cycle focus action
+	 */
+	public static WidgetAction createCycleFocusAction(CycleFocusProvider provider)
+	{
+		assert provider != null;
+		return new CycleFocusAction(provider);
+	}
+
+	/**
+	 * 
+	 * Creates a cycle focus action which switches focused object on a object
+	 * scene.
+	 * 
+	 * @return the cycle object scene focus action
+	 */
+	public static WidgetAction createCycleObjectSceneFocusAction()
+	{
+		return CYCLE_FOCUS_OBJECT_SCENE;
+	}
+
+	/**
+	 * Creates a default align-with move decorator.
+	 * 
+	 * @return the move decorator
+	 */
+	public static AlignWithMoveDecorator createDefaultAlignWithMoveDecorator()
+	{
+		return ALIGN_WITH_MOVE_DECORATOR_DEFAULT;
+	}
+
+	/**
+	 * Creates a default connect decorator
+	 * 
+	 * @return the connect decorator
+	 */
+	public static ConnectDecorator createDefaultConnectDecorator()
+	{
+		return CONNECT_DECORATOR_DEFAULT;
+	}
+
+	/**
+	 * Creates a default move provider where the logic controls the
+	 * preferredLocation of a widget where the action is assigned to.
+	 * 
+	 * @return the move provider
+	 */
+	public static MoveProvider createDefaultMoveProvider()
+	{
+		return MOVE_PROVIDER_DEFAULT;
+	}
+
+	/**
+	 * Creates a default reconnect decorator
+	 * 
+	 * @return the reconnect decorator
+	 */
+	public static ReconnectDecorator createDefaultReconnectDecorator()
+	{
+		return RECONNECT_DECORATOR_DEFAULT;
+	}
+
+	/**
+	 * Creates a default rectangular select decorator.
+	 * 
+	 * @param scene
+	 *            the scene where an action is used
+	 * @return the rectangular select decorator
+	 */
+	public static RectangularSelectDecorator createDefaultRectangularSelectDecorator(Scene scene)
+	{
+		assert scene != null;
+		return new DefaultRectangularSelectDecorator(scene);
+	}
+
+	/**
+	 * Creates a default resize control point resolver which is used in resize
+	 * action.
+	 * 
+	 * @return the resize control point resolver
+	 */
+	public static ResizeControlPointResolver createDefaultResizeControlPointResolver()
+	{
+		return RESIZE_CONTROL_POINT_RESOLVER_DEFAULT;
+	}
+
+	/**
+	 * Creates a default resize provider which controls preferredBounds of a
+	 * widget where an action is assigned.
+	 * 
+	 * @return the resize provider
+	 */
+	public static ResizeProvider createDefaultResizeProvider()
+	{
+		return RESIZE_PROVIDER_DEFAULT;
+	}
+
+	/**
+	 * Creates a delete action that delete selected nodes on the scene
+	 * 
+	 * @param wdp
+	 *            a provider to the delete action
+	 * @return the delete action
+	 */
+	public static WidgetDeleteAction createDeleteAction(WidgetDeleteProvider wdp)
+	{
+		DELETE_ACTION = new WidgetDeleteAction(wdp);
+		return DELETE_ACTION;
+	}
+
+	/**
+	 * Creates an edit action.
+	 * 
+	 * @param provider
+	 *            the edit logic provider.
+	 * @return the edit action
+	 */
+	public static WidgetAction createEditAction(EditProvider provider)
+	{
+		assert provider != null;
+		return new EditAction(provider);
 	}
 
 	/**
@@ -645,16 +770,81 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates an edit action.
+	 * Creates an extended connect action with a default decorator. User can
+	 * invoke the action only with pressed CTRL key.
 	 * 
+	 * @param interractionLayer
+	 *            the interraction layer where the temporary connection is
+	 *            visualization placed.
 	 * @param provider
-	 *            the edit logic provider.
-	 * @return the edit action
+	 *            the connect logic provider
+	 * @return the extended connect action
 	 */
-	public static WidgetAction createEditAction(EditProvider provider)
+	public static WidgetAction createExtendedConnectAction(LayerWidget interractionLayer, ConnectProvider provider)
 	{
-		assert provider != null;
-		return new EditAction(provider);
+		return createExtendedConnectAction(null, interractionLayer, provider);
+	}
+
+	/**
+	 * This action is used for forwarding key events to another widget. Usually
+	 * it could be used to forwarding a key event from a node widget to
+	 * node-label widget when a scene is using
+	 * process-focused-widget-and-its-parents event processing type.
+	 * 
+	 * @param forwardToWidget
+	 *            the widget to which events are forwarded
+	 * @param forwardToTool
+	 *            the tool to which events are forwarded; if null, then default
+	 *            action chain is used
+	 * @return the forward key events action; assign this action to widget from
+	 *         which the forwarding should be done
+	 */
+	public static WidgetAction createForwardKeyEventsAction(Widget forwardToWidget, String forwardToTool)
+	{
+		assert forwardToWidget != null;
+		return new ForwardKeyEventsAction(forwardToWidget, forwardToTool);
+	}
+
+	/**
+	 * Creates a move control point (of a connection widget) action with no
+	 * movement restriction.
+	 * 
+	 * @return the move control point action
+	 */
+	public static WidgetAction createFreeMoveControlPointAction()
+	{
+		return MOVE_CONTROL_POINT_ACTION_FREE;
+	}
+
+	/**
+	 * Creates a free (without any restriction) move control point (of a
+	 * ConnectionWidget) provider.
+	 * 
+	 * @return the move control point action
+	 */
+	public static MoveControlPointProvider createFreeMoveControlPointProvider()
+	{
+		return MOVE_CONTROL_POINT_PROVIDER_FREE;
+	}
+
+	/**
+	 * Creates a free (without any restriction) move strategy
+	 * 
+	 * @return the move strategy
+	 */
+	public static MoveStrategy createFreeMoveStrategy()
+	{
+		return MOVE_STRATEGY_FREE;
+	}
+
+	/**
+	 * Creates a free (without any restriction) resize strategy
+	 * 
+	 * @return the resize strategy
+	 */
+	public static ResizeStrategy createFreeResizeStategy()
+	{
+		return RESIZE_STRATEGY_FREE;
 	}
 
 	/**
@@ -688,6 +878,18 @@ public final class ActionFactory
 	}
 
 	/**
+	 * Creates an in-place editor action for a specific provider.
+	 * 
+	 * @param provider
+	 *            the in-place editor provider
+	 * @return the in-place editor action
+	 */
+	public static <C extends JComponent> WidgetAction createInplaceEditorAction(InplaceEditorProvider<C> provider)
+	{
+		return new InplaceEditorAction<C>(provider);
+	}
+
+	/**
 	 * Creates a text in-place editor action visualized using JTextField.
 	 * 
 	 * @param editor
@@ -714,15 +916,18 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates an in-place editor action for a specific provider.
+	 * Creates a action that controls a zoom factor of a scene where the action
+	 * is assigned. During zooming the view will be centered to the mouse
+	 * cursor.
 	 * 
-	 * @param provider
-	 *            the in-place editor provider
-	 * @return the in-place editor action
+	 * @param zoomMultiplier
+	 *            the zoom multiplier
+	 * @return the zoom action
+	 * @since 2.3
 	 */
-	public static <C extends JComponent> WidgetAction createInplaceEditorAction(InplaceEditorProvider<C> provider)
+	public static WidgetAction createMouseCenteredZoomAction(double zoomMultiplier)
 	{
-		return new InplaceEditorAction<C>(provider);
+		return new MouseCenteredZoomAction(zoomMultiplier);
 	}
 
 	/**
@@ -751,28 +956,6 @@ public final class ActionFactory
 	public static WidgetAction createMoveAction(MoveStrategy strategy, MoveProvider provider)
 	{
 		return new MoveAction(strategy != null ? strategy : createFreeMoveStrategy(), provider != null ? provider : createDefaultMoveProvider());
-	}
-
-	/**
-	 * Creates a move control point (of a connection widget) action with no
-	 * movement restriction.
-	 * 
-	 * @return the move control point action
-	 */
-	public static WidgetAction createFreeMoveControlPointAction()
-	{
-		return MOVE_CONTROL_POINT_ACTION_FREE;
-	}
-
-	/**
-	 * Creates a move control point (of a connection widget) action with is used
-	 * at ConnectionWidget with OrthogonalSearchRouter.
-	 * 
-	 * @return the move control point action
-	 */
-	public static WidgetAction createOrthogonalMoveControlPointAction()
-	{
-		return MOVE_CONTROL_POINT_ACTION_ORTHOGONAL;
 	}
 
 	/**
@@ -808,6 +991,42 @@ public final class ActionFactory
 	}
 
 	/**
+	 * Creates a rectangular select provider which controls a selection of an
+	 * object scene.
+	 * 
+	 * @param scene
+	 *            the object scene where an action is used
+	 * @return the rectangular select provider
+	 */
+	public static RectangularSelectProvider createObjectSceneRectangularSelectProvider(ObjectScene scene)
+	{
+		assert scene != null;
+		return new ObjectSceneRectangularSelectProvider(scene);
+	}
+
+	/**
+	 * Creates a move control point (of a connection widget) action with is used
+	 * at ConnectionWidget with OrthogonalSearchRouter.
+	 * 
+	 * @return the move control point action
+	 */
+	public static WidgetAction createOrthogonalMoveControlPointAction()
+	{
+		return MOVE_CONTROL_POINT_ACTION_ORTHOGONAL;
+	}
+
+	/**
+	 * Creates a orthogonal move control point provider which is usually used
+	 * with ConnectionWidget with OrthogonalSearchRouter.
+	 * 
+	 * @return the move control point provider
+	 */
+	public static MoveControlPointProvider createOrthogonalMoveControlPointProvider()
+	{
+		return MOVE_CONTROL_POINT_PROVIDER_ORTHOGONAL;
+	}
+
+	/**
 	 * Creates a scene view panning action.
 	 * 
 	 * @return the pan action
@@ -815,17 +1034,6 @@ public final class ActionFactory
 	public static WidgetAction createPanAction()
 	{
 		return PAN_ACTION;
-	}
-
-	/**
-	 * Creates a scene view panning action using mouse-wheel.
-	 * 
-	 * @return the wheel pan action
-	 * @since 2.7
-	 */
-	public static WidgetAction createWheelPanAction()
-	{
-		return WHEEL_PAN_ACTION;
 	}
 
 	/**
@@ -842,18 +1050,6 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates a reconnect action with a default decorator.
-	 * 
-	 * @param provider
-	 *            the reconnect logic provider
-	 * @return the reconnect action
-	 */
-	public static WidgetAction createReconnectAction(ReconnectProvider provider)
-	{
-		return createReconnectAction(null, provider);
-	}
-
-	/**
 	 * Creates a reconnect action with a specific decorator and logic provider.
 	 * 
 	 * @param decorator
@@ -865,6 +1061,18 @@ public final class ActionFactory
 	public static WidgetAction createReconnectAction(ReconnectDecorator decorator, ReconnectProvider provider)
 	{
 		return new ReconnectAction(decorator != null ? decorator : createDefaultReconnectDecorator(), provider);
+	}
+
+	/**
+	 * Creates a reconnect action with a default decorator.
+	 * 
+	 * @param provider
+	 *            the reconnect logic provider
+	 * @return the reconnect action
+	 */
+	public static WidgetAction createReconnectAction(ReconnectProvider provider)
+	{
+		return createReconnectAction(null, provider);
 	}
 
 	/**
@@ -917,24 +1125,6 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates a resize action with a specified resize strategy and provider and
-	 * default resize control point resolver.
-	 * 
-	 * @param strategy
-	 *            the resize strategy; if null, then the default (free without
-	 *            any restriction) strategy is used
-	 * @param provider
-	 *            the resize logic provider; if null, then the default logic
-	 *            provider is used (the action affect preferredBounds of a
-	 *            widget where it is assigned)
-	 * @return the resize action
-	 */
-	public static WidgetAction createResizeAction(ResizeStrategy strategy, ResizeProvider provider)
-	{
-		return createResizeAction(strategy, null, provider);
-	}
-
-	/**
 	 * Creates a resize action with a specified resize strategy and provider.
 	 * 
 	 * @param strategy
@@ -955,6 +1145,24 @@ public final class ActionFactory
 	}
 
 	/**
+	 * Creates a resize action with a specified resize strategy and provider and
+	 * default resize control point resolver.
+	 * 
+	 * @param strategy
+	 *            the resize strategy; if null, then the default (free without
+	 *            any restriction) strategy is used
+	 * @param provider
+	 *            the resize logic provider; if null, then the default logic
+	 *            provider is used (the action affect preferredBounds of a
+	 *            widget where it is assigned)
+	 * @return the resize action
+	 */
+	public static WidgetAction createResizeAction(ResizeStrategy strategy, ResizeProvider provider)
+	{
+		return createResizeAction(strategy, null, provider);
+	}
+
+	/**
 	 * Creates a select action. Usually the ObjectScene.createSelectAction
 	 * method is used instead of this method.
 	 * 
@@ -969,6 +1177,27 @@ public final class ActionFactory
 	}
 
 	/**
+	 * Creates a snap-to-grid move strategy.
+	 * 
+	 * @param horizontalGridSize
+	 *            the horizontal grid size
+	 * @param verticalGridSize
+	 *            the vertical grid size
+	 * @return the move strategy
+	 */
+	public static MoveStrategy createSnapToGridMoveStrategy(int horizontalGridSize, int verticalGridSize)
+	{
+		assert horizontalGridSize > 0 && verticalGridSize > 0;
+		return new SnapToGridMoveStrategy(horizontalGridSize, verticalGridSize);
+	}
+
+	public static MoveStrategy createSnapToLineMoveStrategy(Canvas canvas)
+	{
+		assert canvas != null;
+		return new SnapToLineMoveStrategy(LineProvider.getInstance(canvas));
+	}
+
+	/**
 	 * Creates a switch card action with controls an active card of a widget
 	 * where a card layout is used.
 	 * 
@@ -980,6 +1209,17 @@ public final class ActionFactory
 	{
 		assert cardLayoutWidget != null;
 		return new SelectAction(new SwitchCardProvider(cardLayoutWidget));
+	}
+
+	/**
+	 * Creates a scene view panning action using mouse-wheel.
+	 * 
+	 * @return the wheel pan action
+	 * @since 2.7
+	 */
+	public static WidgetAction createWheelPanAction()
+	{
+		return WHEEL_PAN_ACTION;
 	}
 
 	/**
@@ -1009,204 +1249,6 @@ public final class ActionFactory
 	}
 
 	/**
-	 * Creates a free (without any restriction) move strategy
-	 * 
-	 * @return the move strategy
-	 */
-	public static MoveStrategy createFreeMoveStrategy()
-	{
-		return MOVE_STRATEGY_FREE;
-	}
-
-	/**
-	 * Creates a snap-to-grid move strategy.
-	 * 
-	 * @param horizontalGridSize
-	 *            the horizontal grid size
-	 * @param verticalGridSize
-	 *            the vertical grid size
-	 * @return the move strategy
-	 */
-	public static MoveStrategy createSnapToGridMoveStrategy(int horizontalGridSize, int verticalGridSize)
-	{
-		assert horizontalGridSize > 0 && verticalGridSize > 0;
-		return new SnapToGridMoveStrategy(horizontalGridSize, verticalGridSize);
-	}
-
-	public static MoveStrategy createSnapToLineMoveStrategy(Canvas canvas)
-	{
-		assert canvas != null;
-		return new SnapToLineMoveStrategy(LineProvider.getInstance(canvas));
-	}
-
-	/**
-	 * Creates a default move provider where the logic controls the
-	 * preferredLocation of a widget where the action is assigned to.
-	 * 
-	 * @return the move provider
-	 */
-	public static MoveProvider createDefaultMoveProvider()
-	{
-		return MOVE_PROVIDER_DEFAULT;
-	}
-
-	/**
-	 * Creates a default align-with move decorator.
-	 * 
-	 * @return the move decorator
-	 */
-	public static AlignWithMoveDecorator createDefaultAlignWithMoveDecorator()
-	{
-		return ALIGN_WITH_MOVE_DECORATOR_DEFAULT;
-	}
-
-	/**
-	 * Creates a free (without any restriction) move control point (of a
-	 * ConnectionWidget) provider.
-	 * 
-	 * @return the move control point action
-	 */
-	public static MoveControlPointProvider createFreeMoveControlPointProvider()
-	{
-		return MOVE_CONTROL_POINT_PROVIDER_FREE;
-	}
-
-	/**
-	 * Creates a orthogonal move control point provider which is usually used
-	 * with ConnectionWidget with OrthogonalSearchRouter.
-	 * 
-	 * @return the move control point provider
-	 */
-	public static MoveControlPointProvider createOrthogonalMoveControlPointProvider()
-	{
-		return MOVE_CONTROL_POINT_PROVIDER_ORTHOGONAL;
-	}
-
-	/**
-	 * Creates a default rectangular select decorator.
-	 * 
-	 * @param scene
-	 *            the scene where an action is used
-	 * @return the rectangular select decorator
-	 */
-	public static RectangularSelectDecorator createDefaultRectangularSelectDecorator(Scene scene)
-	{
-		assert scene != null;
-		return new DefaultRectangularSelectDecorator(scene);
-	}
-
-	/**
-	 * Creates a rectangular select provider which controls a selection of an
-	 * object scene.
-	 * 
-	 * @param scene
-	 *            the object scene where an action is used
-	 * @return the rectangular select provider
-	 */
-	public static RectangularSelectProvider createObjectSceneRectangularSelectProvider(ObjectScene scene)
-	{
-		assert scene != null;
-		return new ObjectSceneRectangularSelectProvider(scene);
-	}
-
-	/**
-	 * Creates a default connect decorator
-	 * 
-	 * @return the connect decorator
-	 */
-	public static ConnectDecorator createDefaultConnectDecorator()
-	{
-		return CONNECT_DECORATOR_DEFAULT;
-	}
-
-	/**
-	 * Creates a default reconnect decorator
-	 * 
-	 * @return the reconnect decorator
-	 */
-	public static ReconnectDecorator createDefaultReconnectDecorator()
-	{
-		return RECONNECT_DECORATOR_DEFAULT;
-	}
-
-	/**
-	 * Creates a free (without any restriction) resize strategy
-	 * 
-	 * @return the resize strategy
-	 */
-	public static ResizeStrategy createFreeResizeStategy()
-	{
-		return RESIZE_STRATEGY_FREE;
-	}
-
-	/**
-	 * Creates a default resize provider which controls preferredBounds of a
-	 * widget where an action is assigned.
-	 * 
-	 * @return the resize provider
-	 */
-	public static ResizeProvider createDefaultResizeProvider()
-	{
-		return RESIZE_PROVIDER_DEFAULT;
-	}
-
-	/**
-	 * Creates a default resize control point resolver which is used in resize
-	 * action.
-	 * 
-	 * @return the resize control point resolver
-	 */
-	public static ResizeControlPointResolver createDefaultResizeControlPointResolver()
-	{
-		return RESIZE_CONTROL_POINT_RESOLVER_DEFAULT;
-	}
-
-	/**
-	 * 
-	 * Creates a cycle focus action which switches focused object on a object
-	 * scene.
-	 * 
-	 * @return the cycle object scene focus action
-	 */
-	public static WidgetAction createCycleObjectSceneFocusAction()
-	{
-		return CYCLE_FOCUS_OBJECT_SCENE;
-	}
-
-	/**
-	 * Creates a cycle focus action.
-	 * 
-	 * @param provider
-	 *            the cycle focus provider
-	 * @return the cycle focus action
-	 */
-	public static WidgetAction createCycleFocusAction(CycleFocusProvider provider)
-	{
-		assert provider != null;
-		return new CycleFocusAction(provider);
-	}
-
-	/**
-	 * This action is used for forwarding key events to another widget. Usually
-	 * it could be used to forwarding a key event from a node widget to
-	 * node-label widget when a scene is using
-	 * process-focused-widget-and-its-parents event processing type.
-	 * 
-	 * @param forwardToWidget
-	 *            the widget to which events are forwarded
-	 * @param forwardToTool
-	 *            the tool to which events are forwarded; if null, then default
-	 *            action chain is used
-	 * @return the forward key events action; assign this action to widget from
-	 *         which the forwarding should be done
-	 */
-	public static WidgetAction createForwardKeyEventsAction(Widget forwardToWidget, String forwardToTool)
-	{
-		assert forwardToWidget != null;
-		return new ForwardKeyEventsAction(forwardToWidget, forwardToTool);
-	}
-
-	/**
 	 * Returns an editor controller for a specified inplace-editor-action
 	 * created by <code>ActionFactory.createInplaceEditorAction</code> method.
 	 * 
@@ -1217,34 +1259,6 @@ public final class ActionFactory
 	public static InplaceEditorProvider.EditorController getInplaceEditorController(WidgetAction inplaceEditorAction)
 	{
 		return (InplaceEditorProvider.EditorController) inplaceEditorAction;
-	}
-
-	/**
-	 * Creates a action that controls a zoom factor of a scene where the action
-	 * is assigned. During zooming the view will be centered still.
-	 * 
-	 * @param zoomMultiplier
-	 *            the zoom multiplier
-	 * @return the zoom action
-	 */
-	public static WidgetAction createCenteredZoomAction(double zoomMultiplier)
-	{
-		return new CenteredZoomAction(zoomMultiplier);
-	}
-
-	/**
-	 * Creates a action that controls a zoom factor of a scene where the action
-	 * is assigned. During zooming the view will be centered to the mouse
-	 * cursor.
-	 * 
-	 * @param zoomMultiplier
-	 *            the zoom multiplier
-	 * @return the zoom action
-	 * @since 2.3
-	 */
-	public static WidgetAction createMouseCenteredZoomAction(double zoomMultiplier)
-	{
-		return new MouseCenteredZoomAction(zoomMultiplier);
 	}
 
 }

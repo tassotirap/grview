@@ -69,6 +69,13 @@ public final class AlignWithMultiMoveProvider extends AlignWithSupport implement
 		mmp = new MultiMoveProvider(CanvasFactory.getCanvas(canvasID));
 	}
 
+	@Override
+	public Point getOriginalLocation(Widget widget)
+	{
+		return mmp.getOriginalLocation(widget);
+	}
+
+	@Override
 	public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation)
 	{
 		Point widgetLocation = widget.getLocation();
@@ -90,23 +97,21 @@ public final class AlignWithMultiMoveProvider extends AlignWithSupport implement
 		return widget.getParentWidget().convertSceneToLocal(point);
 	}
 
-	public void movementStarted(Widget widget)
-	{
-		show();
-		mmp.movementStarted(widget);
-	}
-
+	@Override
 	public void movementFinished(Widget widget)
 	{
 		hide();
 		mmp.movementFinished(widget);
 	}
 
-	public Point getOriginalLocation(Widget widget)
+	@Override
+	public void movementStarted(Widget widget)
 	{
-		return mmp.getOriginalLocation(widget);
+		show();
+		mmp.movementStarted(widget);
 	}
 
+	@Override
 	public void setNewLocation(Widget widget, Point location)
 	{
 		mmp.setNewLocation(widget, location);

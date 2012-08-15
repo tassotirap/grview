@@ -11,7 +11,6 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
 import org.grview.project.ProjectManager;
-import org.grview.ui.Window;
 
 public class FileSystemModel implements TreeModel
 {
@@ -24,74 +23,6 @@ public class FileSystemModel implements TreeModel
 		root = rootDirectory;
 	}
 
-	public Object getRoot()
-	{
-		return root;
-	}
-
-	public Object getChild(Object parent, int index)
-	{
-		File directory = (File) parent;
-		String[] children = directory.list();
-		return new TreeFile(directory, children[index]);
-	}
-
-	public int getChildCount(Object parent)
-	{
-		File file = (File) parent;
-		if (file.isDirectory())
-		{
-			String[] fileList = file.list();
-			if (fileList != null)
-				return file.list().length;
-		}
-		return 0;
-	}
-
-	public boolean isLeaf(Object node)
-	{
-		File file = (File) node;
-		return file.isFile();
-	}
-
-	public int getIndexOfChild(Object parent, Object child)
-	{
-		File directory = (File) parent;
-		File file = (File) child;
-		String[] children = directory.list();
-		for (int i = 0; i < children.length; i++)
-		{
-			if (file.getName().equals(children[i]))
-			{
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	public void valueForPathChanged(TreePath path, Object value)
-	{
-
-		File oldFile = (File) path.getLastPathComponent();
-		String fileParentPath = oldFile.getParent();
-
-		if (ProjectManager.isFileOpen(oldFile.getAbsolutePath()))
-		{
-			JOptionPane.showMessageDialog(ProjectManager.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		String newFileName = (String) value;
-		File targetFile = new File(fileParentPath, newFileName);
-		oldFile.renameTo(targetFile);
-		File parent = new File(fileParentPath);
-		int[] changedChildrenIndices = { getIndexOfChild(parent, targetFile) };
-		Object[] changedChildren = { targetFile };
-		fireTreeNodesChanged(path.getParentPath(), changedChildrenIndices, changedChildren);
-		fireTreeStructureChanged(this, path.getParentPath());
-
-		ProjectManager.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
-	}
-
 	protected void fireTreeNodesChanged(TreePath parentPath, int[] indices, Object[] children)
 	{
 		TreeModelEvent event = new TreeModelEvent(this, parentPath, indices, children);
@@ -99,7 +30,7 @@ public class FileSystemModel implements TreeModel
 		TreeModelListener listener = null;
 		while (iterator.hasNext())
 		{
-			listener = (TreeModelListener) iterator.next();
+			listener = iterator.next();
 			listener.treeNodesChanged(event);
 		}
 	}
@@ -123,18 +54,94 @@ public class FileSystemModel implements TreeModel
 		{
 			if (e == null)
 				e = new TreeModelEvent(source, path);
-			((TreeModelListener) iterator.next()).treeStructureChanged(e);
+			iterator.next().treeStructureChanged(e);
 		}
 	}
 
+	@Override
 	public void addTreeModelListener(TreeModelListener listener)
 	{
 		listeners.add(listener);
 	}
 
+	@Override
+	public Object getChild(Object parent, int index)
+	{
+		File directory = (File) parent;
+		String[] children = directory.list();
+		return new TreeFile(directory, children[index]);
+	}
+
+	@Override
+	public int getChildCount(Object parent)
+	{
+		File file = (File) parent;
+		if (file.isDirectory())
+		{
+			String[] fileList = file.list();
+			if (fileList != null)
+				return file.list().length;
+		}
+		return 0;
+	}
+
+	@Override
+	public int getIndexOfChild(Object parent, Object child)
+	{
+		File directory = (File) parent;
+		File file = (File) child;
+		String[] children = directory.list();
+		for (int i = 0; i < children.length; i++)
+		{
+			if (file.getName().equals(children[i]))
+			{
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	@Override
+	public Object getRoot()
+	{
+		return root;
+	}
+
+	@Override
+	public boolean isLeaf(Object node)
+	{
+		File file = (File) node;
+		return file.isFile();
+	}
+
+	@Override
 	public void removeTreeModelListener(TreeModelListener listener)
 	{
 		listeners.remove(listener);
+	}
+
+	@Override
+	public void valueForPathChanged(TreePath path, Object value)
+	{
+
+		File oldFile = (File) path.getLastPathComponent();
+		String fileParentPath = oldFile.getParent();
+
+		if (ProjectManager.isFileOpen(oldFile.getAbsolutePath()))
+		{
+			JOptionPane.showMessageDialog(ProjectManager.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
+			return;
+		}
+		String newFileName = (String) value;
+		File targetFile = new File(fileParentPath, newFileName);
+		oldFile.renameTo(targetFile);
+		File parent = new File(fileParentPath);
+		int[] changedChildrenIndices = { getIndexOfChild(parent, targetFile) };
+		Object[] changedChildren = { targetFile };
+		fireTreeNodesChanged(path.getParentPath(), changedChildrenIndices, changedChildren);
+		fireTreeStructureChanged(this, path.getParentPath());
+
+		ProjectManager.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
 	}
 
 }

@@ -31,7 +31,8 @@ public class WorkspaceChooser extends JFrame
 	private static final String PROJECTS_SCREEN_PNG = "projects_screen.png";
 	private static final long serialVersionUID = 1L;
 	private static final String LIST_FILE = "workspace";
-	private static WorkspaceChooser instance;private String workspaceDir;
+	private static WorkspaceChooser instance;
+	private String workspaceDir;
 
 	private boolean canceled;
 	private boolean done;
@@ -63,6 +64,7 @@ public class WorkspaceChooser extends JFrame
 	{
 		java.awt.EventQueue.invokeLater(new Runnable()
 		{
+			@Override
 			public void run()
 			{
 				getInstance().setVisible(true);
@@ -198,6 +200,7 @@ public class WorkspaceChooser extends JFrame
 
 		btnBrowse.addActionListener(new java.awt.event.ActionListener()
 		{
+			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt)
 			{
 				btnBrowseActionPerformed();
@@ -207,6 +210,7 @@ public class WorkspaceChooser extends JFrame
 		btnCancel.setText("OK");
 		btnCancel.addActionListener(new java.awt.event.ActionListener()
 		{
+			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt)
 			{
 				btnOkActionPerformed();
@@ -216,6 +220,7 @@ public class WorkspaceChooser extends JFrame
 		btnOk.setText("Cancel");
 		btnOk.addActionListener(new java.awt.event.ActionListener()
 		{
+			@Override
 			public void actionPerformed(java.awt.event.ActionEvent evt)
 			{
 				btnCancelActionPerformed();

@@ -40,16 +40,20 @@ public class RoutineWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes this
+	 * This method initializes buttonsPanel
 	 * 
-	 * @return void
+	 * @return javax.swing.JPanel
 	 */
-	private void initialize()
+	private JPanel getButtonsPanel()
 	{
-		this.setSize(550, 500);
-		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((screenDim.width - 550) / 2, (screenDim.height - 500) / 2);
-		this.setContentPane(getJContentPane());
+		if (buttonsPanel == null)
+		{
+			buttonsPanel = new JPanel();
+			buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+			buttonsPanel.add(getCancelButton());
+			buttonsPanel.add(getInsertButton());
+		}
+		return buttonsPanel;
 	}
 
 	/**
@@ -97,17 +101,31 @@ public class RoutineWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes nameTextField
+	 * This method initializes this
 	 * 
-	 * @return javax.swing.JTextField
+	 * @return void
 	 */
-	protected JTextField getNameTextField()
+	private void initialize()
 	{
-		if (nameTextField == null)
+		this.setSize(550, 500);
+		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setLocation((screenDim.width - 550) / 2, (screenDim.height - 500) / 2);
+		this.setContentPane(getJContentPane());
+	}
+
+	/**
+	 * This method initializes cancelButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	protected JButton getCancelButton()
+	{
+		if (cancelButton == null)
 		{
-			nameTextField = new JTextField();
+			cancelButton = new JButton();
+			cancelButton.setText("Cancel");
 		}
-		return nameTextField;
+		return cancelButton;
 	}
 
 	/**
@@ -130,23 +148,6 @@ public class RoutineWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes buttonsPanel
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getButtonsPanel()
-	{
-		if (buttonsPanel == null)
-		{
-			buttonsPanel = new JPanel();
-			buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-			buttonsPanel.add(getCancelButton());
-			buttonsPanel.add(getInsertButton());
-		}
-		return buttonsPanel;
-	}
-
-	/**
 	 * This method initializes insertButton
 	 * 
 	 * @return javax.swing.JButton
@@ -162,18 +163,17 @@ public class RoutineWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes cancelButton
+	 * This method initializes nameTextField
 	 * 
-	 * @return javax.swing.JButton
+	 * @return javax.swing.JTextField
 	 */
-	protected JButton getCancelButton()
+	protected JTextField getNameTextField()
 	{
-		if (cancelButton == null)
+		if (nameTextField == null)
 		{
-			cancelButton = new JButton();
-			cancelButton.setText("Cancel");
+			nameTextField = new JTextField();
 		}
-		return cancelButton;
+		return nameTextField;
 	}
 
 } // @jve:decl-index=0:visual-constraint="10,10"

@@ -54,6 +54,40 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvas.getID()));
 	}
 
+	private JMenuItem createBuildAndExport()
+	{
+		JMenuItem grammarMenu = new JMenuItem("Build and Export");
+		grammarMenu.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Cursor oldCursor = canvas.getView().getCursor();
+				canvas.getView().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				Controller.generateAndParseCurrentGrammar(true);
+				canvas.getView().setCursor(oldCursor);
+			}
+		});
+		return grammarMenu;
+	}
+
+	private JMenuItem createBuildAndParseMenu()
+	{
+		JMenuItem grammarMenu = new JMenuItem("Build and Parse");
+		grammarMenu.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				Cursor oldCursor = canvas.getView().getCursor();
+				canvas.getView().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
+				Controller.generateAndParseCurrentGrammar(false);
+				canvas.getView().setCursor(oldCursor);
+			}
+		});
+		return grammarMenu;
+	}
+
 	private JMenuItem createCopyMenu()
 	{
 		JMenuItem copyMenu = new JMenuItem("Copy");
@@ -123,38 +157,6 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		return deleteMenu;
 	}
 
-	private JMenuItem createBuildAndParseMenu()
-	{
-		JMenuItem grammarMenu = new JMenuItem("Build and Parse");
-		grammarMenu.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				Cursor oldCursor = canvas.getView().getCursor();
-				canvas.getView().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				Controller.generateAndParseCurrentGrammar(false);
-				canvas.getView().setCursor(oldCursor);
-			}
-		});
-		return grammarMenu;
-	}
-
-	private JMenuItem createBuildAndExport()
-	{
-		JMenuItem grammarMenu = new JMenuItem("Build and Export");
-		grammarMenu.addActionListener(new ActionListener()
-		{
-			public void actionPerformed(ActionEvent e)
-			{
-				Cursor oldCursor = canvas.getView().getCursor();
-				canvas.getView().setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
-				Controller.generateAndParseCurrentGrammar(true);
-				canvas.getView().setCursor(oldCursor);
-			}
-		});
-		return grammarMenu;
-	}
-
 	private JMenu createMovingMenu()
 	{
 		JMenu movingMenu = new JMenu("Move Policy");
@@ -165,6 +167,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(free);
 		movingMenu.add(free).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(false);
@@ -178,6 +181,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(snap);
 		movingMenu.add(snap).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(true);
@@ -191,6 +195,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(align);
 		movingMenu.add(align).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(false);
@@ -204,6 +209,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(lines);
 		movingMenu.add(lines).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(false);
@@ -238,6 +244,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		JMenuItem redoMenu = new JMenuItem();
 		redoMenu.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (vsm.hasNextRedo())
@@ -268,6 +275,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(orto);
 		routingMenu.add(orto).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				canvas.setConnStrategy(Canvas.R_ORTHOGONAL);
@@ -279,6 +287,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(direct);
 		routingMenu.add(direct).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				canvas.setConnStrategy(Canvas.R_DIRECT);
@@ -290,6 +299,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(free);
 		routingMenu.add(free).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				canvas.setConnStrategy(Canvas.R_FREE);
@@ -310,6 +320,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(nothing);
 		showMenu.add(nothing).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(false);
@@ -322,6 +333,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		group.add(grid);
 		showMenu.add(grid).addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				gridProvider.setVisible(true);
@@ -514,6 +526,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		JMenuItem undoMenu = new JMenuItem();
 		undoMenu.addActionListener(new ActionListener()
 		{
+			@Override
 			public void actionPerformed(ActionEvent e)
 			{
 				if (vsm.hasNextUndo())
@@ -534,6 +547,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		return undoMenu;
 	}
 
+	@Override
 	public JPopupMenu getPopupMenu(Widget widget, Point localLocation)
 	{
 		Object oWidget = canvas.getFocusedObject();

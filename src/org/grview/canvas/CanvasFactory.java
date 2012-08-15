@@ -15,8 +15,8 @@ import org.grview.canvas.state.CanvasState;
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.canvas.widget.IconNodeWidgetExt;
-import org.grview.canvas.widget.LabelWidgetExt;
 import org.grview.canvas.widget.IconNodeWidgetExt.TextOrientation;
+import org.grview.canvas.widget.LabelWidgetExt;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
 import org.netbeans.api.visual.border.BorderFactory;
@@ -26,20 +26,82 @@ import org.netbeans.api.visual.widget.Widget;
 public class CanvasFactory implements PropertyChangeListener
 {
 
-	private CanvasDecorator decorator;
-	private WidgetActionRepository actions;
+	private static class CD extends CanvasDecorator
+	{
 
+		@Override
+		public ConnectionWidget drawConnection(String type, Canvas canvas, String label)
+		{
+			ConnectionWidget connection = null;
+			if (type.equals(Canvas.SUCCESSOR))
+			{
+				connection = CONNECT_DECORATOR_SUCCESSOR.createConnectionWidget(canvas.getMainLayer().getScene());
+			}
+			else
+			{
+				connection = CONNECT_DECORATOR_ALTERNATIVE.createConnectionWidget(canvas.getMainLayer().getScene());
+			}
+			connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
+			connection.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
+			connection.setPaintControlPoints(true);
+			connection.setControlPointShape(PointShape.SQUARE_FILLED_BIG);
+			return connection;
+		}
+
+		@Override
+		public Widget drawIcon(String type, Canvas canvas, String text) throws Exception
+		{
+			Widget widget;
+			if (type.equals(Canvas.LAMBDA))
+			{
+				/*
+				 * ImageWidget iwidget = new
+				 * ImageWidget(canvas.getMainLayer().getScene(),
+				 * Utilities.loadImage(findIconPath(type))); iwidget.setOpaque
+				 * (true); iwidget.repaint(); widget = iwidget;
+				 */
+				IconNodeWidgetExt iwidget = new IconNodeWidgetExt(canvas.getMainLayer().getScene(), TextOrientation.RIGHT_CENTER);
+				iwidget.setImage(new ImageIcon(findIconPath(type)).getImage());
+				iwidget.setOpaque(true);
+				iwidget.repaint();
+				widget = iwidget;
+			}
+			else
+			{
+				LabelWidgetExt lwidget = new LabelWidgetExt(canvas.getMainLayer().getScene(), text);
+				try
+				{
+					lwidget.setOpaque(true);
+					lwidget.setBorder(BorderFactory.createImageBorder(new Insets(6, (type.equals(Canvas.START)) ? 18 : 8, 6, (type.equals(Canvas.LEFT_SIDE) || type.equals(Canvas.START)) ? 16 : 6), new ImageIcon(findIconPath(type)).getImage()));
+					lwidget.setMinimumSize(new Dimension(50, 0));
+					lwidget.setVerticalAlignment(LabelWidgetExt.VerticalAlignment.CENTER);
+					lwidget.repaint();
+					widget = lwidget;
+				}
+				catch (Exception e)
+				{
+					throw e;
+				}
+			}
+			return widget;
+		}
+	}
+
+	private CanvasDecorator decorator;
+
+	private WidgetActionRepository actions;
 	private static String defaultCursor = Canvas.SELECT;
 	private static String connStrategy = Canvas.R_ORTHOGONAL;
+
 	private static String moveStrategy = Canvas.M_FREE;
 
 	private static String projectPath = "";
-
 	private HashMap<String, Canvas> canvasByPath;
 	private HashMap<Canvas, String> pathByCanvas;
 	private HashMap<String, Canvas> canvasById;
 	private HashMap<String, VolatileStateManager> listVolatileStateManager;
 	private HashMap<String, StaticStateManager> listStaticStateManager;
+
 	private HashMap<String, CanvasState> states;
 
 	private static int defaultBufferCapacity = 20;
@@ -66,7 +128,7 @@ public class CanvasFactory implements PropertyChangeListener
 		}
 		return instance;
 	}
-	
+
 	public static Canvas createCanvas(File file)
 	{
 		CanvasFactory canvasFactory = getInstance();
@@ -112,15 +174,21 @@ public class CanvasFactory implements PropertyChangeListener
 		return canvas;
 	}
 
-	private void resetActions()
+	/**
+	 * Returns an existing canvas
+	 * 
+	 * @param id
+	 *            identifies the existing canvas
+	 * @return the existing canvas with id, or null if there isn't one
+	 */
+	public static Canvas getCanvas(String id)
 	{
-		WidgetActionRepositoryFactory.createRepository();
-		actions = WidgetActionRepositoryFactory.getDefaultRepository();		
-	}
-
-	public static void setProjectPath(String path)
-	{
-		CanvasFactory.projectPath = path;
+		CanvasFactory canvasFactory = getInstance();
+		if (!canvasFactory.canvasById.containsKey(id))
+		{
+			return null;
+		}
+		return canvasFactory.canvasById.get(id);
 	}
 
 	public static Canvas getCanvasFromFile(String path)
@@ -159,23 +227,6 @@ public class CanvasFactory implements PropertyChangeListener
 	}
 
 	/**
-	 * Returns an existing canvas
-	 * 
-	 * @param id
-	 *            identifies the existing canvas
-	 * @return the existing canvas with id, or null if there isn't one
-	 */
-	public static Canvas getCanvas(String id)
-	{
-		CanvasFactory canvasFactory = getInstance();
-		if (!canvasFactory.canvasById.containsKey(id))
-		{
-			return null;
-		}
-		return canvasFactory.canvasById.get(id);
-	}
-
-	/**
 	 * Returns a static state manager associated with a canvas holding the
 	 * specified id
 	 * 
@@ -209,67 +260,18 @@ public class CanvasFactory implements PropertyChangeListener
 		return getInstance().listVolatileStateManager.get(id);
 	}
 
-	private static class CD extends CanvasDecorator
+	public static void setProjectPath(String path)
 	{
-
-		@Override
-		public Widget drawIcon(String type, Canvas canvas, String text) throws Exception
-		{
-			Widget widget;
-			if (type.equals(Canvas.LAMBDA))
-			{
-				/*
-				 * ImageWidget iwidget = new
-				 * ImageWidget(canvas.getMainLayer().getScene(),
-				 * Utilities.loadImage(findIconPath(type))); iwidget.setOpaque
-				 * (true); iwidget.repaint(); widget = iwidget;
-				 */
-				IconNodeWidgetExt iwidget = new IconNodeWidgetExt(canvas.getMainLayer().getScene(), TextOrientation.RIGHT_CENTER);
-				iwidget.setImage(new ImageIcon(findIconPath(type)).getImage());
-				iwidget.setOpaque(true);
-				iwidget.repaint();
-				widget = iwidget;
-			}
-			else
-			{
-				LabelWidgetExt lwidget = new LabelWidgetExt(canvas.getMainLayer().getScene(), text);
-				try
-				{
-					lwidget.setOpaque(true);
-					lwidget.setBorder(BorderFactory.createImageBorder(new Insets(6, (type.equals(Canvas.START)) ? 18 : 8, 6, (type.equals(Canvas.LEFT_SIDE) || type.equals(Canvas.START)) ? 16 : 6), new ImageIcon(findIconPath(type)).getImage()));
-					lwidget.setMinimumSize(new Dimension(50, 0));
-					lwidget.setVerticalAlignment(LabelWidgetExt.VerticalAlignment.CENTER);
-					lwidget.repaint();
-					widget = lwidget;
-				}
-				catch (Exception e)
-				{
-					throw e;
-				}
-			}
-			return widget;
-		}
-
-		@Override
-		public ConnectionWidget drawConnection(String type, Canvas canvas, String label)
-		{
-			ConnectionWidget connection = null;
-			if (type.equals(Canvas.SUCCESSOR))
-			{
-				connection = CONNECT_DECORATOR_SUCCESSOR.createConnectionWidget(canvas.getMainLayer().getScene());
-			}
-			else
-			{
-				connection = CONNECT_DECORATOR_ALTERNATIVE.createConnectionWidget(canvas.getMainLayer().getScene());
-			}
-			connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-			connection.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
-			connection.setPaintControlPoints(true);
-			connection.setControlPointShape(PointShape.SQUARE_FILLED_BIG);
-			return connection;
-		}
+		CanvasFactory.projectPath = path;
 	}
 
+	private void resetActions()
+	{
+		WidgetActionRepositoryFactory.createRepository();
+		actions = WidgetActionRepositoryFactory.getDefaultRepository();
+	}
+
+	@Override
 	public void propertyChange(PropertyChangeEvent event)
 	{
 		if (event.getSource() instanceof VolatileStateManager && event.getPropertyName().equals("object_state"))

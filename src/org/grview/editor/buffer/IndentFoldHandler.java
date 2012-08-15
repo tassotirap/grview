@@ -26,6 +26,7 @@ import javax.swing.text.Segment;
 
 /**
  * A fold handler that folds lines based on their indent level.
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 4.0pre1
@@ -37,13 +38,17 @@ public class IndentFoldHandler extends FoldHandler
 		super("indent");
 	}
 
-	//{{{ getFoldLevel() method
+	// {{{ getFoldLevel() method
 	/**
 	 * Returns the fold level of the specified line.
-	 * @param buffer The buffer in question
-	 * @param lineIndex The line index
-	 * @param seg A segment the fold handler can use to obtain any
-	 * text from the buffer, if necessary
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param lineIndex
+	 *            The line index
+	 * @param seg
+	 *            A segment the fold handler can use to obtain any text from the
+	 *            buffer, if necessary
 	 * @return The fold level of the specified line
 	 * @since jEdit 4.0pre1
 	 */
@@ -52,7 +57,7 @@ public class IndentFoldHandler extends FoldHandler
 	{
 		int tabSize = buffer.getTabSize();
 
-		buffer.getLineText(lineIndex,seg);
+		buffer.getLineText(lineIndex, seg);
 
 		int offset = seg.offset;
 		int count = seg.count;
@@ -61,30 +66,30 @@ public class IndentFoldHandler extends FoldHandler
 
 		boolean seenNonWhiteSpace = false;
 
-loop:		for(int i = 0; i < count; i++)
+		loop: for (int i = 0; i < count; i++)
 		{
-			switch(seg.array[offset + i])
+			switch (seg.array[offset + i])
 			{
-			case ' ':
-				whitespace++;
-				break;
-			case '\t':
-				whitespace += (tabSize - whitespace % tabSize);
-				break;
-			default:
-				seenNonWhiteSpace = true;
-				break loop;
+				case ' ':
+					whitespace++;
+					break;
+				case '\t':
+					whitespace += (tabSize - whitespace % tabSize);
+					break;
+				default:
+					seenNonWhiteSpace = true;
+					break loop;
 			}
 		}
 
-		if(!seenNonWhiteSpace)
+		if (!seenNonWhiteSpace)
 		{
 			// empty line. inherit previous line's fold level
-			if(lineIndex != 0)
+			if (lineIndex != 0)
 				return buffer.getFoldLevel(lineIndex - 1);
 			else
 				return 0;
 		}
-			return whitespace;
-	} //}}}
+		return whitespace;
+	} // }}}
 }

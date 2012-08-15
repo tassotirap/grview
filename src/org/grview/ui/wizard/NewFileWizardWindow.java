@@ -24,10 +24,39 @@ import javax.swing.JTextField;
 import javax.swing.ListCellRenderer;
 import javax.swing.ListSelectionModel;
 
-import org.grview.ui.wizard.FileEntry;
-
 public class NewFileWizardWindow extends JFrame
 {
+
+	class FileCellRenderer extends JLabel implements ListCellRenderer
+	{
+		private final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
+
+		public FileCellRenderer()
+		{
+			setOpaque(true);
+			setIconTextGap(12);
+		}
+
+		@Override
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
+		{
+			FileEntry entry = (FileEntry) value;
+			setText(entry.getTitle());
+			setIcon(entry.getImage());
+			if (isSelected)
+			{
+				getJTextArea().setText(descByName.get(getText()));
+				setBackground(HIGHLIGHT_COLOR);
+				setForeground(Color.white);
+			}
+			else
+			{
+				setBackground(Color.white);
+				setForeground(Color.black);
+			}
+			return this;
+		}
+	}
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
@@ -39,10 +68,11 @@ public class NewFileWizardWindow extends JFrame
 	private JButton jButton1 = null;
 	private JTextArea jTextArea = null;
 	private JPanel jPanel2 = null;
-	private JLabel jLabel2 = null;
 
+	private JLabel jLabel2 = null;
 	private Object[] fileEntries;
 	private HashMap<String, String> descByName;
+
 	private JTextField jTextField = null;
 
 	/**
@@ -54,21 +84,6 @@ public class NewFileWizardWindow extends JFrame
 		this.fileEntries = fileEntries;
 		this.descByName = descByName;
 		initialize();
-	}
-
-	/**
-	 * This method initializes this
-	 * 
-	 * @return void
-	 */
-	private void initialize()
-	{
-		this.setSize(320, 418);
-		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
-		this.setLocation((screenDim.width - 320) / 2, (screenDim.height - 418) / 2);
-		this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
-		this.setContentPane(getJContentPane());
-		this.setTitle("File Wizard");
 	}
 
 	/**
@@ -144,32 +159,6 @@ public class NewFileWizardWindow extends JFrame
 		return jContentPane;
 	}
 
-	public JTextArea getJTextArea()
-	{
-		if (jTextArea == null)
-		{
-			jTextArea = new JTextArea();
-			jTextArea.setLineWrap(true);
-		}
-		return jTextArea;
-	}
-
-	/**
-	 * This method initializes jList
-	 * 
-	 * @return javax.swing.JList
-	 */
-	public JList getJList()
-	{
-		if (jList == null)
-		{
-			jList = new JList(fileEntries);
-			jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-			jList.setCellRenderer(new FileCellRenderer());
-		}
-		return jList;
-	}
-
 	/**
 	 * This method initializes jPanel
 	 * 
@@ -204,18 +193,33 @@ public class NewFileWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes jButton
+	 * This method initializes jPanel2
 	 * 
-	 * @return javax.swing.JButton
+	 * @return javax.swing.JPanel
 	 */
-	public JButton getOkButton()
+	private JPanel getJPanel2()
 	{
-		if (jButton == null)
+		if (jPanel2 == null)
 		{
-			jButton = new JButton();
-			jButton.setText("Ok");
+			jPanel2 = new JPanel();
+			jPanel2.setLayout(new GridBagLayout());
 		}
-		return jButton;
+		return jPanel2;
+	}
+
+	/**
+	 * This method initializes this
+	 * 
+	 * @return void
+	 */
+	private void initialize()
+	{
+		this.setSize(320, 418);
+		Dimension screenDim = Toolkit.getDefaultToolkit().getScreenSize();
+		this.setLocation((screenDim.width - 320) / 2, (screenDim.height - 418) / 2);
+		this.setComponentOrientation(ComponentOrientation.LEFT_TO_RIGHT);
+		this.setContentPane(getJContentPane());
+		this.setTitle("File Wizard");
 	}
 
 	/**
@@ -232,6 +236,7 @@ public class NewFileWizardWindow extends JFrame
 			jButton1.addActionListener(new ActionListener()
 			{
 
+				@Override
 				public void actionPerformed(ActionEvent e)
 				{
 					setVisible(false);
@@ -242,48 +247,29 @@ public class NewFileWizardWindow extends JFrame
 	}
 
 	/**
-	 * This method initializes jPanel2
+	 * This method initializes jList
 	 * 
-	 * @return javax.swing.JPanel
+	 * @return javax.swing.JList
 	 */
-	private JPanel getJPanel2()
+	public JList getJList()
 	{
-		if (jPanel2 == null)
+		if (jList == null)
 		{
-			jPanel2 = new JPanel();
-			jPanel2.setLayout(new GridBagLayout());
+			jList = new JList(fileEntries);
+			jList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+			jList.setCellRenderer(new FileCellRenderer());
 		}
-		return jPanel2;
+		return jList;
 	}
 
-	class FileCellRenderer extends JLabel implements ListCellRenderer
+	public JTextArea getJTextArea()
 	{
-		private final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
-
-		public FileCellRenderer()
+		if (jTextArea == null)
 		{
-			setOpaque(true);
-			setIconTextGap(12);
+			jTextArea = new JTextArea();
+			jTextArea.setLineWrap(true);
 		}
-
-		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus)
-		{
-			FileEntry entry = (FileEntry) value;
-			setText(entry.getTitle());
-			setIcon(entry.getImage());
-			if (isSelected)
-			{
-				getJTextArea().setText(descByName.get(getText()));
-				setBackground(HIGHLIGHT_COLOR);
-				setForeground(Color.white);
-			}
-			else
-			{
-				setBackground(Color.white);
-				setForeground(Color.black);
-			}
-			return this;
-		}
+		return jTextArea;
 	}
 
 	/**
@@ -298,5 +284,20 @@ public class NewFileWizardWindow extends JFrame
 			jTextField = new JTextField();
 		}
 		return jTextField;
+	}
+
+	/**
+	 * This method initializes jButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	public JButton getOkButton()
+	{
+		if (jButton == null)
+		{
+			jButton = new JButton();
+			jButton.setText("Ok");
+		}
+		return jButton;
 	}
 } // @jve:decl-index=0:visual-constraint="10,10"

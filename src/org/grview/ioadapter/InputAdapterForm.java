@@ -1,10 +1,12 @@
 package org.grview.ioadapter;
+
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
@@ -15,7 +17,8 @@ import javax.swing.filechooser.FileFilter;
 
 import org.grview.util.ExampleFileFilter;
 
-public class InputAdapterForm extends JPanel {
+public class InputAdapterForm extends JPanel
+{
 
 	private static final long serialVersionUID = 1L;
 	private JLabel jarLabel = null;
@@ -32,26 +35,155 @@ public class InputAdapterForm extends JPanel {
 	private JLabel infoLabel = null;
 
 	private InputAdapterForm instance;
-	
+
 	private InputAdapter inputAdapter;
 	private JLabel argsLabel = null;
 	private JTextField argsTextField = null;
 	private JLabel jframeName = null;
 	private JTextField jframeNameTextField = null;
 	private JButton stopButton = null;
+
+	public InputAdapterForm()
+	{
+		super();
+		initialize();
+	}
+
 	/**
 	 * This is the default constructor
 	 */
-	public InputAdapterForm(InputAdapter inputAdapter) {
+	public InputAdapterForm(InputAdapter inputAdapter)
+	{
 		super();
 		this.inputAdapter = inputAdapter;
 		this.instance = this;
 		initialize();
 	}
-	
-	public InputAdapterForm() {
-		super();
-		initialize();
+
+	/**
+	 * This method initializes browseButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getBrowseButton()
+	{
+		if (browseButton == null)
+		{
+			browseButton = new JButton();
+			browseButton.setText("...");
+			browseButton.setPreferredSize(new Dimension(20, 19));
+			browseButton.addActionListener(new ActionListener()
+			{
+
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					showBrowseDialog();
+				}
+			});
+		}
+		return browseButton;
+	}
+
+	/**
+	 * This method initializes buildButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getBuildButton()
+	{
+		if (buildButton == null)
+		{
+			buildButton = new JButton();
+			buildButton.setText("Build");
+			buildButton.addActionListener(new ActionListener()
+			{
+
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					if (inputAdapter.canBuild())
+					{
+						if (inputAdapter.build())
+						{
+							JOptionPane.showMessageDialog(instance, "Successfully built!", "Build", JOptionPane.INFORMATION_MESSAGE);
+							getStartButton().setEnabled(true);
+						}
+					}
+					else
+					{
+						JOptionPane.showMessageDialog(instance, "Could not validate the form to build! See console for details.", "Validation Error", JOptionPane.ERROR_MESSAGE);
+						getStartButton().setEnabled(false);
+					}
+				}
+			});
+		}
+		return buildButton;
+	}
+
+	/**
+	 * This method initializes startButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getStartButton()
+	{
+		if (startButton == null)
+		{
+			startButton = new JButton();
+			startButton.setText("Start");
+			startButton.setSize(getBrowseButton().getSize());
+			startButton.addActionListener(new ActionListener()
+			{
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					if (inputAdapter.canStart())
+					{
+						if (inputAdapter.start())
+						{
+							JOptionPane.showMessageDialog(instance, "Successfully started!", "Start", JOptionPane.INFORMATION_MESSAGE);
+							buildButton.setEnabled(false);
+							startButton.setEnabled(false);
+							stopButton.setEnabled(true);
+							return;
+						}
+					}
+					JOptionPane.showMessageDialog(instance, "Could not Start, see console for details", "Start error", JOptionPane.ERROR_MESSAGE);
+				}
+			});
+			startButton.setEnabled(false);
+		}
+		return startButton;
+	}
+
+	/**
+	 * This method initializes stopButton
+	 * 
+	 * @return javax.swing.JButton
+	 */
+	private JButton getStopButton()
+	{
+		if (stopButton == null)
+		{
+			stopButton = new JButton();
+			stopButton.setText("Stop");
+			stopButton.setEnabled(false);
+			stopButton.addActionListener(new ActionListener()
+			{
+
+				@Override
+				public void actionPerformed(ActionEvent e)
+				{
+					if (inputAdapter.stop())
+					{
+						stopButton.setEnabled(false);
+						buildButton.setEnabled(true);
+					}
+				}
+			});
+		}
+		return stopButton;
 	}
 
 	/**
@@ -59,7 +191,8 @@ public class InputAdapterForm extends JPanel {
 	 * 
 	 * @return void
 	 */
-	private void initialize() {
+	private void initialize()
+	{
 		GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 		gridBagConstraints3.gridx = 5;
 		gridBagConstraints3.gridy = 8;
@@ -99,7 +232,7 @@ public class InputAdapterForm extends JPanel {
 		gridBagConstraints25.gridy = 0;
 		gridBagConstraints25.gridwidth = 3;
 		gridBagConstraints25.anchor = GridBagConstraints.LINE_START;
-		gridBagConstraints25.insets = new Insets(10,10,10,10);
+		gridBagConstraints25.insets = new Insets(10, 10, 10, 10);
 		infoLabel = new JLabel();
 		infoLabel.setText("Fill this form to create a new input adapter.");
 		GridBagConstraints gridBagConstraints24 = new GridBagConstraints();
@@ -160,7 +293,7 @@ public class InputAdapterForm extends JPanel {
 		gridBagConstraints16.gridx = 5;
 		gridBagConstraints16.gridwidth = 1;
 		gridBagConstraints16.gridy = 1;
-		gridBagConstraints16.insets = new Insets(5,0,0,0);
+		gridBagConstraints16.insets = new Insets(5, 0, 0, 0);
 		GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
 		gridBagConstraints15.fill = GridBagConstraints.BOTH;
 		gridBagConstraints15.gridy = 1;
@@ -196,189 +329,100 @@ public class InputAdapterForm extends JPanel {
 		this.add(getStopButton(), gridBagConstraints3);
 	}
 
-	/**
-	 * This method initializes jarTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
-	public JTextField getJarTextField() {
-		if (jarTextField == null) {
-			jarTextField = new JTextField();
-		}
-		return jarTextField;
-	}
-
-	/**
-	 * This method initializes browseButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getBrowseButton() {
-		if (browseButton == null) {
-			browseButton = new JButton();
-			browseButton.setText("...");
-			browseButton.setPreferredSize(new Dimension(20, 19));
-			browseButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					showBrowseDialog();
-				}
-			});
-		}
-		return browseButton;
-	}
-
-	private void showBrowseDialog() {
+	private void showBrowseDialog()
+	{
 		JFileChooser jfc = new JFileChooser();
 		FileFilter jarFilter = new ExampleFileFilter("jar", "A compressed jar file");
 		jfc.setFileFilter(jarFilter);
 		int rVal = jfc.showOpenDialog(this);
-		if (rVal == JFileChooser.APPROVE_OPTION) {
+		if (rVal == JFileChooser.APPROVE_OPTION)
+		{
 			getJarTextField().setText(jfc.getSelectedFile().getAbsolutePath());
 		}
 	}
-	/**
-	 * This method initializes mainTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
-	public JTextField getMainTextField() {
-		if (mainTextField == null) {
-			mainTextField = new JTextField();
-		}
-		return mainTextField;
-	}
 
 	/**
-	 * This method initializes jframeTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes argsTextField
+	 * 
+	 * @return javax.swing.JTextField
 	 */
-	public JTextField getJframeTextField() {
-		if (jframeTextField == null) {
-			jframeTextField = new JTextField();
-		}
-		return jframeTextField;
-	}
-
-	/**
-	 * This method initializes sentTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
-	public JTextField getSentTextField() {
-		if (sentTextField == null) {
-			sentTextField = new JTextField();
-		}
-		return sentTextField;
-	}
-
-	/**
-	 * This method initializes buildButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getBuildButton() {
-		if (buildButton == null) {
-			buildButton = new JButton();
-			buildButton.setText("Build");
-			buildButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (inputAdapter.canBuild()) {
-						if (inputAdapter.build()) {
-							JOptionPane.showMessageDialog(instance, "Successfully built!", "Build", JOptionPane.INFORMATION_MESSAGE);
-							getStartButton().setEnabled(true);
-						}
-					}
-					else {
-						JOptionPane.showMessageDialog(instance, "Could not validate the form to build! See console for details.", "Validation Error", JOptionPane.ERROR_MESSAGE);
-						getStartButton().setEnabled(false);
-					}
-				}
-			});
-		}
-		return buildButton;
-	}
-
-	/**
-	 * This method initializes startButton	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */
-	private JButton getStartButton() {
-		if (startButton == null) {
-			startButton = new JButton();
-			startButton.setText("Start");
-			startButton.setSize(getBrowseButton().getSize());
-			startButton.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-						if (inputAdapter.canStart()) {
-							if (inputAdapter.start()) {
-								JOptionPane.showMessageDialog(instance, "Successfully started!", "Start", JOptionPane.INFORMATION_MESSAGE);
-								buildButton.setEnabled(false);
-								startButton.setEnabled(false);
-								stopButton.setEnabled(true);
-								return;
-							}
-						}
-						JOptionPane.showMessageDialog(instance, "Could not Start, see console for details", "Start error", JOptionPane.ERROR_MESSAGE);
-				}
-			});
-			startButton.setEnabled(false);
-		}
-		return startButton;
-	}
-
-	/**
-	 * This method initializes argsTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
-	 */
-	public JTextField getArgsTextField() {
-		if (argsTextField == null) {
+	public JTextField getArgsTextField()
+	{
+		if (argsTextField == null)
+		{
 			argsTextField = new JTextField();
 		}
 		return argsTextField;
 	}
 
 	/**
-	 * This method initializes jframeNameTextField	
-	 * 	
-	 * @return javax.swing.JTextField	
+	 * This method initializes jarTextField
+	 * 
+	 * @return javax.swing.JTextField
 	 */
-	public JTextField getJframeNameTextField() {
-		if (jframeNameTextField == null) {
+	public JTextField getJarTextField()
+	{
+		if (jarTextField == null)
+		{
+			jarTextField = new JTextField();
+		}
+		return jarTextField;
+	}
+
+	/**
+	 * This method initializes jframeNameTextField
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	public JTextField getJframeNameTextField()
+	{
+		if (jframeNameTextField == null)
+		{
 			jframeNameTextField = new JTextField();
 		}
 		return jframeNameTextField;
 	}
 
 	/**
-	 * This method initializes stopButton	
-	 * 	
-	 * @return javax.swing.JButton	
+	 * This method initializes jframeTextField
+	 * 
+	 * @return javax.swing.JTextField
 	 */
-	private JButton getStopButton() {
-		if (stopButton == null) {
-			stopButton = new JButton();
-			stopButton.setText("Stop");
-			stopButton.setEnabled(false);
-			stopButton.addActionListener(new ActionListener() {
-				
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					if (inputAdapter.stop()) {
-						stopButton.setEnabled(false);
-						buildButton.setEnabled(true);
-					}
-				}
-			});
+	public JTextField getJframeTextField()
+	{
+		if (jframeTextField == null)
+		{
+			jframeTextField = new JTextField();
 		}
-		return stopButton;
+		return jframeTextField;
 	}
 
-}  //  @jve:decl-index=0:visual-constraint="10,10"
+	/**
+	 * This method initializes mainTextField
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	public JTextField getMainTextField()
+	{
+		if (mainTextField == null)
+		{
+			mainTextField = new JTextField();
+		}
+		return mainTextField;
+	}
+
+	/**
+	 * This method initializes sentTextField
+	 * 
+	 * @return javax.swing.JTextField
+	 */
+	public JTextField getSentTextField()
+	{
+		if (sentTextField == null)
+		{
+			sentTextField = new JTextField();
+		}
+		return sentTextField;
+	}
+
+} // @jve:decl-index=0:visual-constraint="10,10"

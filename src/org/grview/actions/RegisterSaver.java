@@ -22,6 +22,7 @@ package org.grview.actions;
 
 /**
  * An interface to delegate save/load operations of registers.
+ * 
  * @author Matthieu Casanova
  * @version $Id: FoldHandler.java 5568 2006-07-10 20:52:23Z kpouer $
  */

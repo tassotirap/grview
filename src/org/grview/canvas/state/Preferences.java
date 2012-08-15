@@ -1,84 +1,115 @@
 package org.grview.canvas.state;
 
-public class Preferences extends CanvasSerializableElement {
-	
+public class Preferences extends CanvasSerializableElement
+{
+
 	private String moveStrategy;
 	private String connectionStrategy;
 	private int showStatus;
-	
-	/**
-	 * @return the showLines
-	 */
-	public boolean isShowLines() {
-		return showLines;
-	}
-	/**
-	 * @param showLines the showLines to set
-	 */
-	public void setShowLines(boolean showLines) {
-		this.showLines = showLines;
-	}
-	/**
-	 * @return the showGuide
-	 */
-	public boolean isShowGuide() {
-		return showGuide;
-	}
-	/**
-	 * @param showGuide the showGuide to set
-	 */
-	public void setShowGuide(boolean showGuide) {
-		this.showGuide = showGuide;
-	}
-	/**
-	 * @return the showGrid
-	 */
-	public boolean isShowGrid() {
-		return showGrid;
-	}
-	/**
-	 * @param showGrid the showGrid to set
-	 */
-	public void setShowGrid(boolean showGrid) {
-		this.showGrid = showGrid;
-	}
+
 	private boolean showLines;
 	private boolean showGuide;
 	private boolean showGrid;
-	/**
-	 * @return the moveStrategy
-	 */
-	public String getMoveStrategy() {
-		return moveStrategy;
-	}
-	/**
-	 * @param moveStrategy the moveStrategy to set
-	 */
-	public void setMoveStrategy(String moveStrategy) {
-		this.moveStrategy = moveStrategy;
-	}
+
 	/**
 	 * @return the connectionStrategy
 	 */
-	public String getConnectionStrategy() {
+	public String getConnectionStrategy()
+	{
 		return connectionStrategy;
 	}
+
 	/**
-	 * @param connectionStrategy the connectionStrategy to set
+	 * @return the moveStrategy
 	 */
-	public void setConnectionStrategy(String connectionStrategy) {
-		this.connectionStrategy = connectionStrategy;
+	public String getMoveStrategy()
+	{
+		return moveStrategy;
 	}
+
 	/**
 	 * @return the showStatus
 	 */
-	public int getShowStatus() {
+	public int getShowStatus()
+	{
 		return showStatus;
 	}
+
 	/**
-	 * @param showStatus the showStatus to set
+	 * @return the showGrid
 	 */
-	public void setShowStatus(int showStatus) {
+	public boolean isShowGrid()
+	{
+		return showGrid;
+	}
+
+	/**
+	 * @return the showGuide
+	 */
+	public boolean isShowGuide()
+	{
+		return showGuide;
+	}
+
+	/**
+	 * @return the showLines
+	 */
+	public boolean isShowLines()
+	{
+		return showLines;
+	}
+
+	/**
+	 * @param connectionStrategy
+	 *            the connectionStrategy to set
+	 */
+	public void setConnectionStrategy(String connectionStrategy)
+	{
+		this.connectionStrategy = connectionStrategy;
+	}
+
+	/**
+	 * @param moveStrategy
+	 *            the moveStrategy to set
+	 */
+	public void setMoveStrategy(String moveStrategy)
+	{
+		this.moveStrategy = moveStrategy;
+	}
+
+	/**
+	 * @param showGrid
+	 *            the showGrid to set
+	 */
+	public void setShowGrid(boolean showGrid)
+	{
+		this.showGrid = showGrid;
+	}
+
+	/**
+	 * @param showGuide
+	 *            the showGuide to set
+	 */
+	public void setShowGuide(boolean showGuide)
+	{
+		this.showGuide = showGuide;
+	}
+
+	/**
+	 * @param showLines
+	 *            the showLines to set
+	 */
+	public void setShowLines(boolean showLines)
+	{
+		this.showLines = showLines;
+	}
+
+	/**
+	 * @param showStatus
+	 *            the showStatus to set
+	 */
+	public void setShowStatus(int showStatus)
+	{
 		this.showStatus = showStatus;
 	}
 

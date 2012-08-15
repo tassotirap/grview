@@ -19,6 +19,7 @@ public class AlternativeConnectorDecorator implements ConnectDecorator
 	private ConnectionWidget thisConnection;
 	private GraphScene scene;
 
+	@Override
 	public ConnectionWidget createConnectionWidget(Scene scene)
 	{
 		ConnectionWidget widget = new ConnectionWidget(scene);
@@ -29,20 +30,23 @@ public class AlternativeConnectorDecorator implements ConnectDecorator
 		return widget;
 	}
 
+	@Override
+	public Anchor createFloatAnchor(Point location)
+	{
+		return AnchorFactory.createFixedAnchor(location);
+	}
+
+	@Override
 	public Anchor createSourceAnchor(Widget sourceWidget)
 	{
 		String edge = (String) scene.findObject(thisConnection);
 		return new UnidirectionalAnchor(sourceWidget, edge, true, UnidirectionalAnchorKind.BOTTOM);
 	}
 
+	@Override
 	public Anchor createTargetAnchor(Widget targetWidget)
 	{
 		String edge = (String) scene.findObject(thisConnection);
 		return new UnidirectionalAnchor(targetWidget, edge, true, UnidirectionalAnchorKind.TOP);
-	}
-
-	public Anchor createFloatAnchor(Point location)
-	{
-		return AnchorFactory.createFixedAnchor(location);
 	}
 }

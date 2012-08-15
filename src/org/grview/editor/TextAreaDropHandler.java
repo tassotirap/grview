@@ -23,15 +23,18 @@
 package org.grview.editor;
 
 //{{{ Imports
-import javax.swing.*;
+import java.awt.Point;
+import java.awt.dnd.DropTargetAdapter;
+import java.awt.dnd.DropTargetDragEvent;
+import java.awt.dnd.DropTargetDropEvent;
+import java.awt.dnd.DropTargetEvent;
+
+import javax.swing.SwingUtilities;
 
 import org.grview.editor.buffer.JEditBuffer;
 import org.grview.util.Log;
 
-import java.awt.dnd.*;
-import java.awt.*;
 //}}}
-
 
 /**
  * @author Slava Pestov
@@ -43,61 +46,57 @@ class TextAreaDropHandler extends DropTargetAdapter
 	private JEditBuffer savedBuffer;
 	private int savedCaret;
 
-	//{{{ TextAreaDropHandler constructor
+	// {{{ TextAreaDropHandler constructor
 	TextAreaDropHandler(TextArea textArea)
 	{
 		this.textArea = textArea;
-	} //}}}
+	} // }}}
 
-	//{{{ dragEnter() method
+	// {{{ dragEnter() method
 	@Override
 	public void dragEnter(DropTargetDragEvent dtde)
 	{
-		Log.log(Log.DEBUG,this,"Drag enter");
+		Log.log(Log.DEBUG, this, "Drag enter");
 		savedBuffer = textArea.getBuffer();
 		textArea.setDragInProgress(true);
-		//textArea.getBuffer().beginCompoundEdit();
+		// textArea.getBuffer().beginCompoundEdit();
 		savedCaret = textArea.getCaretPosition();
-	} //}}}
+	} // }}}
 
-	//{{{ dragOver() method
+	// {{{ dragExit() method
+	@Override
+	public void dragExit(DropTargetEvent dtde)
+	{
+		Log.log(Log.DEBUG, this, "Drag exit");
+		textArea.setDragInProgress(false);
+		// textArea.getBuffer().endCompoundEdit();
+		if (textArea.getBuffer() == savedBuffer)
+		{
+			textArea.moveCaretPosition(savedCaret, TextArea.ELECTRIC_SCROLL);
+		}
+		savedBuffer = null;
+	} // }}}
+
+	// {{{ dragOver() method
 	@Override
 	public void dragOver(DropTargetDragEvent dtde)
 	{
 		Point p = dtde.getLocation();
-		p = SwingUtilities.convertPoint(textArea,p,
-			textArea.getPainter());
-		int pos = textArea.xyToOffset(p.x,p.y,
-			!(textArea.getPainter().isBlockCaretEnabled()
-			|| textArea.isOverwriteEnabled()));
-		if(pos != -1)
+		p = SwingUtilities.convertPoint(textArea, p, textArea.getPainter());
+		int pos = textArea.xyToOffset(p.x, p.y, !(textArea.getPainter().isBlockCaretEnabled() || textArea.isOverwriteEnabled()));
+		if (pos != -1)
 		{
-			textArea.moveCaretPosition(pos,
-				TextArea.ELECTRIC_SCROLL);
+			textArea.moveCaretPosition(pos, TextArea.ELECTRIC_SCROLL);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ dragExit() method
+	// {{{ drop() method
 	@Override
-	public void dragExit(DropTargetEvent dtde)
-	{
-		Log.log(Log.DEBUG,this,"Drag exit");
-		textArea.setDragInProgress(false);
-		//textArea.getBuffer().endCompoundEdit();
-		if(textArea.getBuffer() == savedBuffer)
-		{
-			textArea.moveCaretPosition(savedCaret,
-				TextArea.ELECTRIC_SCROLL);
-		}
-		savedBuffer = null;
-	} //}}}
-
-	//{{{ drop() method
 	public void drop(DropTargetDropEvent dtde)
 	{
-		Log.log(Log.DEBUG,this,"Drop");
+		Log.log(Log.DEBUG, this, "Drop");
 		textArea.setDragInProgress(false);
-		//textArea.getBuffer().endCompoundEdit();
+		// textArea.getBuffer().endCompoundEdit();
 		savedBuffer = null;
-	} //}}}
+	} // }}}
 }

@@ -28,93 +28,13 @@ import org.grview.actions.TextUtilities;
 import org.grview.editor.buffer.JEditBuffer;
 import org.grview.util.StandardUtilities;
 
-
-
 /**
  * @author Slava Pestov
  * @version $Id$
  */
 public class CloseBracketIndentRule extends BracketIndentRule
 {
-	//{{{ CloseBracketIndentRule constructor
-	public CloseBracketIndentRule(char closeBracket, boolean aligned)
-	{
-		super(TextUtilities.getComplementaryBracket(closeBracket,null),
-			closeBracket);
-		this.aligned = aligned;
-	} //}}}
-
-	//{{{ apply() method
-	public void apply(JEditBuffer buffer, int thisLineIndex,
-		int prevLineIndex, int prevPrevLineIndex,
-		List<IndentAction> indentActions)
-	{
-		int index;
-		if(aligned)
-			index = thisLineIndex;
-		else
-			index = prevLineIndex;
-
-		if(index == -1)
-			return;
-
-		CharSequence lineText = buffer.getLineSegment(index);
-		int offset;
-		for (offset = lineText.length() - 1; offset >= 0; offset--)
-		{
-			if (lineText.charAt(offset) == closeBracket)
-				break;
-		}
-		if(offset == -1)
-			return;
-
-		int closeCount = getBrackets(buffer, index).closeCount;
-		if(closeCount != 0)
-		{
-			AlignBracket alignBracket
-				= new AlignBracket(buffer,index,offset);
-			/*
-			Consider the following Common Lisp code (with one more opening
-			bracket than closing):
-
-			(defun emit-push-long (arg)
-			  (cond ((eql arg 0)
-			      (emit 'lconst_0))
-			    ((eql arg 1)
-			      (emit 'lconst_1)))
-
-			even though we have a closing bracket match on line 3,
-			the next line must be indented relative to the
-			corresponding opening bracket from line 1.
-			*/
-			int openLine = alignBracket.getOpenBracketLine();
-			if(openLine != -1)
-			{
-				int column = alignBracket.getOpenBracketColumn();
-				alignBracket.setExtraIndent(
-					getBrackets(buffer, openLine,
-						0, column).openCount);
-			}
-
-			indentActions.add(alignBracket);
-		}
-	} //}}}
-
-	//{{{ isMatch() method
-	/**
-	 * @deprecated
-	 *   This method calls BracketIndentRule#getBrackets(String)
-	 *   which has been deprecated.
-	 */
-	@Deprecated
-	public boolean isMatch(String line)
-	{
-		return getBrackets(line).closeCount != 0;
-	} //}}}
-
-	private boolean aligned;
-
-	//{{{ AlignBracket class
+	// {{{ AlignBracket class
 	private static class AlignBracket implements IndentAction
 	{
 		private int line, offset;
@@ -128,27 +48,31 @@ public class CloseBracketIndentRule extends BracketIndentRule
 			this.line = line;
 			this.offset = offset;
 
-			int openBracketIndex = TextUtilities.findMatchingBracket(
-				buffer,this.line,this.offset);
-			if(openBracketIndex == -1)
+			int openBracketIndex = TextUtilities.findMatchingBracket(buffer, this.line, this.offset);
+			if (openBracketIndex == -1)
 				openBracketLine = -1;
 			else
 			{
 				openBracketLine = buffer.getLineOfOffset(openBracketIndex);
-				openBracketColumn = openBracketIndex -
-					buffer.getLineStartOffset(openBracketLine);
+				openBracketColumn = openBracketIndex - buffer.getLineStartOffset(openBracketLine);
 				openBracketLineText = buffer.getLineSegment(openBracketLine);
+			}
+		}
+
+		@Override
+		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent, int newIndent)
+		{
+			if (openBracketLineText == null)
+				return newIndent;
+			else
+			{
+				return StandardUtilities.getLeadingWhiteSpaceWidth(openBracketLineText, buffer.getTabSize()) + (extraIndent * buffer.getIndentSize());
 			}
 		}
 
 		public int getExtraIndent()
 		{
 			return extraIndent;
-		}
-
-		public void setExtraIndent(int extraIndent)
-		{
-			this.extraIndent = extraIndent;
 		}
 
 		public int getOpenBracketColumn()
@@ -161,22 +85,84 @@ public class CloseBracketIndentRule extends BracketIndentRule
 			return openBracketLine;
 		}
 
-		public int calculateIndent(JEditBuffer buffer, int line, int oldIndent,
-			int newIndent)
-		{
-			if(openBracketLineText == null)
-				return newIndent;
-			else
-			{
-				return StandardUtilities.getLeadingWhiteSpaceWidth(
-					openBracketLineText,buffer.getTabSize())
-					+ (extraIndent * buffer.getIndentSize());
-			}
-		}
-
+		@Override
 		public boolean keepChecking()
 		{
 			return false;
 		}
-	} //}}}
+
+		public void setExtraIndent(int extraIndent)
+		{
+			this.extraIndent = extraIndent;
+		}
+	} // }}}
+
+	private boolean aligned;
+
+	// {{{ CloseBracketIndentRule constructor
+	public CloseBracketIndentRule(char closeBracket, boolean aligned)
+	{
+		super(TextUtilities.getComplementaryBracket(closeBracket, null), closeBracket);
+		this.aligned = aligned;
+	} // }}}
+
+	// {{{ apply() method
+	@Override
+	public void apply(JEditBuffer buffer, int thisLineIndex, int prevLineIndex, int prevPrevLineIndex, List<IndentAction> indentActions)
+	{
+		int index;
+		if (aligned)
+			index = thisLineIndex;
+		else
+			index = prevLineIndex;
+
+		if (index == -1)
+			return;
+
+		CharSequence lineText = buffer.getLineSegment(index);
+		int offset;
+		for (offset = lineText.length() - 1; offset >= 0; offset--)
+		{
+			if (lineText.charAt(offset) == closeBracket)
+				break;
+		}
+		if (offset == -1)
+			return;
+
+		int closeCount = getBrackets(buffer, index).closeCount;
+		if (closeCount != 0)
+		{
+			AlignBracket alignBracket = new AlignBracket(buffer, index, offset);
+			/*
+			 * Consider the following Common Lisp code (with one more opening
+			 * bracket than closing):
+			 * 
+			 * (defun emit-push-long (arg) (cond ((eql arg 0) (emit 'lconst_0))
+			 * ((eql arg 1) (emit 'lconst_1)))
+			 * 
+			 * even though we have a closing bracket match on line 3, the next
+			 * line must be indented relative to the corresponding opening
+			 * bracket from line 1.
+			 */
+			int openLine = alignBracket.getOpenBracketLine();
+			if (openLine != -1)
+			{
+				int column = alignBracket.getOpenBracketColumn();
+				alignBracket.setExtraIndent(getBrackets(buffer, openLine, 0, column).openCount);
+			}
+
+			indentActions.add(alignBracket);
+		}
+	} // }}}
+
+	// {{{ isMatch() method
+	/**
+	 * @deprecated This method calls BracketIndentRule#getBrackets(String) which
+	 *             has been deprecated.
+	 */
+	@Deprecated
+	public boolean isMatch(String line)
+	{
+		return getBrackets(line).closeCount != 0;
+	} // }}}
 }

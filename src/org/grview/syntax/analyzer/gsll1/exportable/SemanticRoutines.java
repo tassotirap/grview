@@ -9,85 +9,105 @@ import java.io.PrintStream;
 import java.lang.reflect.Method;
 import java.util.Stack;
 
-public class SemanticRoutines {
+public class SemanticRoutines
+{
 
 	private GroovyObject groovyObject;
-	
+
 	private File scriptsFile = new File("srs.groovy");
 	private Stack<ParseStackNode> parseStack;
 	private Analyzer.TabNode[] tabT;
 	private Yytoken currentToken;
 	private PrintStream out;
-	
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out) {
-		this (parseStack, tabT, out, null);
+
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out)
+	{
+		this(parseStack, tabT, out, null);
 	}
 
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out, File scriptsFile) {
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out, File scriptsFile)
+	{
 		this.tabT = tabT;
 		this.parseStack = parseStack;
 		this.out = out;
-		if (scriptsFile != null) {
+		if (scriptsFile != null)
+		{
 			this.scriptsFile = scriptsFile;
 		}
 		initialize();
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	private void initialize() {
-		try {
+	private void initialize()
+	{
+		try
+		{
 			ClassLoader parent = getClass().getClassLoader();
 			GroovyClassLoader loader = new GroovyClassLoader(parent);
 			Class groovyClass = loader.parseClass(scriptsFile);
 			groovyObject = (GroovyObject) groovyClass.newInstance();
-			DelegatingMetaClass metaClass = new DelegatingMetaClass(groovyObject.getMetaClass()) {
-	
-				public Object invokeMethod(Object object, String methodName, Object[] arguments) {
+			DelegatingMetaClass metaClass = new DelegatingMetaClass(groovyObject.getMetaClass())
+			{
+
+				@Override
+				public Object invokeMethod(Object object, String methodName, Object[] arguments)
+				{
 					return super.invokeMethod(object, methodName, arguments);
 				}
 			};
 			metaClass.initialize();
 			groovyObject.setMetaClass(metaClass);
-		} catch (Exception e) {
+		}
+		catch (Exception e)
+		{
 			e.printStackTrace();
 		}
 	}
 
-	public void execFunction(String sem) {
+	public void execFunction(String sem)
+	{
 		groovyObject.setProperty("tabT", tabT);
 		groovyObject.setProperty("parseStack", parseStack);
 		groovyObject.setProperty("currentToken", currentToken);
 		groovyObject.setProperty("output", out);
 		Object[] args = {};
-		for (Method m : groovyObject.getClass().getMethods()) {
-			if (m.getName().equals(sem)) {
+		for (Method m : groovyObject.getClass().getMethods())
+		{
+			if (m.getName().equals(sem))
+			{
 				groovyObject.invokeMethod(sem, args);
 			}
 		}
 	}
 
-	public void setCurrentToken(Yytoken currToken) {
-		this.currentToken = currToken;
-	}
-	
-	public Yytoken getCurrentToken() {
+	public Yytoken getCurrentToken()
+	{
 		return currentToken;
 	}
-	
-	public void setParseStack(Stack<ParseStackNode> parseStack) {
-		this.parseStack = parseStack;
-	}
 
-	public Stack<ParseStackNode> getParseStack() {
+	public Stack<ParseStackNode> getParseStack()
+	{
 		return parseStack;
 	}
 
-	public void setTabT(Analyzer.TabNode[] tabT) {
-		this.tabT = tabT;
+	public Analyzer.TabNode[] getTabT()
+	{
+		return tabT;
 	}
 
-	public Analyzer.TabNode[] getTabT() {
-		return tabT;
+	public void setCurrentToken(Yytoken currToken)
+	{
+		this.currentToken = currToken;
+	}
+
+	public void setParseStack(Stack<ParseStackNode> parseStack)
+	{
+		this.parseStack = parseStack;
+	}
+
+	public void setTabT(Analyzer.TabNode[] tabT)
+	{
+		this.tabT = tabT;
 	}
 
 }

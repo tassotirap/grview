@@ -7,7 +7,6 @@ import java.beans.PropertyChangeSupport;
 import javax.swing.WindowConstants;
 
 import org.grview.canvas.widget.MarkedWidget;
-import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.semantics.SemFileMgr;
 import org.grview.util.Log;
@@ -30,7 +29,7 @@ public class RoutineWizard
 	 */
 	public RoutineWizard(String widgetName, MarkedWidget widget, String routine, PropertyChangeSupport monitor)
 	{
-		
+
 		this.widget = widget;
 		this.widgetName = widgetName;
 		this.routine = routine;
@@ -40,29 +39,6 @@ public class RoutineWizard
 		{
 			initWindow();
 		}
-	}
-
-	private void initWindow()
-	{
-		RoutineWizardWindow window = new RoutineWizardWindow();
-		if (routine != null)
-		{
-			window.setTitle("Edit " + routine);
-			window.getInsertButton().setText("Edit");
-			sfm.updateCodeFromFile(routine);
-			if (sfm.getCleanCode(routine, null) != null)
-			{
-				window.getCodeTextArea().setText(sfm.getCleanCode(routine, null));
-			}
-			window.getNameTextField().setText(routine);
-		}
-		else
-		{
-			window.setTitle("Create new semantic routine");
-		}
-		window.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
-		initComponents(window);
-		window.setVisible(true);
 	}
 
 	private void initComponents(final RoutineWizardWindow window)
@@ -112,5 +88,28 @@ public class RoutineWizard
 				window.setVisible(false);
 			}
 		});
+	}
+
+	private void initWindow()
+	{
+		RoutineWizardWindow window = new RoutineWizardWindow();
+		if (routine != null)
+		{
+			window.setTitle("Edit " + routine);
+			window.getInsertButton().setText("Edit");
+			sfm.updateCodeFromFile(routine);
+			if (sfm.getCleanCode(routine, null) != null)
+			{
+				window.getCodeTextArea().setText(sfm.getCleanCode(routine, null));
+			}
+			window.getNameTextField().setText(routine);
+		}
+		else
+		{
+			window.setTitle("Create new semantic routine");
+		}
+		window.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
+		initComponents(window);
+		window.setVisible(true);
 	}
 }

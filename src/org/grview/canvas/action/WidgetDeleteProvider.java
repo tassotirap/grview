@@ -12,84 +12,105 @@ import org.grview.syntax.command.DelCommand;
 import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.netbeans.api.visual.widget.Widget;
 
-
-public class WidgetDeleteProvider {
+public class WidgetDeleteProvider
+{
 
 	private Canvas canvas;
 	PropertyChangeSupport monitor;
-	
-	public WidgetDeleteProvider(Canvas canvas) {
+
+	public WidgetDeleteProvider(Canvas canvas)
+	{
 		this.canvas = canvas;
 		monitor = new PropertyChangeSupport(this);
 		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvas.getID()));
 	}
-	
-	public boolean isDeletionAllowed() {
-		return isDeletionAllowed(canvas.getSelectedObjects());
-	}
-	
-	public boolean isDeletionAllowed(Object... widgets) {
-		//TODO could be a little better
-		return (widgets != null && widgets.length >= 1); 
-	}
-	
+
 	/** delete all selected widgets **/
-	public void deleteSelected() {
+	public void deleteSelected()
+	{
 		deleteThese(canvas.getSelectedObjects());
 	}
-	
+
 	/**
 	 * Delete all widgets
-	 * @param widgets, Widgets, or a set of them
+	 * 
+	 * @param widgets
+	 *            , Widgets, or a set of them
 	 */
-	public void deleteThese(Object... widgets) {
+	public void deleteThese(Object... widgets)
+	{
 		ArrayList<Object> toRemove = new ArrayList<Object>();
-		for (Object w : widgets) {
-			if (w instanceof Set<?>) {
-				for (Object obj : ((Set<?>) w)) {
+		for (Object w : widgets)
+		{
+			if (w instanceof Set<?>)
+			{
+				for (Object obj : ((Set<?>) w))
+				{
 					toRemove.add(obj);
 				}
 			}
-			else if (w instanceof Collection<?>) {
-				for (Object obj : ((Collection<?>) w)) {
+			else if (w instanceof Collection<?>)
+			{
+				for (Object obj : ((Collection<?>) w))
+				{
 					toRemove.add(obj);
 				}
 			}
-			else if (w instanceof Widget) {
+			else if (w instanceof Widget)
+			{
 				Object obj = canvas.findObject((Widget) w);
-				if (obj != null) {
+				if (obj != null)
+				{
 					toRemove.add(obj);
 				}
 			}
-			else {
+			else
+			{
 				toRemove.add(w);
 			}
 		}
 		Object[] objs = toRemove.toArray();
-		for (int i = 0; i < objs.length; i++) {
-			if (canvas.isNode(objs[i]) || canvas.isLabel(objs[i])) {
-				//if there is edges attached to this node, I must remove them first
+		for (int i = 0; i < objs.length; i++)
+		{
+			if (canvas.isNode(objs[i]) || canvas.isLabel(objs[i]))
+			{
+				// if there is edges attached to this node, I must remove them
+				// first
 				Collection<String> edges = canvas.findNodeEdges(objs[i].toString(), true, true);
 				deleteThese(edges);
-				//now I can go on with the nodes
+				// now I can go on with the nodes
 				boolean canRemove = false;
 				DelCommand comm = CommandFactory.createDelCommand();
 				canRemove = comm.addObject(objs[i], SyntaxDefinitions.SingleDelete) && comm.execute();
-				if (canRemove) {
-					canvas.removeNodeSafely((String)objs[i]);
+				if (canRemove)
+				{
+					canvas.removeNodeSafely((String) objs[i]);
 					monitor.firePropertyChange("undoable", null, comm);
 				}
 			}
-			else if (canvas.isEdge(objs[i])) {
+			else if (canvas.isEdge(objs[i]))
+			{
 				boolean canRemove = false;
 				DelCommand comm = CommandFactory.createDelCommand();
 				canRemove = comm.addObject(objs[i], SyntaxDefinitions.SingleDelete);
 				canRemove &= comm.execute();
-				if (canRemove) {
-					canvas.removeEdgeSafely((String)objs[i]);
+				if (canRemove)
+				{
+					canvas.removeEdgeSafely((String) objs[i]);
 					monitor.firePropertyChange("undoable", null, comm);
 				}
 			}
 		}
+	}
+
+	public boolean isDeletionAllowed()
+	{
+		return isDeletionAllowed(canvas.getSelectedObjects());
+	}
+
+	public boolean isDeletionAllowed(Object... widgets)
+	{
+		// TODO could be a little better
+		return (widgets != null && widgets.length >= 1);
 	}
 }

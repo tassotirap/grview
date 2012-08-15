@@ -27,55 +27,23 @@ import java.util.List;
 import org.grview.actions.TextUtilities;
 import org.grview.editor.buffer.JEditBuffer;
 
-
-
 /**
  * @author Slava Pestov
  * @version $Id$
  */
 public class OpenBracketIndentRule extends BracketIndentRule
 {
-	//{{{ OpenBracketIndentRule constructor
+	private boolean aligned;
+
+	// {{{ OpenBracketIndentRule constructor
 	public OpenBracketIndentRule(char openBracket, boolean aligned)
 	{
-		super(openBracket,
-			TextUtilities.getComplementaryBracket(openBracket,null));
+		super(openBracket, TextUtilities.getComplementaryBracket(openBracket, null));
 		this.aligned = aligned;
-	} //}}}
+	} // }}}
 
-	//{{{ apply() method
-	public void apply(JEditBuffer buffer, int thisLineIndex,
-		int prevLineIndex, int prevPrevLineIndex,
-		List<IndentAction> indentActions)
-	{
-		int prevOpenBracketCount = getOpenBracketCount(buffer,prevLineIndex);
-		if(prevOpenBracketCount != 0)
-		{
-			handleCollapse(indentActions, true);
-			boolean multiple = buffer.getBooleanProperty(
-				"multipleBracketIndent");
-			IndentAction increase = new IndentAction.Increase(
-				multiple ? prevOpenBracketCount : 1);
-			indentActions.add(increase);
-		}
-		else if(getOpenBracketCount(buffer,thisLineIndex) != 0)
-		{
-			handleCollapse(indentActions, false);
-		}
-	} //}}}
-
-	//{{{ getOpenBracketCount() method
-	private int getOpenBracketCount(JEditBuffer buffer, int line)
-	{
-		if(line == -1)
-			return 0;
-		else
-			return getBrackets(buffer, line).openCount;
-	} //}}}
-
-	//{{{ handleCollapse() method
-	private static void handleCollapse(List<IndentAction> indentActions,
-					   boolean delPrevPrevCollapse)
+	// {{{ handleCollapse() method
+	private static void handleCollapse(List<IndentAction> indentActions, boolean delPrevPrevCollapse)
 	{
 		if (indentActions.contains(IndentAction.PrevCollapse))
 		{
@@ -88,7 +56,32 @@ public class OpenBracketIndentRule extends BracketIndentRule
 			indentActions.clear();
 			return;
 		}
-	} //}}}
+	} // }}}
 
-	private boolean aligned;
+	// {{{ getOpenBracketCount() method
+	private int getOpenBracketCount(JEditBuffer buffer, int line)
+	{
+		if (line == -1)
+			return 0;
+		else
+			return getBrackets(buffer, line).openCount;
+	} // }}}
+
+	// {{{ apply() method
+	@Override
+	public void apply(JEditBuffer buffer, int thisLineIndex, int prevLineIndex, int prevPrevLineIndex, List<IndentAction> indentActions)
+	{
+		int prevOpenBracketCount = getOpenBracketCount(buffer, prevLineIndex);
+		if (prevOpenBracketCount != 0)
+		{
+			handleCollapse(indentActions, true);
+			boolean multiple = buffer.getBooleanProperty("multipleBracketIndent");
+			IndentAction increase = new IndentAction.Increase(multiple ? prevOpenBracketCount : 1);
+			indentActions.add(increase);
+		}
+		else if (getOpenBracketCount(buffer, thisLineIndex) != 0)
+		{
+			handleCollapse(indentActions, false);
+		}
+	} // }}}
 }

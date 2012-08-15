@@ -29,95 +29,13 @@ import org.grview.editor.syntax.Token;
 import org.grview.editor.syntax.TokenHandler;
 import org.grview.editor.syntax.TokenMarker;
 
-
 /**
  * @author Slava Pestov
  * @version $Id$
  */
 public abstract class BracketIndentRule implements IndentRule
 {
-	//{{{ BracketIndentRule constructor
-	public BracketIndentRule(char openBracket, char closeBracket)
-	{
-		this.openBracket = openBracket;
-		this.closeBracket = closeBracket;
-	} //}}}
-
-	//{{{ Brackets class
-	public static class Brackets
-	{
-		int openCount;
-		int closeCount;
-	} //}}}
-
-	//{{{ getBrackets() method
-	/**
-	 * @deprecated
-	 *   Use {@link #getBrackets(JEditBuffer,int,int,int)} instead.
-	 *   Brackets in comments or literals should be ignored for indent.
-	 *   But it can't be done without syntax parsing of a buffer.
-	 */
-	@Deprecated
-	public Brackets getBrackets(String line)
-	{
-		Brackets brackets = new Brackets();
-
-		for(int i = 0; i < line.length(); i++)
-		{
-			char ch = line.charAt(i);
-			if(ch == openBracket)
-			{
-				/* Don't increase indent when we see
-				an explicit fold. */
-				if(line.length() - i >= 3)
-				{
-					if(line.substring(i,i+3).equals("{{{")) /* }}} */
-					{
-						i += 2;
-						continue;
-					}
-				}
-				brackets.openCount++;
-			}
-			else if(ch == closeBracket)
-			{
-				if(brackets.openCount != 0)
-					brackets.openCount--;
-				else
-					brackets.closeCount++;
-			}
-		}
-
-		return brackets;
-	} //}}}
-
-	//{{{ getBrackets() method
-	public Brackets getBrackets(JEditBuffer buffer, int lineIndex)
-	{
-		return getBrackets(buffer, lineIndex,
-			0, buffer.getLineLength(lineIndex));
-	} //}}}
-
-	//{{{ getBrackets() method
-	public Brackets getBrackets(JEditBuffer buffer, int lineIndex,
-		int begin, int end)
-	{
-		LineScanner scanner = new LineScanner(begin, end);
-		buffer.markTokens(lineIndex, scanner);
-		return scanner.result;
-	} //}}}
-
-	//{{{ toString() method
-	@Override
-	public String toString()
-	{
-		return getClass().getName() + "[" + openBracket + ","
-			+ closeBracket + "]";
-	} //}}}
-
-	protected char openBracket, closeBracket;
-
-	//{{{ class LineScanner
+	// {{{ class LineScanner
 	private class LineScanner implements TokenHandler
 	{
 		public final Brackets result;
@@ -140,17 +58,17 @@ public abstract class BracketIndentRule implements IndentRule
 			// Accepts all others.
 			switch (id)
 			{
-			case Token.COMMENT1:
-			case Token.COMMENT2:
-			case Token.COMMENT3:
-			case Token.COMMENT4:
-			case Token.LITERAL1:
-			case Token.LITERAL2:
-			case Token.LITERAL3:
-			case Token.LITERAL4:
-				return true;
-			default:
-				return false;
+				case Token.COMMENT1:
+				case Token.COMMENT2:
+				case Token.COMMENT3:
+				case Token.COMMENT4:
+				case Token.LITERAL1:
+				case Token.LITERAL2:
+				case Token.LITERAL3:
+				case Token.LITERAL4:
+					return true;
+				default:
+					return false;
 			}
 		}
 
@@ -180,13 +98,13 @@ public abstract class BracketIndentRule implements IndentRule
 			for (int i = 0; i < length; ++i)
 			{
 				char c = seg.array[seg.offset + offset + i];
-				if(c == openBracket)
+				if (c == openBracket)
 				{
 					result.openCount++;
 				}
-				else if(c == closeBracket)
+				else if (c == closeBracket)
 				{
-					if(result.openCount != 0)
+					if (result.openCount != 0)
 						result.openCount--;
 					else
 						result.closeCount++;
@@ -194,9 +112,8 @@ public abstract class BracketIndentRule implements IndentRule
 			}
 		}
 
-		public void handleToken(Segment seg
-			, byte id, int offset, int length
-			, TokenMarker.LineContext context)
+		@Override
+		public void handleToken(Segment seg, byte id, int offset, int length, TokenMarker.LineContext context)
 		{
 			if (!rejectsToken(id))
 			{
@@ -205,8 +122,88 @@ public abstract class BracketIndentRule implements IndentRule
 			scannedIndex += length;
 		}
 
+		@Override
 		public void setLineContext(TokenMarker.LineContext lineContext)
 		{
 		}
-	} //}}}
+	} // }}}
+
+	// {{{ Brackets class
+	public static class Brackets
+	{
+		int openCount;
+		int closeCount;
+	} // }}}
+
+	protected char openBracket, closeBracket;
+
+	// {{{ BracketIndentRule constructor
+	public BracketIndentRule(char openBracket, char closeBracket)
+	{
+		this.openBracket = openBracket;
+		this.closeBracket = closeBracket;
+	} // }}}
+
+	// {{{ getBrackets() method
+	public Brackets getBrackets(JEditBuffer buffer, int lineIndex)
+	{
+		return getBrackets(buffer, lineIndex, 0, buffer.getLineLength(lineIndex));
+	} // }}}
+
+	// {{{ getBrackets() method
+	public Brackets getBrackets(JEditBuffer buffer, int lineIndex, int begin, int end)
+	{
+		LineScanner scanner = new LineScanner(begin, end);
+		buffer.markTokens(lineIndex, scanner);
+		return scanner.result;
+	} // }}}
+
+	// {{{ getBrackets() method
+	/**
+	 * @deprecated Use {@link #getBrackets(JEditBuffer,int,int,int)} instead.
+	 *             Brackets in comments or literals should be ignored for
+	 *             indent. But it can't be done without syntax parsing of a
+	 *             buffer.
+	 */
+	@Deprecated
+	public Brackets getBrackets(String line)
+	{
+		Brackets brackets = new Brackets();
+
+		for (int i = 0; i < line.length(); i++)
+		{
+			char ch = line.charAt(i);
+			if (ch == openBracket)
+			{
+				/*
+				 * Don't increase indent when we see an explicit fold.
+				 */
+				if (line.length() - i >= 3)
+				{
+					if (line.substring(i, i + 3).equals("{{{")) /* }}} */
+					{
+						i += 2;
+						continue;
+					}
+				}
+				brackets.openCount++;
+			}
+			else if (ch == closeBracket)
+			{
+				if (brackets.openCount != 0)
+					brackets.openCount--;
+				else
+					brackets.closeCount++;
+			}
+		}
+
+		return brackets;
+	} // }}}
+
+	// {{{ toString() method
+	@Override
+	public String toString()
+	{
+		return getClass().getName() + "[" + openBracket + "," + closeBracket + "]";
+	} // }}}
 }

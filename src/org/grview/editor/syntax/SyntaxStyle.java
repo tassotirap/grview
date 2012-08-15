@@ -21,61 +21,69 @@
  */
 package org.grview.editor.syntax;
 
-import java.awt.Font;
 import java.awt.Color;
+import java.awt.Font;
 
 /**
- * A simple text style class. It can specify the color, italic flag,
- * and bold flag of a run of text.
+ * A simple text style class. It can specify the color, italic flag, and bold
+ * flag of a run of text.
+ * 
  * @author Slava Pestov
  * @version $Id$
  */
 public class SyntaxStyle
 {
-	//{{{ SyntaxStyle constructor
+	// {{{ Private members
+	private Color fgColor;
+
+	private Color bgColor;
+
+	private Font font;
+
+	// }}}
+
+	// {{{ SyntaxStyle constructor
 	/**
 	 * Creates a new SyntaxStyle.
-	 * @param fgColor The text color
-	 * @param bgColor The background color
-	 * @param font The text font
+	 * 
+	 * @param fgColor
+	 *            The text color
+	 * @param bgColor
+	 *            The background color
+	 * @param font
+	 *            The text font
 	 */
 	public SyntaxStyle(Color fgColor, Color bgColor, Font font)
 	{
 		this.fgColor = fgColor;
 		this.bgColor = bgColor;
 		this.font = font;
-	} //}}}
+	} // }}}
 
-	//{{{ getForegroundColor() method
-	/**
-	 * Returns the text color.
-	 */
-	public Color getForegroundColor()
-	{
-		return fgColor;
-	} //}}}
-
-	//{{{ getBackgroundColor() method
+	// {{{ getBackgroundColor() method
 	/**
 	 * Returns the background color.
 	 */
 	public Color getBackgroundColor()
 	{
 		return bgColor;
-	} //}}}
+	} // }}}
+		// {{{ getFont() method
 
-	//{{{ getFont() method
 	/**
 	 * Returns the style font.
 	 */
 	public Font getFont()
 	{
 		return font;
-	} //}}}
+	} // }}}
+		// {{{ getForegroundColor() method
 
-	//{{{ Private members
-	private Color fgColor;
-	private Color bgColor;
-	private Font font;
-	//}}}
+	/**
+	 * Returns the text color.
+	 */
+	public Color getForegroundColor()
+	{
+		return fgColor;
+	} // }}}
 }

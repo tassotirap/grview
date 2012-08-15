@@ -44,6 +44,44 @@ import org.netbeans.api.visual.widget.LayerWidget;
 public abstract class Canvas extends GraphScene.StringGraph implements PropertyChangeListener, ActionContextHolder<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>>
 {
 
+	/**
+	 * This inner classes acts as a facade used to forward key events to
+	 * keylisteners "hanged" to this canvas This class was created to deal with
+	 * some issues that arose when trying to integrate this canvas and
+	 * infonode's docking framework. So it may be not be necessary on some
+	 * cases.
+	 */
+	protected class KeyListenerFacade implements KeyListener
+	{
+
+		@Override
+		public void keyPressed(KeyEvent e)
+		{
+			for (KeyListener kl : getView().getKeyListeners())
+			{
+				kl.keyPressed(e);
+			}
+		}
+
+		@Override
+		public void keyReleased(KeyEvent e)
+		{
+			for (KeyListener kl : getView().getKeyListeners())
+			{
+				kl.keyReleased(e);
+			}
+		}
+
+		@Override
+		public void keyTyped(KeyEvent e)
+		{
+			for (KeyListener kl : getView().getKeyListeners())
+			{
+				kl.keyTyped(e);
+			}
+		}
+	}
+
 	// The different possible types of cursor, only the static ones
 	public final static String SELECT = "SELECT";
 	public final static String CTRL_SELECT = "CTRL_SELECT";
@@ -54,41 +92,42 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	public final static String SUCCESSOR = "SUCCESSOR";
 	public final static String ALTERNATIVE = "ALTERNATIVE";
 	public final static String LAMBDA = "LAMBDA";
-	public final static String START = "START";
 
+	public final static String START = "START";
 	// The routing policies for connections
 	public final static String R_DIRECT = "R_DIRECT";
 	public final static String R_ORTHOGONAL = "R_ORTHOGONAL";
-	public final static String R_FREE = "R_FREE";
 
+	public final static String R_FREE = "R_FREE";
 	// Movement Policy
 	public final static String M_FREE = "M_FREE";
 	public final static String M_SNAP = "M_SNAP";
 	public final static String M_ALIGN = "M_ALIGN";
-	public final static String M_LINES = "M_LINES";
 
+	public final static String M_LINES = "M_LINES";
 	// Labels for edges
 	public final static String SUC_LBL = "successor";
+
 	public final static String ALT_LBL = "alternative";
-
 	private ArrayList<String> candidateSuc = new ArrayList<String>();
-	private ArrayList<String> candidateAlt = new ArrayList<String>();
 
+	private ArrayList<String> candidateAlt = new ArrayList<String>();
 	private ArrayList<String> successors = new ArrayList<String>();
+
 	private ArrayList<String> alternatives = new ArrayList<String>();
 
 	private HashMap<String, Cursor> cursors = new HashMap<String, Cursor>();
-
 	public List<String> labels = new ArrayList<String>();
 	public List<String> leftSides = new ArrayList<String>();
 	public List<String> terminals = new ArrayList<String>();
 	public List<String> nterminals = new ArrayList<String>();
 	public List<String> lambdas = new ArrayList<String>();
 	public List<String> start = new ArrayList<String>();
-	public List<String> customNodes = new ArrayList<String>();
 
+	public List<String> customNodes = new ArrayList<String>();
 	private boolean showingLines;
 	private boolean showingGrid;
+
 	private boolean showingGuide;
 
 	// Actions repository
@@ -119,17 +158,35 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		monitor = new PropertyChangeSupport(this);
 	}
 
-	/**
-	 * Must initialize canvas with the given state
-	 * 
-	 * @param state
-	 */
-	public void init(CanvasState state)
+	public String _getActiveTool()
 	{
-		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
-		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
-		initInputHandler();
-		createCursors();
+		String tool = super.getActiveTool();
+		if (tool == null)
+		{
+			tool = SELECT; // by default select tool is activated
+		}
+		return tool;
+	}
+
+	/**
+	 * Adds a new action set to the canvas's list of ActionSets.
+	 * 
+	 * @param actionSet
+	 *            the actionSet to add
+	 */
+	public void addActionSet(AsinActionSet<CanvasBeanShellAction> actionSet)
+	{
+		actionContext.addActionSet(actionSet);
+	}
+
+	public boolean canZoomIn()
+	{
+		return getZoomFactor() < 2.0;
+	}
+
+	public boolean canZoomOut()
+	{
+		return getZoomFactor() > 0.1;
 	}
 
 	public void createCursors()
@@ -161,53 +218,13 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		cursors.put(START, toolkit.createCustomCursor(image, new Point(0, 0), "Start"));
 	}
 
-	/**
-	 * painting with antialias
-	 */
 	@Override
-	public void paintChildren()
+	public JComponent createView()
 	{
-		Object anti = getGraphics().getRenderingHint(RenderingHints.KEY_ANTIALIASING);
-		Object textAnti = getGraphics().getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
-
-		getGraphics().setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-		getGraphics().setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-
-		super.paintChildren();
-
-		getGraphics().setRenderingHint(RenderingHints.KEY_ANTIALIASING, anti);
-		getGraphics().setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, textAnti);
-	}
-
-	public abstract void updateState(CanvasState state);
-
-	/**
-	 * Register a new monitor to events in canvas
-	 * 
-	 * @param monitor
-	 *            a property change support instance that may contain the
-	 *            interested listeners
-	 */
-	public void registerMonitor(PropertyChangeSupport monitor)
-	{
-		if (!monitors.contains(monitor))
-		{
-			monitors.add(monitor);
-		}
-	}
-
-	/**
-	 * Unregister a monitor of events
-	 * 
-	 * @param monitor
-	 *            a Property change support previously registered in canvas
-	 */
-	public void unregisterMonitor(PropertyChangeSupport monitor)
-	{
-		if (monitors.contains(monitor))
-		{
-			monitors.remove(monitor);
-		}
+		JComponent component = super.createView();
+		component.addKeyListener(inputHandlerProvider.getInputHandler().getKeyEventInterceptor());
+		component.addMouseListener(inputHandlerProvider.getInputHandler().getMouseEventInterceptor());
+		return component;
 	}
 
 	/**
@@ -226,15 +243,67 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		this.getMonitor().firePropertyChange(property, oldObj, newObj);
 	}
 
-	public void propertyChange(PropertyChangeEvent event)
+	// returns the current action set
+	@Override
+	public AsinActionContext<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>> getActionContext()
 	{
-		for (PropertyChangeSupport monitor : monitors)
-		{
-			event.setPropagationId("canvas:" + id);
-			monitor.firePropertyChange(event);
-		}
-		this.getMonitor().firePropertyChange(event);
+		return actionContext;
 	}
+
+	public abstract Router getActiveRouter();
+
+	public List<String> getAlternatives()
+	{
+		return alternatives;
+	}
+
+	public abstract LayerWidget getBackgroundLayer();
+
+	public List<String> getCandidateAlt()
+	{
+		return candidateAlt;
+	}
+
+	public List<String> getCandidateSuc()
+	{
+		return candidateSuc;
+	}
+
+	public abstract CanvasDecorator getCanvasDecorator();
+
+	public abstract CanvasState getCanvasState();
+
+	public abstract LayerWidget getConnectionLayer();
+
+	public abstract String getConnStrategy();
+
+	// management of screen objects
+
+	public String getID()
+	{
+		return this.id;
+	}
+
+	public AbstractInputHandler<?> getInputHandler()
+	{
+		return inputHandlerProvider.getInputHandler();
+	}
+
+	public abstract LayerWidget getInterractionLayer();
+
+	public abstract Collection<?> getLabels();
+
+	public List<String> getLambdas()
+	{
+		return lambdas;
+	}
+
+	public List<String> getLeftSides()
+	{
+		return leftSides;
+	}
+
+	public abstract LayerWidget getMainLayer();
 
 	/**
 	 * @return the main monitor, all events of interest to canvas should be
@@ -245,46 +314,74 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		return this.monitor;
 	}
 
-	@Override
-	public void setActiveTool(String activeTool)
+	public abstract String getMoveStrategy();
+
+	/* ##########################GETTERS AND SETTERS############################ */
+
+	public abstract String getNodeType(Object node);
+
+	public List<String> getNterminals()
 	{
-		super.setActiveTool(activeTool);
-		if (activeTool.equals(SELECT))
-		{
-			this.setCursor(Cursor.getDefaultCursor());
-		}
-		else
-		{
-			this.setCursor(cursors.get(activeTool));
-		}
+		return nterminals;
 	}
 
-	public String _getActiveTool()
+	public BufferedImage getScreenshot()
 	{
-		String tool = super.getActiveTool();
-		if (tool == null)
-		{
-			tool = SELECT; // by default select tool is activated
-		}
-		return tool;
+		BufferedImage bi = new BufferedImage(this.getPreferredSize().width, this.getPreferredSize().height, BufferedImage.TYPE_4BYTE_ABGR);
+		Graphics2D graphics = bi.createGraphics();
+		getScene().paint(graphics);
+		graphics.dispose();
+		return bi;
+	}
+
+	public List<String> getStart()
+	{
+		return start;
 	}
 
 	/**
-	 * Adds a new action set to the canvas's list of ActionSets.
+	 * This method is here for a mere convenience, is really essential for the
+	 * canvas itself
 	 * 
-	 * @param actionSet
-	 *            the actionSet to add
+	 * @return the static state manager of this canvas
 	 */
-	public void addActionSet(AsinActionSet<CanvasBeanShellAction> actionSet)
+	public StaticStateManager getStaticStateManager()
 	{
-		actionContext.addActionSet(actionSet);
+		return CanvasFactory.getStaticStateManager(id);
 	}
 
-	// returns the current action set
-	@Override
-	public AsinActionContext<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>> getActionContext()
+	public List<String> getSuccessors()
 	{
-		return actionContext;
+		return successors;
+	}
+
+	public List<String> getTerminals()
+	{
+		return terminals;
+	}
+
+	/**
+	 * This method is here for a mere convenience, is really essential for the
+	 * canvas itself
+	 * 
+	 * @return the volatile state manager of this canvas
+	 */
+	public VolatileStateManager getVolatileStateManager()
+	{
+		return CanvasFactory.getVolatileStateManager(id);
+	}
+
+	/**
+	 * Must initialize canvas with the given state
+	 * 
+	 * @param state
+	 */
+	public void init(CanvasState state)
+	{
+		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
+		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
+		initInputHandler();
+		createCursors();
 	}
 
 	/**
@@ -316,14 +413,127 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		});
 	}
 
-	@Override
-	public JComponent createView()
+	public boolean isAlternative(String edge)
 	{
-		JComponent component = super.createView();
-		component.addKeyListener(inputHandlerProvider.getInputHandler().getKeyEventInterceptor());
-		component.addMouseListener(inputHandlerProvider.getInputHandler().getMouseEventInterceptor());
-		return component;
+		return alternatives.contains(edge);
 	}
+
+	public boolean isCandidateAlternative(String edge)
+	{
+		return candidateAlt.contains(edge);
+	}
+
+	public boolean isCandidateSuccessor(String edge)
+	{
+		return candidateSuc.contains(edge);
+	}
+
+	public abstract boolean isLabel(Object o);
+
+	/**
+	 * @return the showingGrid
+	 */
+	public boolean isShowingGrid()
+	{
+		return showingGrid;
+	}
+
+	/**
+	 * @return the showingGuide
+	 */
+	public boolean isShowingGuide()
+	{
+		return showingGuide;
+	}
+
+	/**
+	 * @return the showingLines
+	 */
+	public boolean isShowingLines()
+	{
+		return showingLines;
+	}
+
+	public boolean isSuccessor(String edge)
+	{
+		return successors.contains(edge);
+	}
+
+	/**
+	 * painting with antialias
+	 */
+	@Override
+	public void paintChildren()
+	{
+		Object anti = getGraphics().getRenderingHint(RenderingHints.KEY_ANTIALIASING);
+		Object textAnti = getGraphics().getRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING);
+
+		getGraphics().setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		getGraphics().setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+
+		super.paintChildren();
+
+		getGraphics().setRenderingHint(RenderingHints.KEY_ANTIALIASING, anti);
+		getGraphics().setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, textAnti);
+	}
+
+	@Override
+	public void propertyChange(PropertyChangeEvent event)
+	{
+		for (PropertyChangeSupport monitor : monitors)
+		{
+			event.setPropagationId("canvas:" + id);
+			monitor.firePropertyChange(event);
+		}
+		this.getMonitor().firePropertyChange(event);
+	}
+
+	/**
+	 * Register a new monitor to events in canvas
+	 * 
+	 * @param monitor
+	 *            a property change support instance that may contain the
+	 *            interested listeners
+	 */
+	public void registerMonitor(PropertyChangeSupport monitor)
+	{
+		if (!monitors.contains(monitor))
+		{
+			monitors.add(monitor);
+		}
+	}
+
+	public abstract void removeEdgeSafely(String edge);
+
+	public abstract void removeNodeSafely(String node);
+
+	public void saveToFile(File file) throws IOException
+	{
+		StaticStateManager ssm = new StaticStateManager();
+		ssm.setFile(file);
+		ssm.setObject(this.getCanvasState());
+		ssm.write();
+	}
+
+	public abstract void select(Object object);
+
+	public abstract void select(Object object, boolean invertSelection);
+
+	@Override
+	public void setActiveTool(String activeTool)
+	{
+		super.setActiveTool(activeTool);
+		if (activeTool.equals(SELECT))
+		{
+			this.setCursor(Cursor.getDefaultCursor());
+		}
+		else
+		{
+			this.setCursor(cursors.get(activeTool));
+		}
+	}
+
+	public abstract void setConnStrategy(String policy);
 
 	/**
 	 * Called to give properly give focus to this canvas
@@ -341,142 +551,9 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		}
 	}
 
-	public void saveToFile(File file) throws IOException
+	public void setId(String id)
 	{
-		StaticStateManager ssm = new StaticStateManager();
-		ssm.setFile(file);
-		ssm.setObject(this.getCanvasState());
-		ssm.write();
-	}
-
-	public BufferedImage getScreenshot()
-	{
-		BufferedImage bi = new BufferedImage(this.getPreferredSize().width, this.getPreferredSize().height, BufferedImage.TYPE_4BYTE_ABGR);
-		Graphics2D graphics = bi.createGraphics();
-		getScene().paint(graphics);
-		graphics.dispose();
-		return bi;
-	}
-
-	// management of screen objects
-
-	public boolean canZoomIn()
-	{
-		return getZoomFactor() < 2.0;
-	}
-
-	public boolean canZoomOut()
-	{
-		return getZoomFactor() > 0.1;
-	}
-
-	public abstract boolean isLabel(Object o);
-
-	public abstract void removeNodeSafely(String node);
-
-	public abstract void removeEdgeSafely(String edge);
-
-	public abstract void select(Object object);
-
-	public abstract void select(Object object, boolean invertSelection);
-
-	/**
-	 * This method is here for a mere convenience, is really essential for the
-	 * canvas itself
-	 * 
-	 * @return the volatile state manager of this canvas
-	 */
-	public VolatileStateManager getVolatileStateManager()
-	{
-		return CanvasFactory.getVolatileStateManager(id);
-	}
-
-	/**
-	 * This method is here for a mere convenience, is really essential for the
-	 * canvas itself
-	 * 
-	 * @return the static state manager of this canvas
-	 */
-	public StaticStateManager getStaticStateManager()
-	{
-		return CanvasFactory.getStaticStateManager(id);
-	}
-
-	/* ##########################GETTERS AND SETTERS############################ */
-
-	public AbstractInputHandler<?> getInputHandler()
-	{
-		return inputHandlerProvider.getInputHandler();
-	}
-
-	public String getID()
-	{
-		return this.id;
-	}
-
-	public boolean isCandidateSuccessor(String edge)
-	{
-		return candidateSuc.contains(edge);
-	}
-
-	public boolean isCandidateAlternative(String edge)
-	{
-		return candidateAlt.contains(edge);
-	}
-
-	public boolean isSuccessor(String edge)
-	{
-		return successors.contains(edge);
-	}
-
-	public boolean isAlternative(String edge)
-	{
-		return alternatives.contains(edge);
-	}
-
-	public List<String> getCandidateSuc()
-	{
-		return candidateSuc;
-	}
-
-	public List<String> getCandidateAlt()
-	{
-		return candidateAlt;
-	}
-
-	public List<String> getSuccessors()
-	{
-		return successors;
-	}
-
-	public List<String> getAlternatives()
-	{
-		return alternatives;
-	}
-
-	public List<String> getLeftSides()
-	{
-		return leftSides;
-	}
-
-	public List<String> getTerminals()
-	{
-		return terminals;
-	}
-
-	public List<String> getNterminals()
-	{
-		return nterminals;
-	}
-
-	public List<String> getLambdas()
-	{
-		return lambdas;
-	}
-
-	public List<String> getStart()
-	{
-		return start;
+		this.id = id;
 	}
 
 	public void setLabels(List<String> labels)
@@ -484,31 +561,7 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		this.labels = labels;
 	}
 
-	/**
-	 * @return the showingLines
-	 */
-	public boolean isShowingLines()
-	{
-		return showingLines;
-	}
-
-	/**
-	 * @param showingLines
-	 *            the showingLines to set
-	 */
-	public void setShowingLines(boolean showingLines)
-	{
-		this.showingLines = showingLines;
-		getCanvasState().getPreferences().setShowLines(showingLines);
-	}
-
-	/**
-	 * @return the showingGrid
-	 */
-	public boolean isShowingGrid()
-	{
-		return showingGrid;
-	}
+	public abstract void setMoveStrategy(String strategy);
 
 	/**
 	 * @param showingGrid
@@ -521,14 +574,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	}
 
 	/**
-	 * @return the showingGuide
-	 */
-	public boolean isShowingGuide()
-	{
-		return showingGuide;
-	}
-
-	/**
 	 * @param showingGuide
 	 *            the showingGuide to set
 	 */
@@ -538,71 +583,31 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		getCanvasState().getPreferences().setShowGuide(showingGuide);
 	}
 
-	public abstract CanvasState getCanvasState();
-
-	public abstract Collection<?> getLabels();
-
-	public abstract void setConnStrategy(String policy);
-
-	public abstract String getConnStrategy();
-
-	public abstract void setMoveStrategy(String strategy);
-
-	public abstract String getMoveStrategy();
-
-	public abstract Router getActiveRouter();
-
-	public abstract LayerWidget getBackgroundLayer();
-
-	public abstract LayerWidget getMainLayer();
-
-	public abstract LayerWidget getInterractionLayer();
-
-	public abstract LayerWidget getConnectionLayer();
-
-	public abstract CanvasDecorator getCanvasDecorator();
-
-	public abstract String getNodeType(Object node);
+	/**
+	 * @param showingLines
+	 *            the showingLines to set
+	 */
+	public void setShowingLines(boolean showingLines)
+	{
+		this.showingLines = showingLines;
+		getCanvasState().getPreferences().setShowLines(showingLines);
+	}
 
 	// //INNER CLASSES////////
 
 	/**
-	 * This inner classes acts as a facade used to forward key events to
-	 * keylisteners "hanged" to this canvas This class was created to deal with
-	 * some issues that arose when trying to integrate this canvas and
-	 * infonode's docking framework. So it may be not be necessary on some
-	 * cases.
+	 * Unregister a monitor of events
+	 * 
+	 * @param monitor
+	 *            a Property change support previously registered in canvas
 	 */
-	protected class KeyListenerFacade implements KeyListener
+	public void unregisterMonitor(PropertyChangeSupport monitor)
 	{
-
-		public void keyPressed(KeyEvent e)
+		if (monitors.contains(monitor))
 		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyPressed(e);
-			}
-		}
-
-		public void keyReleased(KeyEvent e)
-		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyReleased(e);
-			}
-		}
-
-		public void keyTyped(KeyEvent e)
-		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyTyped(e);
-			}
+			monitors.remove(monitor);
 		}
 	}
 
-	public void setId(String id)
-	{
-		this.id = id;
-	}
+	public abstract void updateState(CanvasState state);
 }

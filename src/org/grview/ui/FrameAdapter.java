@@ -7,10 +7,10 @@ import org.grview.project.ProjectManager;
 
 public class FrameAdapter extends WindowAdapter
 {
-	
+
 	@Override
 	public void windowClosing(WindowEvent arg0)
-	{		
+	{
 		ProjectManager.exit();
 	}
 

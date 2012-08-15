@@ -23,79 +23,119 @@
 package org.grview.editor.gui;
 
 //{{{ Imports
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.swing.DefaultListModel;
-import java.util.*;
+
 //}}}
 
 /**
- * A history list. One history list can be used by several history text
- * fields. Note that the list model implementation is incomplete; no events
- * are fired when the history model changes.
- *
+ * A history list. One history list can be used by several history text fields.
+ * Note that the list model implementation is incomplete; no events are fired
+ * when the history model changes.
+ * 
  * @author Slava Pestov
  * @version $Id$
  */
-public class HistoryModel extends DefaultListModel
-	implements MutableListModel
+public class HistoryModel extends DefaultListModel implements MutableListModel
 {
-	//{{{ HistoryModel constructor
+	// {{{ Private members
+	private static int max;
+
+	private String name;
+
+	private static Map<String, HistoryModel> models;
+
+	private static boolean modified;
+
+	private static HistoryModelSaver saver;
+
+	// }}}
+
+	// {{{ HistoryModel constructor
 	/**
-	 * Creates a new history list. Calling this is normally not
-	 * necessary.
+	 * Creates a new history list. Calling this is normally not necessary.
 	 */
 	public HistoryModel(String name)
 	{
 		this.name = name;
-	} //}}}
+	} // }}}
 
-	//{{{ addItem() method
+	// {{{ getModel() method
 	/**
-	 * Adds an item to the end of this history list, trimming the list
-	 * to the maximum number of items if necessary.
-	 * @param text The item
+	 * Returns a named model. If the specified model does not already exist, it
+	 * will be created.
+	 * 
+	 * @param name
+	 *            The model name
+	 */
+	public static HistoryModel getModel(String name)
+	{
+		if (models == null)
+			models = Collections.synchronizedMap(new HashMap<String, HistoryModel>());
+
+		HistoryModel model = models.get(name);
+		if (model == null)
+		{
+			model = new HistoryModel(name);
+			models.put(name, model);
+		}
+
+		return model;
+	} // }}}
+
+	// {{{ loadHistory() method
+	public static void loadHistory()
+	{
+		if (saver != null)
+			models = saver.load(models);
+	} // }}}
+
+	// {{{ saveHistory() method
+	public static void saveHistory()
+	{
+		if (saver != null && modified && saver.save(models))
+			modified = false;
+	} // }}}
+
+	// {{{ setMax() method
+	public static void setMax(int max)
+	{
+		HistoryModel.max = max;
+	} // }}}
+
+	// {{{ setSaver() method
+	public static void setSaver(HistoryModelSaver saver)
+	{
+		HistoryModel.saver = saver;
+	} // }}}
+
+	// {{{ addItem() method
+	/**
+	 * Adds an item to the end of this history list, trimming the list to the
+	 * maximum number of items if necessary.
+	 * 
+	 * @param text
+	 *            The item
 	 */
 	public void addItem(String text)
 	{
-		if(text == null || text.length() == 0)
+		if (text == null || text.length() == 0)
 			return;
 
 		int index = indexOf(text);
-		if(index != -1)
+		if (index != -1)
 			removeElementAt(index);
 
-		insertElementAt(text,0);
+		insertElementAt(text, 0);
 
-		while(getSize() > max)
+		while (getSize() > max)
 			removeElementAt(getSize() - 1);
-	} //}}}
+	} // }}}
 
-	//{{{ insertElementAt() method
-	@Override
-	public void insertElementAt(Object obj, int index)
-	{
-		modified = true;
-		super.insertElementAt(obj,index);
-	} //}}}
-
-	//{{{ getItem() method
-	/**
-	 * Returns an item from the history list.
-	 * @param index The index
-	 */
-	public String getItem(int index)
-	{
-		return (String)elementAt(index);
-	} //}}}
-
-	//{{{ removeElement() method
-	@Override
-	public boolean removeElement(Object obj)
-	{
-		modified = true;
-		return super.removeElement(obj);
-	} //}}}
-
-	//{{{ clear() method
+	// {{{ clear() method
 	/**
 	 * @deprecated Call <code>removeAllElements()</code> instead.
 	 */
@@ -104,80 +144,51 @@ public class HistoryModel extends DefaultListModel
 	public void clear()
 	{
 		removeAllElements();
-	} //}}}
+	} // }}}
 
-	//{{{ removeAllElements() method
+	// {{{ getItem() method
+	/**
+	 * Returns an item from the history list.
+	 * 
+	 * @param index
+	 *            The index
+	 */
+	public String getItem(int index)
+	{
+		return (String) elementAt(index);
+	} // }}}
+
+	// {{{ getName() method
+	/**
+	 * Returns the name of this history list. This can be passed to the
+	 * HistoryTextField constructor.
+	 */
+	public String getName()
+	{
+		return name;
+	} // }}}
+		// {{{ insertElementAt() method
+
+	@Override
+	public void insertElementAt(Object obj, int index)
+	{
+		modified = true;
+		super.insertElementAt(obj, index);
+	} // }}}
+
+	// {{{ removeAllElements() method
 	@Override
 	public void removeAllElements()
 	{
 		modified = true;
 		super.removeAllElements();
-	} //}}}
+	} // }}}
+		// {{{ removeElement() method
 
-	//{{{ getName() method
-	/**
-	 * Returns the name of this history list. This can be passed
-	 * to the HistoryTextField constructor.
-	 */
-	public String getName()
+	@Override
+	public boolean removeElement(Object obj)
 	{
-		return name;
-	} //}}}
-
-	//{{{ getModel() method
-	/**
-	 * Returns a named model. If the specified model does not
-	 * already exist, it will be created.
-	 * @param name The model name
-	 */
-	public static HistoryModel getModel(String name)
-	{
-		if(models == null)
-			models = Collections.synchronizedMap(new HashMap<String, HistoryModel>());
-
-		HistoryModel model = models.get(name);
-		if(model == null)
-		{
-			model = new HistoryModel(name);
-			models.put(name,model);
-		}
-
-		return model;
-	} //}}}
-
-	//{{{ loadHistory() method
-	public static void loadHistory()
-	{
-		if (saver != null)
-			models = saver.load(models);
-	} //}}}
-
-	//{{{ saveHistory() method
-	public static void saveHistory()
-	{
-		if (saver != null && modified && saver.save(models))
-			modified = false;
-	} //}}}
-
-	//{{{ setMax() method
-	public static void setMax(int max)
-	{
-		HistoryModel.max = max;
-	} //}}}
-
-	//{{{ setSaver() method
-	public static void setSaver(HistoryModelSaver saver)
-	{
-		HistoryModel.saver = saver;
-	} //}}}
-
-	//{{{ Private members
-	private static int max;
-
-	private String name;
-	private static Map<String, HistoryModel> models;
-
-	private static boolean modified;
-	private static HistoryModelSaver saver;
-	//}}}
+		modified = true;
+		return super.removeElement(obj);
+	} // }}}
 }

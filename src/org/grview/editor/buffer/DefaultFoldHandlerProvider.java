@@ -22,8 +22,8 @@
  */
 package org.grview.editor.buffer;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Matthieu Casanova
@@ -32,38 +32,42 @@ import java.util.HashMap;
 public class DefaultFoldHandlerProvider implements FoldHandlerProvider
 {
 	private final Map<String, FoldHandler> folds = new HashMap<String, FoldHandler>();
+
 	/**
-	 * Returns the fold handler with the specified name, or null if
-	 * there is no registered handler with that name.
-	 *
-	 * @param name The name of the desired fold handler
+	 * Add a new FoldHander.
+	 * 
+	 * @param foldHandler
+	 *            the new foldHandler
+	 * @since jEdit 4.3pre13
+	 */
+	public void addFoldHandler(FoldHandler foldHandler)
+	{
+		folds.put(foldHandler.getName(), foldHandler);
+	}
+
+	/**
+	 * Returns the fold handler with the specified name, or null if there is no
+	 * registered handler with that name.
+	 * 
+	 * @param name
+	 *            The name of the desired fold handler
 	 * @return the FoldHandler or null if it doesn't exist
 	 * @since jEdit 4.3pre10
 	 */
+	@Override
 	public FoldHandler getFoldHandler(String name)
 	{
 		return folds.get(name);
 	}
 
 	/**
-	 * Returns an array containing the names of all registered fold
-	 * handlers.
-	 *
+	 * Returns an array containing the names of all registered fold handlers.
+	 * 
 	 * @since jEdit 4.0pre6
 	 */
+	@Override
 	public String[] getFoldModes()
 	{
-		return folds.keySet().toArray(new String[folds.size()]); 
-	}
-	
-	/**
-	 * Add a new FoldHander.
-	 *
-	 * @param foldHandler the new foldHandler
-	 * @since jEdit 4.3pre13
-	 */
-	public void addFoldHandler(FoldHandler foldHandler)
-	{
-		folds.put(foldHandler.getName(), foldHandler);
+		return folds.keySet().toArray(new String[folds.size()]);
 	}
 }

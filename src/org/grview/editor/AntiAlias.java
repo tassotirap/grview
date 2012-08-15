@@ -36,12 +36,9 @@ public class AntiAlias extends Object
 
 	public static final Object SUBPIXEL = "subpixel";
 
-	public static final Object comboChoices[] = new Object[] { NONE, STANDARD, SUBPIXEL };
+	public static final Object comboChoices[] = new Object[]{ NONE, STANDARD, SUBPIXEL };
 
-	public void set(int newValue)
-	{
-		m_val = newValue;
-	}
+	private int m_val = 0;
 
 	public AntiAlias(boolean isEnabled)
 	{
@@ -76,6 +73,11 @@ public class AntiAlias extends Object
 		}
 	}
 
+	public void set(int newValue)
+	{
+		m_val = newValue;
+	}
+
 	@Override
 	public String toString()
 	{
@@ -86,6 +88,4 @@ public class AntiAlias extends Object
 	{
 		return m_val;
 	}
-
-	private int m_val = 0;
 }

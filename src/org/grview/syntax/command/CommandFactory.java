@@ -18,6 +18,12 @@ public class CommandFactory
 		return addCommand;
 	}
 
+	public static AddRoutineCommand createAddRoutineCommand()
+	{
+		addRoutineCommand.clear();
+		return addRoutineCommand;
+	}
+
 	public static ConnectCommand createConnectionCommand()
 	{
 		connCommand.clear();
@@ -35,10 +41,10 @@ public class CommandFactory
 		return dConnCommand;
 	}
 
-	public static RenameCommand createRenameCommand()
+	public static MoveCommand createMoveCommand()
 	{
-		renameCommand.clear();
-		return renameCommand;
+		moveCommand.clear();
+		return moveCommand;
 	}
 
 	public static RemoveRoutineCommand createRemoveRoutineCommand()
@@ -47,15 +53,9 @@ public class CommandFactory
 		return removeRoutineCommand;
 	}
 
-	public static MoveCommand createMoveCommand()
+	public static RenameCommand createRenameCommand()
 	{
-		moveCommand.clear();
-		return moveCommand;
-	}
-
-	public static AddRoutineCommand createAddRoutineCommand()
-	{
-		addRoutineCommand.clear();
-		return addRoutineCommand;
+		renameCommand.clear();
+		return renameCommand;
 	}
 }

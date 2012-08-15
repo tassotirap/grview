@@ -25,76 +25,80 @@ package org.grview.editor.buffer;
 import javax.swing.text.Segment;
 
 /**
- * A fold handler that folds lines based on markers ("{{{" and "}}}")
- * embedded in the text.
- *
+ * A fold handler that folds lines based on markers ("{{{" and "}}}") embedded
+ * in the text.
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 4.0pre1
  */
 public class ExplicitFoldHandler extends FoldHandler
 {
-	//{{{ ExplicitFoldHandler constructor
+	// {{{ ExplicitFoldHandler constructor
 	public ExplicitFoldHandler()
 	{
 		super("explicit");
-	} //}}}
+	} // }}}
 
-	//{{{ getFoldLevel() method
+	// {{{ getFoldLevel() method
 	/**
 	 * Returns the fold level of the specified line.
-	 * @param buffer The buffer in question
-	 * @param lineIndex The line index
-	 * @param seg A segment the fold handler can use to obtain any
-	 * text from the buffer, if necessary
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param lineIndex
+	 *            The line index
+	 * @param seg
+	 *            A segment the fold handler can use to obtain any text from the
+	 *            buffer, if necessary
 	 * @return The fold level of the specified line
 	 * @since jEdit 4.0pre1
 	 */
 	@Override
 	public int getFoldLevel(JEditBuffer buffer, int lineIndex, Segment seg)
 	{
-		if(lineIndex == 0)
+		if (lineIndex == 0)
 			return 0;
 		else
 		{
 			int foldLevel = buffer.getFoldLevel(lineIndex - 1);
 
-			buffer.getLineText(lineIndex - 1,seg);
+			buffer.getLineText(lineIndex - 1, seg);
 
 			int offset = seg.offset;
 			int count = seg.count;
 
 			int openingBrackets = 0, closingBrackets = 0;
-			for(int i = 0; i < count; i++)
+			for (int i = 0; i < count; i++)
 			{
-				switch(seg.array[offset + i])
+				switch (seg.array[offset + i])
 				{
-				case '{':
-					closingBrackets = 0;
-					openingBrackets++;
-					if(openingBrackets == 3)
-					{
-						foldLevel++;
-						openingBrackets = 0;
-					}
-					break;
-				case '}':
-					openingBrackets = 0;
-					closingBrackets++;
-					if(closingBrackets == 3)
-					{
-						if(foldLevel > 0)
-							foldLevel--;
+					case '{':
 						closingBrackets = 0;
-					}
-					break;
-				default:
-					closingBrackets = openingBrackets = 0;
-					break;
+						openingBrackets++;
+						if (openingBrackets == 3)
+						{
+							foldLevel++;
+							openingBrackets = 0;
+						}
+						break;
+					case '}':
+						openingBrackets = 0;
+						closingBrackets++;
+						if (closingBrackets == 3)
+						{
+							if (foldLevel > 0)
+								foldLevel--;
+							closingBrackets = 0;
+						}
+						break;
+					default:
+						closingBrackets = openingBrackets = 0;
+						break;
 				}
 			}
 
 			return foldLevel;
 		}
-	} //}}}
+	} // }}}
 }

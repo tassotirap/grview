@@ -3,8 +3,11 @@ package org.grview.project;
 import org.grview.actions.AbstractEditAction;
 import org.grview.actions.AsinActionSet;
 import org.grview.actions.BeanShellFacade;
-import bsh.*;
 import org.grview.util.Log;
+
+import bsh.BshMethod;
+import bsh.NameSpace;
+import bsh.UtilEvalError;
 
 /**
  * An action that evaluates BeanShell code when invoked. BeanShell actions are
@@ -20,10 +23,42 @@ import org.grview.util.Log;
 public class ProjectManagerBeanShellAction extends AbstractEditAction<ProjectManager>
 {
 
-	private String sanitizedName;
-	private String code;
+	private static class MyBeanShellFacade extends BeanShellFacade<ProjectManager>
+	{
+		@Override
+		protected void handleException(ProjectManager canvas, String path, Throwable t)
+		{
+			Log.log(Log.ERROR, this, t, t);
+		}
 
+		@Override
+		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
+		{
+			namespace.setVariable("pManager", null, false);
+		}
+
+		@Override
+		protected void setupDefaultVariables(NameSpace namespace, ProjectManager pManager) throws UtilEvalError
+		{
+			if (pManager != null)
+			{
+				namespace.setVariable("pManager", pManager, false);
+			}
+		}
+
+		@Override
+		public void init()
+		{
+			global.importClass("org.grview.project.ProjectManager");
+			global.importClass("org.grview.ui.wizard.NewFileWizard");
+		}
+	}
+
+	private String sanitizedName;
+
+	private String code;
 	private BshMethod cachedCode;
+
 	private static final BeanShellFacade<ProjectManager> bsh = new MyBeanShellFacade();
 
 	public ProjectManagerBeanShellAction(String name, String code)
@@ -53,37 +88,6 @@ public class ProjectManagerBeanShellAction extends AbstractEditAction<ProjectMan
 		catch (Throwable e)
 		{
 			Log.log(Log.ERROR, this, e);
-		}
-	}
-
-	private static class MyBeanShellFacade extends BeanShellFacade<ProjectManager>
-	{
-		@Override
-		public void init()
-		{
-			global.importClass("org.grview.project.ProjectManager");
-			global.importClass("org.grview.ui.wizard.NewFileWizard");
-		}
-
-		@Override
-		protected void setupDefaultVariables(NameSpace namespace, ProjectManager pManager) throws UtilEvalError
-		{
-			if (pManager != null)
-			{
-				namespace.setVariable("pManager", pManager, false);
-			}
-		}
-
-		@Override
-		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
-		{
-			namespace.setVariable("pManager", null, false);
-		}
-
-		@Override
-		protected void handleException(ProjectManager canvas, String path, Throwable t)
-		{
-			Log.log(Log.ERROR, this, t, t);
 		}
 	}
 }

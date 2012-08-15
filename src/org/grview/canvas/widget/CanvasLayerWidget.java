@@ -47,47 +47,57 @@ import org.netbeans.api.visual.widget.LayerWidget;
 import org.netbeans.api.visual.widget.Scene;
 
 /**
- * The layer widget represents a transparent widget which functionality is similar to JGlassPane.
- * The layer widget is used for speed optimalization too since it is not repainted when the widget is re-layout.
+ * The layer widget represents a transparent widget which functionality is
+ * similar to JGlassPane. The layer widget is used for speed optimalization too
+ * since it is not repainted when the widget is re-layout.
  * <p>
- * It can be used widgets organization. A scene usually has layer widgets directly underneath.
- * E.g. each layer widget is used different purpose:
- * background for widgets on background,
- * main layer for node widgets,
- * connection layer for edge widgets,
- * interraction layer for temporary widgets created/used by actions.
- *
+ * It can be used widgets organization. A scene usually has layer widgets
+ * directly underneath. E.g. each layer widget is used different purpose:
+ * background for widgets on background, main layer for node widgets, connection
+ * layer for edge widgets, interraction layer for temporary widgets created/used
+ * by actions.
+ * 
  * @author David Kaspar
  */
-public class CanvasLayerWidget extends LayerWidget implements Serializable {
+public class CanvasLayerWidget extends LayerWidget implements Serializable
+{
 
 	private static final long serialVersionUID = 4067199192049261603L;
 
 	/**
-     * Creates a layer widget.
-     * @param scene the scene
-     */
-    public CanvasLayerWidget (Scene scene) {
-        super (scene);
-    }
+	 * Creates a layer widget.
+	 * 
+	 * @param scene
+	 *            the scene
+	 */
+	public CanvasLayerWidget(Scene scene)
+	{
+		super(scene);
+	}
 
-    /**
-     * Returns whether a specified local location is part of the layer widget.
-     * @param localLocation the local location
-     * @return always false
-     */
-    @Override
-	public boolean isHitAt (Point localLocation) {
-        return false;
-    }
+	/**
+	 * Returns whether the layer widget requires to repainted after
+	 * revalidation.
+	 * 
+	 * @return always false
+	 */
+	@Override
+	protected boolean isRepaintRequiredForRevalidating()
+	{
+		return false;
+	}
 
-    /**
-     * Returns whether the layer widget requires to repainted after revalidation.
-     * @return always false
-     */
-    @Override
-	protected boolean isRepaintRequiredForRevalidating () {
-        return false;
-    }
+	/**
+	 * Returns whether a specified local location is part of the layer widget.
+	 * 
+	 * @param localLocation
+	 *            the local location
+	 * @return always false
+	 */
+	@Override
+	public boolean isHitAt(Point localLocation)
+	{
+		return false;
+	}
 
 }

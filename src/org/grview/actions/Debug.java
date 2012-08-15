@@ -25,6 +25,7 @@ package org.grview.actions;
 /**
  * This class contains various debugging flags mainly useful for core
  * development.
+ * 
  * @since jEdit 4.2pre1
  * @author Slava Pestov
  * @version $Id$
@@ -38,8 +39,7 @@ public class Debug
 	public static boolean OFFSET_DEBUG = false;
 
 	/**
-	 * Print messages when text area and display manager perform scroll
-	 * updates.
+	 * Print messages when text area and display manager perform scroll updates.
 	 */
 	public static boolean SCROLL_DEBUG = false;
 
@@ -49,8 +49,8 @@ public class Debug
 	public static boolean SCROLL_TO_DEBUG = false;
 
 	/**
-	 * Display an error if the scrolling code detects an inconsistency.
-	 * This kills performance!
+	 * Display an error if the scrolling code detects an inconsistency. This
+	 * kills performance!
 	 */
 	public static boolean SCROLL_VERIFY = false;
 
@@ -105,16 +105,16 @@ public class Debug
 	public static boolean BEANSHELL_DEBUG = false;
 
 	/**
-	 * If true, an alternative dispatcher using key typed events will be
-	 * used to handle a modifier key press in conjunction with an alphabet
-	 * key. <b>On by default on MacOS.</b>
+	 * If true, an alternative dispatcher using key typed events will be used to
+	 * handle a modifier key press in conjunction with an alphabet key. <b>On by
+	 * default on MacOS.</b>
 	 */
 	public static boolean ALTERNATIVE_DISPATCHER = OperatingSystem.isMacOS();
 
 	/**
 	 * If true, A+ shortcuts are disabled. If you use this, you should also
-	 * remap the the modifiers so that A+ is actually something else.
-	 * <b>On by default on MacOS.</b>
+	 * remap the the modifiers so that A+ is actually something else. <b>On by
+	 * default on MacOS.</b>
 	 */
 	public static boolean ALT_KEY_PRESSED_DISABLED = OperatingSystem.isMacOS();
 
@@ -144,8 +144,9 @@ public class Debug
 	public static boolean DISABLE_SEARCH_DIALOG_POOL = false;
 
 	/**
-	 * Disable multihead support, since it can cause window positioning
-	 * problems with some Java versions.
+	 * Disable multihead support, since it can cause window positioning problems
+	 * with some Java versions.
+	 * 
 	 * @since jEdit 4.3pre1
 	 */
 	public static boolean DISABLE_MULTIHEAD = false;

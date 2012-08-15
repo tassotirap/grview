@@ -5,7 +5,8 @@ import java.util.List;
 
 import org.grview.syntax.grammar.GrComp;
 
-public class InvalidGrammarException extends Exception {
+public class InvalidGrammarException extends Exception
+{
 
 	/**
 	 * 
@@ -14,50 +15,59 @@ public class InvalidGrammarException extends Exception {
 
 	private GrComp problem;
 	private String description;
-	
+
 	private List<InvalidGrammarException> nextExceptions = new ArrayList<InvalidGrammarException>();
 	private int iteratorIndex;
-	
-	public InvalidGrammarException(String message, String description, GrComp problem) {
+
+	public InvalidGrammarException(String message, String description, GrComp problem)
+	{
 		super(message);
 		this.description = description;
 		this.problem = problem;
 	}
-	
-	
-	public void insertMoreExceptions(InvalidGrammarException ex) {
-		nextExceptions.add(ex);
+
+	public String getDescription()
+	{
+		return this.description;
 	}
-	
-	public void resetIterator() {
-		iteratorIndex = 0;
-	}
-	
-	public boolean hasNext() {
+
+	public boolean hasNext()
+	{
 		return iteratorIndex < nextExceptions.size();
 	}
-	
-	public InvalidGrammarException nextException() {
-		if (hasNext()) {
+
+	public void insertMoreExceptions(InvalidGrammarException ex)
+	{
+		nextExceptions.add(ex);
+	}
+
+	public InvalidGrammarException nextException()
+	{
+		if (hasNext())
+		{
 			return nextExceptions.get(iteratorIndex++);
 		}
 		return null;
 	}
-	
-	public void setGrComp(GrComp problem) {
+
+	public void resetIterator()
+	{
+		iteratorIndex = 0;
+	}
+
+	public void setGrComp(GrComp problem)
+	{
 		this.problem = problem;
 	}
-	
-	public String getDescription() {
-		return this.description;
-	}
-	
-	public String whereLabel() {
-		return problem.getContents().toString();
-	}
-	
-	public String whereId() {
+
+	public String whereId()
+	{
 		return problem.getId().toString();
 	}
-	
+
+	public String whereLabel()
+	{
+		return problem.getContents().toString();
+	}
+
 }

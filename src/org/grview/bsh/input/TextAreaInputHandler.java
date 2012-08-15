@@ -38,11 +38,10 @@ import org.grview.editor.gui.ShortcutPrefixActiveEvent;
 import org.grview.util.Log;
 import org.grview.util.StandardUtilities;
 
-
 /**
  * This class manage the key bindings and execute the actions binded on the
  * keyboard events for the standalone textarea.
- *
+ * 
  * @author Matthieu Casanova
  * @version $Id: FoldHandler.java 5568 2006-07-10 20:52:23Z kpouer $
  */
@@ -50,107 +49,36 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 {
 	private final TextArea textArea;
 
-	//{{{ TextAreaInputHandler constructor
+	// {{{ TextAreaInputHandler constructor
 	protected TextAreaInputHandler(TextArea textArea)
 	{
 		this.textArea = textArea;
 		bindings = currentBindings = new Hashtable();
-	} //}}}
+	} // }}}
 
-	@Override
-	public void processMouseEvent(MouseEvent evt, int from, boolean global) {}
-	
-	//{{{ processKeyEvent() method
-	/**
-	 * Forwards key events directly to the input handler.
-	 * This is slightly faster than using a KeyListener
-	 * because some Swing overhead is avoided.
-	 * @param evt the keyboard event
-	 * @param from the source of the event. Since this is the input handler of the textarea, it should always be 1
-	 * @param global it is only true if the event comes from the DefaultKeyboardFocusManager
-	 * @since 4.3pre7
-	 */
-	@Override
-	public void processKeyEvent(KeyEvent evt, int from, boolean global)
-	{
-		if(Debug.DUMP_KEY_EVENTS)
-		{
-			Log.log(Log.DEBUG,this,"Key event                 : "
-				+ toString(evt) + " from " + from);
-		//	Log.log(Log.DEBUG,this,view+".isFocused()="+view.isFocused()+'.',new Exception());
-		}
-
-		evt = _preprocessKeyEvent(evt);
-		if(evt == null)
-			return;
-
-		if(Debug.DUMP_KEY_EVENTS)
-		{
-			Log.log(Log.DEBUG,this,"Key event after workaround: "
-				+ toString(evt) + " from " + from);
-		}
-
-		boolean focusOnTextArea = false;
-		switch(evt.getID())
-		{
-		case KeyEvent.KEY_TYPED:
-			// if the user pressed eg C+e n n in the
-			// search bar we want focus to go back there
-			// after the prefix is done
-
-
-			if(keyEventInterceptor != null)
-				keyEventInterceptor.keyTyped(evt);
-			else if(isPrefixActive() || textArea.hasFocus())
-			{
-				processKeyEventKeyStrokeHandling(evt,from,"type ",global);
-			}
-
-
-			processKeyEventSub(focusOnTextArea);
-
-			break;
-		case KeyEvent.KEY_PRESSED:
-			if(keyEventInterceptor != null)
-				keyEventInterceptor.keyPressed(evt);
-			else if(KeyEventWorkaround.isBindable(evt.getKeyCode()))
-			{
-				processKeyEventKeyStrokeHandling(evt,from,"press",global);
-
-				processKeyEventSub(focusOnTextArea);
-
-			}
-			break;
-		case KeyEvent.KEY_RELEASED:
-			if(keyEventInterceptor != null)
-				keyEventInterceptor.keyReleased(evt);
-			break;
-		}
-	} //}}}
-
-	//{{{ _preprocessKeyEvent() method
+	// {{{ _preprocessKeyEvent() method
 	/**
 	 * This method returns if the keyboard event can be handled or not.
-	 *
-	 * @param evt the keyboard event
-	 * @return null if the keyboard event cannot be handled, or the keyboard event itself
-	 * otherwise
+	 * 
+	 * @param evt
+	 *            the keyboard event
+	 * @return null if the keyboard event cannot be handled, or the keyboard
+	 *         event itself otherwise
 	 */
 	private KeyEvent _preprocessKeyEvent(KeyEvent evt)
 	{
-		if(evt.isConsumed())
+		if (evt.isConsumed())
 			return null;
 
-		if(Debug.DUMP_KEY_EVENTS)
+		if (Debug.DUMP_KEY_EVENTS)
 		{
-			Log.log(Log.DEBUG,this,"Key event (preprocessing) : "
-					+ toString(evt));
+			Log.log(Log.DEBUG, this, "Key event (preprocessing) : " + toString(evt));
 		}
 
 		return KeyEventWorkaround.processKeyEvent(evt);
-	} //}}}
+	} // }}}
 
-	//{{{ processKeyEventSub() method
+	// {{{ processKeyEventSub() method
 	private void processKeyEventSub(boolean focusOnTextArea)
 	{
 		// this is a weird hack.
@@ -160,114 +88,69 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 		{
 			textArea.requestFocus();
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ getAction() method
+	// {{{ getAction() method
 	protected abstract JEditBeanShellAction getAction(String action);
-	//}}}
 
-	//{{{ invokeAction() method
-	/**
-	 * Invokes the specified action, repeating and recording it as
-	 * necessary.
-	 * @param action The action
-	 * @since jEdit 4.2pre1
-	 */
-	@Override
-	public void invokeAction(String action)
+	// }}}
+
+	// {{{ invokeReadNextChar() method
+	protected void invokeReadNextChar(char ch)
 	{
-		invokeAction(getAction(action));
-	} //}}}
+		String charStr = StandardUtilities.charsToEscapes(String.valueOf(ch));
 
-	//{{{ invokeAction() method
-	/**
-	 * Invokes the specified action, repeating and recording it as
-	 * necessary.
-	 * @param action The action
-	 */
-	@Override
-	public void invokeAction(JEditBeanShellAction action)
+		// this might be a bit slow if __char__ occurs a lot
+		int index;
+		while ((index = readNextChar.indexOf("__char__")) != -1)
+		{
+			readNextChar = readNextChar.substring(0, index) + '\'' + charStr + '\'' + readNextChar.substring(index + 8);
+		}
+		readNextChar = null;
+	} // }}}
+
+	// {{{ userInput() method
+	protected void userInput(char ch)
 	{
-		JEditBuffer buffer = textArea.getBuffer();
+		lastActionCount = 0;
 
-		/* if(buffer.insideCompoundEdit())
-			buffer.endCompoundEdit(); */
+		if (repeatCount == 1)
+			textArea.userInput(ch);
 
-		// remember the last executed action
-		if(!action.noRememberLast())
-		{
-			if(lastAction == action)
-				lastActionCount++;
-			else
-			{
-				lastAction = action;
-				lastActionCount = 1;
-			}
-		}
+		repeatCount = 1;
+	} // }}}
 
-		// remember old values, in case action changes them
-		int _repeatCount = repeatCount;
-
-		// execute the action
-		if(action.noRepeat() || _repeatCount == 1)
-			action.invoke(textArea);
-		else
-		{
-			try
-			{
-				buffer.beginCompoundEdit();
-
-				for(int i = 0; i < _repeatCount; i++)
-					action.invoke(textArea);
-			}
-			finally
-			{
-				buffer.endCompoundEdit();
-			}
-		}
-
-		// If repeat was true originally, clear it
-		// Otherwise it might have been set by the action, etc
-		if(_repeatCount != 1)
-		{
-			// first of all, if this action set a
-			// readNextChar, do not clear the repeat
-			if(readNextChar != null)
-				return;
-
-			repeatCount = 1;
-		}
-	} //}}}
-
-	//{{{ handleKey() method
+	// {{{ handleKey() method
 	/**
 	 * Handles the given keystroke.
-	 * @param keyStroke The key stroke
-	 * @param dryRun only calculate the return value, do not have any other effect
+	 * 
+	 * @param keyStroke
+	 *            The key stroke
+	 * @param dryRun
+	 *            only calculate the return value, do not have any other effect
 	 * @since jEdit 4.2pre5
 	 */
 	@Override
-	public boolean handleKey(KeyEventTranslator.Key keyStroke,boolean dryRun)
+	public boolean handleKey(KeyEventTranslator.Key keyStroke, boolean dryRun)
 	{
 		char input = '\0';
-		if(keyStroke.modifiers == null
-			|| keyStroke.modifiers.equals("S"))
+		if (keyStroke.modifiers == null || keyStroke.modifiers.equals("S"))
 		{
-			switch(keyStroke.key)
+			switch (keyStroke.key)
 			{
-			case '\n':
-			case '\t':
-				input = (char)keyStroke.key;
-				break;
-			default:
-				input = keyStroke.input;
-				break;
+				case '\n':
+				case '\t':
+					input = (char) keyStroke.key;
+					break;
+				default:
+					input = keyStroke.input;
+					break;
 			}
 		}
 
-		if(readNextChar != null)
+		if (readNextChar != null)
 		{
-			if(input != '\0')
+			if (input != '\0')
 			{
 				if (!dryRun)
 				{
@@ -287,7 +170,7 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 		}
 
 		Object o = currentBindings.get(keyStroke);
-		if(o == null)
+		if (o == null)
 		{
 			if (!dryRun)
 			{
@@ -295,7 +178,7 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 				// key we don't know about unless a
 				// prefix is active. Otherwise it will
 				// beep when caps lock is pressed, etc.
-				if(currentBindings != bindings)
+				if (currentBindings != bindings)
 				{
 					Toolkit.getDefaultToolkit().beep();
 					// F10 should be passed on, but C+e F10
@@ -303,7 +186,7 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 					repeatCount = 1;
 					setCurrentBindings(bindings);
 				}
-				else if(input != '\0')
+				else if (input != '\0')
 				{
 					if (!keyStroke.isFromGlobalContext())
 					{ // let user input be only local
@@ -314,39 +197,39 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 				{
 					// this is retarded. excuse me while I drool
 					// and make stupid noises
-					if(KeyEventWorkaround.isNumericKeypad(keyStroke.key))
+					if (KeyEventWorkaround.isNumericKeypad(keyStroke.key))
 						KeyEventWorkaround.numericKeypadKey();
 				}
 				sendShortcutPrefixOff();
 			}
 		}
-		else if(o instanceof Hashtable)
+		else if (o instanceof Hashtable)
 		{
 			if (!dryRun)
 			{
-				setCurrentBindings((Hashtable)o);
+				setCurrentBindings((Hashtable) o);
 				ShortcutPrefixActiveEvent.firePrefixStateChange(currentBindings, true);
 				shortcutOn = true;
 			}
 			return true;
 		}
-		else if(o instanceof String)
+		else if (o instanceof String)
 		{
 			if (!dryRun)
 			{
 				setCurrentBindings(bindings);
 				sendShortcutPrefixOff();
-				invokeAction((String)o);
+				invokeAction((String) o);
 			}
 			return true;
 		}
-		else if(o instanceof JEditBeanShellAction)
+		else if (o instanceof JEditBeanShellAction)
 		{
 			if (!dryRun)
 			{
 				setCurrentBindings(bindings);
 				sendShortcutPrefixOff();
-				invokeAction((JEditBeanShellAction)o);
+				invokeAction((JEditBeanShellAction) o);
 			}
 			return true;
 		}
@@ -355,33 +238,156 @@ public abstract class TextAreaInputHandler extends AbstractInputHandler<JEditBea
 			sendShortcutPrefixOff();
 		}
 		return false;
-	} //}}}
+	} // }}}
 
-	//{{{ userInput() method
-	protected void userInput(char ch)
+	// {{{ invokeAction() method
+	/**
+	 * Invokes the specified action, repeating and recording it as necessary.
+	 * 
+	 * @param action
+	 *            The action
+	 */
+	@Override
+	public void invokeAction(JEditBeanShellAction action)
 	{
-		lastActionCount = 0;
+		JEditBuffer buffer = textArea.getBuffer();
 
+		/*
+		 * if(buffer.insideCompoundEdit()) buffer.endCompoundEdit();
+		 */
 
-		if(repeatCount == 1)
-			textArea.userInput(ch);
-
-		repeatCount = 1;
-	} //}}}
-
-	//{{{ invokeReadNextChar() method
-	protected void invokeReadNextChar(char ch)
-	{
-		String charStr = StandardUtilities.charsToEscapes(String.valueOf(ch));
-
-		// this might be a bit slow if __char__ occurs a lot
-		int index;
-		while((index = readNextChar.indexOf("__char__")) != -1)
+		// remember the last executed action
+		if (!action.noRememberLast())
 		{
-			readNextChar = readNextChar.substring(0,index)
-				+ '\'' + charStr + '\''
-				+ readNextChar.substring(index + 8);
+			if (lastAction == action)
+				lastActionCount++;
+			else
+			{
+				lastAction = action;
+				lastActionCount = 1;
+			}
 		}
-		readNextChar = null;
-	} //}}}
+
+		// remember old values, in case action changes them
+		int _repeatCount = repeatCount;
+
+		// execute the action
+		if (action.noRepeat() || _repeatCount == 1)
+			action.invoke(textArea);
+		else
+		{
+			try
+			{
+				buffer.beginCompoundEdit();
+
+				for (int i = 0; i < _repeatCount; i++)
+					action.invoke(textArea);
+			}
+			finally
+			{
+				buffer.endCompoundEdit();
+			}
+		}
+
+		// If repeat was true originally, clear it
+		// Otherwise it might have been set by the action, etc
+		if (_repeatCount != 1)
+		{
+			// first of all, if this action set a
+			// readNextChar, do not clear the repeat
+			if (readNextChar != null)
+				return;
+
+			repeatCount = 1;
+		}
+	} // }}}
+
+	// {{{ invokeAction() method
+	/**
+	 * Invokes the specified action, repeating and recording it as necessary.
+	 * 
+	 * @param action
+	 *            The action
+	 * @since jEdit 4.2pre1
+	 */
+	@Override
+	public void invokeAction(String action)
+	{
+		invokeAction(getAction(action));
+	} // }}}
+
+	// {{{ processKeyEvent() method
+	/**
+	 * Forwards key events directly to the input handler. This is slightly
+	 * faster than using a KeyListener because some Swing overhead is avoided.
+	 * 
+	 * @param evt
+	 *            the keyboard event
+	 * @param from
+	 *            the source of the event. Since this is the input handler of
+	 *            the textarea, it should always be 1
+	 * @param global
+	 *            it is only true if the event comes from the
+	 *            DefaultKeyboardFocusManager
+	 * @since 4.3pre7
+	 */
+	@Override
+	public void processKeyEvent(KeyEvent evt, int from, boolean global)
+	{
+		if (Debug.DUMP_KEY_EVENTS)
+		{
+			Log.log(Log.DEBUG, this, "Key event                 : " + toString(evt) + " from " + from);
+			// Log.log(Log.DEBUG,this,view+".isFocused()="+view.isFocused()+'.',new
+			// Exception());
+		}
+
+		evt = _preprocessKeyEvent(evt);
+		if (evt == null)
+			return;
+
+		if (Debug.DUMP_KEY_EVENTS)
+		{
+			Log.log(Log.DEBUG, this, "Key event after workaround: " + toString(evt) + " from " + from);
+		}
+
+		boolean focusOnTextArea = false;
+		switch (evt.getID())
+		{
+			case KeyEvent.KEY_TYPED:
+				// if the user pressed eg C+e n n in the
+				// search bar we want focus to go back there
+				// after the prefix is done
+
+				if (keyEventInterceptor != null)
+					keyEventInterceptor.keyTyped(evt);
+				else if (isPrefixActive() || textArea.hasFocus())
+				{
+					processKeyEventKeyStrokeHandling(evt, from, "type ", global);
+				}
+
+				processKeyEventSub(focusOnTextArea);
+
+				break;
+			case KeyEvent.KEY_PRESSED:
+				if (keyEventInterceptor != null)
+					keyEventInterceptor.keyPressed(evt);
+				else if (KeyEventWorkaround.isBindable(evt.getKeyCode()))
+				{
+					processKeyEventKeyStrokeHandling(evt, from, "press", global);
+
+					processKeyEventSub(focusOnTextArea);
+
+				}
+				break;
+			case KeyEvent.KEY_RELEASED:
+				if (keyEventInterceptor != null)
+					keyEventInterceptor.keyReleased(evt);
+				break;
+		}
+	} // }}}
+
+	@Override
+	public void processMouseEvent(MouseEvent evt, int from, boolean global)
+	{
+	}
 }

@@ -30,7 +30,6 @@ import net.infonode.docking.util.ViewMap;
 import net.infonode.util.Direction;
 
 import org.grview.canvas.CanvasFactory;
-import org.grview.canvas.action.WidgetActionRepositoryFactory;
 import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
 import org.grview.project.ProjectManager;
@@ -56,7 +55,7 @@ import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
 import org.grview.ui.toolbar.BaseToolBar;
-import org.grview.ui.toolbar.ToolBarNewFile;
+import org.grview.ui.toolbar.ToolBarFile;
 
 public class MainWindow extends Window implements ComponentListener
 {
@@ -140,37 +139,10 @@ public class MainWindow extends Window implements ComponentListener
 				windowAdapter.updateViews(view, true);
 			}
 
-			
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
-		}
-	}
-
-	private void openFiles() throws BadParameterException
-	{
-		ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
-		if (filesToOpen.size() == 0)
-		{
-			ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
-		}
-		for (int i = 0; i < filesToOpen.size(); i++)
-		{
-			String name = filesToOpen.get(i).getName();
-			AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
-
-			if (component != null)
-			{
-				component.addComponentListener(this);
-
-				Icon icon = IconRepository.getIconByFileName(name);
-				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name,filesToOpen.get(i).getAbsolutePath(), icon, CENTER_TABS);
-				if (i == filesToOpen.size() - 1)
-				{
-					createMenuModel(name, component);
-				}
-			}
 		}
 	}
 
@@ -246,7 +218,7 @@ public class MainWindow extends Window implements ComponentListener
 		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
 		rootWindow.addListener(new WindowAdapter(this));
-		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);		
+		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);
 	}
 
 	private ArrayList<TabItem> createTabs() throws BadParameterException
@@ -260,6 +232,32 @@ public class MainWindow extends Window implements ComponentListener
 		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
 		tabItems.add(new TabItem("Parser", new ParserComponent().create(ProjectManager.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 		return tabItems;
+	}
+
+	private void openFiles() throws BadParameterException
+	{
+		ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
+		if (filesToOpen.size() == 0)
+		{
+			ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
+		}
+		for (int i = 0; i < filesToOpen.size(); i++)
+		{
+			String name = filesToOpen.get(i).getName();
+			AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
+
+			if (component != null)
+			{
+				component.addComponentListener(this);
+
+				Icon icon = IconRepository.getIconByFileName(name);
+				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name, filesToOpen.get(i).getAbsolutePath(), icon, CENTER_TABS);
+				if (i == filesToOpen.size() - 1)
+				{
+					createMenuModel(name, component);
+				}
+			}
+		}
 	}
 
 	/**
@@ -288,7 +286,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	protected BaseToolBar<ProjectManager> getNewFileToolBar()
 	{
-		ToolBarNewFile<ProjectManager> toolBarNewFile = new ToolBarNewFile<ProjectManager>();
+		ToolBarFile<ProjectManager> toolBarNewFile = new ToolBarFile<ProjectManager>();
 		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
 		return toolBarNewFile;
 	}
@@ -311,7 +309,7 @@ public class MainWindow extends Window implements ComponentListener
 	public DynamicView addComponent(Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place)
 	{
 		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, getDynamicViewId());
-		if(componentModel instanceof GrammarComponent)
+		if (componentModel instanceof GrammarComponent)
 		{
 			activeScene = CanvasFactory.getCanvasFromFile(fileName);
 		}
@@ -357,23 +355,6 @@ public class MainWindow extends Window implements ComponentListener
 	public void removeFileFromProject(String fileName)
 	{
 		ProjectManager.closeFile(fileName);
-	}
-	
-	@Override
-	public void removeDynamicView(DynamicView dynamicView)
-	{
-		dynamicViewsById.remove(dynamicView.getId());
-		dynamicViewsByComponent.remove(dynamicView.getComponentModel());
-		dynamicViewsByPath.remove(dynamicView.getFileName());
-		AbstractComponent component = dynamicView.getComponentModel();
-		component.removeAllComponentListener();
-		component.removeComponentListener(this);
-		
-		for(Vector<DynamicView> vDynamicView : defaultLayout)
-		{
-			if(vDynamicView.contains(dynamicView))
-				vDynamicView.remove(dynamicView);
-		}
 	}
 
 	public void setSaved(String path)

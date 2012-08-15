@@ -21,6 +21,7 @@ package org.grview.editor;
 
 /**
  * Fired when the text area needs to display a status message.
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 4.3pre2
@@ -31,9 +32,9 @@ public interface StatusListener extends java.util.EventListener
 	int MULTI_SELECT_CHANGED = 1;
 	int RECT_SELECT_CHANGED = 2;
 
-	void statusChanged(TextArea textArea, int flag, boolean value);
-	
 	void bracketSelected(TextArea textArea, int line, String text);
-	
+
 	void narrowActive(TextArea textArea);
+
+	void statusChanged(TextArea textArea, int flag, boolean value);
 }

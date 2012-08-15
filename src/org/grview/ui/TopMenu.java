@@ -1,5 +1,6 @@
 package org.grview.ui;
 
-public class TopMenu {
+public class TopMenu
+{
 
 }

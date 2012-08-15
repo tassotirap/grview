@@ -29,26 +29,14 @@ public class MultiMoveProvider implements MoveProvider
 		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvasID));
 	}
 
-	public void movementStarted(Widget widget)
+	@Override
+	public Point getOriginalLocation(Widget widget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
-		Object object = canvas.findObject(widget);
-		if (canvas.isNode(object) || canvas.isLabel(object))
-		{
-			for (Object o : canvas.getSelectedObjects())
-				if (canvas.isNode(o) || canvas.isLabel(object))
-				{
-					Widget w = canvas.findWidget(o);
-					if (w != null)
-						originals.put(w, w.getPreferredLocation());
-				}
-		}
-		else
-		{
-			originals.put(widget, widget.getPreferredLocation());
-		}
+		original = widget.getPreferredLocation();
+		return original;
 	}
 
+	@Override
 	public void movementFinished(Widget widget)
 	{
 		String context = null;
@@ -72,12 +60,28 @@ public class MultiMoveProvider implements MoveProvider
 		}
 	}
 
-	public Point getOriginalLocation(Widget widget)
+	@Override
+	public void movementStarted(Widget widget)
 	{
-		original = widget.getPreferredLocation();
-		return original;
+		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Object object = canvas.findObject(widget);
+		if (canvas.isNode(object) || canvas.isLabel(object))
+		{
+			for (Object o : canvas.getSelectedObjects())
+				if (canvas.isNode(o) || canvas.isLabel(object))
+				{
+					Widget w = canvas.findWidget(o);
+					if (w != null)
+						originals.put(w, w.getPreferredLocation());
+				}
+		}
+		else
+		{
+			originals.put(widget, widget.getPreferredLocation());
+		}
 	}
 
+	@Override
 	public void setNewLocation(Widget widget, Point location)
 	{
 		int dx = location.x - original.x;

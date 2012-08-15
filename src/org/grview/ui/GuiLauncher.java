@@ -1,12 +1,13 @@
 package org.grview.ui;
+
 import org.grview.ui.lib.SplashWindow;
 
 /**
  * 
  * @author Tasso Tirapani Silva Pinto
- *
- * GuiLancher class is the Starter class of GrView
- * First is loaded WorkspaceChooser followed by MainWindow
+ * 
+ *         GuiLancher class is the Starter class of GrView First is loaded
+ *         WorkspaceChooser followed by MainWindow
  * 
  */
 public class GuiLauncher
@@ -19,6 +20,23 @@ public class GuiLauncher
 	private GuiLauncher(String[] args)
 	{
 		this.args = args;
+	}
+
+	public static void main(String[] args)
+	{
+		GuiLauncher guiLauncher = new GuiLauncher(args);
+		guiLauncher.startWorkspaceChooser();
+	}
+
+	private String[] createNewArgs(String firstArgs)
+	{
+		String[] nargs = new String[args.length + 1];
+		nargs[0] = firstArgs;
+		for (int i = 0; i < args.length; i++)
+		{
+			nargs[i + 1] = args[i];
+		}
+		return nargs;
 	}
 
 	/**
@@ -47,22 +65,5 @@ public class GuiLauncher
 			SplashWindow.invokeMain(MAIN_WINDOW, nargs);
 			SplashWindow.disposeSplash();
 		}
-	}
-
-	private String[] createNewArgs(String firstArgs)
-	{
-		String[] nargs = new String[args.length + 1];
-		nargs[0] = firstArgs;
-		for (int i = 0; i < args.length; i++)
-		{
-			nargs[i + 1] = args[i];
-		}
-		return nargs;
-	}
-
-	public static void main(String[] args)
-	{
-		GuiLauncher guiLauncher = new GuiLauncher(args);
-		guiLauncher.startWorkspaceChooser();
 	}
 }

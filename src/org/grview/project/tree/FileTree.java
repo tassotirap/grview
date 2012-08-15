@@ -52,6 +52,7 @@ public class FileTree implements TreeModelListener
 			return this;
 		}
 	}
+
 	private class FileTreeMouseListener implements MouseListener
 	{
 
@@ -97,15 +98,18 @@ public class FileTree implements TreeModelListener
 		}
 
 	}
+
 	private class FileTreeSelectionListener implements TreeSelectionListener
 	{
 
+		@Override
 		public void valueChanged(TreeSelectionEvent e)
 		{
 			instance.selectedNode = e.getPath();
 		}
 
 	}
+
 	private TreePath selectedNode;
 
 	private static FileTree instance;

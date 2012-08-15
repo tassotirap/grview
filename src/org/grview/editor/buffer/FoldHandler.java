@@ -25,17 +25,20 @@ package org.grview.editor.buffer;
 import javax.swing.text.Segment;
 
 /**
- * Interface for obtaining the fold level of a specified line.<p>
- *
+ * Interface for obtaining the fold level of a specified line.
+ * <p>
+ * 
  * Plugins can provide fold handlers by defining entries in their
  * <code>services.xml</code> files like so:
- *
- * <pre>&lt;SERVICE CLASS="org.gjt.sp.jedit.buffer.FoldHandler" NAME="<i>name</i>"&gt;
- *    new <i>MyFoldHandler<i>();
- *&lt;/SERVICE&gt;</pre>
- *
+ * 
+ * <pre>
+ * &lt;SERVICE CLASS="org.gjt.sp.jedit.buffer.FoldHandler" NAME="<i>name</i>"&gt;
+ *     new <i>MyFoldHandler<i>();
+ * &lt;/SERVICE&gt;
+ * </pre>
+ * 
  * See {@link org.grview.actions.ServiceManager} for details.
- *
+ * 
  * @author Slava Pestov
  * @version $Id$
  * @since jEdit 4.3pre3
@@ -44,8 +47,10 @@ public abstract class FoldHandler
 {
 	/**
 	 * The service type. See {@link org.grview.actions.ServiceManager}.
+	 * 
 	 * @since jEdit 4.2pre1
-	 * @deprecated use {@link org.grview.actions.ServiceManager.ServiceFoldHandlerProvider}
+	 * @deprecated use
+	 *             {@link org.grview.actions.ServiceManager.ServiceFoldHandlerProvider}
 	 */
 	@Deprecated
 	public static final String SERVICE = "org.gjt.sp.jedit.buffer.FoldHandler";
@@ -53,9 +58,84 @@ public abstract class FoldHandler
 	/** The FoldHandlerProvider. */
 	public static FoldHandlerProvider foldHandlerProvider;
 
-	//{{{ getName() method
+	private String name;
+
+	// {{{ FoldHandler() constructor
+	protected FoldHandler(String name)
+	{
+		this.name = name;
+	}
+
+	// }}}
+
+	// {{{ getFoldHandler() method
+	/**
+	 * Returns the fold handler with the specified name, or null if there is no
+	 * registered handler with that name.
+	 * 
+	 * @param name
+	 *            The name of the desired fold handler
+	 * @since jEdit 4.0pre6
+	 */
+	public static FoldHandler getFoldHandler(String name)
+	{
+		return foldHandlerProvider.getFoldHandler(name);
+	}
+
+	// }}}
+
+	// {{{ getFoldModes() method
+	/**
+	 * Returns an array containing the names of all registered fold handlers.
+	 * 
+	 * @since jEdit 4.0pre6
+	 */
+	public static String[] getFoldModes()
+	{
+		return foldHandlerProvider.getFoldModes();
+	}
+
+	// }}}
+
+	// {{{ equals() method
+	/**
+	 * Returns if the specified fold handler is equal to this one.
+	 * 
+	 * @param o
+	 *            The object
+	 */
+	@Override
+	public boolean equals(Object o)
+	{
+		// Default implementation... subclasses can extend this.
+		if (o == null)
+			return false;
+		else
+			return getClass() == o.getClass();
+	} // }}}
+
+	// {{{ getFoldLevel() method
+	/**
+	 * Returns the fold level of the specified line.
+	 * 
+	 * @param buffer
+	 *            The buffer in question
+	 * @param lineIndex
+	 *            The line index
+	 * @param seg
+	 *            A segment the fold handler can use to obtain any text from the
+	 *            buffer, if necessary
+	 * @return The fold level of the specified line
+	 * @since jEdit 4.0pre1
+	 */
+	public abstract int getFoldLevel(JEditBuffer buffer, int lineIndex, Segment seg);
+
+	// }}}
+
+	// {{{ getName() method
 	/**
 	 * Returns the internal name of this FoldHandler
+	 * 
 	 * @return The internal name of this FoldHandler
 	 * @since jEdit 4.0pre6
 	 */
@@ -63,82 +143,20 @@ public abstract class FoldHandler
 	{
 		return name;
 	}
-	//}}}
 
-	//{{{ getFoldLevel() method
-	/**
-	 * Returns the fold level of the specified line.
-	 * @param buffer The buffer in question
-	 * @param lineIndex The line index
-	 * @param seg A segment the fold handler can use to obtain any
-	 * text from the buffer, if necessary
-	 * @return The fold level of the specified line
-	 * @since jEdit 4.0pre1
-	 */
-	public abstract int getFoldLevel(JEditBuffer buffer, int lineIndex, Segment seg);
-	//}}}
+	// }}}
 
-	//{{{ equals() method
-	/**
-	 * Returns if the specified fold handler is equal to this one.
-	 * @param o The object
-	 */
-	@Override
-	public boolean equals(Object o)
-	{
-		// Default implementation... subclasses can extend this.
-		if(o == null)
-			return false;
-		else
-			return getClass() == o.getClass();
-	} //}}}
-
-	//{{{ hashCode() method
+	// {{{ hashCode() method
 	@Override
 	public int hashCode()
 	{
 		return getClass().hashCode();
-	} //}}}
+	} // }}}
 
-	//{{{ getFoldHandler() method
-	/**
-	 * Returns the fold handler with the specified name, or null if
-	 * there is no registered handler with that name.
-	 * @param name The name of the desired fold handler
-	 * @since jEdit 4.0pre6
-	 */
-	public static FoldHandler getFoldHandler(String name)
-	{
-		return foldHandlerProvider.getFoldHandler(name);
-	}
-	//}}}
-
-	//{{{ getFoldModes() method
-	/**
-	 * Returns an array containing the names of all registered fold
-	 * handlers.
-	 *
-	 * @since jEdit 4.0pre6
-	 */
-	public static String[] getFoldModes()
-	{
-		return foldHandlerProvider.getFoldModes();
-	}
-	//}}}
-
-	//{{{ FoldHandler() constructor
-	protected FoldHandler(String name)
-	{
-		this.name = name;
-	}
-	//}}}
-
-	//{{{ toString() method
+	// {{{ toString() method
 	@Override
 	public String toString()
 	{
 		return name;
-	} //}}}
-
-	private String name;
+	} // }}}
 }

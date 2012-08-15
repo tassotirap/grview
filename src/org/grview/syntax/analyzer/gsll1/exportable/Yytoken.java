@@ -1,6 +1,8 @@
 package org.grview.syntax.analyzer.gsll1.exportable;
+
 /** The internal representation of a lexical token **/
-public class Yytoken {
+public class Yytoken
+{
 	public String m_p1;
 	public String m_text;
 	public int m_line;
@@ -9,13 +11,20 @@ public class Yytoken {
 
 	/**
 	 * constructor
-	 * @param p1 the type of this token
-	 * @param text the text of this token
-	 * @param line the line where this token was found
-	 * @param charBegin the position where this token begins
-	 * @param charEnd the position where this token ends
+	 * 
+	 * @param p1
+	 *            the type of this token
+	 * @param text
+	 *            the text of this token
+	 * @param line
+	 *            the line where this token was found
+	 * @param charBegin
+	 *            the position where this token begins
+	 * @param charEnd
+	 *            the position where this token ends
 	 */
-	public Yytoken (String p1, String text, int line, int charBegin, int charEnd) {
+	public Yytoken(String p1, String text, int line, int charBegin, int charEnd)
+	{
 		m_p1 = p1;
 		m_text = text;
 		m_line = line;
@@ -24,16 +33,14 @@ public class Yytoken {
 	}
 
 	/** returns the text of this token **/
-	public String token(){
-		return m_text;  	
+	public String token()
+	{
+		return m_text;
 	}
 
 	@Override
-	public String toString() {
-		return "Text   : "+m_text+
-		"   Type : "+m_p1+
-		"   line  : "+m_line+
-		"   cBeg. : "+m_charBegin+
-		"   cEnd. : "+m_charEnd;
+	public String toString()
+	{
+		return "Text   : " + m_text + "   Type : " + m_p1 + "   line  : " + m_line + "   cBeg. : " + m_charBegin + "   cEnd. : " + m_charEnd;
 	}
 }

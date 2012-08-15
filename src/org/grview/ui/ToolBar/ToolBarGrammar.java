@@ -24,7 +24,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 	private JButton btnNTerminal, btnTerminal, btnLambdaAlternative, btnStart;
 	JButton[] buttons;
 	String[] names;
-	
+
 	public ToolBarGrammar(Canvas canvas)
 	{
 		super(canvas);
@@ -142,7 +142,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 
 	@Override
 	protected void initComponets()
-	{	
+	{
 		btnSelect = new JButton(new ImageIcon(getClass().getResource(imgPath + "select.png")));
 		btnSucessor = new JButton(new ImageIcon(getClass().getResource(imgPath + "successor.png")));
 		btnAlternative = new JButton(new ImageIcon(getClass().getResource(imgPath + "alternative.png")));
@@ -154,7 +154,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 		btnStart = new JButton(new ImageIcon(getClass().getResource(imgPath + "icon_s.png")));
 
 		buttons = new JButton[]{ btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnNTerminal, btnTerminal, btnLambdaAlternative, btnLabel, btnStart };
-		names = new String[]{LangHelper.select , LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
+		names = new String[]{ LangHelper.select, LangHelper.successor, LangHelper.alternative, LangHelper.left_hand, LangHelper.n_terminal, LangHelper.terminal, LangHelper.lambda_alternative, LangHelper.label, LangHelper.start };
 	}
 
 	@Override

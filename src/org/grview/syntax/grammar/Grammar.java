@@ -5,7 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 
 /** This class is a container for a grammar **/
-public class Grammar {
+public class Grammar
+{
 
 	private GrComp head;
 	private List<GrComp> heads;
@@ -16,8 +17,9 @@ public class Grammar {
 	private HashMap<GrComp, List<GrComp>> successors;
 	private HashMap<GrComp, List<GrComp>> antiSuccessors;
 	private GrComp current;
-	
-	public Grammar (GrComp current) {
+
+	public Grammar(GrComp current)
+	{
 		this.alternatives = new HashMap<GrComp, List<GrComp>>();
 		this.antiAlternatives = new HashMap<GrComp, List<GrComp>>();
 		this.successors = new HashMap<GrComp, List<GrComp>>();
@@ -27,116 +29,145 @@ public class Grammar {
 		this.components = new ArrayList<GrComp>();
 		setCurrent(current);
 	}
-	
-	public void addLeftHand(GrComp lh) {
-		addComp(lh);
-		leftHands.add(lh);
+
+	private GrComp addComp(GrComp comp)
+	{
+		// is there a corresponding comp already?
+		for (GrComp c : components)
+		{
+			if (c.getId().equals(comp.getId()))
+			{
+				return c;
+			}
+		}
+		if (!alternatives.containsKey(comp))
+		{
+			alternatives.put(comp, new ArrayList<GrComp>());
+		}
+		if (!successors.containsKey(comp))
+		{
+			successors.put(comp, new ArrayList<GrComp>());
+		}
+		if (!antiAlternatives.containsKey(comp))
+		{
+			antiAlternatives.put(comp, new ArrayList<GrComp>());
+		}
+		if (!antiSuccessors.containsKey(comp))
+		{
+			antiSuccessors.put(comp, new ArrayList<GrComp>());
+		}
+		if (!components.contains(comp) && comp != head)
+		{
+			components.add(comp);
+		}
+		return comp;
 	}
-	
-	public void addAlternative(GrComp alternative) {
+
+	public void addAlternative(GrComp alternative)
+	{
 		alternative = addComp(alternative);
 		alternatives.get(current).add(alternative);
 		antiAlternatives.get(alternative).add(current);
-		
+
 	}
-	
-	public void addSuccessor(GrComp successor) {
+
+	public void addLeftHand(GrComp lh)
+	{
+		addComp(lh);
+		leftHands.add(lh);
+	}
+
+	public void addSuccessor(GrComp successor)
+	{
 		successor = addComp(successor);
 		successors.get(current).add(successor);
 		antiSuccessors.get(successor).add(current);
 	}
 
-	
-	public List<GrComp> getAlternatives(GrComp source) {
-		if (alternatives.containsKey(source)) {
+	@Override
+	public void finalize()
+	{
+		this.current = null;
+	}
+
+	public List<GrComp> getAlternatives(GrComp source)
+	{
+		if (alternatives.containsKey(source))
+		{
 			return alternatives.get(source);
 		}
 		return null;
 	}
-	
-	public List<GrComp> getSucessors(GrComp source) {
-		if (successors.containsKey(source)) {
-			return successors.get(source);
-		}
-		return null;
-	}
-	
-	public List<GrComp> getAntiAlternatives(GrComp target) {
-		if (antiAlternatives.containsKey(target)) {
+
+	public List<GrComp> getAntiAlternatives(GrComp target)
+	{
+		if (antiAlternatives.containsKey(target))
+		{
 			return antiAlternatives.get(target);
 		}
 		return null;
 	}
-	
-	public List<GrComp> getAntiSuccessors(GrComp target) {
-		if (antiSuccessors.containsKey(target)) {
+
+	public List<GrComp> getAntiSuccessors(GrComp target)
+	{
+		if (antiSuccessors.containsKey(target))
+		{
 			return antiSuccessors.get(target);
 		}
 		return null;
-	}
-	
-	public boolean hasCurrent() {
-		return current != null;
-	}
-
-	private GrComp addComp(GrComp comp) {
-		//is there a corresponding comp already?
-		for (GrComp c : components) {
-			if (c.getId().equals(comp.getId())) {
-				return c;
-			}
-		}
-		if (!alternatives.containsKey(comp)) {
-			alternatives.put(comp, new ArrayList<GrComp>());
-		}
-		if (!successors.containsKey(comp)) {
-			successors.put(comp, new ArrayList<GrComp>());
-		}
-		if (!antiAlternatives.containsKey(comp)) {
-			antiAlternatives.put(comp, new ArrayList<GrComp>());
-		}
-		if (!antiSuccessors.containsKey(comp)) {
-			antiSuccessors.put(comp, new ArrayList<GrComp>());
-		}
-		if (!components.contains(comp) && comp != head) {
-			components.add(comp);
-		}
-		return comp;
-	}
-	
-	public void setCurrent(GrComp current) {
-		current = addComp(current);
-		this.current = current;
-	}
-	
-	public void finalize() {
-		this.current = null;
-	}
-	
-	public GrComp getCurrent() {
-		return this.current;
-	}
-
-	public void setHead(GrComp head) {
-		this.head = head;
-		this.heads.add(head);
-	}
-
-	public GrComp getHead() {
-		return head;
-	}
-	
-	public List<GrComp> getHeads() {
-		return heads;
-	}
-	public List<GrComp> getLeftHands() {
-		return leftHands;
 	}
 
 	/**
 	 * @return the components
 	 */
-	public List<GrComp> getComponents() {
+	public List<GrComp> getComponents()
+	{
 		return components;
 	}
- }
+
+	public GrComp getCurrent()
+	{
+		return this.current;
+	}
+
+	public GrComp getHead()
+	{
+		return head;
+	}
+
+	public List<GrComp> getHeads()
+	{
+		return heads;
+	}
+
+	public List<GrComp> getLeftHands()
+	{
+		return leftHands;
+	}
+
+	public List<GrComp> getSucessors(GrComp source)
+	{
+		if (successors.containsKey(source))
+		{
+			return successors.get(source);
+		}
+		return null;
+	}
+
+	public boolean hasCurrent()
+	{
+		return current != null;
+	}
+
+	public void setCurrent(GrComp current)
+	{
+		current = addComp(current);
+		this.current = current;
+	}
+
+	public void setHead(GrComp head)
+	{
+		this.head = head;
+		this.heads.add(head);
+	}
+}

@@ -8,9 +8,9 @@ public class MoveCommand extends Command
 	public final static String id = SyntaxDefinitions.MoveCommand;
 
 	@Override
-	public String getID()
+	public boolean execute()
 	{
-		return id;
+		return true;
 	}
 
 	@Override
@@ -20,9 +20,9 @@ public class MoveCommand extends Command
 	}
 
 	@Override
-	public boolean execute()
+	public String getID()
 	{
-		return true;
+		return id;
 	}
 
 	@Override

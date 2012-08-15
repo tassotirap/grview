@@ -12,6 +12,17 @@ import org.openide.windows.TopComponent;
 public final class OutlineTopComponent extends TopComponent
 {
 
+	class ResolvableHelper implements Serializable
+	{
+
+		private static final long serialVersionUID = 1L;
+
+		public Object readResolve()
+		{
+			return this;
+		}
+	}
+
 	private static final String PREFERRED_ID = "janelaTopComponent";
 
 	public OutlineTopComponent(GraphScene scene)
@@ -24,6 +35,8 @@ public final class OutlineTopComponent extends TopComponent
 		setSize(900, 700);
 	}
 
+	// End of variables declaration//GEN-END:variables
+
 	// <editor-fold defaultstate="collapsed"
 	// desc="Generated Code">//GEN-BEGIN:initComponents
 	private void initComponents()
@@ -32,12 +45,16 @@ public final class OutlineTopComponent extends TopComponent
 	}// </editor-fold>//GEN-END:initComponents
 		// Variables declaration - do not modify//GEN-BEGIN:variables
 
-	// End of variables declaration//GEN-END:variables
+	@Override
+	protected String preferredID()
+	{
+		return PREFERRED_ID;
+	}
 
 	@Override
-	public int getPersistenceType()
+	public void componentClosed()
 	{
-		return TopComponent.PERSISTENCE_NEVER;
+		// TODO add custom code on component closing
 	}
 
 	@Override
@@ -47,9 +64,9 @@ public final class OutlineTopComponent extends TopComponent
 	}
 
 	@Override
-	public void componentClosed()
+	public int getPersistenceType()
 	{
-		// TODO add custom code on component closing
+		return TopComponent.PERSISTENCE_NEVER;
 	}
 
 	/** replaces this in object stream */
@@ -57,22 +74,5 @@ public final class OutlineTopComponent extends TopComponent
 	public Object writeReplace()
 	{
 		return new ResolvableHelper();
-	}
-
-	@Override
-	protected String preferredID()
-	{
-		return PREFERRED_ID;
-	}
-
-	class ResolvableHelper implements Serializable
-	{
-
-		private static final long serialVersionUID = 1L;
-
-		public Object readResolve()
-		{
-			return this;
-		}
 	}
 }

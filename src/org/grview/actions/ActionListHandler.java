@@ -32,14 +32,34 @@ import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.helpers.DefaultHandler;
 
-
 /**
- * This class loads the actions.xml files into a {@link AsinActionSet}. * @author Slava Pestov
- * * @author Mike Dillon @author Gustavo H. Braga
+ * This class loads the actions.xml files into a {@link AsinActionSet}. * @author
+ * Slava Pestov * @author Mike Dillon @author Gustavo H. Braga
  */
 class ActionListHandler extends DefaultHandler
 {
-	//{{{ ActionListHandler constructor
+	// {{{ Instance variables
+	private String path;
+
+	private AsinActionSet actionSet;
+
+	private String actionName;
+
+	private final StringBuilder code;
+
+	private final StringBuilder isSelected;
+
+	private boolean noRepeat;
+
+	private boolean noRecord;
+
+	private boolean noRememberLast;
+
+	private final Stack<String> stateStack;
+
+	// }}}
+
+	// {{{ ActionListHandler constructor
 	ActionListHandler(String path, AsinActionSet actionSet)
 	{
 		this.path = path;
@@ -47,32 +67,47 @@ class ActionListHandler extends DefaultHandler
 		stateStack = new Stack<String>();
 		code = new StringBuilder();
 		isSelected = new StringBuilder();
-	} //}}}
+	} // }}}
 
-	//{{{ resolveEntity() method
-	@Override
-	public InputSource resolveEntity(String publicId, String systemId)
+	// {{{ peekElement() method
+	protected String peekElement()
 	{
-		return XMLUtilities.findEntity(systemId, "actions.dtd", getClass());
-	} //}}}
+		return stateStack.peek();
+	} // }}}
 
-	//{{{ attribute() method
+	// {{{ popElement() method
+	protected String popElement()
+	{
+		return stateStack.pop();
+	} // }}}
+
+	// {{{ pushElement() method
+	protected String pushElement(String name)
+	{
+		name = (name == null) ? null : name.intern();
+
+		stateStack.push(name);
+
+		return name;
+	} // }}}
+
+	// {{{ attribute() method
 	public void attribute(String aname, String value, boolean isSpecified)
 	{
 		aname = (aname == null) ? null : aname.intern();
 		value = (value == null) ? null : value.intern();
 
-		if(aname == "NAME")
+		if (aname == "NAME")
 			actionName = value;
-		else if(aname == "NO_REPEAT")
+		else if (aname == "NO_REPEAT")
 			noRepeat = (value == "TRUE");
-		else if(aname == "NO_RECORD")
+		else if (aname == "NO_RECORD")
 			noRecord = (value == "TRUE");
-		else if(aname == "NO_REMEMBER_LAST")
+		else if (aname == "NO_REMEMBER_LAST")
 			noRememberLast = (value == "TRUE");
-	} //}}}
+	} // }}}
 
-	//{{{ characters() method
+	// {{{ characters() method
 	@Override
 	public void characters(char[] c, int off, int len)
 	{
@@ -85,27 +120,9 @@ class ActionListHandler extends DefaultHandler
 		{
 			isSelected.append(c, off, len);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ startElement() method
-	@Override
-	public void startElement(String uri, String localName,
-				 String qName, Attributes attrs)
-	{
-		String tag = pushElement(qName);
-
-		if (tag.equals("ACTION"))
-		{
-			actionName = attrs.getValue("NAME");
-			noRepeat = "TRUE".equals(attrs.getValue("NO_REPEAT"));
-			noRecord = "TRUE".equals(attrs.getValue("NO_RECORD"));
-			noRememberLast = "TRUE".equals(attrs.getValue("NO_REMEMBER_LAST"));
-			code.setLength(0);
-			isSelected.setLength(0);
-		}
-	} //}}}
-
-	//{{{ endElement() method
+	// {{{ endElement() method
 	@Override
 	public void endElement(String uri, String localName, String qName)
 	{
@@ -115,15 +132,8 @@ class ActionListHandler extends DefaultHandler
 		{
 			if (tag.equals("ACTION"))
 			{
-				String selected = (isSelected.length() > 0) ?
-					isSelected.toString() : null;
-				AbstractEditAction action = 
-					actionSet.createBeanShellAction(actionName,
-									code.toString(),
-									selected,
-									noRepeat,
-									noRecord,
-									noRememberLast);
+				String selected = (isSelected.length() > 0) ? isSelected.toString() : null;
+				AbstractEditAction action = actionSet.createBeanShellAction(actionName, code.toString(), selected, noRepeat, noRecord, noRememberLast);
 				actionSet.addAction(action);
 				noRepeat = noRecord = noRememberLast = false;
 				code.setLength(0);
@@ -137,69 +147,93 @@ class ActionListHandler extends DefaultHandler
 			// can't happen
 			throw new InternalError();
 		}
-	} //}}}
+	} // }}}
 
-	public String getPath() {
-		return path;
-	}
-
-	public void setPath(String path) {
-		this.path = path;
-	}
-
-	public AsinActionSet getActionSet() {
-		return actionSet;
-	}
-
-	public void setActionSet(AsinActionSet actionSet) {
-		this.actionSet = actionSet;
-	}
-
-	public String getActionName() {
+	public String getActionName()
+	{
 		return actionName;
 	}
 
-	public void setActionName(String actionName) {
-		this.actionName = actionName;
+	public AsinActionSet getActionSet()
+	{
+		return actionSet;
 	}
 
-	public boolean isNoRepeat() {
-		return noRepeat;
-	}
-
-	public void setNoRepeat(boolean noRepeat) {
-		this.noRepeat = noRepeat;
-	}
-
-	public boolean isNoRecord() {
-		return noRecord;
-	}
-
-	public void setNoRecord(boolean noRecord) {
-		this.noRecord = noRecord;
-	}
-
-	public boolean isNoRememberLast() {
-		return noRememberLast;
-	}
-
-	public void setNoRememberLast(boolean noRememberLast) {
-		this.noRememberLast = noRememberLast;
-	}
-
-	public StringBuilder getCode() {
+	public StringBuilder getCode()
+	{
 		return code;
 	}
 
-	public StringBuilder getIsSelected() {
+	public StringBuilder getIsSelected()
+	{
 		return isSelected;
 	}
 
-	public Stack<String> getStateStack() {
+	public String getPath()
+	{
+		return path;
+	}
+
+	public Stack<String> getStateStack()
+	{
 		return stateStack;
 	}
 
-	//{{{ startDocument() method
+	// {{{ Private members
+
+	public boolean isNoRecord()
+	{
+		return noRecord;
+	}
+
+	public boolean isNoRememberLast()
+	{
+		return noRememberLast;
+	}
+
+	public boolean isNoRepeat()
+	{
+		return noRepeat;
+	}
+
+	// {{{ resolveEntity() method
+	@Override
+	public InputSource resolveEntity(String publicId, String systemId)
+	{
+		return XMLUtilities.findEntity(systemId, "actions.dtd", getClass());
+	} // }}}
+
+	public void setActionName(String actionName)
+	{
+		this.actionName = actionName;
+	}
+
+	public void setActionSet(AsinActionSet actionSet)
+	{
+		this.actionSet = actionSet;
+	}
+
+	public void setNoRecord(boolean noRecord)
+	{
+		this.noRecord = noRecord;
+	}
+
+	public void setNoRememberLast(boolean noRememberLast)
+	{
+		this.noRememberLast = noRememberLast;
+	}
+
+	public void setNoRepeat(boolean noRepeat)
+	{
+		this.noRepeat = noRepeat;
+	}
+
+	public void setPath(String path)
+	{
+		this.path = path;
+	}
+
+	// {{{ startDocument() method
 	@Override
 	public void startDocument()
 	{
@@ -209,48 +243,26 @@ class ActionListHandler extends DefaultHandler
 		}
 		catch (Exception e)
 		{
-			Log.log(Log.ERROR,this, e);
+			Log.log(Log.ERROR, this, e);
 		}
-	} //}}}
+	} // }}}
 
-	//{{{ Private members
-
-	//{{{ Instance variables
-	private String path;
-	private AsinActionSet actionSet;
-
-	private String actionName;
-	private final StringBuilder code;
-	private final StringBuilder isSelected;
-
-	private boolean noRepeat;
-	private boolean noRecord;
-	private boolean noRememberLast;
-
-	private final Stack<String> stateStack;
-	//}}}
-
-	//{{{ pushElement() method
-	protected String pushElement(String name)
+	// {{{ startElement() method
+	@Override
+	public void startElement(String uri, String localName, String qName, Attributes attrs)
 	{
-		name = (name == null) ? null : name.intern();
+		String tag = pushElement(qName);
 
-		stateStack.push(name);
+		if (tag.equals("ACTION"))
+		{
+			actionName = attrs.getValue("NAME");
+			noRepeat = "TRUE".equals(attrs.getValue("NO_REPEAT"));
+			noRecord = "TRUE".equals(attrs.getValue("NO_RECORD"));
+			noRememberLast = "TRUE".equals(attrs.getValue("NO_REMEMBER_LAST"));
+			code.setLength(0);
+			isSelected.setLength(0);
+		}
+	} // }}}
 
-		return name;
-	} //}}}
-
-	//{{{ peekElement() method
-	protected String peekElement()
-	{
-		return stateStack.peek();
-	} //}}}
-
-	//{{{ popElement() method
-	protected String popElement()
-	{
-		return stateStack.pop();
-	} //}}}
-
-	//}}}
+	// }}}
 }

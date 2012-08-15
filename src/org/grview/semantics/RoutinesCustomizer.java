@@ -10,17 +10,22 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.scripting.groovy.GroovyObjectCustomizer;
 
-public class RoutinesCustomizer implements GroovyObjectCustomizer, ApplicationContextAware{
+public class RoutinesCustomizer implements GroovyObjectCustomizer, ApplicationContextAware
+{
 
 	ApplicationContext applicationContext = null;
-	
+
 	@Override
-	public void customize(GroovyObject goo) {
+	public void customize(GroovyObject goo)
+	{
 		goo.setProperty("springAppContext", applicationContext);
 		SemanticRoutinesIvoker.getLastInstance().setGoo(goo);
-		DelegatingMetaClass metaClass = new DelegatingMetaClass(goo.getMetaClass()) {
+		DelegatingMetaClass metaClass = new DelegatingMetaClass(goo.getMetaClass())
+		{
 
-			public Object invokeMethod(Object object, String methodName, Object[] arguments) {
+			@Override
+			public Object invokeMethod(Object object, String methodName, Object[] arguments)
+			{
 				AppOutput.displayText("Invoking '" + methodName + "'.", TOPIC.Output);
 				return super.invokeMethod(object, methodName, arguments);
 			}
@@ -30,9 +35,9 @@ public class RoutinesCustomizer implements GroovyObjectCustomizer, ApplicationCo
 	}
 
 	@Override
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException
+	{
 		this.applicationContext = applicationContext;
-		
+
 	}
 }

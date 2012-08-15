@@ -27,35 +27,31 @@ import java.awt.event.MouseEvent;
 import org.grview.actions.IPropertyManager;
 import org.grview.editor.gui.KeyEventTranslator;
 
-
-
 public class MouseActions implements MouseActionsProvider
 {
 	private IPropertyManager propertyManager;
 
-	//{{{ MouseActions constructor
+	private String name;
+
+	// {{{ MouseActions constructor
 	MouseActions(IPropertyManager propertyManager, String name)
 	{
 		this.propertyManager = propertyManager;
 		this.name = name;
-	} //}}}
+	} // }}}
 
-	//{{{ getActionForEvent() method
+	// {{{ getActionForEvent() method
+	@Override
 	public String getActionForEvent(MouseEvent evt, String variant)
 	{
 		String modStr = KeyEventTranslator.getModifierString(evt);
-		if(modStr == null)
+		if (modStr == null)
 		{
-			return propertyManager.getProperty("view." + name + '.'
-				+ variant + "Click");
+			return propertyManager.getProperty("view." + name + '.' + variant + "Click");
 		}
 		else
 		{
-			return propertyManager.getProperty("view." + name + '.'
-				+ KeyEventTranslator.getModifierString(evt)
-				+ variant + "Click");
+			return propertyManager.getProperty("view." + name + '.' + KeyEventTranslator.getModifierString(evt) + variant + "Click");
 		}
-	} //}}}
-
-	private String name;
+	} // }}}
 }

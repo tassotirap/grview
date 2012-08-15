@@ -3,9 +3,12 @@ package org.grview.canvas.action;
 import org.grview.actions.AbstractEditAction;
 import org.grview.actions.AsinActionSet;
 import org.grview.actions.BeanShellFacade;
-import bsh.*;
 import org.grview.canvas.Canvas;
 import org.grview.util.Log;
+
+import bsh.BshMethod;
+import bsh.NameSpace;
+import bsh.UtilEvalError;
 
 /**
  * An action that evaluates BeanShell code when invoked. BeanShell actions are
@@ -21,8 +24,52 @@ import org.grview.util.Log;
 public class CanvasBeanShellAction extends AbstractEditAction<Canvas>
 {
 
+	// {{{ MyBeanShellFacade class
+	private static class MyBeanShellFacade extends BeanShellFacade<Canvas>
+	{
+		@Override
+		protected void handleException(Canvas canvas, String path, Throwable t)
+		{
+			Log.log(Log.ERROR, this, t, t);
+		}
+
+		@Override
+		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
+		{
+			namespace.setVariable("canvas", null, false);
+		}
+
+		@Override
+		protected void setupDefaultVariables(NameSpace namespace, Canvas canvas) throws UtilEvalError
+		{
+			if (canvas != null)
+			{
+				namespace.setVariable("canvas", canvas, false);
+			}
+		}
+
+		@Override
+		public void init()
+		{
+			global.importClass("org.grview.canvas.Canvas");
+			global.importClass("org.grview.canvas.CanvasFactory");
+			global.importClass("org.grview.canvas.state.VolatileStateManager");
+			global.importClass("org.grview.canvas.state.StaticStateManager");
+			global.importClass("org.grview.syntax.grammar.Controller");
+			global.importClass("org.grview.canvas.action.WidgetCopyPasteProvider");
+			global.importClass("org.grview.canvas.action.WidgetDeleteProvider");
+			global.importClass("org.grview.project.ProjectManager");
+			global.importPackage("org.grview.util");
+		}
+	} // }}}
+
 	private String sanitizedName;
+
 	private String code;
+
+	private BshMethod cachedCode;
+
+	private static final BeanShellFacade<Canvas> bsh = new MyBeanShellFacade();
 
 	public CanvasBeanShellAction(String name, String code)
 	{
@@ -34,6 +81,8 @@ public class CanvasBeanShellAction extends AbstractEditAction<Canvas>
 		 */
 		sanitizedName = name.replace('.', '_').replace('-', '_');
 	}
+
+	// }}}
 
 	@Override
 	public void invoke(Canvas canvas)
@@ -53,49 +102,5 @@ public class CanvasBeanShellAction extends AbstractEditAction<Canvas>
 			Log.log(Log.ERROR, this, e);
 		}
 	}
-
-	private BshMethod cachedCode;
-	private static final BeanShellFacade<Canvas> bsh = new MyBeanShellFacade();
-
-	// }}}
-
-	// {{{ MyBeanShellFacade class
-	private static class MyBeanShellFacade extends BeanShellFacade<Canvas>
-	{
-		@Override
-		public void init()
-		{
-			global.importClass("org.grview.canvas.Canvas");
-			global.importClass("org.grview.canvas.CanvasFactory");
-			global.importClass("org.grview.canvas.state.VolatileStateManager");
-			global.importClass("org.grview.canvas.state.StaticStateManager");
-			global.importClass("org.grview.syntax.grammar.Controller");
-			global.importClass("org.grview.canvas.action.WidgetCopyPasteProvider");
-			global.importClass("org.grview.canvas.action.WidgetDeleteProvider");
-			global.importClass("org.grview.project.ProjectManager");
-			global.importPackage("org.grview.util");
-		}
-
-		@Override
-		protected void setupDefaultVariables(NameSpace namespace, Canvas canvas) throws UtilEvalError
-		{
-			if (canvas != null)
-			{
-				namespace.setVariable("canvas", canvas, false);
-			}
-		}
-
-		@Override
-		protected void resetDefaultVariables(NameSpace namespace) throws UtilEvalError
-		{
-			namespace.setVariable("canvas", null, false);
-		}
-
-		@Override
-		protected void handleException(Canvas canvas, String path, Throwable t)
-		{
-			Log.log(Log.ERROR, this, t, t);
-		}
-	} // }}}
 
 }
