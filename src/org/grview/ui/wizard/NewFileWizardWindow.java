@@ -29,6 +29,10 @@ public class NewFileWizardWindow extends JFrame
 
 	class FileCellRenderer extends JLabel implements ListCellRenderer
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
 		private final Color HIGHLIGHT_COLOR = new Color(0, 0, 128);
 
 		public FileCellRenderer()
@@ -62,7 +66,6 @@ public class NewFileWizardWindow extends JFrame
 	private JPanel jContentPane = null;
 	private JLabel jLabel = null;
 	private JList jList = null;
-	private JPanel jPanel = null;
 	private JPanel jPanel1 = null;
 	private JButton jButton = null;
 	private JButton jButton1 = null;
@@ -157,22 +160,6 @@ public class NewFileWizardWindow extends JFrame
 			jContentPane.add(getJTextField(), gridBagConstraints12);
 		}
 		return jContentPane;
-	}
-
-	/**
-	 * This method initializes jPanel
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getJPanel()
-	{
-		if (jPanel == null)
-		{
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			jPanel.setPreferredSize(new Dimension(0, 100));
-		}
-		return jPanel;
 	}
 
 	/**

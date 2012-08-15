@@ -214,8 +214,6 @@ public class UndoManager
 	// queue of redos. first is most recent, last is oldest
 	private Edit redosFirst;
 
-	private Edit redosLast;
-
 	private int limit;
 
 	// {{{ Private members
@@ -246,7 +244,7 @@ public class UndoManager
 			undosLast = edit;
 		}
 
-		redosFirst = redosLast = null;
+		redosFirst = null;
 
 		undoCount++;
 
@@ -292,7 +290,7 @@ public class UndoManager
 
 	public void clear()
 	{
-		undosFirst = undosLast = redosFirst = redosLast = null;
+		undosFirst = undosLast = redosFirst = null;
 		undoCount = 0;
 	} // }}}
 

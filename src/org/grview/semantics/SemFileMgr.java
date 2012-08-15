@@ -69,7 +69,7 @@ public class SemFileMgr
 			FileInputStream fis = new FileInputStream(file);
 			BufferedReader br = new BufferedReader(new InputStreamReader(fis));
 			String line;
-			StringBuffer read = new StringBuffer();
+			new StringBuffer();
 			boolean headerRead = true;
 			boolean bodyRead = false;
 			boolean tailRead = false;

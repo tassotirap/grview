@@ -15,6 +15,10 @@ import javax.swing.JComponent;
  */
 public class LineNumberBorder extends JComponent
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final static Color DEFAULT_BACKGROUND = Color.lightGray;
 	private final static Color DEFAULT_FOREGROUND = Color.black;
 	private final static Color DEFAULT_HIGHLIGHT_COLOR = Color.RED;

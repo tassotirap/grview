@@ -102,6 +102,11 @@ import org.grview.util.StandardUtilities;
  */
 public abstract class TextArea extends JComponent implements ActionContextHolder<JEditBeanShellAction, AsinActionSet<JEditBeanShellAction>>
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// {{{ AdjustHandler class
 	private class AdjustHandler implements AdjustmentListener
 	{
@@ -218,6 +223,11 @@ public abstract class TextArea extends JComponent implements ActionContextHolder
 	// {{{ MutableCaretEvent class
 	private class MutableCaretEvent extends CaretEvent
 	{
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
 		// {{{ MutableCaretEvent constructor
 		MutableCaretEvent()
 		{

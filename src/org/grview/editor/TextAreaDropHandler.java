@@ -53,6 +53,7 @@ class TextAreaDropHandler extends DropTargetAdapter
 	} // }}}
 
 	// {{{ dragEnter() method
+	@SuppressWarnings("deprecation")
 	@Override
 	public void dragEnter(DropTargetDragEvent dtde)
 	{
@@ -64,6 +65,7 @@ class TextAreaDropHandler extends DropTargetAdapter
 	} // }}}
 
 	// {{{ dragExit() method
+	@SuppressWarnings("deprecation")
 	@Override
 	public void dragExit(DropTargetEvent dtde)
 	{
@@ -91,6 +93,7 @@ class TextAreaDropHandler extends DropTargetAdapter
 	} // }}}
 
 	// {{{ drop() method
+	@SuppressWarnings("deprecation")
 	@Override
 	public void drop(DropTargetDropEvent dtde)
 	{

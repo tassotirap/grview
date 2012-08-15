@@ -61,6 +61,16 @@ public class TableCreate
 		{
 			System.out.println("Erro de leitura");
 		}
+		finally
+		{
+			try
+			{
+				aux.close();
+			}
+			catch (IOException e)
+			{
+			}
+		}
 		return nLines;
 	}
 

@@ -100,6 +100,10 @@ import org.grview.util.SyntaxUtilities;
 public class StandaloneTextArea extends TextArea
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	// {{{ Instance variables
 	private IPropertyManager propertyManager;
 
@@ -377,18 +381,6 @@ public class StandaloneTextArea extends TextArea
 	 * 
 	 * @param name
 	 *            The property
-	 */
-	private int getIntegerProperty(String name)
-	{
-		return getIntegerProperty(name, 0);
-	} // }}}
-
-	// {{{ getIntegerProperty() method
-	/**
-	 * Returns the value of an integer property.
-	 * 
-	 * @param name
-	 *            The property
 	 * @param def
 	 *            The default value
 	 * @since jEdit 4.0pre1
@@ -533,6 +525,11 @@ public class StandaloneTextArea extends TextArea
 		JMenuItem item = new JMenuItem();
 		item.setAction(new AbstractAction(label)
 		{
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{

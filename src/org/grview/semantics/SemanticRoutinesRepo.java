@@ -16,11 +16,7 @@ import org.grview.syntax.model.TabNode;
 
 public class SemanticRoutinesRepo
 {
-	/* The user may add variables of any type. */
-	private Stack parseStack; // This variable is the parse Stack. **Should not
-								// be removed.**
-	private TabNode tabNodes[];// This variable is the table of reserved
-								// symbols. **Should not be removed.**
+	// symbols. **Should not be removed.**
 	private Yytoken currentToken;// This variable contains the last recognized
 									// token **Should not be removed.**
 
@@ -34,8 +30,6 @@ public class SemanticRoutinesRepo
 	/* The constructor of this class */
 	public SemanticRoutinesRepo(Stack parseStack, TabNode tabNodes[])
 	{
-		this.parseStack = parseStack;
-		this.tabNodes = tabNodes;
 		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tabNodes, this);
 		srIvoker.setCurrentToken(currentToken);
 		listeners.add(srIvoker);

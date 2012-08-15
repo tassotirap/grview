@@ -699,13 +699,9 @@ class ChunkCache
 
 				info.firstSubregion = true;
 
-				int screenLines;
-
 				// if the line has no text, out.size() == 0
 				if (out.isEmpty())
 				{
-					screenLines = 1;
-
 					if (i == 0)
 					{
 						if (textArea.displayManager.firstLine.skew > 0)
@@ -723,7 +719,7 @@ class ChunkCache
 				// otherwise, the number of subregions
 				else
 				{
-					screenLines = out.size();
+					out.size();
 
 					if (i == 0)
 					{

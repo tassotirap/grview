@@ -32,6 +32,11 @@ import javax.swing.text.Segment;
 public class SegmentCharSequence implements CharSequence, Serializable
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private boolean reverse;
 
 	private int offset;

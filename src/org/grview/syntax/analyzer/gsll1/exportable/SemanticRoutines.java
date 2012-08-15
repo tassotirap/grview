@@ -37,14 +37,13 @@ public class SemanticRoutines
 		initialize();
 	}
 
-	@SuppressWarnings("unchecked")
 	private void initialize()
 	{
 		try
 		{
 			ClassLoader parent = getClass().getClassLoader();
-			GroovyClassLoader loader = new GroovyClassLoader(parent);
-			Class groovyClass = loader.parseClass(scriptsFile);
+			GroovyClassLoader groovyClassLoader = new GroovyClassLoader(parent);
+			Class groovyClass = groovyClassLoader.parseClass(scriptsFile);
 			groovyObject = (GroovyObject) groovyClass.newInstance();
 			DelegatingMetaClass metaClass = new DelegatingMetaClass(groovyObject.getMetaClass())
 			{
@@ -57,6 +56,7 @@ public class SemanticRoutines
 			};
 			metaClass.initialize();
 			groovyObject.setMetaClass(metaClass);
+			groovyClassLoader.close();
 		}
 		catch (Exception e)
 		{

@@ -31,6 +31,11 @@ import javax.swing.plaf.metal.MetalLookAndFeel;
 
 public class TextAreaBorder extends AbstractBorder
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// {{{ getBorderInsets() method
 	@Override
 	public Insets getBorderInsets(Component c)

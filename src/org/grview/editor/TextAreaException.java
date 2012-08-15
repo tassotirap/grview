@@ -30,6 +30,11 @@ package org.grview.editor;
  */
 public class TextAreaException extends Exception
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public TextAreaException(String msg)
 	{
 		super(msg);

@@ -189,6 +189,7 @@ public final class DynaCode
 			recreateClassLoader();
 		}
 
+		@SuppressWarnings("deprecation")
 		void recreateClassLoader()
 		{
 			try
@@ -207,7 +208,7 @@ public final class DynaCode
 
 	private ClassLoader parentClassLoader;
 
-	private ArrayList sourceDirs = new ArrayList();
+	private ArrayList<SourceDir> sourceDirs = new ArrayList<SourceDir>();
 
 	// class name => LoadedClass
 	private HashMap loadedClasses = new HashMap();
@@ -351,6 +352,7 @@ public final class DynaCode
 	 * @param resource
 	 * @return the resource URL, or null if resource not found
 	 */
+	@SuppressWarnings("deprecation")
 	public URL getResource(String resource)
 	{
 		try
@@ -379,7 +381,10 @@ public final class DynaCode
 		{
 
 			SourceDir src = locateResource(resource);
-			return src == null ? null : new FileInputStream(new File(src.srcDir, resource));
+			if (src == null)
+				return null;
+			else
+				return new FileInputStream(new File(src.srcDir, resource));
 
 		}
 		catch (FileNotFoundException e)

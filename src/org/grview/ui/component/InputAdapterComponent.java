@@ -44,16 +44,16 @@ public class InputAdapterComponent extends AdapterComponent
 	private JPanel toolbar;
 	private JComponent contentPane;
 	private JLabel listenersLabel;
-	private JComboBox listComboBox;
+	private JComboBox<String> listComboBox;
 	private JLabel objectsLabel;
-	private JComboBox objectsComboBox;
+	private JComboBox<String> objectsComboBox;
 	private JLabel methodsLabel;
-	private JComboBox methodsComboBox;
+	private JComboBox<String> methodsComboBox;
 	private JButton addButton;
 
 	private JButton generateButton;
 
-	private InputAdapter ia;
+	private InputAdapter inputAdapter;
 	private boolean built;
 
 	private boolean started;;
@@ -80,7 +80,7 @@ public class InputAdapterComponent extends AdapterComponent
 
 	public InputAdapterComponent()
 	{
-		ia = new InputAdapter(this);
+		inputAdapter = new InputAdapter(this);
 	}
 
 	private void init()
@@ -103,7 +103,7 @@ public class InputAdapterComponent extends AdapterComponent
 				if (activeView != VIEW.FORM)
 				{
 					activeView = VIEW.FORM;
-					setWindowView(ia.getFormView());
+					setWindowView(inputAdapter.getFormView());
 				}
 			}
 		});
@@ -125,7 +125,7 @@ public class InputAdapterComponent extends AdapterComponent
 				if (activeView != VIEW.CODE && built)
 				{
 					activeView = VIEW.CODE;
-					setWindowView(ia.getCodeView());
+					setWindowView(inputAdapter.getCodeView());
 				}
 			}
 		});
@@ -147,20 +147,20 @@ public class InputAdapterComponent extends AdapterComponent
 				if (activeView != VIEW.FRAME && started)
 				{
 					activeView = VIEW.FRAME;
-					setWindowView(ia.getFrameView());
+					setWindowView(inputAdapter.getFrameView());
 				}
 			}
 		});
 		listenersLabel = new JLabel("Listeners");
 		listenersLabel.setEnabled(false);
-		listComboBox = new JComboBox();
+		listComboBox = new JComboBox<String>();
 		listComboBox.setEnabled(false);
 		// listComboBox.setBackground(Color.WHITE);
 		listComboBox.setPreferredSize(new Dimension(150, 25));
 		listComboBox.setUI(new ExtComboBoxUI());
 		objectsLabel = new JLabel("Objects");
 		objectsLabel.setEnabled(false);
-		objectsComboBox = new JComboBox();
+		objectsComboBox = new JComboBox<String>();
 		objectsComboBox.setEnabled(false);
 		// objectsComboBox.setBackground(Color.WHITE);
 		objectsComboBox.setPreferredSize(new Dimension(150, 25));
@@ -176,7 +176,7 @@ public class InputAdapterComponent extends AdapterComponent
 		});
 		methodsLabel = new JLabel("Methods");
 		methodsLabel.setEnabled(false);
-		methodsComboBox = new JComboBox();
+		methodsComboBox = new JComboBox<String>();
 		methodsComboBox.setEnabled(false);
 		// methodsComboBox.setBackground(Color.WHITE);
 		methodsComboBox.setPreferredSize(new Dimension(150, 25));
@@ -224,12 +224,12 @@ public class InputAdapterComponent extends AdapterComponent
 						}
 						methodChain2 += "\t\t});\n\n";
 					}
-					ia.getCodeTextArea().getBuffer().insert(ia.getStubInitPosition(), methodChain2);
+					inputAdapter.getCodeTextArea().getBuffer().insert(inputAdapter.getStubInitPosition(), methodChain2);
 				}
 				else if (methodsComboBox.getSelectedIndex() > 0)
 				{
 					methodChain1 += ((methodChain1.equals("")) ? "" : ".") + methodMap.get(methodsComboBox.getSelectedItem()).getName() + "()\n\n";
-					ia.getCodeTextArea().getBuffer().insert(ia.getCodeTextArea().getCaretPosition(), methodChain1);
+					inputAdapter.getCodeTextArea().getBuffer().insert(inputAdapter.getCodeTextArea().getCaretPosition(), methodChain1);
 				}
 				methodChain2 = "";
 				methodChain1 = "";
@@ -244,7 +244,7 @@ public class InputAdapterComponent extends AdapterComponent
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				if (ia.generate())
+				if (inputAdapter.generate())
 				{
 					frameViewButton.setEnabled(true);
 					JOptionPane.showMessageDialog(window, "Successfully generated!");
@@ -271,7 +271,7 @@ public class InputAdapterComponent extends AdapterComponent
 
 	private void populateListenersCombo()
 	{
-		Method[] methods = ia.getCurrentClass().getMethods();
+		Method[] methods = inputAdapter.getCurrentClass().getMethods();
 		ArrayList<String> items = new ArrayList<String>();
 		listenerMap = new HashMap<String, Method>();
 		listComboBox.removeAllItems();
@@ -315,7 +315,7 @@ public class InputAdapterComponent extends AdapterComponent
 
 	private void populateMethodsCombo(Object object)
 	{
-		Method[] methods = ((object == null) ? ia.getAdapterInstance().getClass().getDeclaredMethods() : object.getClass().getDeclaredMethods());
+		Method[] methods = ((object == null) ? inputAdapter.getAdapterInstance().getClass().getDeclaredMethods() : object.getClass().getDeclaredMethods());
 		ArrayList<String> items = new ArrayList<String>();
 		methodMap = new HashMap<String, Method>();
 		methodsComboBox.removeAllItems();
@@ -353,7 +353,6 @@ public class InputAdapterComponent extends AdapterComponent
 			objectsLabel.setEnabled(true);
 			objectsComboBox.setEnabled(true);
 			Object selectedItem = objectsComboBox.getSelectedItem();
-			Class<?> selectedClass = null;
 			Object selectedObject = null;
 			objectsComboBox.removeAllItems();
 			objectsComboBox.addItem("Main Object");
@@ -361,25 +360,24 @@ public class InputAdapterComponent extends AdapterComponent
 			{
 				objectsComboBox.setSelectedIndex(0);
 				methodChain1 = "";
-				selectedClass = ia.getAdapterClass();
-				selectedObject = ia.getAdapterInstance();
-				ia.setLastInstance(null);
+				selectedObject = inputAdapter.getAdapterInstance();
+				inputAdapter.setLastInstance(null);
 			}
 			// For now it doesn't allow multiple levels of objects, but that's
 			// why it's repopulated all the time
 			ArrayList<String> fields = new ArrayList<String>();
-			for (Field f : ia.getAdapterClass().getDeclaredFields())
+			for (Field f : inputAdapter.getAdapterClass().getDeclaredFields())
 			{
 				boolean hasGetter = false;
 				String beanGetter = "get" + f.getName();
 				beanGetter = beanGetter.toLowerCase();
-				Method getter = null;
-				for (Method m : ia.getAdapterClass().getDeclaredMethods())
+				Method method = null;
+				for (Method m : inputAdapter.getAdapterClass().getDeclaredMethods())
 				{
 					if (Modifier.isPublic(m.getModifiers()) && m.getName().toLowerCase().equals(beanGetter))
 					{
 						hasGetter = true;
-						getter = m;
+						method = m;
 						break;
 					}
 				}
@@ -387,12 +385,11 @@ public class InputAdapterComponent extends AdapterComponent
 				{
 					if (selectedItem != null && selectedItem.equals(f.getType().getName() + " " + f.getName()))
 					{
-						methodChain1 = getter.getName() + "()";
-						selectedClass = f.getClass();
+						methodChain1 = method.getName() + "()";
 						try
 						{
-							selectedObject = getter.invoke(ia.getAdapterInstance(), null);
-							ia.setLastInstance(selectedObject);
+							selectedObject = method.invoke(inputAdapter.getAdapterInstance());
+							inputAdapter.setLastInstance(selectedObject);
 						}
 						catch (Exception e)
 						{
@@ -419,7 +416,7 @@ public class InputAdapterComponent extends AdapterComponent
 			listComboBox.setEnabled(true);
 			populateListenersCombo();
 			addButton.setEnabled(true);
-			if (ia.getCodeTextArea().getBufferLength() > 0)
+			if (inputAdapter.getCodeTextArea().getBufferLength() > 0)
 			{
 				generateButton.setEnabled(true);
 			}
@@ -461,7 +458,7 @@ public class InputAdapterComponent extends AdapterComponent
 	public void ContentChanged(AbstractComponent source, Object oldValue, Object newValue)
 	{
 		fireContentChanged();
-		if (ia.getCodeTextArea().getBufferLength() > 0)
+		if (inputAdapter.getCodeTextArea().getBufferLength() > 0)
 		{
 			generateButton.setEnabled(true);
 		}
@@ -486,15 +483,15 @@ public class InputAdapterComponent extends AdapterComponent
 		init();
 		if (activeView == VIEW.FORM)
 		{
-			contentPane = ia.getFormView();
+			contentPane = inputAdapter.getFormView();
 		}
 		else if (activeView == VIEW.CODE)
 		{
-			contentPane = ia.getCodeView();
+			contentPane = inputAdapter.getCodeView();
 		}
 		else if (activeView == VIEW.FRAME)
 		{
-			contentPane = ia.getFrameView();
+			contentPane = inputAdapter.getFrameView();
 		}
 		window.add(contentPane, BorderLayout.CENTER);
 		window.repaint();
@@ -519,7 +516,7 @@ public class InputAdapterComponent extends AdapterComponent
 	@Override
 	public void saveFile()
 	{
-		ia.save();
+		inputAdapter.save();
 
 	}
 

@@ -20,6 +20,10 @@ import javax.swing.event.PopupMenuListener;
 //@author  santhosh kumar - santhosh@in.fiorano.com, com modificações minhas
 public abstract class DropDownButton extends JButton implements ChangeListener, PopupMenuListener, ActionListener, PropertyChangeListener
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private final JButton mainButton = this;
 	private final JButton arrowButton = new JButton(new ImageIcon(getClass().getResource("/org/grview/images/dropdown.gif")));
 

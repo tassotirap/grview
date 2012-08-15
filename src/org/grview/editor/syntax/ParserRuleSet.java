@@ -114,6 +114,7 @@ public class ParserRuleSet
 	} // }}}
 
 	// {{{ addRule() method
+	@SuppressWarnings("deprecation")
 	public void addRule(ParserRule r)
 	{
 		ruleCount++;
@@ -257,6 +258,7 @@ public class ParserRuleSet
 	} // }}}
 
 	// {{{ getRules() method
+	@SuppressWarnings("deprecation")
 	public List<ParserRule> getRules(Character key)
 	{
 		Character upperKey = null == key ? null : Character.valueOf(Character.toUpperCase(key.charValue()));

@@ -14,6 +14,10 @@ import javax.swing.SwingUtilities;
 public class InputAdapterFrame extends JPanel
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private JDesktopPane jDesktopPane;
 	private JFrame frame;
 

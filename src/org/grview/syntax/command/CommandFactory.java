@@ -5,7 +5,6 @@ public class CommandFactory
 
 	private static AddCommand addCommand = new AddCommand();
 	private static ConnectCommand connCommand = new ConnectCommand();
-	private static DelCommand delCommand = new DelCommand();
 	private static DisconnectCommand dConnCommand = new DisconnectCommand();
 	private static RenameCommand renameCommand = new RenameCommand();
 	private static MoveCommand moveCommand = new MoveCommand();

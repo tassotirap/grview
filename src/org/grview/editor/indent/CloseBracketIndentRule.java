@@ -70,11 +70,6 @@ public class CloseBracketIndentRule extends BracketIndentRule
 			}
 		}
 
-		public int getExtraIndent()
-		{
-			return extraIndent;
-		}
-
 		public int getOpenBracketColumn()
 		{
 			return openBracketColumn;

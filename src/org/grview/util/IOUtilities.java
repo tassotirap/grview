@@ -186,8 +186,6 @@ public class IOUtilities
 
 	public static void copyFileAndUpdateString(File source, File dest, String string, String string2)
 	{
-		boolean ok = false;
-
 		if ((dest.exists() && dest.canWrite()) || (!dest.exists() && dest.getParentFile().canWrite()))
 		{
 			OutputStream fos = null;

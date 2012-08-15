@@ -276,9 +276,6 @@ public class Analyzer
 	private ParseStackNode auxParseSNode;
 	SemanticRoutines sr;
 	private BufferedReader in;
-	/** the text to be parsed **/
-	private String source = null;
-
 	private File sourceFile = null;
 	private PrintStream out;
 	private PrintStream err;
@@ -306,15 +303,14 @@ public class Analyzer
 	public Analyzer(File sourceFile, PrintStream out, PrintStream err, Yylex lex) throws IOException, ClassNotFoundException
 	{
 		this.sourceFile = sourceFile;
-		FileReader fr = new FileReader(sourceFile);
-		BufferedReader br = new BufferedReader(fr);
-		String line = "";
-		source = "";
-		while ((line = br.readLine()) != null)
+		FileReader fileReader = new FileReader(sourceFile);
+		BufferedReader bufferedReader = new BufferedReader(fileReader);
+		while ((bufferedReader.readLine()) != null)
 		{
-			source += line + "\n";
 		}
-		in = new BufferedReader(fr);
+		bufferedReader.close();
+		
+		in = new BufferedReader(fileReader);
 		this.lex = lex;
 		initialize(out, err);
 	}
@@ -331,7 +327,6 @@ public class Analyzer
 	 */
 	public Analyzer(String source, PrintStream out, PrintStream err, Yylex lex) throws IOException, ClassNotFoundException
 	{
-		this.source = source;
 		this.lex = lex;
 		in = new BufferedReader(new StringReader(source));
 		initialize(out, err);
@@ -384,8 +379,8 @@ public class Analyzer
 			while (true)
 			{
 				System.out.print("> ");
-				Scanner s = new Scanner(System.in);
-				source = s.next();
+				Scanner scanner = new Scanner(System.in);
+				source = scanner.next();
 				try
 				{
 					new Analyzer(source, System.out, System.err, lex).run();
@@ -395,6 +390,7 @@ public class Analyzer
 					System.err.println("Could not create and run the analyzer");
 					e.printStackTrace();
 				}
+				scanner.close();
 			}
 		}
 
@@ -421,12 +417,13 @@ public class Analyzer
 		{
 			if (sourceFile != null)
 			{
-				BufferedReader bf = new BufferedReader(new FileReader(sourceFile));
+				BufferedReader bufferedReader = new BufferedReader(new FileReader(sourceFile));
 				for (int j = 0; j < line; j++)
 				{
-					bf.readLine();
+					bufferedReader.readLine();
 				}
-				wrongLine = bf.readLine();
+				wrongLine = bufferedReader.readLine();
+				bufferedReader.close();
 			}
 			displayError("\n" + wrongLine + "\n");
 		}

@@ -3,6 +3,10 @@ package org.grview.canvas.state;
 public class Preferences extends CanvasSerializableElement
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private String moveStrategy;
 	private String connectionStrategy;
 	private int showStatus;

@@ -9,6 +9,11 @@ package org.grview.util;
 public class UnexpectedFormatException extends Exception
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public UnexpectedFormatException(String message)
 	{
 		super(message);

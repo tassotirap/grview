@@ -10,6 +10,11 @@ import javax.swing.text.html.HTMLEditorKit;
 public class ExtHTMLEditorKit extends HTMLEditorKit
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public static class HTMLFactoryX extends HTMLFactory implements ViewFactory
 	{
 

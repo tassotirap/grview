@@ -33,13 +33,10 @@ import org.grview.editor.buffer.JEditBuffer;
  */
 public class OpenBracketIndentRule extends BracketIndentRule
 {
-	private boolean aligned;
-
 	// {{{ OpenBracketIndentRule constructor
 	public OpenBracketIndentRule(char openBracket, boolean aligned)
 	{
 		super(openBracket, TextUtilities.getComplementaryBracket(openBracket, null));
-		this.aligned = aligned;
 	} // }}}
 
 	// {{{ handleCollapse() method

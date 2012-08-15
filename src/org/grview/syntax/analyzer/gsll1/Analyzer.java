@@ -63,7 +63,6 @@ public class Analyzer extends Thread
 	private TabGraphNode tabGraph[];
 	private TabNode tabT[];
 	private TabNode tabNT[];
-	private BufferedReader in;
 	private File fileIn;
 	private GrViewStackNode grViewSNode;
 
@@ -103,8 +102,6 @@ public class Analyzer extends Thread
 	private void dealWithError(int IX, int toppsIU, int column, int line)
 	{
 		int oldI = IX;
-		String txt = "";
-		Object lixo;
 		/*
 		 * o proximo bloco é responsável por imprimir na tela aonde o erro
 		 * ocorreu
@@ -113,13 +110,14 @@ public class Analyzer extends Thread
 		{
 			if (fileIn != null)
 			{
-				BufferedReader bf = new BufferedReader(new FileReader(fileIn));
+				BufferedReader bufferedReader = new BufferedReader(new FileReader(fileIn));
 				for (int j = 0; j < line; j++)
 				{
-					bf.readLine();
+					bufferedReader.readLine();
 				}
 				/* Imprime a linha que occorreu o erro */
-				wrongLine = bf.readLine();
+				wrongLine = bufferedReader.readLine();
+				bufferedReader.close();
 			}
 			AppOutput.displayText("\n" + wrongLine + "\n", TOPIC.Output);
 		}
@@ -193,7 +191,6 @@ public class Analyzer extends Thread
 	private boolean estrategiaBuscaDelimitador(int IX, int topps, int column, int line)
 	{
 		boolean achou = false;
-		Object lixo;
 		Stack pilhaAnalisadorBackup = new Stack();
 		Stack pilhaAuxAnalisador = new Stack();
 		Stack pilhaNaoTerminalY = new Stack();
@@ -246,7 +243,7 @@ public class Analyzer extends Thread
 						{
 							while (this.parseStack.size() >= toppsAux)
 							{
-								lixo = this.parseStack.pop();
+								this.parseStack.pop();
 							}
 							this.parseStack.push(new ParseStackNode(this.tabNT[this.tabGraph[IX].getSim()].getFlag(), this.tabNT[this.tabGraph[IX].getSim()].getName()));
 							achou = true;
@@ -290,7 +287,6 @@ public class Analyzer extends Thread
 	private boolean estrategiaEliminacao(int IX, int toppsIU, int column, int line)
 	{
 		boolean sucesso = false;
-		Object lixo;
 		/* ler o proximo simbolo */
 		readNext();
 		/*
@@ -358,7 +354,7 @@ public class Analyzer extends Thread
 			lex.pushback(lex.yylength());
 			while (this.grViewStack.size() > toppsIU)
 			{
-				lixo = this.grViewStack.pop();
+				this.grViewStack.pop();
 			}
 		}
 		return sucesso;
@@ -462,8 +458,7 @@ public class Analyzer extends Thread
 		{
 			while (this.grViewStack.size() > toppsIU)
 			{
-				Object lixo;
-				lixo = this.grViewStack.pop();
+				this.grViewStack.pop();
 			}
 
 		}
@@ -567,8 +562,7 @@ public class Analyzer extends Thread
 			 */
 			while (this.grViewStack.size() > toppsIU)
 			{
-				Object lixo;
-				lixo = this.grViewStack.pop();
+				this.grViewStack.pop();
 			}
 		}
 		return achou;
@@ -584,12 +578,11 @@ public class Analyzer extends Thread
 	 */
 	private int findAlternative(int IZ, Stack pilhaNaoTerm, Stack pilhaAna)
 	{
-		Object trash;
 		int alternative = 0;
 		alternative = this.tabGraph[IZ].getAlt();
 		while (alternative == 0 && !pilhaNaoTerm.empty())
 		{
-			trash = pilhaAna.pop();
+			pilhaAna.pop();
 			alternative = tabGraph[((Integer) pilhaNaoTerm.pop()).intValue()].getAlt();
 		}
 		return alternative;
@@ -666,8 +659,6 @@ public class Analyzer extends Thread
 		parseStack = new Stack();
 		/* 2 Initialize and Declare nTermStack */
 		nTermStack = new Stack();
-		/* 2 Initialize and Declare semanticStack */
-		Object lixo;
 		/* 2 Declaration of boolean variable sucesso */
 		boolean sucess = false;
 		/* Construct semantic routines */

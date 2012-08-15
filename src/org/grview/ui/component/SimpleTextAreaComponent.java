@@ -28,13 +28,14 @@ public class SimpleTextAreaComponent extends AbstractComponent
 			File f = new File((String) param);
 			try
 			{
-				FileReader fr = new FileReader(f);
-				BufferedReader br = new BufferedReader(fr);
+				FileReader fileReader = new FileReader(f);
+				BufferedReader bufferedReader = new BufferedReader(fileReader);
 				String line;
-				while ((line = br.readLine()) != null)
+				while ((line = bufferedReader.readLine()) != null)
 				{
 					sb.append(line + "\n");
 				}
+				bufferedReader.close();
 			}
 			catch (Exception e)
 			{

@@ -332,7 +332,7 @@ public class TextUtilities
 		int type = getCharType(ch, noWordSep);
 		// }}}
 
-		loop: for (int i = pos; i < line.length(); i++)
+		for (int i = pos; i < line.length(); i++)
 		{
 			char lastCh = ch;
 			ch = line.charAt(i);
@@ -533,7 +533,7 @@ public class TextUtilities
 		int type = getCharType(ch, noWordSep);
 		// }}}
 
-		loop: for (int i = pos; i >= 0; i--)
+		for (int i = pos; i >= 0; i--)
 		{
 			char lastCh = ch;
 			ch = line.charAt(i);

@@ -41,6 +41,11 @@ import javax.swing.DefaultListModel;
  */
 public class HistoryModel extends DefaultListModel implements MutableListModel
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	// {{{ Private members
 	private static int max;
 

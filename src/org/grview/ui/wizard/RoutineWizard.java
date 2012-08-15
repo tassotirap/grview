@@ -18,7 +18,6 @@ public class RoutineWizard
 	private MarkedWidget widget;
 	private String widgetName;
 	private String routine;
-	private PropertyChangeSupport monitor;
 	private final SemFileMgr sfm;
 
 	/**
@@ -33,7 +32,6 @@ public class RoutineWizard
 		this.widget = widget;
 		this.widgetName = widgetName;
 		this.routine = routine;
-		this.monitor = monitor;
 		sfm = new SemFileMgr(ProjectManager.getProject().getSemFile(), monitor);
 		if (widgetName != null && widget != null)
 		{

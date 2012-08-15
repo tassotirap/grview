@@ -302,6 +302,7 @@ public class TextAreaMouseHandler extends MouseInputAdapter
 	} // }}}
 		// {{{ doSingleClick() method
 
+	@SuppressWarnings("deprecation")
 	protected void doSingleClick(MouseEvent evt)
 	{
 		int x = evt.getX();
@@ -399,6 +400,7 @@ public class TextAreaMouseHandler extends MouseInputAdapter
 	} // }}}
 		// {{{ mouseDragged() method
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void mouseDragged(MouseEvent evt)
 	{

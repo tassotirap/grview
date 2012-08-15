@@ -64,7 +64,6 @@ public abstract class XModeHandler extends DefaultHandler
 		public String lastEscape;
 		public ParserRuleSet lastDelegateSet;
 		public String lastNoWordSep = "_";
-		public ParserRuleSet rules;
 		public byte lastDefaultID = Token.NULL;
 		public byte lastTokenID;
 		public byte lastMatchType;

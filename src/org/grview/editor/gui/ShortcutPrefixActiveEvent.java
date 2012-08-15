@@ -40,6 +40,10 @@ public class ShortcutPrefixActiveEvent extends ChangeEvent
 {
 
 	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	/**
 	 * Description of the Field
 	 */
 	protected Hashtable bindings;
