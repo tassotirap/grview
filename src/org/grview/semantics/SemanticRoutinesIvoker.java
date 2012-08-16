@@ -24,7 +24,7 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 
 /**
  * 
- * @author Tasso Tirapani Silva Pinto Load Semantic Routines file [FileName].sem
+ * Load Semantic Routines file [FileName].sem
  */
 public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 {

@@ -10,7 +10,6 @@ import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Properties;
 
 import org.grview.file.GrammarFile;
@@ -21,7 +20,6 @@ import org.grview.file.SemanticFile;
 import org.grview.lexical.YyFactory;
 import org.grview.model.FileNames;
 import org.grview.semantics.SemanticRoutinesIvoker;
-import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.AsinEditor;
 import org.grview.ui.ThemeManager.Theme;
 import org.grview.util.IOUtilities;
@@ -53,8 +51,6 @@ public class Project implements Serializable
 	private File yyLexFile;
 	private PropertiesFile propertiesFile;
 	private MetaFile metadataFile;
-
-	private HashMap<String, String> codeByRoutine = new HashMap<String, String>();
 
 	/** this project's name **/
 	private String name;
@@ -233,7 +229,6 @@ public class Project implements Serializable
 		try
 		{
 			new SemanticRoutinesIvoker(this);
-			SemanticRoutinesRepo.setRoutineCode(codeByRoutine);
 		}
 		catch (MalformedURLException e)
 		{
@@ -383,7 +378,6 @@ public class Project implements Serializable
 	{
 		try
 		{
-			this.codeByRoutine = SemanticRoutinesRepo.getRoutineCode();
 			this.asinEditor = AsinEditor.getInstance();
 			FileOutputStream fileOutputStream = new FileOutputStream(metadataFile);
 			new ObjectOutputStream(fileOutputStream).writeObject(this);

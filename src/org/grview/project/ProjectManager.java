@@ -43,20 +43,10 @@ public final class ProjectManager
 
 	private static HashMap<String, DynamicView> unsavedViews = new HashMap<String, DynamicView>();
 
-	private static boolean hasUnsavedViewByPath(AbstractComponent component)
-	{
-		for (DynamicView dynamicView : ProjectManager.getUnsavedViews())
-		{
-			if (dynamicView.getComponentModel() == component)
-				return true;
-		}
-		return false;
-	}
-
 	private static String saveGrammarFile(Canvas canvas)
 	{
 		GrammarComponent gramComponent = GrammarFactory.getCompByCanvas();
-		if (hasUnsavedViewByPath(gramComponent))
+		if (ProjectManager.hasUnsavedView(gramComponent.getPath()))
 		{
 			gramComponent.saveFile();
 			return gramComponent.getPath();

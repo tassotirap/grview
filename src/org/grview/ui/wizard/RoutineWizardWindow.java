@@ -6,6 +6,8 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.Toolkit;
+import java.awt.event.FocusEvent;
+import java.awt.event.FocusListener;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -21,6 +23,7 @@ import org.grview.editor.syntax.ModeProvider;
 public class RoutineWizardWindow extends JFrame
 {
 
+	private static final String INSERT_CODE_HERE = "/* insert code here */";
 	private static final long serialVersionUID = 1L;
 	private JPanel jContentPane = null;
 	private JLabel nameLabel = null;
@@ -142,7 +145,28 @@ public class RoutineWizardWindow extends JFrame
 			mode.setProperty("file", "modes/groovy.xml");
 			ModeProvider.instance.addMode(mode);
 			codeTextArea.getBuffer().setMode(mode);
-			codeTextArea.setText("/* insert code here */");
+			codeTextArea.setText(INSERT_CODE_HERE);
+
+			codeTextArea.addFocusListener(new FocusListener()
+			{
+				@Override
+				public void focusLost(FocusEvent arg0)
+				{
+					if (codeTextArea.getText().equals(""))
+					{
+						codeTextArea.setText(INSERT_CODE_HERE);
+					}
+				}
+
+				@Override
+				public void focusGained(FocusEvent arg0)
+				{
+					if (codeTextArea.getText().equals(INSERT_CODE_HERE))
+					{
+						codeTextArea.setText("");
+					}
+				}
+			});
 		}
 		return codeTextArea;
 	}

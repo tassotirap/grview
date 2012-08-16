@@ -2,7 +2,9 @@ import org.grview.syntax.model.ParseStackNode
 
 /*-------------- SEMANTIC ROUTINES ESPECIFICATION ------------*/
 /* you can modify the lines bellow */
+/* BEGIN SEMANTIC ROUTINES */
 
+/* END SEMANTIC ROUTINES */
 /* do not modify the lines bellow */
 /*-------------- SELF GENERATED METHODS -------------*/
 this

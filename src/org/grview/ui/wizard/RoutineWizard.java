@@ -8,7 +8,7 @@ import javax.swing.WindowConstants;
 
 import org.grview.canvas.widget.MarkedWidget;
 import org.grview.project.ProjectManager;
-import org.grview.semantics.SemFileMgr;
+import org.grview.semantics.SemFileManager;
 import org.grview.util.Log;
 
 public class RoutineWizard
@@ -17,8 +17,8 @@ public class RoutineWizard
 	/** the widget that will receive a semantic routine **/
 	private MarkedWidget widget;
 	private String widgetName;
-	private String routine;
-	private final SemFileMgr sfm;
+	private String routineName;
+	private final SemFileManager semFileManager;
 
 	/**
 	 * Constructor
@@ -26,13 +26,13 @@ public class RoutineWizard
 	 * @param widget
 	 *            , the Widget that will receive the semantic routine
 	 */
-	public RoutineWizard(String widgetName, MarkedWidget widget, String routine, PropertyChangeSupport monitor)
+	public RoutineWizard(String widgetName, MarkedWidget widget, String routineName, PropertyChangeSupport monitor)
 	{
 
 		this.widget = widget;
 		this.widgetName = widgetName;
-		this.routine = routine;
-		sfm = new SemFileMgr(ProjectManager.getProject().getSemFile(), monitor);
+		this.routineName = routineName;
+		semFileManager = new SemFileManager(ProjectManager.getProject().getSemFile(), monitor);
 		if (widgetName != null && widget != null)
 		{
 			initWindow();
@@ -47,17 +47,21 @@ public class RoutineWizard
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-
-				if (((routine == null && sfm.canInsert(routine)) || (routine != null && !sfm.canInsert(routine))) && sfm.isValid())
+				String name = window.getNameTextField().getText();
+				String code = window.getCodeTextArea().getText();
+				
+				if(name.equals("") || code.equals(""))
+					return;
+				
+				if (((routineName == null && semFileManager.canInsert(routineName)) || (routineName != null && !semFileManager.canInsert(routineName))) && semFileManager.isValid())
 				{
-					String name = window.getNameTextField().getText();
-					String code = window.getCodeTextArea().getText();
-					if (routine != null)
+					
+					if (routineName != null)
 					{
-						sfm.editRouine(routine, name, code);
+						semFileManager.editRouine(name, code);
 						widget.setMark(name);
 					}
-					else if (sfm.InsertRoutine(name, code, widgetName))
+					else if (semFileManager.InsertRoutine(name, code, widgetName))
 					{
 						widget.setMark(name);
 					}
@@ -66,7 +70,7 @@ public class RoutineWizard
 						Log.log(Log.ERROR, this, "Could not insert routine in semantic file.", new Exception("Could not create semantic routine"));
 					}
 				}
-				else if (!sfm.canInsert(routine))
+				else if (!semFileManager.canInsert(routineName))
 				{
 					Log.log(Log.ERROR, this, "Could not insert this routine.", new Exception("This semantic routine alrealdy existis in the file."));
 				}
@@ -91,16 +95,16 @@ public class RoutineWizard
 	private void initWindow()
 	{
 		RoutineWizardWindow window = new RoutineWizardWindow();
-		if (routine != null)
+		if (routineName != null)
 		{
-			window.setTitle("Edit " + routine);
+			window.setTitle("Edit " + routineName);
 			window.getInsertButton().setText("Edit");
-			sfm.updateCodeFromFile(routine);
-			if (sfm.getCleanCode(routine, null) != null)
+			window.getNameTextField().setEditable(false);
+			if (semFileManager.getCleanCode(routineName, null) != null)
 			{
-				window.getCodeTextArea().setText(sfm.getCleanCode(routine, null));
+				window.getCodeTextArea().setText(semFileManager.getCleanCode(routineName, null));
 			}
-			window.getNameTextField().setText(routine);
+			window.getNameTextField().setText(routineName);
 		}
 		else
 		{
