@@ -64,7 +64,7 @@ public class SemanticRoutinesRepo
 	
 	public static HashMap<String, String> getRoutineCode()
 	{
-		HashMap<String, String> routineCode = new HashMap<>();
+		HashMap<String, String> routineCode = new HashMap<String, String>();
 		try
 		{
 			FileInputStream fileInputStream = new FileInputStream(ProjectManager.getProject().getSemFile());

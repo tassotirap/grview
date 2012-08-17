@@ -17,6 +17,7 @@ import org.grview.file.SemanticFile;
 import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
 import org.grview.project.tree.FileTree;
+import org.grview.syntax.command.AsinEditor;
 import org.grview.ui.DynamicView;
 import org.grview.ui.MainWindow;
 import org.grview.ui.Window;
@@ -48,7 +49,9 @@ public final class ProjectManager
 		GrammarComponent gramComponent = GrammarFactory.getCompByCanvas();
 		if (ProjectManager.hasUnsavedView(gramComponent.getPath()))
 		{
+			AsinEditor.getInstance().recreateDiagram(canvas);
 			gramComponent.saveFile();
+			
 			return gramComponent.getPath();
 		}
 		return null;

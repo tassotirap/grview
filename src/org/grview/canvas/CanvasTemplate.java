@@ -685,7 +685,12 @@ public class CanvasTemplate extends Canvas
 			if (!this.getEdges().contains(e))
 			{
 				Connection c1 = state.findConnection(e);
-				if (state.findNode(c1.getSource()).getType().equals(LEFT_SIDE) || state.findNode(c1.getSource()).getType().equals(START))
+				// Conection with problem
+				if (c1.getSource() == null || c1.getTarget() == null)
+				{
+					state.objectRemoved(null, e);
+				}
+				else if (state.findNode(c1.getSource()).getType().equals(LEFT_SIDE) || state.findNode(c1.getSource()).getType().equals(START))
 				{
 					String oldTool = _getActiveTool();
 					setActiveTool((String) state.getType(e));
@@ -696,11 +701,18 @@ public class CanvasTemplate extends Canvas
 				}
 			}
 		}
+
+		// update connections
+		conn = state.getConnections();
 		for (Object e : conn)
 		{
 			if (!this.getEdges().contains(e))
 			{
 				Connection c1 = state.findConnection(e);
+				if (c1.getSource() == null || c1.getTarget() == null)
+				{
+					state.objectRemoved(null, e);
+				}
 				if (!state.findNode(c1.getSource()).getType().equals(LEFT_SIDE) && !state.findNode(c1.getSource()).getType().equals(START))
 				{
 					String oldTool = _getActiveTool();

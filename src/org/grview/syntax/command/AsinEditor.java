@@ -4,6 +4,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Vector;
 
+import org.grview.canvas.Canvas;
+import org.grview.canvas.state.CanvasState;
+import org.grview.canvas.state.Node;
 import org.grview.syntax.grammar.model.AbstractNode;
 import org.grview.syntax.grammar.model.Connection;
 import org.grview.syntax.grammar.model.NodeLabel;
@@ -12,6 +15,7 @@ import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.grview.syntax.grammar.model.SyntaxElement;
 import org.grview.syntax.grammar.model.SyntaxModel;
 import org.grview.syntax.grammar.model.SyntaxSubpart;
+import org.netbeans.api.visual.widget.LabelWidget;
 
 public class AsinEditor implements Serializable
 {
@@ -22,6 +26,134 @@ public class AsinEditor implements Serializable
 
 	private AsinEditor()
 	{
+	}
+	
+	public void recreateDiagram(Canvas canvas)
+	{
+		
+		CanvasState canvasState = canvas.getCanvasState();
+		logicDiagram = new SyntaxModel();
+		
+		for(String node :canvas.getTerminals())
+		{
+			String name = node;
+			String context = SyntaxDefinitions.Terminal;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			cmd.execute();
+			
+			Node n = canvasState.findNode(node);
+			RenameCommand rc = CommandFactory.createRenameCommand();
+			rc.addObject(n.getTitle(), node, node);
+			rc.execute();		
+			
+			if(n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				command.execute();
+			}
+		}
+		
+		for(String node :canvas.getNterminals())
+		{
+			String name = node;
+			String context = SyntaxDefinitions.NTerminal;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			cmd.execute();
+			
+			Node n = canvasState.findNode(node);
+			RenameCommand rc = CommandFactory.createRenameCommand();
+			rc.addObject(n.getTitle(), node, node);
+			rc.execute();
+			
+			if(n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				command.execute();
+			}
+		}
+		
+		for(String node :canvas.getLeftSides())
+		{
+			String name = node;
+			String context = SyntaxDefinitions.LeftSide;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			cmd.execute();
+			
+			Node n = canvasState.findNode(node);
+			RenameCommand rc = CommandFactory.createRenameCommand();
+			rc.addObject(n.getTitle(), node, node);
+			rc.execute();
+			
+			if(n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				command.execute();
+			}
+		}
+		
+		for(String node :canvas.getLambdas())
+		{
+			String name = node;
+			String context = SyntaxDefinitions.LambdaAlternative;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			cmd.execute();
+			
+			Node n = canvasState.findNode(node);
+			if(n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				command.execute();
+			}
+		}
+		
+		for(String node :canvas.getStart())
+		{
+			String name = node;
+			String context = SyntaxDefinitions.Start;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			cmd.execute();
+			
+			Node n = canvasState.findNode(node);
+			RenameCommand rc = CommandFactory.createRenameCommand();
+			rc.addObject(n.getTitle(), node, node);
+			rc.execute();
+			
+			if(n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				command.execute();
+			}
+		}
+		
+		for(String node :canvas.getSuccessors())
+		{
+			String edge = node;
+			String context = SyntaxDefinitions.SucConnection;
+			org.grview.canvas.state.Connection connection = canvasState.findConnection((Object)node);
+			Command cmd = CommandFactory.createConnectionCommand();
+			cmd.addObject(connection.getTarget(), connection.getSource(), edge, context);
+			cmd.execute();
+		}
+		
+		for(String node :canvas.getAlternatives())
+		{
+			String edge = node;
+			String context = SyntaxDefinitions.AltConnection;
+			org.grview.canvas.state.Connection connection = canvasState.findConnection((Object)node);
+			Command cmd = CommandFactory.createConnectionCommand();
+			cmd.addObject(connection.getTarget(), connection.getSource(), edge, context);
+			cmd.execute();
+		}
 	}
 
 	public static AsinEditor getInstance()

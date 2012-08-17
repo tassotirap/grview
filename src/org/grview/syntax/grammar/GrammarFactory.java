@@ -264,22 +264,6 @@ public class GrammarFactory
 	public String run(boolean isFile) throws Exception
 	{
 		StringBuffer grammar = new StringBuffer();
-		if (isFile)
-		{
-			/*
-			 * Display display = Display.getDefault(); FileDialog dialog = new
-			 * FileDialog(, SWT.SAVE); String name = dialog.open(); path = name;
-			 * 
-			 * 
-			 * /*para cima é so teste
-			 */
-			/*
-			 * try { FileWriter fileOut = new FileWriter(path); out = new
-			 * PrintWriter(new BufferedWriter(fileOut)); } catch (IOException e)
-			 * { AppOutput.displayText("File writer exception....."); out =
-			 * null; }
-			 */
-		}
 		List children;
 		ArrayList start = new ArrayList();
 		children = syntaxModel.getChildrenNodes();
