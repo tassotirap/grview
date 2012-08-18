@@ -12,7 +12,6 @@ import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
 import org.grview.syntax.TableCreate;
 import org.grview.syntax.analyzer.gsll1.exportable.Exporter;
-import org.grview.syntax.command.AsinEditor;
 import org.grview.syntax.validation.GSLL1Rules;
 import org.grview.syntax.validation.GrammarRule;
 import org.grview.syntax.validation.InvalidGrammarException;
@@ -36,7 +35,7 @@ public class Controller
 	{
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
-		GrammarFactory grammarFactory = new GrammarFactory(AsinEditor.getInstance());
+		GrammarFactory grammarFactory = new GrammarFactory();
 		String grammar = null;
 		boolean validated = false;
 		try

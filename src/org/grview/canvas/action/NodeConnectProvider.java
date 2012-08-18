@@ -6,10 +6,7 @@ import java.util.Collection;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
-import org.grview.syntax.command.Command;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.grammar.model.SyntaxDefinitions;
-import org.grview.util.Log;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.widget.Scene;
@@ -56,29 +53,12 @@ public class NodeConnectProvider implements ConnectProvider
 		{
 			edge = "edge" + numEdges;
 		}
-		String context = "";
-		if (canvas.getActiveTool().equals(Canvas.SUCCESSOR))
-		{
-			context = SyntaxDefinitions.SucConnection;
-		}
-		else if (canvas.getActiveTool().equals(Canvas.ALTERNATIVE))
-		{
-			context = SyntaxDefinitions.AltConnection;
-		}
-		Command cmd = CommandFactory.createConnectionCommand();
-		// cmd.addObject(target, source, context);
-		// cmd.execute();
-		if (cmd.addObject(target, source, edge, context) && cmd.execute())
-		{
-			canvas.addEdge(edge);
-			canvas.setEdgeSource(edge, source);
-			canvas.setEdgeTarget(edge, target);
-			monitor.firePropertyChange("undoable", null, cmd);
-		}
-		else
-		{
-			Log.log(Log.ERROR, this, "Could not create connection!\nAn internal error ocurred.", new Exception("Failed to accept conn command in asin editor."));
-		}
+
+		canvas.addEdge(edge);
+		canvas.setEdgeSource(edge, source);
+		canvas.setEdgeTarget(edge, target);
+		monitor.firePropertyChange("undoable", null, CommandFactory.createConnectionCommand());
+
 	}
 
 	@Override

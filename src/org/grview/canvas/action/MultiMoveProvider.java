@@ -8,7 +8,6 @@ import java.util.Map;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.command.MoveCommand;
 import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.netbeans.api.visual.action.MoveProvider;
 import org.netbeans.api.visual.widget.Widget;
@@ -52,11 +51,7 @@ public class MultiMoveProvider implements MoveProvider
 		original = null;
 		if (context != null)
 		{
-			MoveCommand mc = CommandFactory.createMoveCommand();
-			if (mc.addObject(null, context) && mc.execute())
-			{
-				monitor.firePropertyChange("undoable", null, mc);
-			}
+			monitor.firePropertyChange("undoable", null, CommandFactory.createMoveCommand());
 		}
 	}
 

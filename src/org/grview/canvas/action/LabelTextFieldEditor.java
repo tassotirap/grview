@@ -42,11 +42,9 @@ public class LabelTextFieldEditor implements TextFieldInplaceEditor
 	@Override
 	public void setText(Widget widget, String text)
 	{
+		((LabelWidget) widget).setLabel(text);
 		RenameCommand rc = CommandFactory.createRenameCommand();
-		if (rc.addObject(text, canvas.findObject(widget), ((LabelWidget) widget).getLabel()) && rc.execute())
-		{
-			((LabelWidget) widget).setLabel(text);
-			monitor.firePropertyChange("undoable", null, rc);
-		}
+		rc.addObject(text, canvas.findObject(widget), ((LabelWidget) widget).getLabel());
+		monitor.firePropertyChange("undoable", null, rc);
 	}
 }

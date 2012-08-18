@@ -15,7 +15,6 @@ import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.grview.syntax.grammar.model.SyntaxElement;
 import org.grview.syntax.grammar.model.SyntaxModel;
 import org.grview.syntax.grammar.model.SyntaxSubpart;
-import org.netbeans.api.visual.widget.LabelWidget;
 
 public class AsinEditor implements Serializable
 {
@@ -26,134 +25,6 @@ public class AsinEditor implements Serializable
 
 	private AsinEditor()
 	{
-	}
-	
-	public void recreateDiagram(Canvas canvas)
-	{
-		
-		CanvasState canvasState = canvas.getCanvasState();
-		logicDiagram = new SyntaxModel();
-		
-		for(String node :canvas.getTerminals())
-		{
-			String name = node;
-			String context = SyntaxDefinitions.Terminal;
-			Command cmd = CommandFactory.createAddCommand();
-			cmd.addObject(name, context);
-			cmd.execute();
-			
-			Node n = canvasState.findNode(node);
-			RenameCommand rc = CommandFactory.createRenameCommand();
-			rc.addObject(n.getTitle(), node, node);
-			rc.execute();		
-			
-			if(n.getMark() != null && !n.getMark().equals(""))
-			{
-				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-				command.addObject(node, n.getMark());
-				command.execute();
-			}
-		}
-		
-		for(String node :canvas.getNterminals())
-		{
-			String name = node;
-			String context = SyntaxDefinitions.NTerminal;
-			Command cmd = CommandFactory.createAddCommand();
-			cmd.addObject(name, context);
-			cmd.execute();
-			
-			Node n = canvasState.findNode(node);
-			RenameCommand rc = CommandFactory.createRenameCommand();
-			rc.addObject(n.getTitle(), node, node);
-			rc.execute();
-			
-			if(n.getMark() != null && !n.getMark().equals(""))
-			{
-				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-				command.addObject(node, n.getMark());
-				command.execute();
-			}
-		}
-		
-		for(String node :canvas.getLeftSides())
-		{
-			String name = node;
-			String context = SyntaxDefinitions.LeftSide;
-			Command cmd = CommandFactory.createAddCommand();
-			cmd.addObject(name, context);
-			cmd.execute();
-			
-			Node n = canvasState.findNode(node);
-			RenameCommand rc = CommandFactory.createRenameCommand();
-			rc.addObject(n.getTitle(), node, node);
-			rc.execute();
-			
-			if(n.getMark() != null && !n.getMark().equals(""))
-			{
-				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-				command.addObject(node, n.getMark());
-				command.execute();
-			}
-		}
-		
-		for(String node :canvas.getLambdas())
-		{
-			String name = node;
-			String context = SyntaxDefinitions.LambdaAlternative;
-			Command cmd = CommandFactory.createAddCommand();
-			cmd.addObject(name, context);
-			cmd.execute();
-			
-			Node n = canvasState.findNode(node);
-			if(n.getMark() != null && !n.getMark().equals(""))
-			{
-				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-				command.addObject(node, n.getMark());
-				command.execute();
-			}
-		}
-		
-		for(String node :canvas.getStart())
-		{
-			String name = node;
-			String context = SyntaxDefinitions.Start;
-			Command cmd = CommandFactory.createAddCommand();
-			cmd.addObject(name, context);
-			cmd.execute();
-			
-			Node n = canvasState.findNode(node);
-			RenameCommand rc = CommandFactory.createRenameCommand();
-			rc.addObject(n.getTitle(), node, node);
-			rc.execute();
-			
-			if(n.getMark() != null && !n.getMark().equals(""))
-			{
-				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-				command.addObject(node, n.getMark());
-				command.execute();
-			}
-		}
-		
-		for(String node :canvas.getSuccessors())
-		{
-			String edge = node;
-			String context = SyntaxDefinitions.SucConnection;
-			org.grview.canvas.state.Connection connection = canvasState.findConnection((Object)node);
-			Command cmd = CommandFactory.createConnectionCommand();
-			cmd.addObject(connection.getTarget(), connection.getSource(), edge, context);
-			cmd.execute();
-		}
-		
-		for(String node :canvas.getAlternatives())
-		{
-			String edge = node;
-			String context = SyntaxDefinitions.AltConnection;
-			org.grview.canvas.state.Connection connection = canvasState.findConnection((Object)node);
-			Command cmd = CommandFactory.createConnectionCommand();
-			cmd.addObject(connection.getTarget(), connection.getSource(), edge, context);
-			cmd.execute();
-		}
 	}
 
 	public static AsinEditor getInstance()
@@ -181,6 +52,44 @@ public class AsinEditor implements Serializable
 			SimpleNode node = new SimpleNode(sobj, name);
 			node.setID((String) cmd.getTarget());
 			logicDiagram.addChild(node);
+		}
+	}
+
+	private void addAndRenameNode(CanvasState canvasState, String node, String type)
+	{
+		Node n = canvasState.findNode(node);
+		if (n != null)
+		{
+			String name = node;
+			String context = type;
+			Command cmd = CommandFactory.createAddCommand();
+			cmd.addObject(name, context);
+			consumeCommand(cmd);
+
+			RenameCommand rc = CommandFactory.createRenameCommand();
+			rc.addObject(n.getTitle(), node, node);
+			consumeCommand(rc);
+
+			if (n.getMark() != null && !n.getMark().equals(""))
+			{
+				AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+				command.addObject(node, n.getMark());
+				consumeCommand(command);
+			}
+		}
+	}
+
+	private void addConnection(CanvasState canvasState, String node, String type)
+	{
+		org.grview.canvas.state.Connection connection = canvasState.findConnection((Object) node);
+		if (connection != null)
+		{
+			String edge = node;
+			String context = type;
+
+			Command cmd = CommandFactory.createConnectionCommand();
+			cmd.addObject(connection.getTarget(), connection.getSource(), edge, context);
+			consumeCommand(cmd);
 		}
 	}
 
@@ -361,7 +270,7 @@ public class AsinEditor implements Serializable
 		}
 	}
 
-	public boolean consumeCommand(Command cmd)
+	private boolean consumeCommand(Command cmd)
 	{
 		assert cmd != null;
 		// execute first the children
@@ -416,15 +325,70 @@ public class AsinEditor implements Serializable
 		return false;
 	}
 
-	public SyntaxModel getLogicDiagram()
+	public SyntaxModel getLogicDiagram(Canvas canvas)
 	{
+		recreateDiagram(canvas);
 		return logicDiagram;
 	}
 
-	public void setLogicDiagram(SyntaxModel logicDiagram)
+	public void recreateDiagram(Canvas canvas)
 	{
-		this.logicDiagram = logicDiagram;
+
+		CanvasState canvasState = canvas.getCanvasState();
+		logicDiagram = new SyntaxModel();
+
+		for (String node : canvas.getTerminals())
+		{
+			addAndRenameNode(canvasState, node, SyntaxDefinitions.Terminal);
+		}
+
+		for (String node : canvas.getNterminals())
+		{
+			addAndRenameNode(canvasState, node, SyntaxDefinitions.NTerminal);
+		}
+
+		for (String node : canvas.getLeftSides())
+		{
+			addAndRenameNode(canvasState, node, SyntaxDefinitions.LeftSide);
+		}
+
+		for (String node : canvas.getLambdas())
+		{
+			Node n = canvasState.findNode(node);
+			if (n != null)
+			{
+				String name = node;
+				String context = SyntaxDefinitions.LambdaAlternative;
+				Command cmd = CommandFactory.createAddCommand();
+				cmd.addObject(name, context);
+				consumeCommand(cmd);
+
+
+				if (n.getMark() != null && !n.getMark().equals(""))
+				{
+					AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
+					command.addObject(node, n.getMark());
+					consumeCommand(cmd);
+				}
+			}
+		}
+
+		for (String node : canvas.getStart())
+		{
+			addAndRenameNode(canvasState, node, SyntaxDefinitions.Start);
+		}
+
+		for (String node : canvas.getSuccessors())
+		{
+			addConnection(canvasState, node, SyntaxDefinitions.SucConnection);
+		}
+
+		for (String node : canvas.getAlternatives())
+		{
+			addConnection(canvasState, node, SyntaxDefinitions.AltConnection);
+		}
 	}
+
 
 	public boolean undoCommand(Command cmd)
 	{

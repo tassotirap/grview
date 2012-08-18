@@ -12,9 +12,7 @@ import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.state.Connection;
 import org.grview.canvas.state.Node;
-import org.grview.syntax.command.Command;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.grview.util.ClipboardManager;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -185,33 +183,8 @@ public class WidgetCopyPasteProvider
 			}
 			n.setLocation(p);
 			p = null;
-			String context = "";
-			if (n.getType().equals(Canvas.TERMINAL))
-			{
-				context = SyntaxDefinitions.Terminal;
-			}
-			else if (n.getType().equals(Canvas.N_TERMINAL))
-			{
-				context = SyntaxDefinitions.NTerminal;
-			}
-			else if (n.getType().equals(Canvas.LEFT_SIDE))
-			{
-				context = SyntaxDefinitions.LeftSide;
-			}
-			else if (n.getType().equals(Canvas.LAMBDA))
-			{
-				context = SyntaxDefinitions.LambdaAlternative;
-			}
-			else if (n.getType().equals(Canvas.START))
-			{
-				context = SyntaxDefinitions.Start;
-			}
-			Command cmd = CommandFactory.createAddCommand();
-			if (cmd.addObject(n.getName(), context) && cmd.execute())
-			{
-				canvas.getCanvasState().addNode(n);
-				monitor.firePropertyChange("undoable", null, cmd);
-			}
+			canvas.getCanvasState().addNode(n);
+			monitor.firePropertyChange("undoable", null, CommandFactory.createAddCommand());
 		}
 		for (Connection c : connections)
 		{
@@ -231,21 +204,8 @@ public class WidgetCopyPasteProvider
 				oldNewNames.put(oldName, newName);
 			}
 			while (canvas.findWidget(c.getName()) != null);
-			String context = "";
-			if (c.getType().equals(Canvas.SUCCESSOR))
-			{
-				context = SyntaxDefinitions.SucConnection;
-			}
-			else if (c.getType().equals(Canvas.ALTERNATIVE))
-			{
-				context = SyntaxDefinitions.AltConnection;
-			}
-			Command cmd = CommandFactory.createConnectionCommand();
-			if (cmd.addObject(c.getTarget(), c.getSource(), c.getName(), context) && cmd.execute())
-			{
-				canvas.getCanvasState().addConnection(c);
-				monitor.firePropertyChange("undoable", null, cmd);
-			}
+			canvas.getCanvasState().addConnection(c);
+			monitor.firePropertyChange("undoable", null, CommandFactory.createConnectionCommand());
 		}
 		canvas.updateState(canvas.getCanvasState());
 		for (String name : oldNewNames.values())

@@ -96,13 +96,6 @@ public abstract class Command
 		connection = null;
 	}
 
-	public boolean execute()
-	{
-		boolean resp = asinEditor.consumeCommand(this);
-		history.addToHistory(this);
-		return resp;
-	}
-
 	public Vector<Command> getChildren()
 	{
 		return children;

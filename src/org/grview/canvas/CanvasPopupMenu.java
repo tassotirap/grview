@@ -25,9 +25,7 @@ import org.grview.canvas.widget.MarkedWidget;
 import org.grview.project.Project;
 import org.grview.project.ProjectManager;
 import org.grview.semantics.SemanticRoutinesRepo;
-import org.grview.syntax.command.AddRoutineCommand;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.command.RemoveRoutineCommand;
 import org.grview.syntax.grammar.Controller;
 import org.grview.ui.wizard.RoutineWizard;
 import org.netbeans.api.visual.action.PopupMenuProvider;
@@ -433,12 +431,8 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 				@Override
 				public void actionPerformed(ActionEvent e)
 				{
-					AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-					if (command.addObject(canvas.findObject(widget), semanticRoutineName) && command.execute())
-					{
-						markedWidget.setMark(semanticRoutineName);
-						monitor.firePropertyChange("undoable", null, command);
-					}
+					markedWidget.setMark(semanticRoutineName);
+					monitor.firePropertyChange("undoable", null, CommandFactory.createAddRoutineCommand());
 				}
 			});
 			semanticRoutinesMenu.add(semanticRoutinesNamesMenuItem);
@@ -483,12 +477,8 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				RemoveRoutineCommand command = CommandFactory.createRemoveRoutineCommand();
-				if (command.addObject(canvas.findObject(widget), null) && command.execute())
-				{
-					markedWidget.setMark(null);
-					monitor.firePropertyChange("undoable", null, command);
-				}
+				markedWidget.setMark(null);
+				monitor.firePropertyChange("undoable", null, CommandFactory.createRemoveRoutineCommand());
 			}
 		});
 

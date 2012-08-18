@@ -5,10 +5,7 @@ import java.beans.PropertyChangeSupport;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
-import org.grview.syntax.command.Command;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.grammar.model.SyntaxDefinitions;
-import org.grview.util.Log;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.widget.Widget;
 
@@ -60,42 +57,8 @@ public class NodeCreateAction extends WidgetAction.Adapter
 			if (event.getButton() == MouseEvent.BUTTON1 && ((canvas.getActiveTool().equals(Canvas.LEFT_SIDE) || canvas.getActiveTool().equals(Canvas.TERMINAL) || canvas.getActiveTool().equals(Canvas.N_TERMINAL) || canvas.getActiveTool().equals(Canvas.LAMBDA) || canvas.getActiveTool().equals(Canvas.LABEL) || canvas.getActiveTool().equals(Canvas.START))))
 			{
 				String name = createDefaultName();
-				String context = "";
-				if (canvas.getActiveTool().equals(Canvas.TERMINAL))
-				{
-					context = SyntaxDefinitions.Terminal;
-				}
-				else if (canvas.getActiveTool().equals(Canvas.N_TERMINAL))
-				{
-					context = SyntaxDefinitions.NTerminal;
-				}
-				else if (canvas.getActiveTool().equals(Canvas.LEFT_SIDE))
-				{
-					context = SyntaxDefinitions.LeftSide;
-				}
-				else if (canvas.getActiveTool().equals(Canvas.LAMBDA))
-				{
-					context = SyntaxDefinitions.LambdaAlternative;
-				}
-				else if (canvas.getActiveTool().equals(Canvas.LABEL))
-				{
-					context = SyntaxDefinitions.Label;
-				}
-				else if (canvas.getActiveTool().equals(Canvas.START))
-				{
-					context = SyntaxDefinitions.Start;
-				}
-				Command cmd = CommandFactory.createAddCommand();
-				if (cmd.addObject(name, context) && cmd.execute())
-				{
-					// okay, the command has been accepted and consumed
-					canvas.addNode(name).setPreferredLocation(widget.convertLocalToScene(event.getPoint()));
-					monitor.firePropertyChange("undoable", null, cmd);
-				}
-				else
-				{
-					Log.log(Log.ERROR, this, "Could not create node!", new Exception("Failed to accept add command in grView Editor."));
-				}
+				canvas.addNode(name).setPreferredLocation(widget.convertLocalToScene(event.getPoint()));
+				monitor.firePropertyChange("undoable", null, CommandFactory.createAddCommand());
 
 				/*
 				 * you should only return consumed if you are sure, no one else

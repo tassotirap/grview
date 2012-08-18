@@ -20,7 +20,6 @@ import org.grview.file.SemanticFile;
 import org.grview.lexical.YyFactory;
 import org.grview.model.FileNames;
 import org.grview.semantics.SemanticRoutinesIvoker;
-import org.grview.syntax.command.AsinEditor;
 import org.grview.ui.ThemeManager.Theme;
 import org.grview.util.IOUtilities;
 import org.grview.util.Log;
@@ -67,7 +66,6 @@ public class Project implements Serializable
 	 * the AsinEditor instance, that holds a representation of the current
 	 * grammar
 	 **/
-	private AsinEditor asinEditor;
 
 	private Project(String projectsRootPath, ArrayList<File> openedFiles)
 	{
@@ -204,7 +202,6 @@ public class Project implements Serializable
 				if (object instanceof Project)
 				{
 					Project result = (Project) object;
-					AsinEditor.setInstance(result.asinEditor);
 					result.init();
 					objectInputStream.close();
 					return result;
@@ -378,7 +375,6 @@ public class Project implements Serializable
 	{
 		try
 		{
-			this.asinEditor = AsinEditor.getInstance();
 			FileOutputStream fileOutputStream = new FileOutputStream(metadataFile);
 			new ObjectOutputStream(fileOutputStream).writeObject(this);
 			fileOutputStream.close();

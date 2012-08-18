@@ -8,12 +8,6 @@ public class MoveCommand extends Command
 	public final static String id = SyntaxDefinitions.MoveCommand;
 
 	@Override
-	public boolean execute()
-	{
-		return true;
-	}
-
-	@Override
 	public String getDescription()
 	{
 		return SyntaxDefinitions.MoveCommand_Description + (((String) getContext() == null) ? "" : " " + (String) getContext());

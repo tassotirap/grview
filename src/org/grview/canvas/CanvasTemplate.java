@@ -600,17 +600,17 @@ public class CanvasTemplate extends Canvas
 		Set<String> nodes = state.getNodes();
 		// remove nodes
 		ArrayList<Object> nToRemove = new ArrayList<Object>();
-		for (Object n : this.getNodes())
+		for (Object node : this.getNodes())
 		{
-			if (!nodes.contains(n))
+			if (!nodes.contains(node))
 			{
-				nToRemove.add(n);
+				nToRemove.add(node);
 			}
 			else
 			{
 				// update labels
-				Widget w1 = this.findWidget(n);
-				Node n1 = state.findNode(n);
+				Widget w1 = this.findWidget(node);
+				Node n1 = state.findNode(node);
 				if (w1 instanceof LabelWidgetExt)
 				{
 					((LabelWidgetExt) w1).setLabel(n1.getTitle());
@@ -743,6 +743,9 @@ public class CanvasTemplate extends Canvas
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
 		this.state = state;
+		
+		state.update(this);
+		
 		validate();
 	}
 }

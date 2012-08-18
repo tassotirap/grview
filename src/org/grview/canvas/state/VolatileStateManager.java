@@ -228,10 +228,6 @@ public class VolatileStateManager implements PropertyChangeListener
 		{
 			Object nobject = read(redoables.get(index), nextStates);
 			monitor.firePropertyChange("object_state", object, nobject);
-			if (!nextStates.get(redoables.get(index)).command.execute())
-			{
-				// TODO error
-			}
 			object = nobject;
 			undoables.add(redoables.get(index));
 			lastStates.put(redoables.get(index), nextStates.get(redoables.get(index)));

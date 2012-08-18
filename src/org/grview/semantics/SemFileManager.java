@@ -8,7 +8,6 @@ import java.io.FileWriter;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-import org.grview.syntax.command.AddRoutineCommand;
 import org.grview.syntax.command.CommandFactory;
 import org.grview.util.Log;
 
@@ -88,8 +87,8 @@ public class SemFileManager
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 			String line = bufferedReader.readLine();
 			String currentFile = "";
-			
-			//HEAD
+
+			// HEAD
 			while (line != null)
 			{
 				currentFile += line + "\n";
@@ -100,7 +99,7 @@ public class SemFileManager
 				}
 				line = bufferedReader.readLine();
 			}
-			
+
 			//
 			while (line != null)
 			{
@@ -116,13 +115,12 @@ public class SemFileManager
 							currentFile += line + "\n";
 							break;
 						}
-						line = bufferedReader.readLine();	
-					}					
+						line = bufferedReader.readLine();
+					}
 				}
-				
-				
+
 				line = bufferedReader.readLine();
-							
+
 			}
 			bufferedReader.close();
 
@@ -174,15 +172,10 @@ public class SemFileManager
 
 	public boolean InsertRoutine(String name, String code, String widgetName)
 	{
-		AddRoutineCommand command = CommandFactory.createAddRoutineCommand();
-		monitor.firePropertyChange("undoable", null, command);
+		monitor.firePropertyChange("undoable", null, CommandFactory.createAddRoutineCommand());
 		code = getFormatedCode(name, code);
-		if (command.addObject(widgetName, name) && command.execute())
-		{
-			addToFile(name, code);
-			return true;
-		}
-		return false;
+		addToFile(name, code);
+		return true;
 	}
 
 	/**

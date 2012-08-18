@@ -6,9 +6,6 @@ import java.beans.PropertyChangeSupport;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.command.ConnectCommand;
-import org.grview.syntax.command.DisconnectCommand;
-import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.netbeans.api.visual.action.ConnectorState;
 import org.netbeans.api.visual.action.ReconnectProvider;
 import org.netbeans.api.visual.widget.ConnectionWidget;
@@ -78,43 +75,24 @@ public class NodeReconnectProvider implements ReconnectProvider
 	public void reconnect(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource)
 	{
 		Canvas canvas = CanvasFactory.getCanvas(canvasID);
-		DisconnectCommand dc = CommandFactory.createDisconnectionCommand();
-		ConnectCommand cc = CommandFactory.createConnectionCommand();
-		if (dc.addObject(canvas.getEdgeSource(edge), canvas.getEdgeTarget(edge), edge, canvas.isSuccessor(edge) ? SyntaxDefinitions.SucConnection : (canvas.isAlternative(edge) ? SyntaxDefinitions.AltConnection : null)) && dc.execute())
+		if (replacementWidget == null)
 		{
-			if (replacementWidget == null)
-			{
-				canvas.removeEdge(edge);
-				monitor.firePropertyChange("undoable", null, dc);
-			}
-			else if (reconnectingSource)
-			{
-				if (cc.addObject(canvas.getEdgeTarget(edge), replacementNode, edge, canvas.isSuccessor(edge) ? SyntaxDefinitions.SucConnection : (canvas.isAlternative(edge) ? SyntaxDefinitions.AltConnection : null)) && cc.execute())
-				{
-					canvas.setEdgeSource(edge, replacementNode);
-					monitor.firePropertyChange("undoable", null, cc);
-				}
-				else
-				{
-					// ERRO
-				}
-			}
-			else
-			{
-				if (cc.addObject(replacementNode, canvas.getEdgeSource(edge), edge, canvas.isSuccessor(edge) ? SyntaxDefinitions.SucConnection : (canvas.isAlternative(edge) ? SyntaxDefinitions.AltConnection : null)) && cc.execute())
-				{
-					canvas.setEdgeTarget(edge, replacementNode);
-					monitor.firePropertyChange("undoable", null, cc);
-				}
-				else
-				{
-					// ERRO
-				}
-			}
+			canvas.removeEdge(edge);
+			monitor.firePropertyChange("undoable", null, CommandFactory.createDisconnectionCommand());
+		}
+		else if (reconnectingSource)
+		{
+
+			canvas.setEdgeSource(edge, replacementNode);
+			monitor.firePropertyChange("undoable", null, CommandFactory.createConnectionCommand());
+
 		}
 		else
 		{
-			// ERRO
+
+			canvas.setEdgeTarget(edge, replacementNode);
+			monitor.firePropertyChange("undoable", null, CommandFactory.createConnectionCommand());
+
 		}
 	}
 

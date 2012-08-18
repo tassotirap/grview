@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
+import org.grview.project.ProjectManager;
 import org.grview.syntax.command.AsinEditor;
 import org.grview.syntax.grammar.model.AbstractNode;
 import org.grview.syntax.grammar.model.LambdaAlternative;
@@ -19,7 +20,6 @@ import org.grview.syntax.grammar.model.SyntaxSubpart;
 public class GrammarFactory
 {
 
-	private SyntaxModel syntaxModel;
 	private int cont;
 	private String htmlOutput; // html formated output
 	private Grammar absGrammar;
@@ -33,9 +33,9 @@ public class GrammarFactory
 	 * 
 	 * @param part
 	 */
-	public GrammarFactory(AsinEditor part)
+	public GrammarFactory()
 	{
-		syntaxModel = part.getLogicDiagram();
+		
 	}
 
 	private boolean canPerformAction()
@@ -264,9 +264,11 @@ public class GrammarFactory
 	public String run(boolean isFile) throws Exception
 	{
 		StringBuffer grammar = new StringBuffer();
-		List children;
+		
 		ArrayList start = new ArrayList();
-		children = syntaxModel.getChildrenNodes();
+		
+		List children = AsinEditor.getInstance().getLogicDiagram(ProjectManager.getMainWindow().getActiveScene()).getChildrenNodes();
+		
 		Object o;
 
 		AppOutput.clearGeneratedGrammar();

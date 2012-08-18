@@ -8,8 +8,6 @@ import java.util.Set;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
-import org.grview.syntax.command.DelCommand;
-import org.grview.syntax.grammar.model.SyntaxDefinitions;
 import org.netbeans.api.visual.widget.Widget;
 
 public class WidgetDeleteProvider
@@ -78,27 +76,13 @@ public class WidgetDeleteProvider
 				// first
 				Collection<String> edges = canvas.findNodeEdges(objs[i].toString(), true, true);
 				deleteThese(edges);
-				// now I can go on with the nodes
-				boolean canRemove = false;
-				DelCommand comm = CommandFactory.createDelCommand();
-				canRemove = comm.addObject(objs[i], SyntaxDefinitions.SingleDelete) && comm.execute();
-				if (canRemove)
-				{
-					canvas.removeNodeSafely((String) objs[i]);
-					monitor.firePropertyChange("undoable", null, comm);
-				}
+				canvas.removeNodeSafely((String) objs[i]);
+				monitor.firePropertyChange("undoable", null, CommandFactory.createDelCommand());
 			}
 			else if (canvas.isEdge(objs[i]))
 			{
-				boolean canRemove = false;
-				DelCommand comm = CommandFactory.createDelCommand();
-				canRemove = comm.addObject(objs[i], SyntaxDefinitions.SingleDelete);
-				canRemove &= comm.execute();
-				if (canRemove)
-				{
-					canvas.removeEdgeSafely((String) objs[i]);
-					monitor.firePropertyChange("undoable", null, comm);
-				}
+				canvas.removeEdgeSafely((String) objs[i]);
+				monitor.firePropertyChange("undoable", null, CommandFactory.createDelCommand());
 			}
 		}
 	}
