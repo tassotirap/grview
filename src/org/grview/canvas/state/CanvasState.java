@@ -64,10 +64,6 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 		return null;
 	}
 
-	@Override
-	public void focusChanged(ObjectSceneEvent arg0, Object arg1, Object arg2)
-	{
-	}
 
 	/**
 	 * Returns an ordered set of connections. The connections are ordered
@@ -127,43 +123,44 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	public void objectAdded(ObjectSceneEvent event, Object added)
 	{
 		Canvas canvas = (Canvas) event.getObjectScene();
+		Widget widget = canvas.findWidget(added);
+		String name = (String) added;
+		
 		if (canvas.isNode(added) || canvas.isLabel(added))
 		{
-			Widget w = canvas.findWidget(added);
+
 			Node node = new Node();
-			node.setName((String) added);
-			node.setLocation(w.getPreferredLocation());
-			if (w instanceof TypedWidget)
+			node.setName(name);
+			node.setLocation(widget.getPreferredLocation());
+			if (widget instanceof TypedWidget)
 			{
-				node.setType(((TypedWidget) w).getType());
+				node.setType(((TypedWidget) widget).getType());
 			}
 			else
 			{
-				// This type should not be trusted! Could be wrong
-				node.setType(canvas.getActiveTool());
+				node.setType(canvas.getCanvasActiveTool());
 			}
-			if (w instanceof MarkedWidget)
+			if (widget instanceof MarkedWidget)
 			{
-				node.setMark(((MarkedWidget) w).getMark());
+				node.setMark(((MarkedWidget) widget).getMark());
 			}
-			if (w instanceof LabelWidget)
-			{ // has a title
-				node.setTitle(((LabelWidget) w).getLabel());
+			if (widget instanceof LabelWidget)
+			{
+				node.setTitle(((LabelWidget) widget).getLabel());
 			}
-			nodes.put((String) added, node);
+			nodes.put(name, node);
 		}
-		else if (canvas.isSuccessor((String) added) || canvas.isAlternative((String) added))
-		{
-			Widget w = canvas.findWidget(added);
+		else if (canvas.isSuccessor(name) || canvas.isAlternative(name))
+		{	
 			Connection conn = new Connection();
-			conn.setName((String) added);
-			conn.setType(canvas.getActiveTool());
-			if (w instanceof ConnectionWidget)
+			conn.setName(name);
+			conn.setType(canvas.getCanvasActiveTool());
+			if (widget instanceof ConnectionWidget)
 			{
-				conn.setSource(canvas.getEdgeSource((String) added));
-				conn.setTarget(canvas.getEdgeTarget((String) added));
+				conn.setSource(canvas.getEdgeSource(name));
+				conn.setTarget(canvas.getEdgeTarget(name));
 			}
-			connections.put((String) added, conn);
+			connections.put(name, conn);
 		}
 	}
 
@@ -202,8 +199,6 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	@Override
 	public void selectionChanged(ObjectSceneEvent arg0, Set<Object> arg1, Set<Object> arg2)
 	{
-		// TODO Auto-generated method stub
-
 	}
 
 	public void setId(String id)
@@ -215,17 +210,17 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	{
 		for (String node : nodes.keySet())
 		{
-			Widget w = canvas.findWidget(node);
-			if (w != null)
+			Widget widget = canvas.findWidget(node);
+			if (widget != null)
 			{
-				nodes.get(node).setLocation(w.getPreferredLocation());
-				if (w instanceof LabelWidget)
+				nodes.get(node).setLocation(widget.getPreferredLocation());
+				if (widget instanceof LabelWidget)
 				{
-					nodes.get(node).setTitle(((LabelWidget) w).getLabel());
+					nodes.get(node).setTitle(((LabelWidget) widget).getLabel());
 				}
-				if (w instanceof MarkedWidget)
+				if (widget instanceof MarkedWidget)
 				{
-					nodes.get(node).setMark(((MarkedWidget) w).getMark());
+					nodes.get(node).setMark(((MarkedWidget) widget).getMark());
 				}
 			}
 		}
@@ -238,5 +233,11 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 				connections.get(conn).setTarget(canvas.getEdgeTarget(conn));
 			}
 		}
+	}
+
+	@Override
+	public void focusChanged(ObjectSceneEvent event, Object oldObject, Object newObject)
+	{
+		
 	}
 }

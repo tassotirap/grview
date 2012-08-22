@@ -1,99 +1,25 @@
 package org.grview.canvas;
 
-import java.awt.Dimension;
-import java.awt.Insets;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.HashMap;
-
-import javax.swing.ImageIcon;
 
 import org.grview.canvas.action.WidgetActionRepository;
 import org.grview.canvas.action.WidgetActionRepositoryFactory;
 import org.grview.canvas.state.CanvasState;
 import org.grview.canvas.state.StaticStateManager;
 import org.grview.canvas.state.VolatileStateManager;
-import org.grview.canvas.widget.IconNodeWidgetExt;
-import org.grview.canvas.widget.IconNodeWidgetExt.TextOrientation;
-import org.grview.canvas.widget.LabelWidgetExt;
-import org.netbeans.api.visual.anchor.AnchorShape;
-import org.netbeans.api.visual.anchor.PointShape;
-import org.netbeans.api.visual.border.BorderFactory;
-import org.netbeans.api.visual.widget.ConnectionWidget;
-import org.netbeans.api.visual.widget.Widget;
 
 public class CanvasFactory implements PropertyChangeListener
 {
-
-	private static class CD extends CanvasDecorator
-	{
-
-		@Override
-		public ConnectionWidget drawConnection(String type, Canvas canvas, String label)
-		{
-			ConnectionWidget connection = null;
-			if (type.equals(Canvas.SUCCESSOR))
-			{
-				connection = CONNECT_DECORATOR_SUCCESSOR.createConnectionWidget(canvas.getMainLayer().getScene());
-			}
-			else
-			{
-				connection = CONNECT_DECORATOR_ALTERNATIVE.createConnectionWidget(canvas.getMainLayer().getScene());
-			}
-			connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-			connection.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
-			connection.setPaintControlPoints(true);
-			connection.setControlPointShape(PointShape.SQUARE_FILLED_BIG);
-			return connection;
-		}
-
-		@Override
-		public Widget drawIcon(String type, Canvas canvas, String text) throws Exception
-		{
-			Widget widget;
-			if (type.equals(Canvas.LAMBDA))
-			{
-				/*
-				 * ImageWidget iwidget = new
-				 * ImageWidget(canvas.getMainLayer().getScene(),
-				 * Utilities.loadImage(findIconPath(type))); iwidget.setOpaque
-				 * (true); iwidget.repaint(); widget = iwidget;
-				 */
-				IconNodeWidgetExt iwidget = new IconNodeWidgetExt(canvas.getMainLayer().getScene(), TextOrientation.RIGHT_CENTER);
-				iwidget.setImage(new ImageIcon(findIconPath(type)).getImage());
-				iwidget.setOpaque(true);
-				iwidget.repaint();
-				widget = iwidget;
-			}
-			else
-			{
-				LabelWidgetExt lwidget = new LabelWidgetExt(canvas.getMainLayer().getScene(), text);
-				try
-				{
-					lwidget.setOpaque(true);
-					lwidget.setBorder(BorderFactory.createImageBorder(new Insets(6, (type.equals(Canvas.START)) ? 18 : 8, 6, (type.equals(Canvas.LEFT_SIDE) || type.equals(Canvas.START)) ? 16 : 6), new ImageIcon(findIconPath(type)).getImage()));
-					lwidget.setMinimumSize(new Dimension(50, 0));
-					lwidget.setVerticalAlignment(LabelWidgetExt.VerticalAlignment.CENTER);
-					lwidget.repaint();
-					widget = lwidget;
-				}
-				catch (Exception e)
-				{
-					throw e;
-				}
-			}
-			return widget;
-		}
-	}
-
 	private CanvasDecorator decorator;
 
 	private WidgetActionRepository actions;
-	private static String defaultCursor = Canvas.SELECT;
-	private static String connStrategy = Canvas.R_ORTHOGONAL;
+	private static String defaultCursor = CanvasData.SELECT;
+	private static String connStrategy = CanvasData.R_ORTHOGONAL;
 
-	private static String moveStrategy = Canvas.M_FREE;
+	private static String moveStrategy = CanvasData.M_FREE;
 
 	private static String projectPath = "";
 	private HashMap<String, Canvas> canvasByPath;
@@ -116,7 +42,7 @@ public class CanvasFactory implements PropertyChangeListener
 		listVolatileStateManager = new HashMap<String, VolatileStateManager>();
 		listStaticStateManager = new HashMap<String, StaticStateManager>();
 		states = new HashMap<String, CanvasState>();
-		decorator = new CD();
+		decorator = new CanvasDecorator();
 		actions = WidgetActionRepositoryFactory.getDefaultRepository();
 	}
 

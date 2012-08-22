@@ -69,8 +69,8 @@ public class CanvasTemplate extends Canvas
 					Widget w = (Widget) objw;
 					if (w instanceof LabelWidgetExt)
 					{
-						w.getActions(Canvas.SELECT).removeAction(activeMovement);
-						w.getActions(Canvas.SELECT).addAction(ma);
+						w.getActions(CanvasData.SELECT).removeAction(activeMovement);
+						w.getActions(CanvasData.SELECT).addAction(ma);
 					}
 				}
 			}
@@ -131,35 +131,9 @@ public class CanvasTemplate extends Canvas
 	{
 		Widget w = targetNode != null ? findWidget(targetNode) : null;
 		ConnectionWidget conn = ((ConnectionWidget) findWidget(edge));
-		// boolean hasConn = false;
 		if (isCandidateSuccessor(edge) || isSuccessor(edge))
 		{
-			// if (!removedEdges.contains(edge)) {
-			// for (String st : findNodeEdges(targetNode, false, true)) {
-			// if (!st.equals(edge)) {
-			// hasConn = true;
-			// break;
-			// }
-			// }
-			//
-			// }
-			// if (leftSides.contains(targetNode)) {
-			// if (lastEdgeSource != null) {
-			// //Widget w2 = findWidget (lastEdgeSource);
-			// UnidirectionalAnchor ua = new UnidirectionalAnchor(w, conn,
-			// UnidirectionalAnchorKind.LEFT, 0, false, Direction.TOP);
-			// //ua.setSecundaryReference(w2);
-			// conn.setTargetAnchor(ua);
-			// return;
-			// }
-			// }
-			// if (!hasConn) {
-			// conn.setTargetAnchor (new UnidirectionalAnchor(w, conn, true,
-			// UnidirectionalAnchorKind.LEFT));
-			// }
-			// else {
 			conn.setTargetAnchor(new UnidirectionalAnchor(w, edge, UnidirectionalAnchorKind.LEFT, 0, false, Direction.TOP));
-			// }
 		}
 		else if (isCandidateAlternative(edge) || isAlternative(edge))
 		{
@@ -175,18 +149,18 @@ public class CanvasTemplate extends Canvas
 	protected Widget attachEdgeWidget(String edge)
 	{
 		ConnectionWidget connection = null;
-		String activeTool = _getActiveTool();
+		String activeTool = getCanvasActiveTool();
 
-		if (activeTool.equals(SUCCESSOR) || activeTool.equals(ALTERNATIVE))
+		if (activeTool.equals(CanvasData.SUCCESSOR) || activeTool.equals(CanvasData.ALTERNATIVE))
 		{
 			connection = decorator.drawConnection(activeTool, this, edge);
 			connection.setRouter(getActiveRouter());
-			connection.createActions(SELECT).addAction(actions.getAction("ConnSelect", this));
-			connection.getActions(SELECT).addAction(actions.getAction("Reconnect", this));
-			connection.getActions(SELECT).addAction(actions.getAction("FreeMoveCP", this));
-			connection.getActions(SELECT).addAction(actions.getAction("AddRemoveCP", this));
+			connection.createActions(CanvasData.SELECT).addAction(actions.getAction("ConnSelect", this));
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("Reconnect", this));
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("FreeMoveCP", this));
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("AddRemoveCP", this));
 			connectionLayer.addChild(connection);
-			if (activeTool.equals(SUCCESSOR))
+			if (activeTool.equals(CanvasData.SUCCESSOR))
 			{
 				if (!isSuccessor(edge))
 				{
@@ -197,7 +171,7 @@ public class CanvasTemplate extends Canvas
 					getCandidateSuc().remove(edge);
 				}
 			}
-			else if (activeTool.equals(ALTERNATIVE))
+			else if (activeTool.equals(CanvasData.ALTERNATIVE))
 			{
 				if (!isAlternative(edge))
 				{
@@ -216,7 +190,7 @@ public class CanvasTemplate extends Canvas
 	protected Widget attachNodeWidget(String node)
 	{
 		Widget widget = null;
-		String activeTool = _getActiveTool();
+		String activeTool = getCanvasActiveTool();
 
 		if (node.startsWith(LineWidget.class.getCanonicalName()))
 		{
@@ -242,10 +216,10 @@ public class CanvasTemplate extends Canvas
 			setShowingGrid(true);
 			state.getPreferences().setShowGrid(true);
 		}
-		else if (!activeTool.equals(SELECT))
+		else if (!activeTool.equals(CanvasData.SELECT))
 		{
 			String tool = activeTool;
-			if (tool.equals(N_TERMINAL) || tool.equals(TERMINAL) || tool.equals(LEFT_SIDE) || tool.equals(LAMBDA) || tool.equals(START))
+			if (tool.equals(CanvasData.N_TERMINAL) || tool.equals(CanvasData.TERMINAL) || tool.equals(CanvasData.LEFT_SIDE) || tool.equals(CanvasData.LAMBDA) || tool.equals(CanvasData.START))
 			{
 				// decide witch image the widget will use
 				try
@@ -257,46 +231,46 @@ public class CanvasTemplate extends Canvas
 					Log.log(Log.ERROR, this, "Could not create widget!", e);
 					widget = new LabelWidgetExt(mainLayer.getScene(), node);
 				}
-				widget.createActions(SELECT);
-				if (!tool.equals(LAMBDA))
-					widget.getActions(SELECT).addAction(actions.getAction("NodeHover", this));
-				widget.getActions(SELECT).addAction(actions.getAction("Select", this));
-				if (!tool.equals(LAMBDA))
-					widget.getActions(SELECT).addAction(actions.getAction("Editor", this));
-				widget.getActions(SELECT).addAction(actions.getAction("Move", this));
-				if (!tool.equals(LAMBDA))
-					widget.createActions(SUCCESSOR).addAction(actions.getAction("Successor", this));
-				if (!tool.equals(LAMBDA))
-					widget.createActions(ALTERNATIVE).addAction(actions.getAction("Alternative", this));
+				widget.createActions(CanvasData.SELECT);
+				if (!tool.equals(CanvasData.LAMBDA))
+					widget.getActions(CanvasData.SELECT).addAction(actions.getAction("NodeHover", this));
+				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Select", this));
+				if (!tool.equals(CanvasData.LAMBDA))
+					widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Editor", this));
+				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Move", this));
+				if (!tool.equals(CanvasData.LAMBDA))
+					widget.createActions(CanvasData.SUCCESSOR).addAction(actions.getAction("Successor", this));
+				if (!tool.equals(CanvasData.LAMBDA))
+					widget.createActions(CanvasData.ALTERNATIVE).addAction(actions.getAction("Alternative", this));
 				mainLayer.addChild(widget);
-				if (tool.equals(LEFT_SIDE))
+				if (tool.equals(CanvasData.LEFT_SIDE))
 				{
 					leftSides.add(node);
 				}
-				else if (tool.equals(TERMINAL))
+				else if (tool.equals(CanvasData.TERMINAL))
 				{
 					terminals.add(node);
 				}
-				else if (tool.equals(N_TERMINAL))
+				else if (tool.equals(CanvasData.N_TERMINAL))
 				{
 					nterminals.add(node);
 				}
-				else if (tool.equals(LAMBDA))
+				else if (tool.equals(CanvasData.LAMBDA))
 				{
 					lambdas.add(node);
 				}
-				else if (tool.equals(START))
+				else if (tool.equals(CanvasData.START))
 				{
 					start.add(node);
 				}
 			}
-			else if (tool.equals(LABEL))
+			else if (tool.equals(CanvasData.LABEL))
 			{
 				widget = new LabelWidgetExt(mainLayer.getScene(), "Double Click Here to Edit");
-				widget.createActions(SELECT).addAction(actions.getAction("LabelHover", this));
-				widget.getActions(SELECT).addAction(actions.getAction("SelectLabel", this));
-				widget.getActions(SELECT).addAction(actions.getAction("Editor", this));
-				widget.getActions(SELECT).addAction(actions.getAction("Move", this));
+				widget.createActions(CanvasData.SELECT).addAction(actions.getAction("LabelHover", this));
+				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("SelectLabel", this));
+				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Editor", this));
+				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Move", this));
 				labels.add(node);
 				mainLayer.addChild(widget);
 				// ///////////// customNodes.add(node);
@@ -399,7 +373,7 @@ public class CanvasTemplate extends Canvas
 		addChild(connectionLayer);
 		addChild(interractionLayer);
 
-		createActions(SELECT).addAction(actions.getAction(WidgetActionRepository.SELECT, this));
+		createActions(CanvasData.SELECT).addAction(actions.getAction(WidgetActionRepository.SELECT, this));
 		getActions().addAction(actions.getAction(WidgetActionRepository.SELECT_LABEL, this));
 		getActions().addAction(actions.getAction(WidgetActionRepository.CREATE, this));
 		getActions().addAction(actions.getAction(WidgetActionRepository.POPUP_MENU_MAIN, this));
@@ -541,20 +515,20 @@ public class CanvasTemplate extends Canvas
 		if (policy != null)
 		{
 			state.getPreferences().setConnectionStrategy(policy);
-			if (policy.equals(R_ORTHOGONAL) || policy.equals(R_FREE) || policy.equals(R_DIRECT))
+			if (policy.equals(CanvasData.R_ORTHOGONAL) || policy.equals(CanvasData.R_FREE) || policy.equals(CanvasData.R_DIRECT))
 			{
 				if (!policy.equals(connStrategy) || activeRouter == null)
 				{
 					connStrategy = policy;
-					if (policy.equals(R_ORTHOGONAL))
+					if (policy.equals(CanvasData.R_ORTHOGONAL))
 					{
 						activeRouter = RouterFactory.createOrthogonalSearchRouter(mainLayer);
 					}
-					else if (policy.equals(R_DIRECT))
+					else if (policy.equals(CanvasData.R_DIRECT))
 					{
 						activeRouter = RouterFactory.createDirectRouter();
 					}
-					else if (policy.equals(R_FREE))
+					else if (policy.equals(CanvasData.R_FREE))
 					{
 						activeRouter = RouterFactory.createFreeRouter();
 					}
@@ -580,7 +554,7 @@ public class CanvasTemplate extends Canvas
 		if (strategy != null)
 		{
 			state.getPreferences().setMoveStrategy(strategy);
-			if (strategy.equals(M_ALIGN) || strategy.equals(M_SNAP) || strategy.equals(M_FREE) || strategy.equals(M_LINES))
+			if (strategy.equals(CanvasData.M_ALIGN) || strategy.equals(CanvasData.M_SNAP) || strategy.equals(CanvasData.M_FREE) || strategy.equals(CanvasData.M_LINES))
 			{
 				if (moveStrategy == null || !moveStrategy.equals(strategy))
 				{
@@ -637,7 +611,7 @@ public class CanvasTemplate extends Canvas
 			if (!this.getNodes().contains(n))
 			{
 				Node n1 = state.findNode(n);
-				String oldTool = _getActiveTool();
+				String oldTool = getCanvasActiveTool();
 				setActiveTool((String) state.getType(n));
 				Widget w1 = addNode((String) n);
 				if (n1.getLocation() != null)
@@ -690,9 +664,9 @@ public class CanvasTemplate extends Canvas
 				{
 					state.objectRemoved(null, e);
 				}
-				else if (state.findNode(c1.getSource()).getType().equals(LEFT_SIDE) || state.findNode(c1.getSource()).getType().equals(START))
+				else if (state.findNode(c1.getSource()).getType().equals(CanvasData.LEFT_SIDE) || state.findNode(c1.getSource()).getType().equals(CanvasData.START))
 				{
-					String oldTool = _getActiveTool();
+					String oldTool = getCanvasActiveTool();
 					setActiveTool((String) state.getType(e));
 					addEdge((String) e);
 					setEdgeSource((String) e, c1.getSource());
@@ -713,9 +687,9 @@ public class CanvasTemplate extends Canvas
 				{
 					state.objectRemoved(null, e);
 				}
-				if (!state.findNode(c1.getSource()).getType().equals(LEFT_SIDE) && !state.findNode(c1.getSource()).getType().equals(START))
+				if (!state.findNode(c1.getSource()).getType().equals(CanvasData.LEFT_SIDE) && !state.findNode(c1.getSource()).getType().equals(CanvasData.START))
 				{
-					String oldTool = _getActiveTool();
+					String oldTool = getCanvasActiveTool();
 					setActiveTool((String) state.getType(e));
 					addEdge((String) e);
 					setEdgeSource((String) e, c1.getSource());

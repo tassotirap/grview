@@ -12,6 +12,7 @@ import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
 import org.grview.canvas.Canvas;
+import org.grview.canvas.CanvasData;
 import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
@@ -62,7 +63,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.SELECT);
+				context.setActiveTool(CanvasData.SELECT);
 			}
 
 		});
@@ -71,7 +72,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.SUCCESSOR);
+				context.setActiveTool(CanvasData.SUCCESSOR);
 			}
 
 		});
@@ -80,7 +81,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.ALTERNATIVE);
+				context.setActiveTool(CanvasData.ALTERNATIVE);
 			}
 
 		});
@@ -89,7 +90,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.LEFT_SIDE);
+				context.setActiveTool(CanvasData.LEFT_SIDE);
 			}
 
 		});
@@ -98,7 +99,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.N_TERMINAL);
+				context.setActiveTool(CanvasData.N_TERMINAL);
 			}
 
 		});
@@ -107,7 +108,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.TERMINAL);
+				context.setActiveTool(CanvasData.TERMINAL);
 			}
 
 		});
@@ -116,7 +117,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.LAMBDA);
+				context.setActiveTool(CanvasData.LAMBDA);
 			}
 
 		});
@@ -125,7 +126,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.LABEL);
+				context.setActiveTool(CanvasData.LABEL);
 			}
 
 		});
@@ -134,7 +135,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(Canvas.START);
+				context.setActiveTool(CanvasData.START);
 			}
 
 		});

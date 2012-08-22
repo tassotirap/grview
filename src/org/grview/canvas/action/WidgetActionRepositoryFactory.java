@@ -5,6 +5,7 @@ import java.util.Observable;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasPopupMenu;
+import org.grview.canvas.CanvasData;
 import org.grview.canvas.strategy.MoveStrategy;
 import org.grview.canvas.widget.GridWidget;
 import org.netbeans.api.visual.action.WidgetAction;
@@ -63,19 +64,19 @@ public class WidgetActionRepositoryFactory
 				if (activeMoveAction != null)
 				{
 					WidgetAction moveAction = null;
-					if (activeMoveAction.equals(Canvas.M_FREE))
+					if (activeMoveAction.equals(CanvasData.M_FREE))
 					{
 						moveAction = getAction(MOVE_FREE, canvas);
 					}
-					else if (activeMoveAction.equals(Canvas.M_SNAP))
+					else if (activeMoveAction.equals(CanvasData.M_SNAP))
 					{
 						moveAction = getAction(MOVE_SNAP, canvas);
 					}
-					else if (activeMoveAction.equals(Canvas.M_ALIGN))
+					else if (activeMoveAction.equals(CanvasData.M_ALIGN))
 					{
 						moveAction = getAction(MOVE_ALIGN, canvas);
 					}
-					else if (activeMoveAction.equals(Canvas.M_LINES))
+					else if (activeMoveAction.equals(CanvasData.M_LINES))
 					{
 						moveAction = getAction(MOVE_LINES, canvas);
 					}

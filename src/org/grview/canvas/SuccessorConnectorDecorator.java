@@ -24,7 +24,7 @@ public class SuccessorConnectorDecorator implements ConnectDecorator
 	{
 		ConnectionWidget widget = new ConnectionWidget(scene);
 		widget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-		widget.setLineColor(new Color(100, 100, 255));
+		widget.setLineColor(Color.BLUE);
 		thisConnection = widget;
 		this.scene = (scene instanceof GraphScene) ? (GraphScene) scene : null;
 		return widget;

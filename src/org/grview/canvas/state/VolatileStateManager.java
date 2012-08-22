@@ -24,9 +24,7 @@ public class VolatileStateManager implements PropertyChangeListener
 	}
 
 	private ByteArrayInputStream bais;
-	private ByteArrayOutputStream baos;
 	private ObjectInputStream ois;
-	private ObjectOutputStream oos;
 	private HashMap<String, VolatileState> lastStates = new HashMap<String, VolatileState>();
 	private HashMap<String, VolatileState> nextStates = new HashMap<String, VolatileState>();
 	private final static String head = "%HEAD";
@@ -73,16 +71,16 @@ public class VolatileStateManager implements PropertyChangeListener
 		return null;
 	}
 
-	private void write(String state, HashMap<String, VolatileState> states, Command cmd) throws IOException
+	private void writeCanvas(String state, HashMap<String, VolatileState> states, Command command) throws IOException
 	{
 		monitor.firePropertyChange("writing", null, object);
-		baos = new ByteArrayOutputStream();
-		oos = new ObjectOutputStream(baos);
-		oos.writeObject(object);
-		VolatileState vs = new VolatileState();
-		vs.serializedObject = baos.toByteArray();
-		vs.command = cmd;
-		states.put(state, vs);
+		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+		ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+		objectOutputStream.writeObject(object);
+		VolatileState volatileState = new VolatileState();
+		volatileState.serializedObject = byteArrayOutputStream.toByteArray();
+		volatileState.command = command;
+		states.put(state, volatileState);
 	}
 
 	public PropertyChangeSupport getMonitor()
@@ -166,7 +164,7 @@ public class VolatileStateManager implements PropertyChangeListener
 	{
 		try
 		{
-			this.write(getUniqueName("base", last), lastStates, null);
+			this.writeCanvas(getUniqueName("base", last), lastStates, null);
 			undoables.add(getUniqueName("base", last++));
 		}
 		catch (Exception e)
@@ -199,7 +197,7 @@ public class VolatileStateManager implements PropertyChangeListener
 			String state = getUniqueName(((Command) event.getNewValue()).getDescription(), last++);
 			try
 			{
-				write(state, lastStates, (Command) event.getNewValue());
+				writeCanvas(state, lastStates, (Command) event.getNewValue());
 				nextStates.clear();
 				redoables.clear();
 				undoables.add(state);

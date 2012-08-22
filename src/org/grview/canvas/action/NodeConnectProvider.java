@@ -6,6 +6,7 @@ import java.util.Collection;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
+import org.grview.canvas.CanvasData;
 import org.grview.syntax.command.CommandFactory;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;
@@ -39,14 +40,14 @@ public class NodeConnectProvider implements ConnectProvider
 		{
 			numEdges = edges.size();
 		}
-		if (canvas.getActiveTool().equals(Canvas.SUCCESSOR))
+		if (canvas.getCanvasActiveTool().equals(CanvasData.SUCCESSOR))
 		{
-			edge = Canvas.SUC_LBL + numEdges;
+			edge = CanvasData.SUC_LBL + numEdges;
 			canvas.getCandidateSuc().add(edge);
 		}
-		else if (canvas.getActiveTool().equals(Canvas.ALTERNATIVE))
+		else if (canvas.getCanvasActiveTool().equals(CanvasData.ALTERNATIVE))
 		{
-			edge = Canvas.ALT_LBL + numEdges;
+			edge = CanvasData.ALT_LBL + numEdges;
 			canvas.getCandidateAlt().add(edge);
 		}
 		else
@@ -82,11 +83,11 @@ public class NodeConnectProvider implements ConnectProvider
 			}
 			for (String e : edges)
 			{
-				if (canvas.getActiveTool().equals(Canvas.SUCCESSOR) && canvas.isSuccessor(e))
+				if (canvas.getCanvasActiveTool().equals(CanvasData.SUCCESSOR) && canvas.isSuccessor(e))
 				{
 					return false;
 				}
-				if (canvas.getActiveTool().equals(Canvas.ALTERNATIVE) && canvas.isAlternative(e))
+				if (canvas.getCanvasActiveTool().equals(CanvasData.ALTERNATIVE) && canvas.isAlternative(e))
 				{
 					return false;
 				}

@@ -24,7 +24,7 @@ public class AlternativeConnectorDecorator implements ConnectDecorator
 	{
 		ConnectionWidget widget = new ConnectionWidget(scene);
 		widget.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
-		widget.setLineColor(new Color(255, 100, 100));
+		widget.setLineColor(Color.RED);
 		thisConnection = widget;
 		this.scene = (scene instanceof GraphScene) ? (GraphScene) scene : null;
 		return widget;

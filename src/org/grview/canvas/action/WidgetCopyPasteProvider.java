@@ -10,6 +10,7 @@ import java.util.Set;
 
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
+import org.grview.canvas.CanvasData;
 import org.grview.canvas.state.Connection;
 import org.grview.canvas.state.Node;
 import org.grview.syntax.command.CommandFactory;
@@ -147,7 +148,7 @@ public class WidgetCopyPasteProvider
 					n.setName(n.getName() + "_" + (i++));
 					newName = n.getName();
 					oldNewNames.put(oldName, newName);
-					if (n.getType().equals(Canvas.LEFT_SIDE) || n.getType().equals(Canvas.START))
+					if (n.getType().equals(CanvasData.LEFT_SIDE) || n.getType().equals(CanvasData.START))
 					{
 						if (n.getTitle().endsWith("_" + (i - 2)))
 							n.setTitle(n.getTitle().substring(0, n.getTitle().length() - ("_" + Math.abs(i - 2)).length()));

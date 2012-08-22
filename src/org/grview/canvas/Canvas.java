@@ -44,6 +44,8 @@ import org.netbeans.api.visual.widget.LayerWidget;
 public abstract class Canvas extends GraphScene.StringGraph implements PropertyChangeListener, ActionContextHolder<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>>
 {
 
+	
+
 	/**
 	 * This inner classes acts as a facade used to forward key events to
 	 * keylisteners "hanged" to this canvas This class was created to deal with
@@ -83,37 +85,11 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	}
 
 	// The different possible types of cursor, only the static ones
-	public final static String SELECT = "SELECT";
-	public final static String CTRL_SELECT = "CTRL_SELECT";
-	public final static String LEFT_SIDE = "LEFT_SIDE";
-	public final static String N_TERMINAL = "N_TERMINAL";
-	public final static String TERMINAL = "TERMINAL";
-	public final static String LABEL = "LABEL";
-	public final static String SUCCESSOR = "SUCCESSOR";
-	public final static String ALTERNATIVE = "ALTERNATIVE";
-	public final static String LAMBDA = "LAMBDA";
 
-	public final static String START = "START";
-	// The routing policies for connections
-	public final static String R_DIRECT = "R_DIRECT";
-	public final static String R_ORTHOGONAL = "R_ORTHOGONAL";
-
-	public final static String R_FREE = "R_FREE";
-	// Movement Policy
-	public final static String M_FREE = "M_FREE";
-	public final static String M_SNAP = "M_SNAP";
-	public final static String M_ALIGN = "M_ALIGN";
-
-	public final static String M_LINES = "M_LINES";
-	// Labels for edges
-	public final static String SUC_LBL = "successor";
-
-	public final static String ALT_LBL = "alternative";
+	
 	private ArrayList<String> candidateSuc = new ArrayList<String>();
-
 	private ArrayList<String> candidateAlt = new ArrayList<String>();
 	private ArrayList<String> successors = new ArrayList<String>();
-
 	private ArrayList<String> alternatives = new ArrayList<String>();
 
 	private HashMap<String, Cursor> cursors = new HashMap<String, Cursor>();
@@ -158,16 +134,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		monitor = new PropertyChangeSupport(this);
 	}
 
-	public String _getActiveTool()
-	{
-		String tool = super.getActiveTool();
-		if (tool == null)
-		{
-			tool = SELECT; // by default select tool is activated
-		}
-		return tool;
-	}
-
 	/**
 	 * Adds a new action set to the canvas's list of ActionSets.
 	 * 
@@ -181,41 +147,41 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public boolean canZoomIn()
 	{
-		return getZoomFactor() < 2.0;
+		return getZoomFactor() < 1.5;
 	}
 
 	public boolean canZoomOut()
 	{
-		return getZoomFactor() > 0.1;
+		return getZoomFactor() > 0.5;
 	}
 
 	public void createCursors()
 	{
 		Toolkit toolkit = Toolkit.getDefaultToolkit();
 
-		Image image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_h_enabled.gif"));
-		cursors.put(LEFT_SIDE, toolkit.createCustomCursor(image, new Point(0, 0), "Left Side"));
+		Image image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_LEFT_SIDE_ENABLED));
+		cursors.put(CanvasData.LEFT_SIDE, toolkit.createCustomCursor(image, new Point(0, 0), "Left Side"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_t_enabled.gif"));
-		cursors.put(TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Terminal"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_TERMINAL_ENABLED));
+		cursors.put(CanvasData.TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Terminal"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_nt_enabled.gif"));
-		cursors.put(N_TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Non-Terminal"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_N_TERMINAL_ENABLED));
+		cursors.put(CanvasData.N_TERMINAL, toolkit.createCustomCursor(image, new Point(0, 0), "Non-Terminal"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_l_enabled.gif"));
-		cursors.put(LAMBDA, toolkit.createCustomCursor(image, new Point(0, 0), "Lambda Alternative"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_LAMBDA_ENABLED));
+		cursors.put(CanvasData.LAMBDA, toolkit.createCustomCursor(image, new Point(0, 0), "Lambda Alternative"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_successor_enabled.gif"));
-		cursors.put(SUCCESSOR, toolkit.createCustomCursor(image, new Point(0, 0), "Successor"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_SUCCESSOR_ENABLED));
+		cursors.put(CanvasData.SUCCESSOR, toolkit.createCustomCursor(image, new Point(0, 0), "Successor"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_alternative_enabled.gif"));
-		cursors.put(ALTERNATIVE, toolkit.createCustomCursor(image, new Point(0, 0), "Alternative"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_ALTERNATIVE_ENABLED));
+		cursors.put(CanvasData.ALTERNATIVE, toolkit.createCustomCursor(image, new Point(0, 0), "Alternative"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_label_enabled.gif"));
-		cursors.put(LABEL, toolkit.createCustomCursor(image, new Point(0, 0), "Label"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_LABEL_ENABLED));
+		cursors.put(CanvasData.LABEL, toolkit.createCustomCursor(image, new Point(0, 0), "Label"));
 
-		image = toolkit.getImage(Canvas.class.getResource("/org/grview/images/cursor_s_enabled.gif"));
-		cursors.put(START, toolkit.createCustomCursor(image, new Point(0, 0), "Start"));
+		image = toolkit.getImage(Canvas.class.getResource(CanvasData.CURSOS_START_ENABLED));
+		cursors.put(CanvasData.START, toolkit.createCustomCursor(image, new Point(0, 0), "Start"));
 	}
 
 	@Override
@@ -269,6 +235,16 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		return candidateSuc;
 	}
 
+	public String getCanvasActiveTool()
+	{
+		String tool = super.getActiveTool();
+		if (tool == null)
+		{
+			tool = CanvasData.SELECT;
+		}
+		return tool;
+	}
+
 	public abstract CanvasDecorator getCanvasDecorator();
 
 	public abstract CanvasState getCanvasState();
@@ -276,8 +252,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	public abstract LayerWidget getConnectionLayer();
 
 	public abstract String getConnStrategy();
-
-	// management of screen objects
 
 	public String getID()
 	{
@@ -316,7 +290,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public abstract String getMoveStrategy();
 
-	/* ##########################GETTERS AND SETTERS############################ */
 
 	public abstract String getNodeType(Object node);
 
@@ -523,7 +496,7 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	public void setActiveTool(String activeTool)
 	{
 		super.setActiveTool(activeTool);
-		if (activeTool.equals(SELECT))
+		if (activeTool.equals(CanvasData.SELECT))
 		{
 			this.setCursor(Cursor.getDefaultCursor());
 		}

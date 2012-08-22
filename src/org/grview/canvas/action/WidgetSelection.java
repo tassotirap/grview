@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.grview.canvas.Canvas;
+import org.grview.canvas.CanvasData;
 import org.grview.canvas.state.CanvasSerializableElement;
 import org.grview.canvas.state.Connection;
 import org.grview.canvas.state.Node;
@@ -76,11 +77,11 @@ public class WidgetSelection implements ClipboardOwner, Transferable
 				c.setTarget(canvas.getEdgeTarget((String) object));
 				if (canvas.isAlternative((String) object))
 				{
-					c.setType(Canvas.ALTERNATIVE);
+					c.setType(CanvasData.ALTERNATIVE);
 				}
 				else if (canvas.isSuccessor((String) object))
 				{
-					c.setType(Canvas.SUCCESSOR);
+					c.setType(CanvasData.SUCCESSOR);
 				}
 				elements.add(c);
 			}
