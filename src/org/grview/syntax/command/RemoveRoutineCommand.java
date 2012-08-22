@@ -5,18 +5,9 @@ import org.grview.syntax.grammar.model.SyntaxDefinitions;
 public class RemoveRoutineCommand extends Command
 {
 
-	private static String id = SyntaxDefinitions.RemoveRoutineCommand;
-
 	@Override
 	public String getDescription()
 	{
-		return SyntaxDefinitions.RemoveRoutineCommand_Description + (((String) getContext() == null) ? "" : " " + (String) getContext());
+		return SyntaxDefinitions.RemoveRoutineCommand_Description;
 	}
-
-	@Override
-	public String getID()
-	{
-		return id;
-	}
-
 }

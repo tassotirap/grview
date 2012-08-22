@@ -8,22 +8,11 @@ public class DelCommand extends Command
 	private String targetType;
 
 	@Override
-	public boolean addObject(Object target, Object source, Object context)
-	{
-		return false;
-	}
-
-	@Override
 	public String getDescription()
 	{
 		return SyntaxDefinitions.DeleteCommand_Description;
 	}
 
-	@Override
-	public String getID()
-	{
-		return SyntaxDefinitions.DeleteCommand;
-	}
 
 	public String getTargetType()
 	{
