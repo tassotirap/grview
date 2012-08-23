@@ -11,12 +11,8 @@ import org.netbeans.api.visual.widget.Widget;
 
 public final class NodeMultiSelectProvider implements SelectProvider
 {
-
-	private String canvasID;
-
 	public NodeMultiSelectProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 	}
 
 	@Override
@@ -28,14 +24,14 @@ public final class NodeMultiSelectProvider implements SelectProvider
 	@Override
 	public boolean isSelectionAllowed(Widget widget, Point localLocation, boolean invertSelection)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		return canvas.findObject(widget) != null;
 	}
 
 	@Override
 	public void select(Widget widget, Point localLocation, boolean invertSelection)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(widget);
 		canvas.setFocusedObject(object);
 		if (object != null)

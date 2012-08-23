@@ -29,11 +29,8 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	private HashMap<String, Connection> connections = new HashMap<String, Connection>();
 	private Preferences preferences = new Preferences();
 
-	private String id;
-
-	public CanvasState(String id)
+	public CanvasState()
 	{
-		this.id = id;
 	}
 
 	public void addConnection(Connection c)
@@ -78,11 +75,6 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 		list.addAll(connections.keySet());
 		Collections.sort(list);
 		return list;
-	}
-
-	public String getID()
-	{
-		return id;
 	}
 
 	public Set<String> getNodes()
@@ -188,7 +180,7 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	{
 		if (evt.getPropertyName().equals("writing"))
 		{
-			Canvas canvas = CanvasFactory.getCanvas(this.id);
+			Canvas canvas = CanvasFactory.getCanvas();
 			if (canvas != null)
 			{
 				update(canvas);
@@ -199,11 +191,6 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	@Override
 	public void selectionChanged(ObjectSceneEvent arg0, Set<Object> arg1, Set<Object> arg2)
 	{
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;
 	}
 
 	public void update(Canvas canvas)

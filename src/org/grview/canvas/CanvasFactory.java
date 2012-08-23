@@ -3,7 +3,6 @@ package org.grview.canvas;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.File;
-import java.util.HashMap;
 
 import org.grview.canvas.action.WidgetActionRepository;
 import org.grview.canvas.action.WidgetActionRepositoryFactory;
@@ -22,13 +21,12 @@ public class CanvasFactory implements PropertyChangeListener
 	private static String moveStrategy = CanvasData.M_FREE;
 
 	private static String projectPath = "";
-	private HashMap<String, Canvas> canvasByPath;
-	private HashMap<Canvas, String> pathByCanvas;
-	private HashMap<String, Canvas> canvasById;
-	private HashMap<String, VolatileStateManager> listVolatileStateManager;
-	private HashMap<String, StaticStateManager> listStaticStateManager;
+	private Canvas canvas;
+	private String path;
+	private VolatileStateManager volatileStateManager;
+	private StaticStateManager staticStateManager;
 
-	private HashMap<String, CanvasState> states;
+	private CanvasState state;
 
 	private static int defaultBufferCapacity = 20;
 
@@ -36,12 +34,6 @@ public class CanvasFactory implements PropertyChangeListener
 
 	private CanvasFactory()
 	{
-		canvasByPath = new HashMap<String, Canvas>();
-		pathByCanvas = new HashMap<Canvas, String>();
-		canvasById = new HashMap<String, Canvas>();
-		listVolatileStateManager = new HashMap<String, VolatileStateManager>();
-		listStaticStateManager = new HashMap<String, StaticStateManager>();
-		states = new HashMap<String, CanvasState>();
 		decorator = new CanvasDecorator();
 		actions = WidgetActionRepositoryFactory.getDefaultRepository();
 	}
@@ -59,44 +51,41 @@ public class CanvasFactory implements PropertyChangeListener
 	{
 		CanvasFactory canvasFactory = getInstance();
 		canvasFactory.resetActions();
-		String id = String.valueOf(canvasFactory.canvasById.size());
 		Canvas canvas = null;
 		StaticStateManager staticStateManager = new StaticStateManager();
-		canvasFactory.listStaticStateManager.put(id, staticStateManager);
+		canvasFactory.staticStateManager = staticStateManager;
 		staticStateManager.setFile(file);
 		try
 		{
-			canvas = new CanvasTemplate(defaultCursor, connStrategy, moveStrategy, canvasFactory.actions, canvasFactory.decorator, id);
-			canvasFactory.canvasById.put(id, canvas);
+			canvas = new CanvasTemplate(defaultCursor, connStrategy, moveStrategy, canvasFactory.actions, canvasFactory.decorator);
+			canvasFactory.canvas = canvas;
 			Object state = staticStateManager.read();
 			if (state == null || !(state instanceof CanvasState))
 			{
-				canvasFactory.states.put(id, new CanvasState(id));
+				canvasFactory.state = new CanvasState();
 			}
 			else
 			{
-				canvasFactory.states.put(id, (CanvasState) state);
+				canvasFactory.state = (CanvasState) state;
 			}
-			canvasFactory.states.get(id).setId(id);
-			canvas.setId(id);
-			VolatileStateManager volatileStateManager = new VolatileStateManager(canvasFactory.states.get(id), defaultBufferCapacity);
+			VolatileStateManager volatileStateManager = new VolatileStateManager(canvasFactory.state, defaultBufferCapacity);
 			volatileStateManager.init();
-			canvasFactory.listVolatileStateManager.put(id, volatileStateManager);
+			canvasFactory.volatileStateManager = volatileStateManager;
 			volatileStateManager.getMonitor().addPropertyChangeListener("object_state", canvas);
 			volatileStateManager.getMonitor().addPropertyChangeListener("writing", canvas);
 			volatileStateManager.getMonitor().addPropertyChangeListener("undoable", canvas);
 			canvas.getMonitor().addPropertyChangeListener("object_state", canvasFactory);
-			canvas.getMonitor().addPropertyChangeListener("writing", canvasFactory.states.get(id));
-			canvas.init(canvasFactory.states.get(id));
-			canvas.updateState(canvasFactory.states.get(id));
-			staticStateManager.setObject(canvasFactory.states.get(id));
+			canvas.getMonitor().addPropertyChangeListener("writing", canvasFactory.state);
+			canvas.init(canvasFactory.state);
+			canvas.updateState(canvasFactory.state);
+			staticStateManager.setObject(canvasFactory.state);
 		}
 		catch (Exception e)
 		{
 			e.printStackTrace();
 		}
-		canvasFactory.canvasByPath.put(file.getAbsolutePath(), canvas);
-		canvasFactory.pathByCanvas.put(canvas, file.getAbsolutePath());
+		canvasFactory.path = file.getAbsolutePath();
+		canvasFactory.canvas = canvas;
 		return canvas;
 	}
 
@@ -107,14 +96,10 @@ public class CanvasFactory implements PropertyChangeListener
 	 *            identifies the existing canvas
 	 * @return the existing canvas with id, or null if there isn't one
 	 */
-	public static Canvas getCanvas(String id)
+	public static Canvas getCanvas()
 	{
 		CanvasFactory canvasFactory = getInstance();
-		if (!canvasFactory.canvasById.containsKey(id))
-		{
-			return null;
-		}
-		return canvasFactory.canvasById.get(id);
+		return canvasFactory.canvas;
 	}
 
 	public static Canvas getCanvasFromFile(String path)
@@ -126,11 +111,11 @@ public class CanvasFactory implements PropertyChangeListener
 				path = projectPath + path;
 			}
 			CanvasFactory canvasFactory = getInstance();
-			if (!canvasFactory.canvasByPath.containsKey(path))
+			if (!canvasFactory.path.equals(path))
 			{
 				CanvasFactory.createCanvas(new File(path));
 			}
-			return canvasFactory.canvasByPath.get(path);
+			return canvasFactory.canvas;
 		}
 		return null;
 	}
@@ -142,14 +127,9 @@ public class CanvasFactory implements PropertyChangeListener
 	 *            the canvas associated with the path
 	 * @return the absolute file path
 	 */
-	public static String getCanvasPath(Canvas canvas)
+	public static String getCanvasPath()
 	{
-		CanvasFactory cf = getInstance();
-		if (cf.pathByCanvas.containsKey(canvas))
-		{
-			return cf.pathByCanvas.get(canvas);
-		}
-		return null;
+		return getInstance().path;
 	}
 
 	/**
@@ -160,13 +140,9 @@ public class CanvasFactory implements PropertyChangeListener
 	 *            the id for the canvas
 	 * @return a static state manager, or null when the id is not valid
 	 */
-	public static StaticStateManager getStaticStateManager(String id)
+	public static StaticStateManager getStaticStateManager()
 	{
-		if (!getInstance().listStaticStateManager.containsKey(id))
-		{
-			return null;
-		}
-		return getInstance().listStaticStateManager.get(id);
+		return getInstance().staticStateManager;
 	}
 
 	/**
@@ -177,13 +153,9 @@ public class CanvasFactory implements PropertyChangeListener
 	 *            the id for the canvas
 	 * @return a volatile state manager, or null when the id is not valid
 	 */
-	public static VolatileStateManager getVolatileStateManager(String id)
+	public static VolatileStateManager getVolatileStateManager()
 	{
-		if (!getInstance().listVolatileStateManager.containsKey(id))
-		{
-			return null;
-		}
-		return getInstance().listVolatileStateManager.get(id);
+		return getInstance().volatileStateManager;
 	}
 
 	public static void setProjectPath(String path)
@@ -205,12 +177,12 @@ public class CanvasFactory implements PropertyChangeListener
 			if (event.getNewValue() instanceof CanvasState)
 			{
 				CanvasState state = (CanvasState) event.getNewValue();
-				CanvasState oldState = states.get(state.getID());
+				CanvasState oldState = state;
 				((VolatileStateManager) event.getSource()).getMonitor().removePropertyChangeListener(oldState);
 				((VolatileStateManager) event.getSource()).getMonitor().addPropertyChangeListener("writing", state);
-				states.put(state.getID(), state);
-				listStaticStateManager.get(state.getID()).setObject(state);
-				getCanvas(state.getID()).updateState(state);
+				this.state = state;
+				staticStateManager.setObject(state);
+				getCanvas().updateState(state);
 			}
 		}
 

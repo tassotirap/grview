@@ -18,14 +18,12 @@ public class MultiMoveProvider implements MoveProvider
 	private HashMap<Widget, Point> originals = new HashMap<Widget, Point>();
 	private Point original;
 
-	private String canvasID;
 	private PropertyChangeSupport monitor;
 
 	public MultiMoveProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvasID));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	@Override
@@ -58,7 +56,7 @@ public class MultiMoveProvider implements MoveProvider
 	@Override
 	public void movementStarted(Widget widget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(widget);
 		if (canvas.isNode(object) || canvas.isLabel(object))
 		{

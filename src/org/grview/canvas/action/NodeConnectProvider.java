@@ -19,20 +19,18 @@ public class NodeConnectProvider implements ConnectProvider
 	private String source = null;
 	private String target = null;
 
-	private String canvasID;
 	private PropertyChangeSupport monitor;
 
 	public NodeConnectProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvasID));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	@Override
 	public void createConnection(Widget sourceWidget, Widget targetWidget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		String edge = "";
 		int numEdges = 0;
 		Collection<String> edges = canvas.getEdges();
@@ -71,7 +69,7 @@ public class NodeConnectProvider implements ConnectProvider
 	@Override
 	public boolean isSourceWidget(Widget sourceWidget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(sourceWidget);
 		source = canvas.isNode(object) ? (String) object : null;
 		if (source != null)
@@ -100,7 +98,7 @@ public class NodeConnectProvider implements ConnectProvider
 	@Override
 	public ConnectorState isTargetWidget(Widget sourceWidget, Widget targetWidget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(targetWidget);
 		target = canvas.isNode(object) ? (String) object : null;
 		if (target != null)

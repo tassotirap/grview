@@ -49,7 +49,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		gridProvider = GridProvider.getInstance(canvas);
 		lineProvider = LineProvider.getInstance(canvas);
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvas.getID()));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	private JMenuItem createBuildAndExport()
@@ -238,7 +238,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 
 	private JMenuItem createRedoMenu()
 	{
-		final VolatileStateManager volatileStateManager = CanvasFactory.getVolatileStateManager(canvas.getID());
+		final VolatileStateManager volatileStateManager = CanvasFactory.getVolatileStateManager();
 		JMenuItem redoMenu = new JMenuItem();
 		redoMenu.addActionListener(new ActionListener()
 		{
@@ -523,7 +523,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 
 	private JMenuItem createUndoMenu()
 	{
-		final VolatileStateManager volatileStateManager = CanvasFactory.getVolatileStateManager(canvas.getID());
+		final VolatileStateManager volatileStateManager = CanvasFactory.getVolatileStateManager();
 		JMenuItem undoMenu = new JMenuItem();
 		undoMenu.addActionListener(new ActionListener()
 		{

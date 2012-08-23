@@ -21,7 +21,7 @@ public class LabelTextFieldEditor implements TextFieldInplaceEditor
 	{
 		this.canvas = canvas;
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvas.getID()));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	@Override

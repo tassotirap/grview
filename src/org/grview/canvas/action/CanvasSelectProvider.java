@@ -9,18 +9,14 @@ import org.netbeans.api.visual.widget.Widget;
 
 public abstract class CanvasSelectProvider implements SelectProvider
 {
-
-	private String canvasID;
-
 	public CanvasSelectProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 	}
 
 	@Override
 	public void select(Widget arg0, Point arg1, boolean arg2)
 	{
-		CanvasFactory.getCanvas(canvasID).setFocused(); // caso ainda não tenha
+		CanvasFactory.getCanvas().setFocused(); // caso ainda não tenha
 														// sido focado
 	}
 

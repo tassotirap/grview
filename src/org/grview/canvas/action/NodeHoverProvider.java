@@ -10,12 +10,8 @@ import org.netbeans.api.visual.widget.Widget;
 
 public class NodeHoverProvider implements TwoStateHoverProvider
 {
-
-	public String canvasID;
-
 	public NodeHoverProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 	}
 
 	@Override
@@ -31,7 +27,7 @@ public class NodeHoverProvider implements TwoStateHoverProvider
 	@Override
 	public void unsetHovering(Widget widget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(widget);
 
 		if (object != null & widget != null && !canvas.getSelectedObjects().contains(object))

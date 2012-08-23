@@ -12,11 +12,9 @@ import org.netbeans.api.visual.widget.Widget;
 public class LabelHoverProvider implements TwoStateHoverProvider
 {
 
-	private String canvasID;
-
 	public LabelHoverProvider(Canvas canvas)
 	{
-		this.canvasID = canvas.getID();
+
 	}
 
 	@Override
@@ -34,8 +32,10 @@ public class LabelHoverProvider implements TwoStateHoverProvider
 	{
 		if (widget != null)
 		{
-			if (!CanvasFactory.getCanvas(canvasID).getSelectedObjects().contains(CanvasFactory.getCanvas(canvasID).findObject(widget)))
+			if (!CanvasFactory.getCanvas().getSelectedObjects().contains(CanvasFactory.getCanvas().findObject(widget)))
+			{
 				((LabelWidget) widget).setBorder(BorderFactory.createEmptyBorder());
+			}
 		}
 
 	}

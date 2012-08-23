@@ -18,15 +18,12 @@ public class NodeReconnectProvider implements ReconnectProvider
 	private String edge;
 	private String originalNode;
 	private String replacementNode;
-
-	private String canvasID;
 	private PropertyChangeSupport monitor;
 
 	public NodeReconnectProvider(Canvas canvas)
 	{
-		canvasID = canvas.getID();
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvasID));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	@Override
@@ -38,7 +35,7 @@ public class NodeReconnectProvider implements ReconnectProvider
 	@Override
 	public ConnectorState isReplacementWidget(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(replacementWidget);
 		replacementNode = canvas.isNode(object) ? (String) object : null;
 		if (replacementNode != null && edge != null)
@@ -64,7 +61,7 @@ public class NodeReconnectProvider implements ReconnectProvider
 	@Override
 	public boolean isTargetReconnectable(ConnectionWidget connectionWidget)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		Object object = canvas.findObject(connectionWidget);
 		edge = canvas.isEdge(object) ? (String) object : null;
 		originalNode = edge != null ? canvas.getEdgeTarget(edge) : null;
@@ -74,7 +71,7 @@ public class NodeReconnectProvider implements ReconnectProvider
 	@Override
 	public void reconnect(ConnectionWidget connectionWidget, Widget replacementWidget, boolean reconnectingSource)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		if (replacementWidget == null)
 		{
 			canvas.removeEdge(edge);

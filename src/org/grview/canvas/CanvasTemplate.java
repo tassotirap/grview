@@ -98,9 +98,9 @@ public class CanvasTemplate extends Canvas
 
 	private ArrayList<String> removedEdges = new ArrayList<String>();
 
-	public CanvasTemplate(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator, String id)
+	public CanvasTemplate(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator)
 	{
-		super(cursor, connectionStrategy, movementStrategy, actions, decorator, id);
+		super(cursor, connectionStrategy, movementStrategy, actions, decorator);
 		this.connStrategy = connectionStrategy;
 		this.moveStrategy = movementStrategy;
 		this.cursor = cursor;

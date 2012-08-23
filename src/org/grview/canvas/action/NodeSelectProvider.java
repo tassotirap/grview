@@ -12,13 +12,9 @@ import org.netbeans.api.visual.widget.Widget;
 
 public class NodeSelectProvider extends CanvasSelectProvider
 {
-
-	private String canvasID;
-
 	public NodeSelectProvider(Canvas canvas)
 	{
 		super(canvas);
-		canvasID = canvas.getID();
 	}
 
 	@Override
@@ -30,14 +26,14 @@ public class NodeSelectProvider extends CanvasSelectProvider
 	@Override
 	public boolean isSelectionAllowed(Widget widget, Point localLocation, boolean invertSelection)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		return canvas.findObject(widget) != null;
 	}
 
 	@Override
 	public void select(Widget widget, Point localLocation, boolean invertSelection)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		super.select(widget, localLocation, invertSelection);
 		Object object = canvas.findObject(widget);
 		canvas.setFocusedObject(object);

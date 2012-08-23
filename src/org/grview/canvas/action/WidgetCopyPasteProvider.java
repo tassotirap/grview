@@ -27,7 +27,7 @@ public class WidgetCopyPasteProvider
 	{
 		this.canvas = canvas;
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvas.getID()));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	/** copy all selected widgets to clipboard **/

@@ -261,7 +261,7 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 	{
 		if (event.getSource() instanceof Canvas)
 		{
-			VolatileStateManager vsm = CanvasFactory.getVolatileStateManager(((Canvas) context).getID());
+			VolatileStateManager vsm = CanvasFactory.getVolatileStateManager();
 			if (event.getPropertyName().equals("undoable"))
 			{
 				btnUndo.setEnabled(true);

@@ -32,7 +32,7 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 			if (param instanceof Canvas)
 			{
 				canvas = (Canvas) param;
-				path = CanvasFactory.getCanvasPath(canvas);
+				path = CanvasFactory.getCanvasPath();
 			}
 			else
 			{
@@ -50,7 +50,7 @@ public class GrammarComponent extends AbstractComponent implements FileComponent
 			jsp.setViewportView(view);
 			canvasPanel.add(jsp, BorderLayout.CENTER);
 			canvas.setPreferredSize(new Dimension(jsp.getWidth(), jsp.getHeight()));
-			CanvasFactory.getVolatileStateManager(canvas.getID()).getMonitor().addPropertyChangeListener("writing", this);
+			CanvasFactory.getVolatileStateManager().getMonitor().addPropertyChangeListener("writing", this);
 			GrammarFactory.addGramComponent(this);
 			return canvasPanel;
 		}

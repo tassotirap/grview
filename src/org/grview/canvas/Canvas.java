@@ -112,8 +112,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	// Used to draw the canvas properly
 	public CanvasDecorator decorator;
 
-	// identification for this canvas
-	private String id;
 
 	// provides an action context, specially for user input
 	private AsinActionContext<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>> actionContext;
@@ -126,11 +124,10 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	private PropertyChangeSupport monitor;
 
-	public Canvas(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator, String id)
+	public Canvas(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator)
 	{
 		this.actions = actions;
 		this.decorator = decorator;
-		this.id = id;
 		monitor = new PropertyChangeSupport(this);
 	}
 
@@ -253,10 +250,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public abstract String getConnStrategy();
 
-	public String getID()
-	{
-		return this.id;
-	}
 
 	public AbstractInputHandler<?> getInputHandler()
 	{
@@ -320,7 +313,7 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	 */
 	public StaticStateManager getStaticStateManager()
 	{
-		return CanvasFactory.getStaticStateManager(id);
+		return CanvasFactory.getStaticStateManager();
 	}
 
 	public List<String> getSuccessors()
@@ -341,7 +334,7 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	 */
 	public VolatileStateManager getVolatileStateManager()
 	{
-		return CanvasFactory.getVolatileStateManager(id);
+		return CanvasFactory.getVolatileStateManager();
 	}
 
 	/**
@@ -455,7 +448,7 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	{
 		for (PropertyChangeSupport monitor : monitors)
 		{
-			event.setPropagationId("canvas:" + id);
+			event.setPropagationId("canvas");
 			monitor.firePropertyChange(event);
 		}
 		this.getMonitor().firePropertyChange(event);
@@ -522,11 +515,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 				c.addKeyListener(new KeyListenerFacade());
 			}
 		}
-	}
-
-	public void setId(String id)
-	{
-		this.id = id;
 	}
 
 	public void setLabels(List<String> labels)

@@ -58,15 +58,13 @@ public final class AlignWithMultiMoveProvider extends AlignWithSupport implement
 {
 
 	private boolean outerBounds;
-	private String canvasID;
 	private MultiMoveProvider mmp;
 
 	public AlignWithMultiMoveProvider(Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
 	{
 		super(collector, interractionLayer, decorator);
 		this.outerBounds = outerBounds;
-		this.canvasID = canvas.getID();
-		mmp = new MultiMoveProvider(CanvasFactory.getCanvas(canvasID));
+		mmp = new MultiMoveProvider(CanvasFactory.getCanvas());
 	}
 
 	@Override

@@ -15,18 +15,16 @@ public class NodeCreateAction extends WidgetAction.Adapter
 
 	private PropertyChangeSupport monitor;
 
-	private String canvasID;
-
 	public NodeCreateAction(Canvas canvas)
 	{
-		canvasID = canvas.getID();
+
 		monitor = new PropertyChangeSupport(this);
-		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager(canvasID));
+		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
 	}
 
 	private String createDefaultName()
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		if (canvas.getCanvasActiveTool().equals(CanvasData.TERMINAL))
 		{
 			return String.format("Terminal%d", (canvas.getTerminals().size() + 1));
@@ -53,7 +51,7 @@ public class NodeCreateAction extends WidgetAction.Adapter
 	@Override
 	public State mousePressed(Widget widget, WidgetMouseEvent event)
 	{
-		Canvas canvas = CanvasFactory.getCanvas(canvasID);
+		Canvas canvas = CanvasFactory.getCanvas();
 		if (event.getClickCount() == 1)
 			if (event.getButton() == MouseEvent.BUTTON1 && isNode(canvas))
 			{
