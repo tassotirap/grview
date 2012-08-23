@@ -309,73 +309,6 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 		return routingMenu;
 	}
 
-	private JMenu createShowMenu()
-	{
-		JMenu showMenu = new JMenu("Show");
-
-		JRadioButtonMenuItem nothingMenuItem = new JRadioButtonMenuItem("Nothing");
-		JRadioButtonMenuItem gridMenuItem = new JRadioButtonMenuItem("Grid");
-		JRadioButtonMenuItem lineMenuItem = new JRadioButtonMenuItem("Lines");
-		JCheckBoxMenuItem guideMenuItem = new JCheckBoxMenuItem("Guide Line");
-
-		nothingMenuItem.setSelected((!canvas.isShowingGrid() && !canvas.isShowingGuide() && !canvas.isShowingLines()));
-		gridMenuItem.setEnabled(canvas.getCanvasState().getPreferences().getMoveStrategy().equals(CanvasData.M_FREE));
-		gridMenuItem.setSelected(canvas.isShowingGrid());
-		lineMenuItem.setEnabled(canvas.getCanvasState().getPreferences().getMoveStrategy().equals(CanvasData.M_FREE));
-		lineMenuItem.setSelected(canvas.isShowingLines());
-		guideMenuItem.setSelected(canvas.isShowingGuide());
-
-		showMenu.add(nothingMenuItem);
-		showMenu.add(gridMenuItem);
-		showMenu.add(lineMenuItem);
-		showMenu.add(new JSeparator());
-		showMenu.add(guideMenuItem);
-
-		nothingMenuItem.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				gridProvider.setVisible(false);
-				lineProvider.removeAllLines();
-				lineProvider.setGuideVisible(false);
-			}
-		});
-
-		gridMenuItem.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				gridProvider.setVisible(true);
-				lineProvider.removeAllLines();
-				lineProvider.setGuideVisible(false);
-			}
-		});
-
-		lineMenuItem.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				gridProvider.setVisible(false);
-				lineProvider.populateCanvas();
-				lineProvider.setGuideVisible(false);
-			}
-		});
-
-		guideMenuItem.addActionListener(new ActionListener()
-		{
-			@Override
-			public void actionPerformed(ActionEvent e)
-			{
-				lineProvider.setGuideVisible(!lineProvider.isGuideVisible());
-			}
-		});
-
-		return showMenu;
-	}
-
 	private JMenuItem createSemanticRoutinesMenu()
 	{
 		boolean hasSemanticRoutine = false;
@@ -519,6 +452,73 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			}
 		});
 		return semanticRoutinesMenu;
+	}
+
+	private JMenu createShowMenu()
+	{
+		JMenu showMenu = new JMenu("Show");
+
+		JRadioButtonMenuItem nothingMenuItem = new JRadioButtonMenuItem("Nothing");
+		JRadioButtonMenuItem gridMenuItem = new JRadioButtonMenuItem("Grid");
+		JRadioButtonMenuItem lineMenuItem = new JRadioButtonMenuItem("Lines");
+		JCheckBoxMenuItem guideMenuItem = new JCheckBoxMenuItem("Guide Line");
+
+		nothingMenuItem.setSelected((!canvas.isShowingGrid() && !canvas.isShowingGuide() && !canvas.isShowingLines()));
+		gridMenuItem.setEnabled(canvas.getCanvasState().getPreferences().getMoveStrategy().equals(CanvasData.M_FREE));
+		gridMenuItem.setSelected(canvas.isShowingGrid());
+		lineMenuItem.setEnabled(canvas.getCanvasState().getPreferences().getMoveStrategy().equals(CanvasData.M_FREE));
+		lineMenuItem.setSelected(canvas.isShowingLines());
+		guideMenuItem.setSelected(canvas.isShowingGuide());
+
+		showMenu.add(nothingMenuItem);
+		showMenu.add(gridMenuItem);
+		showMenu.add(lineMenuItem);
+		showMenu.add(new JSeparator());
+		showMenu.add(guideMenuItem);
+
+		nothingMenuItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				gridProvider.setVisible(false);
+				lineProvider.removeAllLines();
+				lineProvider.setGuideVisible(false);
+			}
+		});
+
+		gridMenuItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				gridProvider.setVisible(true);
+				lineProvider.removeAllLines();
+				lineProvider.setGuideVisible(false);
+			}
+		});
+
+		lineMenuItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				gridProvider.setVisible(false);
+				lineProvider.populateCanvas();
+				lineProvider.setGuideVisible(false);
+			}
+		});
+
+		guideMenuItem.addActionListener(new ActionListener()
+		{
+			@Override
+			public void actionPerformed(ActionEvent e)
+			{
+				lineProvider.setGuideVisible(!lineProvider.isGuideVisible());
+			}
+		});
+
+		return showMenu;
 	}
 
 	private JMenuItem createUndoMenu()

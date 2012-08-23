@@ -150,20 +150,20 @@ public class RoutineWizardWindow extends JFrame
 			codeTextArea.addFocusListener(new FocusListener()
 			{
 				@Override
-				public void focusLost(FocusEvent arg0)
-				{
-					if (codeTextArea.getText().equals(""))
-					{
-						codeTextArea.setText(INSERT_CODE_HERE);
-					}
-				}
-
-				@Override
 				public void focusGained(FocusEvent arg0)
 				{
 					if (codeTextArea.getText().equals(INSERT_CODE_HERE))
 					{
 						codeTextArea.setText("");
+					}
+				}
+
+				@Override
+				public void focusLost(FocusEvent arg0)
+				{
+					if (codeTextArea.getText().equals(""))
+					{
+						codeTextArea.setText(INSERT_CODE_HERE);
 					}
 				}
 			});

@@ -102,29 +102,6 @@ public class AsinEditor
 		}
 	}
 
-	private void rename(String source, String oldName, String newName)
-	{
-		SyntaxElement syntaxElement = logicDiagram.findElement(source);
-		if (logicDiagram.isNode(syntaxElement))
-		{
-			SyntaxModel syntaxModel = (SyntaxModel) syntaxElement;
-			List<NodeLabel> labels = syntaxModel.getChildrenAsLabels();
-			for (int i = 0; i < labels.size(); i++)
-			{
-				if (labels.get(i).getLabelContents().equals(oldName))
-				{
-					labels.get(i).setLabelContents(newName);
-				}
-			}
-		}
-	}
-
-	public SyntaxModel getLogicDiagram(Canvas canvas)
-	{
-		recreateDiagram(canvas);
-		return logicDiagram;
-	}
-
 	private void recreateDiagram(Canvas canvas)
 	{
 
@@ -175,5 +152,28 @@ public class AsinEditor
 		{
 			addConnection(canvasState, name, SyntaxDefinitions.AltConnection);
 		}
+	}
+
+	private void rename(String source, String oldName, String newName)
+	{
+		SyntaxElement syntaxElement = logicDiagram.findElement(source);
+		if (logicDiagram.isNode(syntaxElement))
+		{
+			SyntaxModel syntaxModel = (SyntaxModel) syntaxElement;
+			List<NodeLabel> labels = syntaxModel.getChildrenAsLabels();
+			for (int i = 0; i < labels.size(); i++)
+			{
+				if (labels.get(i).getLabelContents().equals(oldName))
+				{
+					labels.get(i).setLabelContents(newName);
+				}
+			}
+		}
+	}
+
+	public SyntaxModel getLogicDiagram(Canvas canvas)
+	{
+		recreateDiagram(canvas);
+		return logicDiagram;
 	}
 }

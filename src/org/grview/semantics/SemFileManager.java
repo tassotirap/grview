@@ -23,21 +23,6 @@ public class SemFileManager
 		this.monitor = monitor;
 	}
 
-	private String getFormatedCode(String name, String code)
-	{
-		if (!code.trim().startsWith("void " + "name"))
-		{
-			String[] codeLines = code.split("\n");
-			code = "void " + name + "() {\n";
-			for (String line : codeLines)
-			{
-				code += "\t" + line + "\n";
-			}
-			code += "}";
-		}
-		return code;
-	}
-
 	private boolean addToFile(String name, String code)
 	{
 		try
@@ -71,6 +56,21 @@ public class SemFileManager
 			return false;
 		}
 		return true;
+	}
+
+	private String getFormatedCode(String name, String code)
+	{
+		if (!code.trim().startsWith("void " + "name"))
+		{
+			String[] codeLines = code.split("\n");
+			code = "void " + name + "() {\n";
+			for (String line : codeLines)
+			{
+				code += "\t" + line + "\n";
+			}
+			code += "}";
+		}
+		return code;
 	}
 
 	public boolean canInsert(String routine)

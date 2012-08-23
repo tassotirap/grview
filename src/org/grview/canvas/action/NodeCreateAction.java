@@ -48,6 +48,11 @@ public class NodeCreateAction extends WidgetAction.Adapter
 		return String.format("node%d", (canvas.customNodes.size() + 1));
 	}
 
+	private boolean isNode(Canvas canvas)
+	{
+		return canvas.getCanvasActiveTool().equals(CanvasData.LEFT_SIDE) || canvas.getCanvasActiveTool().equals(CanvasData.TERMINAL) || canvas.getCanvasActiveTool().equals(CanvasData.N_TERMINAL) || canvas.getCanvasActiveTool().equals(CanvasData.LAMBDA) || canvas.getCanvasActiveTool().equals(CanvasData.LABEL) || canvas.getCanvasActiveTool().equals(CanvasData.START);
+	}
+
 	@Override
 	public State mousePressed(Widget widget, WidgetMouseEvent event)
 	{
@@ -60,11 +65,6 @@ public class NodeCreateAction extends WidgetAction.Adapter
 				monitor.firePropertyChange("undoable", null, CommandFactory.createAddCommand());
 			}
 		return State.REJECTED;
-	}
-
-	private boolean isNode(Canvas canvas)
-	{
-		return canvas.getCanvasActiveTool().equals(CanvasData.LEFT_SIDE) || canvas.getCanvasActiveTool().equals(CanvasData.TERMINAL) || canvas.getCanvasActiveTool().equals(CanvasData.N_TERMINAL) || canvas.getCanvasActiveTool().equals(CanvasData.LAMBDA) || canvas.getCanvasActiveTool().equals(CanvasData.LABEL) || canvas.getCanvasActiveTool().equals(CanvasData.START);
 	}
 
 }

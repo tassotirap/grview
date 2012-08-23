@@ -44,6 +44,11 @@ public class SemanticRoutinesRepo
 		listeners.add(srIvoker);
 	}
 
+	private static String getRoutineName(String line)
+	{
+		return line.substring(line.indexOf(BEGIN_ROUTINE) + BEGIN_ROUTINE.length()).replace("*/","").trim();
+	}
+
 	public static String getCode(String routineName)
 	{
 		if (routineName != null)
@@ -56,12 +61,12 @@ public class SemanticRoutinesRepo
 		}
 		return null;
 	}
-
+	
 	public static Set<String> getRegRoutines()
 	{
 		return getRoutineCode().keySet();
 	}
-	
+
 	public static HashMap<String, String> getRoutineCode()
 	{
 		HashMap<String, String> routineCode = new HashMap<String, String>();
@@ -119,11 +124,6 @@ public class SemanticRoutinesRepo
 		}
 
 		return routineCode;
-	}
-
-	private static String getRoutineName(String line)
-	{
-		return line.substring(line.indexOf(BEGIN_ROUTINE) + BEGIN_ROUTINE.length()).replace("*/","").trim();
 	}
 
 	/**

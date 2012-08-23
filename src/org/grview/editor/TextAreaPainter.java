@@ -71,11 +71,6 @@ import org.grview.util.Log;
  */
 public class TextAreaPainter extends JComponent implements TabExpander
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	// {{{ PaintCaret class
 	class PaintCaret extends TextAreaExtension
 	{
@@ -330,6 +325,11 @@ public class TextAreaPainter extends JComponent implements TabExpander
 			}
 		}
 	} // }}}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	// {{{ Layers
 	/**

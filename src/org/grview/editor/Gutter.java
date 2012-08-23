@@ -63,11 +63,6 @@ import org.grview.util.Log;
  */
 public class Gutter extends JComponent implements SwingConstants
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	// {{{ MouseHandler class
 	class MouseHandler extends MouseInputAdapter
 	{
@@ -222,6 +217,11 @@ public class Gutter extends JComponent implements SwingConstants
 			drag = false;
 		} // }}}
 	} // }}}
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	// {{{ Layers
 	/**

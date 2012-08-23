@@ -62,6 +62,12 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 	}
 
 
+	@Override
+	public void focusChanged(ObjectSceneEvent event, Object oldObject, Object newObject)
+	{
+		
+	}
+
 	/**
 	 * Returns an ordered set of connections. The connections are ordered
 	 * according to their names, so that this collection reflects the order of
@@ -220,11 +226,5 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 				connections.get(conn).setTarget(canvas.getEdgeTarget(conn));
 			}
 		}
-	}
-
-	@Override
-	public void focusChanged(ObjectSceneEvent event, Object oldObject, Object newObject)
-	{
-		
 	}
 }
