@@ -197,20 +197,20 @@ public class Registers
 		}
 	} // }}}
 
-	// {{{ Private members
-	private static Register[] registers;
+	private static RegistersListener listener;
 
 	private static boolean loaded, loading;
-
-	private static RegisterSaver saver;
-
-	private static RegistersListener listener;
 
 	/**
 	 * Flag that tell if a register has been modified (except for '%' and '$'
 	 * registers that aren't saved to the xml file).
 	 */
 	private static boolean modified;
+
+	// {{{ Private members
+	private static Register[] registers;
+
+	private static RegisterSaver saver;
 
 	private Registers()
 	{

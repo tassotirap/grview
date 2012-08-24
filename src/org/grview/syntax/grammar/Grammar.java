@@ -8,15 +8,15 @@ import java.util.List;
 public class Grammar
 {
 
+	private HashMap<GrComp, List<GrComp>> alternatives;
+	private HashMap<GrComp, List<GrComp>> antiAlternatives;
+	private HashMap<GrComp, List<GrComp>> antiSuccessors;
+	private List<GrComp> components;
+	private GrComp current;
 	private GrComp head;
 	private List<GrComp> heads;
 	private List<GrComp> leftHands;
-	private List<GrComp> components;
-	private HashMap<GrComp, List<GrComp>> alternatives;
-	private HashMap<GrComp, List<GrComp>> antiAlternatives;
 	private HashMap<GrComp, List<GrComp>> successors;
-	private HashMap<GrComp, List<GrComp>> antiSuccessors;
-	private GrComp current;
 
 	public Grammar(GrComp current)
 	{

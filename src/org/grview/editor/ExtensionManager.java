@@ -41,8 +41,8 @@ class ExtensionManager
 	/** This class represents an extension with his layer. */
 	static class Entry
 	{
-		int layer;
 		TextAreaExtension ext;
+		int layer;
 
 		Entry(int layer, TextAreaExtension ext)
 		{

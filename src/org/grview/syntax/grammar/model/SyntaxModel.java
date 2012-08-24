@@ -16,8 +16,8 @@ public class SyntaxModel extends SyntaxSubpart
 
 	private static int count;
 
-	private SimpleNode semanticNode;
 	private List<SyntaxElement> children = new ArrayList<SyntaxElement>();
+	private SimpleNode semanticNode;
 	protected Integer connectionRouter = null;
 
 	public SyntaxModel()

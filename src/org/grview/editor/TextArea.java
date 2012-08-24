@@ -247,8 +247,8 @@ public abstract class TextArea extends JComponent implements ActionContextHolder
 	// {{{ getRectParams() method
 	private static class RectParams
 	{
-		final int extraStartVirt;
 		final int extraEndVirt;
+		final int extraStartVirt;
 		final int newCaret;
 
 		RectParams(int extraStartVirt, int extraEndVirt, int newCaret)
@@ -303,61 +303,50 @@ public abstract class TextArea extends JComponent implements ActionContextHolder
 	} // }}}
 		// }}}
 
+	static TextArea focusedComponent;
+
+	// {{{ Static variables
+	private static final Timer caretTimer;
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+
+	private static final Timer structureTimer;
+	// }}}
+
+	public static final int ELECTRIC_SCROLL = 2;
 
 	// {{{ moveCaretPosition() method
 	public static final int NO_SCROLL = 0;
 
 	public static final int NORMAL_SCROLL = 1;
 
-	public static final int ELECTRIC_SCROLL = 2;
-
-	static TextArea focusedComponent;
-
-	// {{{ Instance variables
-	final Segment lineSegment = new Segment();
-
-	MouseInputAdapter mouseHandler;
-
 	// {{{ getElectricScroll() method
+
+	boolean blink;
+
+	boolean bufferChanging;
+
+	int charWidth;
 
 	final ChunkCache chunkCache;
 
 	DisplayManager displayManager;
 
-	final SelectionManager selectionManager;
+	boolean hardWrap;
 
-	/**
-	 * The action context. It is used only when the textarea is standalone
-	 */
-	private AsinActionContext<JEditBeanShellAction, AsinActionSet<JEditBeanShellAction>> actionContext;
+	boolean lastLinePartial;
 
-	boolean bufferChanging;
+	// {{{ Instance variables
+	final Segment lineSegment = new Segment();
 
 	int maxHorizontalScrollWidth;
 
-	String wrap;
-
-	boolean hardWrap;
-
-	boolean softWrap;
-
-	boolean wrapToWidth;
-
 	int maxLineLen;
 
-	int wrapMargin;
-
-	float tabSize;
-
-	int charWidth;
-
-	boolean scrollBarsInitialized;
-
-	// {{{ Scrolling
+	MouseInputAdapter mouseHandler;
 
 	/**
 	 * Cursor location, measured as an offset (in pixels) from upper left corner
@@ -365,68 +354,107 @@ public abstract class TextArea extends JComponent implements ActionContextHolder
 	 */
 	final Point offsetXY;
 
-	boolean lastLinePartial;
+	boolean scrollBarsInitialized;
 
-	boolean blink;
+	final SelectionManager selectionManager;
 
-	// {{{ Static variables
-	private static final Timer caretTimer;
+	boolean softWrap;
 
-	private static final Timer structureTimer;
-	// }}}
+	// {{{ Scrolling
 
-	// {{{ Instance variables
-	protected JPopupMenu popup;
+	float tabSize;
 
-	private boolean popupEnabled;
+	String wrap;
 
-	protected Cursor hiddenCursor;
+	int wrapMargin;
 
-	private final Gutter gutter;
+	boolean wrapToWidth;
 
-	protected final TextAreaPainter painter;
-
-	private final EventListenerList listenerList;
-
-	private final MutableCaretEvent caretEvent;
+	/**
+	 * The action context. It is used only when the textarea is standalone
+	 */
+	private AsinActionContext<JEditBeanShellAction, AsinActionSet<JEditBeanShellAction>> actionContext;
 
 	private boolean caretBlinks;
 
-	protected InputHandlerProvider inputHandlerProvider;
+	private final MutableCaretEvent caretEvent;
+
+	private int caretScreenLine;
+
+	private boolean ctrlForRectangularSelection;
+
+	private boolean dndEnabled;
+
+	private boolean dndInProgress;
+
+	private int electricScroll;
+
+	private final Gutter gutter;
+
+	private final JScrollBar horizontal;
+
+	private int horizontalOffset;
 
 	private InputMethodSupport inputMethodSupport;
 
+	private boolean joinNonWordChars;
+
+	private final EventListenerList listenerList;
+
+	private int magicCaret;
+
+	// }}}
+
+	// {{{ Screen line stuff
+
+	private StructureMatcher.Match match;
+
+	private int oldCaretLine;
+
+	private boolean overwrite;
+
 	/** The last visible physical line index. */
 	private int physLastLine;
+
+	// }}}
+
+	// {{{ Offset conversion
+
+	private boolean popupEnabled;
+
+	// see finishCaretUpdate() & _finishCaretUpdate()
+	private boolean queuedCaretUpdate;
+
+	private boolean queuedFireCaretEvent;
+
+	private int queuedScrollMode;
+
+	private boolean quickCopy;
+
+	private boolean rectangularSelectionMode;
+
+	// }}}
+
+	// {{{ Painting
 
 	/**
 	 * The last screen line index.
 	 */
 	private int screenLastLine;
 
-	/** The visible lines count. */
-	private int visibleLines;
-
-	private int electricScroll;
-
-	// }}}
-
-	// {{{ Screen line stuff
-
-	private int horizontalOffset;
-
-	private boolean quickCopy;
-
-	// JDiff, error list add stuff here
-	private final Box verticalBox;
+	private final java.util.List<StructureMatcher> structureMatchers;
 
 	private final JScrollBar vertical;
 
 	// }}}
 
-	// {{{ Offset conversion
+	// {{{ Convenience methods
 
-	private final JScrollBar horizontal;
+	// JDiff, error list add stuff here
+	private final Box verticalBox;
+
+	/** The visible lines count. */
+	private int visibleLines;
 
 	protected JEditBuffer buffer;
 
@@ -434,45 +462,17 @@ public abstract class TextArea extends JComponent implements ActionContextHolder
 
 	protected int caretLine;
 
-	private int caretScreenLine;
+	protected Cursor hiddenCursor;
 
-	private final java.util.List<StructureMatcher> structureMatchers;
-
-	// }}}
-
-	// {{{ Painting
-
-	private StructureMatcher.Match match;
-
-	private int magicCaret;
+	protected InputHandlerProvider inputHandlerProvider;
 
 	/** Flag that tells if multiple selection is on. */
 	protected boolean multi;
 
-	// }}}
+	protected final TextAreaPainter painter;
 
-	// {{{ Convenience methods
-
-	private boolean overwrite;
-
-	private boolean rectangularSelectionMode;
-
-	private boolean dndEnabled;
-
-	private boolean dndInProgress;
-
-	// see finishCaretUpdate() & _finishCaretUpdate()
-	private boolean queuedCaretUpdate;
-
-	private int queuedScrollMode;
-
-	private boolean queuedFireCaretEvent;
-
-	private int oldCaretLine;
-
-	private boolean joinNonWordChars;
-
-	private boolean ctrlForRectangularSelection;
+	// {{{ Instance variables
+	protected JPopupMenu popup;
 
 	// {{{ TextArea constructor
 	/**

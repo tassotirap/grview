@@ -33,10 +33,10 @@ import java.awt.Font;
  */
 public class SyntaxStyle
 {
+	private Color bgColor;
+
 	// {{{ Private members
 	private Color fgColor;
-
-	private Color bgColor;
 
 	private Font font;
 

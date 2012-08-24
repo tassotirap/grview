@@ -42,9 +42,9 @@ import org.grview.util.Log;
  */
 class TextAreaDropHandler extends DropTargetAdapter
 {
-	private final TextArea textArea;
 	private JEditBuffer savedBuffer;
 	private int savedCaret;
+	private final TextArea textArea;
 
 	// {{{ TextAreaDropHandler constructor
 	TextAreaDropHandler(TextArea textArea)

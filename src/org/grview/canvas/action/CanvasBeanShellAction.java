@@ -63,13 +63,13 @@ public class CanvasBeanShellAction extends AbstractEditAction<Canvas>
 		}
 	} // }}}
 
-	private String sanitizedName;
-
-	private String code;
+	private static final BeanShellFacade<Canvas> bsh = new MyBeanShellFacade();
 
 	private BshMethod cachedCode;
 
-	private static final BeanShellFacade<Canvas> bsh = new MyBeanShellFacade();
+	private String code;
+
+	private String sanitizedName;
 
 	public CanvasBeanShellAction(String name, String code)
 	{

@@ -38,22 +38,22 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 class ActionListHandler extends DefaultHandler
 {
-	// {{{ Instance variables
-	private String path;
+	private String actionName;
 
 	private AsinActionSet actionSet;
-
-	private String actionName;
 
 	private final StringBuilder code;
 
 	private final StringBuilder isSelected;
 
-	private boolean noRepeat;
-
 	private boolean noRecord;
 
 	private boolean noRememberLast;
+
+	private boolean noRepeat;
+
+	// {{{ Instance variables
+	private String path;
 
 	private final Stack<String> stateStack;
 

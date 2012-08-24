@@ -17,9 +17,9 @@ public class WidgetActionRepositoryFactory
 	private static class WAR implements WidgetActionRepository
 	{
 
-		private String activeMoveAction = null;
-
 		HashMap<String, WidgetAction> actions = new HashMap<String, WidgetAction>();
+
+		private String activeMoveAction = null;
 
 		public WAR()
 		{

@@ -32,17 +32,17 @@ import org.grview.util.Log;
 public class ParsingEditor implements BufferListener, CaretListener
 {
 
+	private static ParsingEditor instance;
 	private SyntacticLoader cs;
-	private StandaloneTextArea sta;
-	private StringBuffer newText;
+	private StringReader in;
 	private int lastLine;
-	private String rootPath;
 	private Yylex lex;
+	private StringBuffer newText;
 	private ArrayList<JButton> parsingButtons;
 	private Thread parsingThread;
-	private StringReader in;
+	private String rootPath;
 
-	private static ParsingEditor instance;
+	private StandaloneTextArea sta;
 
 	public ParsingEditor(SyntacticLoader cs, Mode mode, String rootPath)
 	{

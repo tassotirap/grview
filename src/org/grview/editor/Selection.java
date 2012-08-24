@@ -199,10 +199,10 @@ public abstract class Selection implements Cloneable
 	// this class is not very fast...
 	public static class Rect extends Selection
 	{
+		int extraEndVirt;
+
 		// {{{ Package-private members
 		int extraStartVirt;
-
-		int extraEndVirt;
 
 		// {{{ Rect constructor
 		public Rect()

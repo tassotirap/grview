@@ -38,64 +38,46 @@ import java.util.regex.PatternSyntaxException;
 public class ParserRule
 {
 
-	// {{{ Major actions
-	public static final int MAJOR_ACTIONS = 0x000000FF;
-	public static final int SEQ = 0;
-	public static final int SPAN = 1 << 1;
-	public static final int MARK_PREVIOUS = 1 << 2;
-	public static final int MARK_FOLLOWING = 1 << 3;
-	public static final int EOL_SPAN = 1 << 4;
-	// }}}
-
 	// {{{ Action hints
 	public static final int ACTION_HINTS = 0x0000FF00;
-
-	@Deprecated
-	public static final int EXCLUDE_MATCH = 1 << 8;
-
-	public static final int NO_LINE_BREAK = 1 << 9;
-	public static final int NO_WORD_BREAK = 1 << 10;
-	public static final int IS_ESCAPE = 1 << 11;
-
-	@Deprecated
-	public static final int NO_ESCAPE = 1 << 12;
-
-	public static final int REGEXP = 1 << 13;
-	// }}}
-
-	// {{{ Special Match Token Types
-	public static final byte MATCH_TYPE_CONTEXT = -1;
-	public static final byte MATCH_TYPE_RULE = -2;
-	// }}}
-
 	// {{{ Position match hints
 	public static final int AT_LINE_START = 1 << 1;
 	public static final int AT_WHITESPACE_END = 1 << 2;
 	public static final int AT_WORD_START = 1 << 3;
 	// }}}
+	public static final int EOL_SPAN = 1 << 4;
+	// }}}
+	@Deprecated
+	public static final int EXCLUDE_MATCH = 1 << 8;
 
-	// {{{ Instance variables
-	public final String upHashChar;
-	public final char[] upHashChars;
-	public final int startPosMatch;
-	public final char[] start;
-	public final Pattern startRegexp;
+	public static final int IS_ESCAPE = 1 << 11;
 
-	public final int endPosMatch;
-	public final char[] end;
+	// {{{ Major actions
+	public static final int MAJOR_ACTIONS = 0x000000FF;
+
+	public static final int MARK_FOLLOWING = 1 << 3;
+	public static final int MARK_PREVIOUS = 1 << 2;
+	// {{{ Special Match Token Types
+	public static final byte MATCH_TYPE_CONTEXT = -1;
+
+	public static final byte MATCH_TYPE_RULE = -2;
+	// }}}
+
+	@Deprecated
+	public static final int NO_ESCAPE = 1 << 12;
+
+	public static final int NO_LINE_BREAK = 1 << 9;
+	public static final int NO_WORD_BREAK = 1 << 10;
+
+	public static final int REGEXP = 1 << 13;
+	// }}}
+	public static final int SEQ = 0;
+	public static final int SPAN = 1 << 1;
 
 	public final int action;
-	public final byte token;
-
-	/**
-	 * matchType is the type of the token for the matched region. Special values
-	 * are: MATCH_TYPE_CONTEXT = default token for the context, MATCH_TYPE_RULE
-	 * = same token as the rule itself.
-	 * 
-	 * @since jEdit 4.3pre10
-	 */
-	public final byte matchType;
-
+	public ParserRuleSet delegate;
+	public final char[] end;
+	public final int endPosMatch;
 	/**
 	 * escapeRule is the rule-specific sequence used to escape other characters
 	 * while the rule is in effect. If this character is non-zero, the character
@@ -106,8 +88,14 @@ public class ParserRule
 	 */
 	public final ParserRule escapeRule;
 
-	public ParserRuleSet delegate;
-
+	/**
+	 * matchType is the type of the token for the matched region. Special values
+	 * are: MATCH_TYPE_CONTEXT = default token for the context, MATCH_TYPE_RULE
+	 * = same token as the rule itself.
+	 * 
+	 * @since jEdit 4.3pre10
+	 */
+	public final byte matchType;
 	/**
 	 * @deprecated As the linking between rules is not anymore done within the
 	 *             rule but external. See
@@ -115,6 +103,18 @@ public class ParserRule
 	 */
 	@Deprecated
 	public ParserRule next;
+
+	public final char[] start;
+	public final int startPosMatch;
+
+	public final Pattern startRegexp;
+
+	public final byte token;
+
+	// {{{ Instance variables
+	public final String upHashChar;
+
+	public final char[] upHashChars;
 
 	// }}}
 

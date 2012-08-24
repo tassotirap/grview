@@ -30,11 +30,11 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 {
 	private static final long serialVersionUID = 1L;
 
-	private JButton btnSave, btnSaveAll, btnPrint, btnCopy;
-	private JButton btnCut, btnPaste, btnUndo, btnRedo;
-
 	JButton[] buttons;
 	String[] names;
+
+	private JButton btnCut, btnPaste, btnUndo, btnRedo;
+	private JButton btnSave, btnSaveAll, btnPrint, btnCopy;
 
 	public ToolBarDefault(E context)
 	{

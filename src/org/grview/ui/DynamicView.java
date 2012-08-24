@@ -17,9 +17,9 @@ public class DynamicView extends View
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int id;
 	private AbstractComponent componentModel;
 	private String fileName;
+	private int id;
 
 	/**
 	 * Constructor.

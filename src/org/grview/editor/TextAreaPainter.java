@@ -331,14 +331,9 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 */
 	private static final long serialVersionUID = 1L;
 
-	// {{{ Layers
-	/**
-	 * The lowest possible layer.
-	 * 
-	 * @see #addExtension(int,TextAreaExtension)
-	 * @since jEdit 4.0pre4
-	 */
-	public static final int LOWEST_LAYER = Integer.MIN_VALUE;
+	private static Constructor sm_frcConstructor = null;
+
+	private static Object sm_hrgbRender = null;
 
 	/**
 	 * Below selection layer. The JDiff plugin will use this.
@@ -349,38 +344,6 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	public static final int BACKGROUND_LAYER = -60;
 
 	/**
-	 * The line highlight and collapsed fold highlight layer.
-	 * 
-	 * @see #addExtension(int,TextAreaExtension)
-	 * @since jEdit 4.0pre7
-	 */
-	public static final int LINE_BACKGROUND_LAYER = -50;
-
-	/**
-	 * Below selection layer.
-	 * 
-	 * @see #addExtension(int,TextAreaExtension)
-	 * @since jEdit 4.0pre4
-	 */
-	public static final int BELOW_SELECTION_LAYER = -40;
-
-	/**
-	 * Selection layer. Most extensions will be above this layer, but some (eg,
-	 * JDiff) will want to be below the selection.
-	 * 
-	 * @see #addExtension(int,TextAreaExtension)
-	 * @since jEdit 4.0pre4
-	 */
-	public static final int SELECTION_LAYER = -30;
-
-	/**
-	 * Wrap guide layer. Most extensions will be above this layer.
-	 * 
-	 * @since jEdit 4.0pre4
-	 */
-	public static final int WRAP_GUIDE_LAYER = -20;
-
-	/**
 	 * Below most extensions layer.
 	 * 
 	 * @see #addExtension(int,TextAreaExtension)
@@ -389,12 +352,12 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	public static final int BELOW_MOST_EXTENSIONS_LAYER = -10;
 
 	/**
-	 * Default extension layer. This is above the wrap guide but below the
-	 * structure highlight.
+	 * Below selection layer.
 	 * 
+	 * @see #addExtension(int,TextAreaExtension)
 	 * @since jEdit 4.0pre4
 	 */
-	public static final int DEFAULT_LAYER = 0;
+	public static final int BELOW_SELECTION_LAYER = -40;
 
 	/**
 	 * Block caret layer. Most extensions will be below this layer.
@@ -410,21 +373,20 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 */
 	public static final int BRACKET_HIGHLIGHT_LAYER = 100;
 
-	// {{{ Getters and setters
-
-	/**
-	 * Text layer. Most extensions will be below this layer.
-	 * 
-	 * @since jEdit 4.2pre1
-	 */
-	public static final int TEXT_LAYER = 200;
-
 	/**
 	 * Caret layer. Most extensions will be below this layer.
 	 * 
 	 * @since jEdit 4.2pre1
 	 */
 	public static final int CARET_LAYER = 300;
+
+	/**
+	 * Default extension layer. This is above the wrap guide but below the
+	 * structure highlight.
+	 * 
+	 * @since jEdit 4.0pre4
+	 */
+	public static final int DEFAULT_LAYER = 0;
 
 	/**
 	 * Highest possible layer.
@@ -434,6 +396,80 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	public static final int HIGHEST_LAYER = Integer.MAX_VALUE;
 	// }}}
 
+	// {{{ Getters and setters
+
+	/**
+	 * The line highlight and collapsed fold highlight layer.
+	 * 
+	 * @see #addExtension(int,TextAreaExtension)
+	 * @since jEdit 4.0pre7
+	 */
+	public static final int LINE_BACKGROUND_LAYER = -50;
+
+	// {{{ Layers
+	/**
+	 * The lowest possible layer.
+	 * 
+	 * @see #addExtension(int,TextAreaExtension)
+	 * @since jEdit 4.0pre4
+	 */
+	public static final int LOWEST_LAYER = Integer.MIN_VALUE;
+
+	/**
+	 * Selection layer. Most extensions will be above this layer, but some (eg,
+	 * JDiff) will want to be below the selection.
+	 * 
+	 * @see #addExtension(int,TextAreaExtension)
+	 * @since jEdit 4.0pre4
+	 */
+	public static final int SELECTION_LAYER = -30;
+
+	/**
+	 * Text layer. Most extensions will be below this layer.
+	 * 
+	 * @since jEdit 4.2pre1
+	 */
+	public static final int TEXT_LAYER = 200;
+
+	/**
+	 * Wrap guide layer. Most extensions will be above this layer.
+	 * 
+	 * @since jEdit 4.0pre4
+	 */
+	public static final int WRAP_GUIDE_LAYER = -20;
+
+	AntiAlias antiAlias;
+
+	boolean blockCaret;
+
+	Color caretColor;
+
+	Color eolMarkerColor;
+
+	boolean eolMarkers;
+
+	// should try to use this as little as possible.
+	FontMetrics fm;
+	// }}}
+
+	SyntaxStyle[] foldLineStyle;
+
+	boolean fracFontMetrics;
+
+	boolean lineHighlight;
+
+	Color lineHighlightColor;
+
+	Color multipleSelectionColor;
+
+	Color selectionColor;
+
+	boolean structureHighlight;
+
+	Color structureHighlightColor;
+
+	SyntaxStyle[] styles;
+
 	// {{{ Instance variables
 	/*
 	 * package-private since they are accessed by inner classes and we want this
@@ -441,59 +477,23 @@ public class TextAreaPainter extends JComponent implements TabExpander
 	 */
 	TextArea textArea;
 
-	SyntaxStyle[] styles;
-
-	Color caretColor;
-
-	Color selectionColor;
-
-	Color multipleSelectionColor;
-
-	Color lineHighlightColor;
-
-	Color structureHighlightColor;
-
-	Color eolMarkerColor;
-
-	Color wrapGuideColor;
-
-	SyntaxStyle[] foldLineStyle;
-
-	boolean blockCaret;
-
 	boolean thickCaret;
-
-	boolean lineHighlight;
-
-	boolean structureHighlight;
-
-	boolean eolMarkers;
 
 	boolean wrapGuide;
 
-	AntiAlias antiAlias;
-
-	boolean fracFontMetrics;
-
-	// should try to use this as little as possible.
-	FontMetrics fm;
-	// }}}
-
-	// {{{ Instance variables
-	private final ExtensionManager extensionMgr;
+	Color wrapGuideColor;
 
 	private final PaintCaret caretExtension;
 
-	private RenderingHints renderingHints;
+	// {{{ Instance variables
+	private final ExtensionManager extensionMgr;
 
 	private FontRenderContext fontRenderContext;
 
 	private final Map fonts;
 	// }}}
 
-	private static Object sm_hrgbRender = null;
-
-	private static Constructor sm_frcConstructor = null;
+	private RenderingHints renderingHints;
 
 	// {{{ TextAreaPainter constructor
 	/**

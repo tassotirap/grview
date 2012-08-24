@@ -8,9 +8,9 @@ import org.grview.canvas.widget.GridWidget;
 public class GridProvider
 {
 
-	private GridWidget grid;
-	private Canvas canvas;
 	private static HashMap<Canvas, GridProvider> gridProviders = new HashMap<Canvas, GridProvider>();
+	private Canvas canvas;
+	private GridWidget grid;
 
 	private GridProvider(Canvas canvas)
 	{

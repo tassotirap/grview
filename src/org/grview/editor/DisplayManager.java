@@ -54,22 +54,22 @@ public class DisplayManager
 	// {{{ Package-private members
 	final FirstLine firstLine;
 
-	final ScrollLineCount scrollLineCount;
+	RangeMap folds;
 
 	final ScreenLineManager screenLineMgr;
 
-	RangeMap folds;
+	final ScrollLineCount scrollLineCount;
+
+	private final JEditBuffer buffer;
+
+	private final BufferHandler bufferHandler;
 
 	// {{{ Private members
 	private boolean initialized;
 
 	private boolean inUse;
 
-	private final JEditBuffer buffer;
-
 	private final TextArea textArea;
-
-	private final BufferHandler bufferHandler;
 
 	// {{{ DisplayManager constructor
 	private DisplayManager(JEditBuffer buffer, TextArea textArea, DisplayManager copy)

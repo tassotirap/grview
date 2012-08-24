@@ -44,6 +44,51 @@ public class ParserRuleSet
 	// {{{ Private members
 	private static ParserRuleSet[] standard;
 
+	private String _noWordSep;
+
+	private boolean builtIn;
+
+	private byte defaultToken;
+
+	private Pattern digitRE;
+
+	private ParserRule escapeRule;
+
+	private boolean highlightDigits;
+
+	private boolean ignoreCase = true;
+
+	private final List<ParserRuleSet> imports;
+
+	private KeywordMap keywords;
+
+	private String modeName, setName;
+
+	private String noWordSep;
+
+	private Hashtable<String, String> props;
+
+	private int ruleCount;
+
+	private Map<Character, List<ParserRule>> ruleMap;
+
+	/**
+	 * The number of chars that can be read before the parsing stops.
+	 * &lt;TERMINATE AT_CHAR="1" /&gt;
+	 */
+	private int terminateChar = -1;
+
+	// {{{ ParserRuleSet constructor
+	public ParserRuleSet(String modeName, String setName)
+	{
+		this.modeName = modeName;
+		this.setName = setName;
+		ruleMap = new HashMap<Character, List<ParserRule>>();
+		imports = new ArrayList<ParserRuleSet>();
+	} // }}}
+
+	// }}}
+
 	static
 	{
 		standard = new ParserRuleSet[Token.ID_COUNT];
@@ -54,51 +99,6 @@ public class ParserRuleSet
 			standard[i].builtIn = true;
 		}
 	}
-
-	private String modeName, setName;
-
-	private Hashtable<String, String> props;
-
-	private KeywordMap keywords;
-
-	private int ruleCount;
-
-	private Map<Character, List<ParserRule>> ruleMap;
-
-	private final List<ParserRuleSet> imports;
-
-	/**
-	 * The number of chars that can be read before the parsing stops.
-	 * &lt;TERMINATE AT_CHAR="1" /&gt;
-	 */
-	private int terminateChar = -1;
-
-	private boolean ignoreCase = true;
-
-	private byte defaultToken;
-
-	private ParserRule escapeRule;
-
-	private boolean highlightDigits;
-
-	private Pattern digitRE;
-
-	private String _noWordSep;
-
-	private String noWordSep;
-
-	private boolean builtIn;
-
-	// }}}
-
-	// {{{ ParserRuleSet constructor
-	public ParserRuleSet(String modeName, String setName)
-	{
-		this.modeName = modeName;
-		this.setName = setName;
-		ruleMap = new HashMap<Character, List<ParserRule>>();
-		imports = new ArrayList<ParserRuleSet>();
-	} // }}}
 
 	// {{{ getStandardRuleSet() method
 	/**

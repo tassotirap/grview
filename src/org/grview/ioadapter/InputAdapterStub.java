@@ -5,15 +5,15 @@ import java.util.ArrayList;
 public class InputAdapterStub
 {
 
+	private String _class = "Input";
 	private String _package;
 	private String header = "/**Self gerated input adapter class stub\n" + "Warning: If you change the name of the class, the existing fields, constructors or methods\n" + "except for the body of init method, then you must manually make all necessary corrections in\n" + "the generated code file. Besides that the runtime execution may fail.\n**/";
-	private String _class = "Input";
-	private String superclass;
 	private ArrayList<String> imports = new ArrayList<String>();
+	private int initMethodPos;
 	private ArrayList<String> interfaces = new ArrayList<String>();
 	private String objectClass;
 
-	private int initMethodPos;
+	private String superclass;
 
 	public void addImport(String _import)
 	{

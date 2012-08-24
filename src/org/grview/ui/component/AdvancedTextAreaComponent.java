@@ -19,9 +19,9 @@ import org.grview.util.Log;
 public class AdvancedTextAreaComponent extends AbstractComponent implements FileComponent
 {
 
-	protected TextArea textArea;
 	protected String path;
 	protected String rootPath;
+	protected TextArea textArea;
 
 	public AdvancedTextAreaComponent(String type)
 	{

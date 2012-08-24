@@ -18,21 +18,21 @@ import org.grview.syntax.model.TabNode;
  */
 public class SyntacticLoader
 {
+	int AltR;
 	String Flag;
-	char Tipo;
+	int IndPrim;
+	int MaxNt;
+	int MaxT;
+	int NoMax;
 	String Nomer;
 	int NumNo;
-	int AltR;
-	int SucR;
 	String SemR;
-	int MaxT;
-	int MaxNt;
-	int IndPrim;
-	int NoMax;
-
+	int SucR;
 	TabGraphNode TabGraph[];
-	TabNode TabT[];
+
 	TabNode TabNt[];
+	TabNode TabT[];
+	char Tipo;
 
 	public SyntacticLoader(TableCreate argTab)
 	{

@@ -34,33 +34,33 @@ public class Project implements Serializable
 {
 
 	private static final long serialVersionUID = -6812190878328950994L;
+	public final static String DEFAULT_DESCRIPTION = "New project";
+
+	public final static String DEFAULT_NAME = "Untitled";
+
+	public final static String DEFAULT_SEMANTIC_ROUTINE_CLASS = "org.grview.semantics.SemanticRoutines";
+	/**
+	 * Current GrammarFile
+	 */
+	private GrammarFile grammarFile;
+	private LexicalFile lexicalFile;
+	private MetaFile metadataFile;
+	/** this project's name **/
+	private String name;
 	private ArrayList<File> openedFiles;
+
+	private File projectDir;
+	/** this project's properties **/
+	private Properties properties;
+	private PropertiesFile propertiesFile;
+	private SemanticFile semanticFile;
 
 	/**
 	 * Current Theme
 	 */
 	private Theme theme = Theme.ShapedGradientDockingTheme;
 
-	/**
-	 * Current GrammarFile
-	 */
-	private GrammarFile grammarFile;
-	private LexicalFile lexicalFile;
-	private SemanticFile semanticFile;
 	private File yyLexFile;
-	private PropertiesFile propertiesFile;
-	private MetaFile metadataFile;
-
-	/** this project's name **/
-	private String name;
-	public final static String DEFAULT_NAME = "Untitled";
-	public final static String DEFAULT_DESCRIPTION = "New project";
-	public final static String DEFAULT_SEMANTIC_ROUTINE_CLASS = "org.grview.semantics.SemanticRoutines";
-
-	/** this project's properties **/
-	private Properties properties;
-
-	private File projectDir;
 
 	/**
 	 * the AsinEditor instance, that holds a representation of the current

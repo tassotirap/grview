@@ -12,13 +12,13 @@ import java.util.Stack;
 public class SemanticRoutines
 {
 
-	private GroovyObject groovyObject;
-
-	private File scriptsFile = new File("srs.groovy");
-	private Stack<ParseStackNode> parseStack;
-	private Analyzer.TabNode[] tabT;
 	private Yytoken currentToken;
+
+	private GroovyObject groovyObject;
 	private PrintStream out;
+	private Stack<ParseStackNode> parseStack;
+	private File scriptsFile = new File("srs.groovy");
+	private Analyzer.TabNode[] tabT;
 
 	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out)
 	{

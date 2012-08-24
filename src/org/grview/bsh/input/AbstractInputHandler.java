@@ -43,24 +43,24 @@ import org.grview.util.Log;
  */
 public abstract class AbstractInputHandler<E extends AbstractEditAction>
 {
-	protected int lastActionCount;
-	/** This listener will receive keyboard events if it is not null. */
-	protected KeyListener keyEventInterceptor;
-	protected MouseListener mouseEventInterceptor;
-	protected String readNextChar;
-	protected int repeatCount;
-	protected E lastAction;
-
 	protected static final int REPEAT_COUNT_THRESHOLD = 20;
-
 	// Stores prefix name in bindings hashtable
 	public static Object PREFIX_STR = "PREFIX_STR";
+	protected Hashtable bindings;
+	protected Hashtable currentBindings;
+	/** This listener will receive keyboard events if it is not null. */
+	protected KeyListener keyEventInterceptor;
+	protected E lastAction;
+
+	protected int lastActionCount;
+
+	protected MouseListener mouseEventInterceptor;
+
+	protected String readNextChar;
+
+	protected int repeatCount;
 
 	protected boolean shortcutOn = false;
-
-	protected Hashtable bindings;
-
-	protected Hashtable currentBindings;
 
 	// }}}
 

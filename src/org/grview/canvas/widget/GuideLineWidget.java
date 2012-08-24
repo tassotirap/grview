@@ -10,10 +10,10 @@ import org.grview.canvas.Canvas;
 public class GuideLineWidget extends LineWidget
 {
 
-	private Canvas canvas;
 	public static final int DEFAULT_WIDTH = 1;
-	public static final Color GUIDE_LINE_COLOR = new Color(240, 100, 100);
 	public static final int DEFAULT_X_POS = 120;
+	public static final Color GUIDE_LINE_COLOR = new Color(240, 100, 100);
+	private Canvas canvas;
 
 	public GuideLineWidget(Canvas canvas)
 	{

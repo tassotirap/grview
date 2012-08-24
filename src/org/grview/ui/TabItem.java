@@ -5,10 +5,10 @@ import javax.swing.JComponent;
 
 public class TabItem
 {
-	private String title;
-	private Icon viewIcon;
 	private JComponent component;
 	private int layoutOrder;
+	private String title;
+	private Icon viewIcon;
 
 	public TabItem(String title, JComponent component, int layoutOrder, Icon viewIcon)
 	{

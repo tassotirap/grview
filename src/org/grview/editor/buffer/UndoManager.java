@@ -103,11 +103,11 @@ public class UndoManager
 	// {{{ Insert class
 	static class Insert extends Edit
 	{
+		int length;
+
 		UndoManager mgr;
 
 		int offset;
-
-		int length;
 
 		String str;
 
@@ -144,13 +144,13 @@ public class UndoManager
 	// {{{ Remove class
 	static class Remove extends Edit
 	{
-		UndoManager mgr;
-
-		int offset;
+		final RemovedContent content;
 
 		int length;
 
-		final RemovedContent content;
+		UndoManager mgr;
+
+		int offset;
 
 		// {{{ Remove constructor
 		Remove(UndoManager mgr, int offset, int length, String str)
@@ -186,9 +186,9 @@ public class UndoManager
 	// This class is held in KillRing.
 	public static class RemovedContent
 	{
-		String str;
 		int hashcode;
 		boolean inKillRing;
+		String str;
 
 		public RemovedContent(String str)
 		{
@@ -206,24 +206,24 @@ public class UndoManager
 	// {{{ Instance variables
 	private JEditBuffer buffer;
 
-	// queue of undos. last is most recent, first is oldest
-	private Edit undosFirst;
+	private CompoundEdit compoundEdit;
 
-	private Edit undosLast;
+	private int compoundEditCount;
+
+	private int limit;
 
 	// queue of redos. first is most recent, last is oldest
 	private Edit redosFirst;
 
-	private int limit;
-
 	// {{{ Private members
 
-	private int undoCount;
-
-	private int compoundEditCount;
-	private CompoundEdit compoundEdit;
-
 	private Edit undoClearDirty, redoClearDirty;
+
+	private int undoCount;
+	// queue of undos. last is most recent, first is oldest
+	private Edit undosFirst;
+
+	private Edit undosLast;
 
 	// }}}
 	// {{{ UndoManager constructor

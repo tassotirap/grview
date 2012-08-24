@@ -38,11 +38,11 @@ public abstract class BracketIndentRule implements IndentRule
 	// {{{ class LineScanner
 	private class LineScanner implements TokenHandler
 	{
-		public final Brackets result;
-
-		private int scannedIndex;
 		private final int beginIndex;
+
 		private final int endIndex;
+		private int scannedIndex;
+		public final Brackets result;
 
 		public LineScanner(int begin, int end)
 		{
@@ -131,8 +131,8 @@ public abstract class BracketIndentRule implements IndentRule
 	// {{{ Brackets class
 	public static class Brackets
 	{
-		int openCount;
 		int closeCount;
+		int openCount;
 	} // }}}
 
 	protected char openBracket, closeBracket;

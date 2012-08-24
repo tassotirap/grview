@@ -37,28 +37,47 @@ import org.grview.ui.toolbar.ToolBarDefault;
 public abstract class Window
 {
 
+	public final static int BOTTOM_LEFT_TABS = 3;
+	public final static int BOTTOM_RIGHT_TABS = 5;
+	public final static int CENTER_TABS = 4;
+	public final static String DEFAULT_NAME = "GrView Window";
+	public final static String DEFAULT_TITLE = "GrView";
 	public final static int LEFT_TOP_TABS = 0;
 	public final static int RIGHT_BOTTOM_TABS = 1;
 	public final static int RIGHT_TOP_TABS = 2;
-	public final static int BOTTOM_LEFT_TABS = 3;
-	public final static int CENTER_TABS = 4;
-	public final static int BOTTOM_RIGHT_TABS = 5;
-	public final static Icon VIEW_ICON = new IconView();
-	public final static String DEFAULT_TITLE = "GrView";
-	public final static String DEFAULT_NAME = "GrView Window";
 	public final static String UNSAVED_PREFIX = "* ";
+	public final static Icon VIEW_ICON = new IconView();
+
+	private JMenuBar currentMenuBar;
+
+	private JComponent currentToolBar;
+
+	private JMenuBar defaultMenuBar;
+
+	private JComponent defaultToolBar;
+
+	private HashMap<Integer, DynamicView> dummyViews = new HashMap<Integer, DynamicView>();
+
+	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
+
+	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
 
 	/**
-	 * Contains the dynamic views that have been added to the root window,
-	 * mapped by id
+	 * The focused canvas, where graphs can be drawn
 	 */
-	protected HashMap<Integer, DynamicView> dynamicViewsById = new HashMap<Integer, DynamicView>();
+	protected Canvas activeScene;
 
 	/**
 	 * Contains the dynamic views that have been added to the root window,
 	 * mapped by its component
 	 */
 	protected HashMap<AbstractComponent, DynamicView> dynamicViewsByComponent = new HashMap<AbstractComponent, DynamicView>();
+
+	/**
+	 * Contains the dynamic views that have been added to the root window,
+	 * mapped by id
+	 */
+	protected HashMap<Integer, DynamicView> dynamicViewsById = new HashMap<Integer, DynamicView>();
 
 	/**
 	 * Contains the dynamic views that have been added to the root window, the
@@ -70,26 +89,7 @@ public abstract class Window
 	 * The application frame
 	 */
 	protected JFrame frame;
-
-	/**
-	 * The focused canvas, where graphs can be drawn
-	 */
-	protected Canvas activeScene;
-
-	private HashMap<Integer, DynamicView> dummyViews = new HashMap<Integer, DynamicView>();
-
 	protected WindowAdapter windowAdapter;
-
-	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
-
-	private JComponent defaultToolBar;
-
-	private JComponent currentToolBar;
-
-	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
-
-	private JMenuBar defaultMenuBar;
-	private JMenuBar currentMenuBar;
 
 	public Window()
 	{

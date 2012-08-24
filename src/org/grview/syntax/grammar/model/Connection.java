@@ -5,11 +5,11 @@ public class Connection extends SyntaxElement
 {
 
 	static final long serialVersionUID = 1;
-	protected boolean value;
+	private String id;
 	protected SyntaxSubpart source;
 	protected SyntaxSubpart target;
 
-	private String id;
+	protected boolean value;
 
 	public Connection()
 	{

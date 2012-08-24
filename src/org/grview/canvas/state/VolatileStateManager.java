@@ -19,25 +19,25 @@ public class VolatileStateManager implements PropertyChangeListener
 
 	public class VolatileState
 	{
-		public byte[] serializedObject;
 		public Command command;
+		public byte[] serializedObject;
 	}
 
-	private ByteArrayInputStream bais;
-	private ObjectInputStream ois;
-	private HashMap<String, VolatileState> lastStates = new HashMap<String, VolatileState>();
-	private HashMap<String, VolatileState> nextStates = new HashMap<String, VolatileState>();
 	private final static String head = "%HEAD";
+	private ByteArrayInputStream bais;
+	private int capacity;
+	private long last;
+	private HashMap<String, VolatileState> lastStates = new HashMap<String, VolatileState>();
+	private PropertyChangeSupport monitor;
+	private HashMap<String, VolatileState> nextStates = new HashMap<String, VolatileState>();
+
 	private Object object;
-	private Vector<String> undoables = new Vector<String>();
+
+	private ObjectInputStream ois;
 
 	private Vector<String> redoables = new Vector<String>();
 
-	private long last;
-
-	private int capacity;
-
-	private PropertyChangeSupport monitor;
+	private Vector<String> undoables = new Vector<String>();
 
 	public VolatileStateManager(Serializable object, int capacity)
 	{

@@ -16,9 +16,9 @@ public class NodeReconnectProvider implements ReconnectProvider
 {
 
 	private String edge;
+	private PropertyChangeSupport monitor;
 	private String originalNode;
 	private String replacementNode;
-	private PropertyChangeSupport monitor;
 
 	public NodeReconnectProvider(Canvas canvas)
 	{

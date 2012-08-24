@@ -25,13 +25,13 @@ public class RoutineWizardWindow extends JFrame
 
 	private static final String INSERT_CODE_HERE = "/* insert code here */";
 	private static final long serialVersionUID = 1L;
+	private JPanel buttonsPanel = null;
+	private JButton cancelButton = null; // @jve:decl-index=0:visual-constraint="512,525"
+	private TextArea codeTextArea = null;
+	private JButton insertButton = null; // @jve:decl-index=0:visual-constraint="371,512"
 	private JPanel jContentPane = null;
 	private JLabel nameLabel = null;
 	private JTextField nameTextField = null;
-	private TextArea codeTextArea = null;
-	private JPanel buttonsPanel = null;
-	private JButton insertButton = null; // @jve:decl-index=0:visual-constraint="371,512"
-	private JButton cancelButton = null; // @jve:decl-index=0:visual-constraint="512,525"
 
 	/**
 	 * This is the default constructor

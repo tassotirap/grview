@@ -6,8 +6,8 @@ import org.grview.editor.TextArea;
 
 public class TextAreaRepo
 {
-	private static HashMap<AbstractComponent, TextArea> textAreaByComponent = new HashMap<AbstractComponent, TextArea>();
 	private static HashMap<TextArea, FileComponent> componentByTextArea = new HashMap<TextArea, FileComponent>();
+	private static HashMap<AbstractComponent, TextArea> textAreaByComponent = new HashMap<AbstractComponent, TextArea>();
 
 	public static FileComponent getComponent(TextArea ta)
 	{

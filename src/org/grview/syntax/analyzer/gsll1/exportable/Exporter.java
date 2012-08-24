@@ -19,10 +19,10 @@ import org.grview.util.IOUtilities;
 public class Exporter
 {
 
-	private Analyzer.TabGraphNode[] tbG;
-	private Analyzer.TabNode[] tbT;
-	private Analyzer.TabNode[] tbNt;
 	private String rootPath;
+	private Analyzer.TabGraphNode[] tbG;
+	private Analyzer.TabNode[] tbNt;
+	private Analyzer.TabNode[] tbT;
 
 	public Exporter(SyntacticLoader sl, String rootPath)
 	{

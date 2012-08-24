@@ -25,17 +25,17 @@ public final class DynaCode
 
 	private static class LoadedClass
 	{
-		String className;
-
-		SourceDir srcDir;
-
-		File srcFile;
-
 		File binFile;
+
+		String className;
 
 		Class clazz;
 
 		long lastModified;
+
+		SourceDir srcDir;
+
+		File srcFile;
 
 		LoadedClass(String className, SourceDir src)
 		{
@@ -95,9 +95,9 @@ public final class DynaCode
 	private class MyInvocationHandler implements InvocationHandler
 	{
 
-		String backendClassName;
-
 		Object backend;
+
+		String backendClassName;
 
 		MyInvocationHandler(String className)
 		{
@@ -158,13 +158,13 @@ public final class DynaCode
 
 	private class SourceDir
 	{
-		File srcDir;
-
 		File binDir;
+
+		URLClassLoader classLoader;
 
 		Javac javac;
 
-		URLClassLoader classLoader;
+		File srcDir;
 
 		SourceDir(File srcDir, File localBinDir)
 		{
@@ -206,12 +206,12 @@ public final class DynaCode
 
 	private String compileClasspath;
 
+	// class name => LoadedClass
+	private HashMap loadedClasses = new HashMap();
+
 	private ClassLoader parentClassLoader;
 
 	private ArrayList<SourceDir> sourceDirs = new ArrayList<SourceDir>();
-
-	// class name => LoadedClass
-	private HashMap loadedClasses = new HashMap();
 
 	public DynaCode()
 	{

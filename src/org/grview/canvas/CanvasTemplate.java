@@ -32,25 +32,21 @@ import org.netbeans.api.visual.widget.Widget;
 public class CanvasTemplate extends Canvas
 {
 
+	private Router activeRouter;
 	private LayerWidget backgroundLayer = new LayerWidget(this);
-	private LayerWidget mainLayer = new LayerWidget(this);
 	private LayerWidget connectionLayer = new LayerWidget(this);
 
-	// additional types of cursor that can be created by the user
-	// private List<String> cursors = new ArrayList<String>();
-
-	private LayerWidget interractionLayer = new LayerWidget(this);
 	private String connStrategy;
+	private String cursor;
+	private LayerWidget interractionLayer = new LayerWidget(this);
+
+	private LayerWidget mainLayer = new LayerWidget(this);
+
 	private String moveStrategy;
 
-	private Router activeRouter;
-
-	private String cursor;
-
-	// object representing the current state of this canvas
-	private CanvasState state;
-
 	private ArrayList<String> removedEdges = new ArrayList<String>();
+
+	private CanvasState state;
 
 	public CanvasTemplate(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator)
 	{
@@ -65,12 +61,12 @@ public class CanvasTemplate extends Canvas
 	{
 		Widget w = sourceNode != null ? findWidget(sourceNode) : null;
 		ConnectionWidget conn = ((ConnectionWidget) findWidget(edge));
-		if (isCandidateSuccessor(edge) || isSuccessor(edge))
+		if (isSuccessor(edge))
 		{
 
 			conn.setSourceAnchor(new UnidirectionalAnchor(w, edge, true, UnidirectionalAnchorKind.RIGHT));
 		}
-		else if (isCandidateAlternative(edge) || isAlternative(edge))
+		else if (isAlternative(edge))
 		{
 			conn.setSourceAnchor(new UnidirectionalAnchor(w, edge, true, UnidirectionalAnchorKind.BOTTOM));
 		}
@@ -85,11 +81,11 @@ public class CanvasTemplate extends Canvas
 	{
 		Widget w = targetNode != null ? findWidget(targetNode) : null;
 		ConnectionWidget conn = ((ConnectionWidget) findWidget(edge));
-		if (isCandidateSuccessor(edge) || isSuccessor(edge))
+		if (isSuccessor(edge))
 		{
 			conn.setTargetAnchor(new UnidirectionalAnchor(w, edge, UnidirectionalAnchorKind.LEFT, 0, false, Direction.TOP));
 		}
-		else if (isCandidateAlternative(edge) || isAlternative(edge))
+		else if (isAlternative(edge))
 		{
 			conn.setTargetAnchor(new UnidirectionalAnchor(w, edge, true, UnidirectionalAnchorKind.TOP));
 		}
@@ -120,20 +116,12 @@ public class CanvasTemplate extends Canvas
 				{
 					getSuccessors().add(edge);
 				}
-				if (isCandidateSuccessor(edge))
-				{
-					getCandidateSuc().remove(edge);
-				}
 			}
 			else if (activeTool.equals(CanvasData.ALTERNATIVE))
 			{
 				if (!isAlternative(edge))
 				{
 					getAlternatives().add(edge);
-				}
-				if (isCandidateAlternative(edge))
-				{
-					getCandidateAlt().remove(edge);
 				}
 			}
 		}
@@ -227,7 +215,6 @@ public class CanvasTemplate extends Canvas
 				widget.getActions(CanvasData.SELECT).addAction(actions.getAction("Move", this));
 				labels.add(node);
 				mainLayer.addChild(widget);
-				// ///////////// customNodes.add(node);
 			}
 			if (widget != null)
 			{
@@ -405,13 +392,13 @@ public class CanvasTemplate extends Canvas
 		if (isEdge(edge))
 		{
 			if (getSuccessors().contains(edge))
+			{
 				getSuccessors().remove(edge);
-			if (getCandidateSuc().contains(edge))
-				getCandidateSuc().remove(edge);
+			}
 			if (getAlternatives().contains(edge))
+			{
 				getAlternatives().remove(edge);
-			if (getCandidateAlt().contains(edge))
-				getCandidateAlt().remove(edge);
+			}
 			super.removeEdge(edge);
 		}
 	}

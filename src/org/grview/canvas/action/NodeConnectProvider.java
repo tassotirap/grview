@@ -16,10 +16,10 @@ import org.netbeans.api.visual.widget.Widget;
 public class NodeConnectProvider implements ConnectProvider
 {
 
-	private String source = null;
-	private String target = null;
-
 	private PropertyChangeSupport monitor;
+	private String source = null;
+
+	private String target = null;
 
 	public NodeConnectProvider(Canvas canvas)
 	{
@@ -38,20 +38,24 @@ public class NodeConnectProvider implements ConnectProvider
 		{
 			numEdges = edges.size();
 		}
-		if (canvas.getCanvasActiveTool().equals(CanvasData.SUCCESSOR))
+		
+		int i = numEdges;
+		do
 		{
-			edge = CanvasData.SUC_LBL + numEdges;
-			canvas.getCandidateSuc().add(edge);
-		}
-		else if (canvas.getCanvasActiveTool().equals(CanvasData.ALTERNATIVE))
-		{
-			edge = CanvasData.ALT_LBL + numEdges;
-			canvas.getCandidateAlt().add(edge);
-		}
-		else
-		{
-			edge = "edge" + numEdges;
-		}
+			if (canvas.getCanvasActiveTool().equals(CanvasData.SUCCESSOR))
+			{
+				edge = CanvasData.SUC_LBL + i;
+			}
+			else if (canvas.getCanvasActiveTool().equals(CanvasData.ALTERNATIVE))
+			{
+				edge = CanvasData.ALT_LBL + i;
+			}
+			else
+			{
+				edge = "edge" + i;
+			}
+			i++;
+		} while(edges.contains(edge));
 
 		canvas.addEdge(edge);
 		canvas.setEdgeSource(edge, source);

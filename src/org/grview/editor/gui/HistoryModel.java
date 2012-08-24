@@ -41,21 +41,21 @@ import javax.swing.DefaultListModel;
  */
 public class HistoryModel extends DefaultListModel implements MutableListModel
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
 	// {{{ Private members
 	private static int max;
-
-	private String name;
 
 	private static Map<String, HistoryModel> models;
 
 	private static boolean modified;
 
 	private static HistoryModelSaver saver;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
+	private String name;
 
 	// }}}
 

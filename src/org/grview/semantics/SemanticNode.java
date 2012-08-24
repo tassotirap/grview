@@ -14,8 +14,8 @@ package org.grview.semantics;
  */
 public class SemanticNode
 {
-	private Object Tab;
 	private int index;
+	private Object Tab;
 
 	public int Index()
 	{

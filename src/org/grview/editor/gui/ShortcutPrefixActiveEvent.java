@@ -46,7 +46,7 @@ public class ShortcutPrefixActiveEvent extends ChangeEvent
 	/**
 	 * Description of the Field
 	 */
-	protected Hashtable bindings;
+	protected static EventListenerList listenerList = new EventListenerList();
 	/**
 	 * Description of the Field
 	 */
@@ -55,7 +55,7 @@ public class ShortcutPrefixActiveEvent extends ChangeEvent
 	/**
 	 * Description of the Field
 	 */
-	protected static EventListenerList listenerList = new EventListenerList();
+	protected Hashtable bindings;
 
 	// {{{ Constructor
 	/**

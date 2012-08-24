@@ -86,22 +86,22 @@ public class JEditBeanShellAction extends AbstractEditAction<TextArea>
 		}
 	} // }}}
 
-	// {{{ Private members
-	private boolean noRepeat;
+	private static final BeanShellFacade<TextArea> bsh = new MyBeanShellFacade();
 
-	private boolean noRecord;
+	private BshMethod cachedCode;
 
-	private boolean noRememberLast;
+	private BshMethod cachedIsSelected;
 
 	private String code;
 
 	private String isSelected;
 
-	private BshMethod cachedCode;
+	private boolean noRecord;
 
-	private BshMethod cachedIsSelected;
+	private boolean noRememberLast;
+	// {{{ Private members
+	private boolean noRepeat;
 	private String sanitizedName;
-	private static final BeanShellFacade<TextArea> bsh = new MyBeanShellFacade();
 
 	// }}}
 	// {{{ BeanShellAction constructor

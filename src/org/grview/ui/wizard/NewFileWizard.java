@@ -17,12 +17,12 @@ public class NewFileWizard
 
 	private final static String img_path = "/org/grview/images/";
 
-	private final static String newLex = img_path + "new-file-lex.png";
-	private final static String newSem = img_path + "new-file-sem.png";
 	private final static String newGram = img_path + "new-file-gram.png";
-	private final static String newTxt = img_path + "new-file-txt.png";
 	private final static String newIn = img_path + "new-file-in.png";
+	private final static String newLex = img_path + "new-file-lex.png";
 	private final static String newOut = img_path + "new-file-out.png";
+	private final static String newSem = img_path + "new-file-sem.png";
+	private final static String newTxt = img_path + "new-file-txt.png";
 
 	private FileEntry[] entrys = new FileEntry[]{ new FileEntry(LangHelper.new_gram, newGram, new FileNames(FileNames.GRAM_EXTENSION)), new FileEntry(LangHelper.new_sem, newSem, new FileNames(FileNames.SEM_EXTENSION)), new FileEntry(LangHelper.new_lex, newLex, new FileNames(FileNames.LEX_EXTENSION)), new FileEntry(LangHelper.new_txt, newTxt, new FileNames(FileNames.TXT_EXTENSION)), new FileEntry(LangHelper.new_in, newIn, new FileNames(FileNames.IN_EXTENSION)), new FileEntry(LangHelper.new_out, newOut, new FileNames(FileNames.OUT_EXTENSION)) };
 

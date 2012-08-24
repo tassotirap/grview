@@ -13,8 +13,8 @@ import org.netbeans.api.visual.widget.Widget;
 public class WidgetDeleteProvider
 {
 
-	private Canvas canvas;
 	PropertyChangeSupport monitor;
+	private Canvas canvas;
 
 	public WidgetDeleteProvider(Canvas canvas)
 	{

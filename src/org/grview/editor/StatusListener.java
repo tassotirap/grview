@@ -28,8 +28,8 @@ package org.grview.editor;
  */
 public interface StatusListener extends java.util.EventListener
 {
-	int OVERWRITE_CHANGED = 0;
 	int MULTI_SELECT_CHANGED = 1;
+	int OVERWRITE_CHANGED = 0;
 	int RECT_SELECT_CHANGED = 2;
 
 	void bracketSelected(TextArea textArea, int line, String text);

@@ -16,8 +16,8 @@ import org.netbeans.api.visual.widget.Widget;
 public class AlternativeConnectorDecorator implements ConnectDecorator
 {
 
-	private ConnectionWidget thisConnection;
 	private GraphScene scene;
+	private ConnectionWidget thisConnection;
 
 	@Override
 	public ConnectionWidget createConnectionWidget(Scene scene)

@@ -66,8 +66,8 @@ public class Gutter extends JComponent implements SwingConstants
 	// {{{ MouseHandler class
 	class MouseHandler extends MouseInputAdapter
 	{
-		MouseActionsProvider mouseActions;
 		boolean drag;
+		MouseActionsProvider mouseActions;
 		int toolTipInitialDelay, toolTipReshowDelay;
 
 		// {{{ mouseDragged() method
@@ -218,19 +218,13 @@ public class Gutter extends JComponent implements SwingConstants
 		} // }}}
 	} // }}}
 
+	// {{{ Instance variables
+	private static final int FOLD_MARKER_SIZE = 12;
+
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
-	// {{{ Layers
-	/**
-	 * The lowest possible layer.
-	 * 
-	 * @see #addExtension(int,TextAreaExtension)
-	 * @since jEdit 4.0pre4
-	 */
-	public static final int LOWEST_LAYER = Integer.MIN_VALUE;
 
 	/**
 	 * Default extension layer. This is above the wrap guide but below the
@@ -248,46 +242,52 @@ public class Gutter extends JComponent implements SwingConstants
 	public static final int HIGHEST_LAYER = Integer.MAX_VALUE;
 	// }}}
 
-	// {{{ Instance variables
-	private static final int FOLD_MARKER_SIZE = 12;
-
-	private final TextArea textArea;
-
-	private MouseHandler mouseHandler;
-
-	private ExtensionManager extensionMgr;
-
-	private int baseline;
-
-	private Dimension gutterSize = new Dimension(0, 0);
-
-	private Dimension collapsedSize = new Dimension(0, 0);
-
-	private Color intervalHighlight;
-
-	private Color currentLineHighlight;
-
-	private Color foldColor;
-
-	// {{{ Getters and setters
-
-	private FontMetrics fm;
+	// {{{ Layers
+	/**
+	 * The lowest possible layer.
+	 * 
+	 * @see #addExtension(int,TextAreaExtension)
+	 * @since jEdit 4.0pre4
+	 */
+	public static final int LOWEST_LAYER = Integer.MIN_VALUE;
 
 	private int alignment;
 
-	private int interval;
+	private int baseline;
+
+	private int borderWidth;
+
+	private Dimension collapsedSize = new Dimension(0, 0);
+
+	private Color currentLineHighlight;
 
 	private boolean currentLineHighlightEnabled;
 
 	private boolean expanded;
 
+	private ExtensionManager extensionMgr;
+
+	private FontMetrics fm;
+
+	// {{{ Getters and setters
+
+	private Border focusBorder, noFocusBorder;
+
+	private Color foldColor;
+
+	private Dimension gutterSize = new Dimension(0, 0);
+
+	private int interval;
+
+	private Color intervalHighlight;
+
+	private MouseHandler mouseHandler;
+
 	private boolean structureHighlight;
 
 	private Color structureHighlightColor;
 
-	private int borderWidth;
-
-	private Border focusBorder, noFocusBorder;
+	private final TextArea textArea;
 
 	// }}}
 

@@ -34,11 +34,11 @@ class BufferSegment implements CharSequence
 
 	private final char[] data;
 
-	private final int offset;
-
 	private final int len;
 
 	private final BufferSegment next;
+
+	private final int offset;
 
 	public BufferSegment(char[] data, int offset, int len)
 	{

@@ -15,19 +15,19 @@ import org.netbeans.api.visual.widget.Widget;
 public class LineWidget extends Widget
 {
 
-	private Canvas canvas;
-	protected int width;
-	protected int height;
-	private Integer number;
-
-	private PropertyChangeSupport monitor;
-
-	public final static String LINE_PAINTED_EVENT = "Line Painted";
-	public final static int LINE_NUMBER_SPACE = 5;
 	public final static int DEFAULT_HEIGHT = 34;
 	public final static Color LINE_COLOR = new Color(221, 221, 221);
+	public final static int LINE_NUMBER_SPACE = 5;
+	public final static String LINE_PAINTED_EVENT = "Line Painted";
+
 	public final static Color NUMBER_COLOR = new Color(100, 100, 100);
+
 	public final static Font NUMBER_FONT = new Font("Arial", Font.PLAIN, 12);
+	private Canvas canvas;
+	private PropertyChangeSupport monitor;
+	private Integer number;
+	protected int height;
+	protected int width;
 
 	public LineWidget(Canvas canvas)
 	{

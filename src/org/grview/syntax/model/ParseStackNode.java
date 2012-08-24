@@ -18,10 +18,10 @@ public class ParseStackNode
 {
 	/* The flag, a unique identifier for presentation and debug */
 	private String flag;
-	/* The type of the token */
-	private String syn;
 	/* The semantic symbol of the token */
 	private Object sem;
+	/* The type of the token */
+	private String syn;
 
 	public ParseStackNode(String flag, String str)
 	{

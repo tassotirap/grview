@@ -14,11 +14,11 @@ import org.grview.util.Log;
 public class RoutineWizard
 {
 
+	private String routineName;
+	private final SemFileManager semFileManager;
 	/** the widget that will receive a semantic routine **/
 	private MarkedWidget widget;
 	private String widgetName;
-	private String routineName;
-	private final SemFileManager semFileManager;
 
 	/**
 	 * Constructor

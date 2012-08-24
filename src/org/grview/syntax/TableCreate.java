@@ -16,9 +16,9 @@ import java.io.StringReader;
 public class TableCreate
 {
 
-	private String tab[][];
 	private BufferedReader in;
 	private int nlines;
+	private String tab[][];
 
 	public TableCreate(String grammar, boolean isFile)
 	{

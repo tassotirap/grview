@@ -35,14 +35,14 @@ import org.grview.editor.gui.MutableListModel;
  */
 public class KillRing implements MutableListModel
 {
-	// {{{ Private members
-	private UndoManager.RemovedContent[] ring;
+	private static KillRing killRing = new KillRing();
 
 	private int count;
 
-	private boolean wrap;
+	// {{{ Private members
+	private UndoManager.RemovedContent[] ring;
 
-	private static KillRing killRing = new KillRing();
+	private boolean wrap;
 
 	// {{{ getInstance() method
 	public static KillRing getInstance()

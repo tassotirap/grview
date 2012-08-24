@@ -16,12 +16,12 @@ public class ErrorDialog extends JDialog
 {
 
 	private static final long serialVersionUID = 1L;
-	private JPanel jContentPane = null;
+	private JButton btOk = null;
 	private JLabel errorLabel = null;
 	private JList errorList = null;
-	private JTextArea taErrorDescription = null;
-	private JButton btOk = null;
+	private JPanel jContentPane = null;
 	private JLabel labelDesc = null;
+	private JTextArea taErrorDescription = null;
 
 	/**
 	 * @param owner

@@ -63,18 +63,18 @@ public class NewFileWizardWindow extends JFrame
 	}
 
 	private static final long serialVersionUID = 1L;
-	private JPanel jContentPane = null;
-	private JLabel jLabel = null;
-	private JList jList = null;
-	private JPanel jPanel1 = null;
+	private HashMap<String, String> descByName;
+	private Object[] fileEntries;
 	private JButton jButton = null;
 	private JButton jButton1 = null;
-	private JTextArea jTextArea = null;
-	private JPanel jPanel2 = null;
-
+	private JPanel jContentPane = null;
+	private JLabel jLabel = null;
 	private JLabel jLabel2 = null;
-	private Object[] fileEntries;
-	private HashMap<String, String> descByName;
+	private JList jList = null;
+
+	private JPanel jPanel1 = null;
+	private JPanel jPanel2 = null;
+	private JTextArea jTextArea = null;
 
 	private JTextField jTextField = null;
 

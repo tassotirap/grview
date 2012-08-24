@@ -16,6 +16,7 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.IOException;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.EventObject;
@@ -44,81 +45,36 @@ import org.netbeans.api.visual.widget.LayerWidget;
 public abstract class Canvas extends GraphScene.StringGraph implements PropertyChangeListener, ActionContextHolder<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>>
 {
 
-	/**
-	 * This inner classes acts as a facade used to forward key events to
-	 * keylisteners "hanged" to this canvas This class was created to deal with
-	 * some issues that arose when trying to integrate this canvas and
-	 * infonode's docking framework. So it may be not be necessary on some
-	 * cases.
-	 */
-	protected class KeyListenerFacade implements KeyListener
-	{
+	private static final double MIN_ZOOM = 0.5;
 
-		@Override
-		public void keyPressed(KeyEvent e)
-		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyPressed(e);
-			}
-		}
+	private static final double MAX_ZOOM = 1.5;
 
-		@Override
-		public void keyReleased(KeyEvent e)
-		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyReleased(e);
-			}
-		}
-
-		@Override
-		public void keyTyped(KeyEvent e)
-		{
-			for (KeyListener kl : getView().getKeyListeners())
-			{
-				kl.keyTyped(e);
-			}
-		}
-	}
-
-	// The different possible types of cursor, only the static ones
-
-	private ArrayList<String> candidateSuc = new ArrayList<String>();
-	private ArrayList<String> candidateAlt = new ArrayList<String>();
-	private ArrayList<String> successors = new ArrayList<String>();
-	private ArrayList<String> alternatives = new ArrayList<String>();
-
-	private HashMap<String, Cursor> cursors = new HashMap<String, Cursor>();
-	public List<String> labels = new ArrayList<String>();
-	public List<String> leftSides = new ArrayList<String>();
-	public List<String> terminals = new ArrayList<String>();
-	public List<String> nterminals = new ArrayList<String>();
-	public List<String> lambdas = new ArrayList<String>();
-	public List<String> start = new ArrayList<String>();
-
-	public List<String> customNodes = new ArrayList<String>();
-	private boolean showingLines;
-	private boolean showingGrid;
-
-	private boolean showingGuide;
-
-	// Actions repository
-	public WidgetActionRepository actions;
-
-	// Used to draw the canvas properly
-	public CanvasDecorator decorator;
-
-	// provides an action context, specially for user input
 	private AsinActionContext<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>> actionContext;
+	
 
+	private AbstractMap<String, Cursor> cursors = new HashMap<String, Cursor>();
 	private InputHandlerProvider inputHandlerProvider;
-
-	// holds references to all monitors interested in events that may occur
-	// directly in this canvas
-	private ArrayList<PropertyChangeSupport> monitors = new ArrayList<PropertyChangeSupport>();
-
 	private PropertyChangeSupport monitor;
+
+	private List<PropertyChangeSupport> monitors = new ArrayList<PropertyChangeSupport>();
+	private boolean showingGrid;
+	private boolean showingGuide;
+	private boolean showingLines;
+	
+	protected WidgetActionRepository actions;
+	
+	private List<String> customNodes = new ArrayList<String>();
+	
+	protected CanvasDecorator decorator;
+
+	protected List<String> alternatives = new ArrayList<String>();
+	protected List<String> labels = new ArrayList<String>();
+	protected List<String> lambdas = new ArrayList<String>();
+	protected List<String> leftSides = new ArrayList<String>();
+	protected List<String> nterminals = new ArrayList<String>();
+	protected List<String> start = new ArrayList<String>();
+	protected List<String> successors = new ArrayList<String>();
+	protected List<String> terminals = new ArrayList<String>();
 
 	public Canvas(String cursor, String connectionStrategy, String movementStrategy, WidgetActionRepository actions, CanvasDecorator decorator)
 	{
@@ -140,12 +96,12 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public boolean canZoomIn()
 	{
-		return getZoomFactor() < 1.5;
+		return getZoomFactor() < MAX_ZOOM;
 	}
 
 	public boolean canZoomOut()
 	{
-		return getZoomFactor() > 0.5;
+		return getZoomFactor() > MIN_ZOOM;
 	}
 
 	public void createCursors()
@@ -218,15 +174,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public abstract LayerWidget getBackgroundLayer();
 
-	public List<String> getCandidateAlt()
-	{
-		return candidateAlt;
-	}
-
-	public List<String> getCandidateSuc()
-	{
-		return candidateSuc;
-	}
 
 	public String getCanvasActiveTool()
 	{
@@ -245,6 +192,11 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	public abstract LayerWidget getConnectionLayer();
 
 	public abstract String getConnStrategy();
+
+	public List<String> getCustomNodes()
+	{
+		return customNodes;
+	}
 
 	public AbstractInputHandler<?> getInputHandler()
 	{
@@ -378,16 +330,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		return alternatives.contains(edge);
 	}
 
-	public boolean isCandidateAlternative(String edge)
-	{
-		return candidateAlt.contains(edge);
-	}
-
-	public boolean isCandidateSuccessor(String edge)
-	{
-		return candidateSuc.contains(edge);
-	}
-
 	public abstract boolean isLabel(Object o);
 
 	/**
@@ -501,16 +443,49 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	public void setFocused()
 	{
 		getView().grabFocus();
-		Component c = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
-		if (c != null)
+		Component component = KeyboardFocusManager.getCurrentKeyboardFocusManager().getFocusOwner();
+		if (component != null)
 		{
-			if (c.getKeyListeners().length == 0)
+			if (component.getKeyListeners().length == 0)
 			{
-				c.addKeyListener(new KeyListenerFacade());
+				component.addKeyListener(new KeyListener()
+				{
+
+					@Override
+					public void keyPressed(KeyEvent e)
+					{
+						for (KeyListener keyListener : getView().getKeyListeners())
+						{
+							keyListener.keyPressed(e);
+						}
+					}
+
+					@Override
+					public void keyReleased(KeyEvent e)
+					{
+						for (KeyListener keyListener : getView().getKeyListeners())
+						{
+							keyListener.keyReleased(e);
+						}
+					}
+
+					@Override
+					public void keyTyped(KeyEvent e)
+					{
+						for (KeyListener keyListener : getView().getKeyListeners())
+						{
+							keyListener.keyTyped(e);
+						}
+					}
+				});
 			}
 		}
 	}
 
+	/**
+	 * 
+	 * @param labels
+	 */
 	public void setLabels(List<String> labels)
 	{
 		this.labels = labels;
@@ -538,6 +513,8 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		getCanvasState().getPreferences().setShowGuide(showingGuide);
 	}
 
+	// //INNER CLASSES////////
+
 	/**
 	 * @param showingLines
 	 *            the showingLines to set
@@ -547,8 +524,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 		this.showingLines = showingLines;
 		getCanvasState().getPreferences().setShowLines(showingLines);
 	}
-
-	// //INNER CLASSES////////
 
 	/**
 	 * Unregister a monitor of events

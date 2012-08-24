@@ -14,9 +14,9 @@ import org.grview.project.ProjectManager;
 
 public class FileSystemModel implements TreeModel
 {
-	private File root;
-
 	private Vector<TreeModelListener> listeners = new Vector<TreeModelListener>();
+
+	private File root;
 
 	public FileSystemModel(File rootDirectory)
 	{

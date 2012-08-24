@@ -29,23 +29,23 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 {
 
-	private Stack parseStack;
-	private TabNode[] tabT;
-	private Yytoken currentToken;
-
-	private SemanticRoutinesRepo repository;
-
-	private Project project;
-
 	private static SemanticRoutinesIvoker lastInstance;
 	public static final String DEFAULT_SR_CLASS = "org.grview.semantics.SemanticRoutines";
 	public static final String SPRING_XML_MODEL = "beaninjection.xml";
 
 	private FileSystemXmlApplicationContext ctx;
-	private Object scriptlet;
-	private GroovyObject goo;
 
+	private Yytoken currentToken;
+
+	private GroovyObject goo;
 	private boolean loaded = false;
+	private Stack parseStack;
+
+	private Project project;
+	private SemanticRoutinesRepo repository;
+	private Object scriptlet;
+
+	private TabNode[] tabT;
 
 	public SemanticRoutinesIvoker(Project project) throws MalformedURLException
 	{

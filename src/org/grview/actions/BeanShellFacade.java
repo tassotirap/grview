@@ -49,14 +49,14 @@ import bsh.classpath.ClassManagerImpl;
  */
 public abstract class BeanShellFacade<T>
 {
-	// {{{ Static variables
-	protected NameSpace global;
-
-	protected BshClassManager classManager;
-
 	private static Interpreter interpForMethods;
 
 	private static final Object[] NO_ARGS = new Object[0];
+
+	protected BshClassManager classManager;
+
+	// {{{ Static variables
+	protected NameSpace global;
 
 	// }}}
 

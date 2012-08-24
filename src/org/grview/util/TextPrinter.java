@@ -26,22 +26,22 @@ import java.awt.print.PrinterJob;
 public class TextPrinter implements Printable
 {
 	/**
-	 * Default font size, 12 point
-	 */
-	public static final int DEFAULT_FONT_SIZE = 12;
-
-	/**
 	 * Default type name, Serif
 	 */
 	public static final String DEFAULT_FONT_NAME = "Serif";
 
+	/**
+	 * Default font size, 12 point
+	 */
+	public static final int DEFAULT_FONT_SIZE = 12;
+
+	private String[] body;
+	private String[] header;
 	private PrinterJob job;
-	private String typeName;
-	private int typeSize;
 	private Font typeFont;
 	private Font typeFontBold;
-	private String[] header;
-	private String[] body;
+	private String typeName;
+	private int typeSize;
 
 	/**
 	 * Create a TextPrinter object with the default type font and size.

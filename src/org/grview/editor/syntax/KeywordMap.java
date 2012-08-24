@@ -39,9 +39,9 @@ public class KeywordMap
 	// {{{ Keyword class
 	class Keyword
 	{
-		public char[] keyword;
-
 		public byte id;
+
+		public char[] keyword;
 		public Keyword next;
 
 		public Keyword(char[] keyword, byte id, Keyword next)
@@ -52,12 +52,12 @@ public class KeywordMap
 		}
 	} // }}}
 
-	// {{{ Instance variables
-	private int mapLength;
+	private boolean ignoreCase;
 
 	private Keyword[] map;
 
-	private boolean ignoreCase;
+	// {{{ Instance variables
+	private int mapLength;
 
 	private StringBuffer noWordSep;
 

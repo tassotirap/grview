@@ -21,16 +21,16 @@ public class Analyzer
 	{
 
 		private static final long serialVersionUID = 687894412957568389L;
-		/** When term is true, the node is a terminal **/
-		private boolean term;
-		/** a reference to this node on the symbols table **/
-		private int sim;
 		/** the index of this node's alternative **/
 		private int alt;
-		/** the index of this node's successor **/
-		private int suc;
 		/** indicates which semantic routine to use **/
 		private String sem;
+		/** a reference to this node on the symbols table **/
+		private int sim;
+		/** the index of this node's successor **/
+		private int suc;
+		/** When term is true, the node is a terminal **/
+		private boolean term;
 
 		public TabGraphNode()
 		{
@@ -251,44 +251,44 @@ public class Analyzer
 
 	/* Serialized Version of the default grammar */
 	public final static byte[] StabGraph = new byte[0];
-	public final static byte[] StabT = new byte[0];
 	public final static byte[] StabNT = new byte[0];
+	public final static byte[] StabT = new byte[0];
 
+	SemanticRoutines sr;
+	private ParseStackNode auxParseSNode;
+	private boolean continueSentinel;
+	private Object currentSemanticSymbol;
+	private String currentSymbol;
+
+	private Yytoken currToken;
+	private PrintStream err;
+	private GrViewStackNode grViewSNode;
+	private Stack<GrViewStackNode> grViewStack;
+	private int I;
+
+	private BufferedReader in;
+
+	private int IU;
+	private Yylex lex;
+	private Stack<Integer> nTermStack;
+	private PrintStream out;
+	private Stack<ParseStackNode> parseStack;
+	private String pastSymbol;
+	private File sourceFile = null;
 	/* the actual variables that hold the default grammar */
 	/** the graph of nodes **/
 	private TabGraphNode tabGraph[];
-	/** the symbol table containing the terminal nodes **/
-	private TabNode tabT[];
 	/** the symbol table containing the non-terminal nodes **/
 	private TabNode tabNT[];
-	private String currentSymbol;
-	private Object currentSemanticSymbol;
-
-	private String pastSymbol;
-	private String wrongLine;
-	private Yytoken currToken;
-	private Stack<GrViewStackNode> grViewStack;
-	private Stack<ParseStackNode> parseStack;
-
-	private Stack<Integer> nTermStack;
-
-	private GrViewStackNode grViewSNode;
-	private ParseStackNode auxParseSNode;
-	SemanticRoutines sr;
-	private BufferedReader in;
-	private File sourceFile = null;
-	private PrintStream out;
-	private PrintStream err;
-	private int I;
-	private int IU;
 
 	/* --------------- END VARIABLES ---------------- */
 
+	/** the symbol table containing the terminal nodes **/
+	private TabNode tabT[];
+
 	private int toppsIU;
 
-	private Yylex lex;
-
-	private boolean continueSentinel;
+	private String wrongLine;
 
 	/**
 	 * A constructor

@@ -13,11 +13,11 @@ import org.netbeans.modules.visual.util.GeomUtil;
 public class LabelWidgetExt extends org.netbeans.api.visual.widget.LabelWidget implements TypedWidget, MarkedWidget
 {
 
-	private String type;
 	private String mark;
-
 	private Paint markBackground;
+
 	private Color markForeground;
+	private String type;
 
 	public LabelWidgetExt(Scene scene)
 	{

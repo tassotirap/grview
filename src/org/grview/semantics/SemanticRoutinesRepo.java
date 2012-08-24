@@ -22,13 +22,13 @@ import org.grview.syntax.model.TabNode;
 
 public class SemanticRoutinesRepo
 {
-	public static final String END_ROUTINE = "/* END ROUTINE: ";
-
-	public static final String END_SEMANTIC_ROUTINES = "/* END SEMANTIC ROUTINES */";
+	public static final String BEGIN_ROUTINE = "/* BEGIN ROUTINE: ";
 
 	public static final String BEGIN_SEMANTIC_ROUTINES = "/* BEGIN SEMANTIC ROUTINES */";
 
-	public static final String BEGIN_ROUTINE = "/* BEGIN ROUTINE: ";
+	public static final String END_ROUTINE = "/* END ROUTINE: ";
+
+	public static final String END_SEMANTIC_ROUTINES = "/* END SEMANTIC ROUTINES */";
 
 	private Yytoken currentToken;
 

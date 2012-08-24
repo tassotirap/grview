@@ -49,14 +49,14 @@ import java.net.URL;
 public class SplashWindow extends java.awt.Window
 {
 	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-
-	/**
 	 * The current instance of the splash window. (Singleton design pattern).
 	 */
 	private static SplashWindow instance;
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	/**
 	 * The splash image which is displayed on the splash window.

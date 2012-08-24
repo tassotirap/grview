@@ -37,14 +37,14 @@ import javax.swing.text.Segment;
  */
 public class ContentManager
 {
-	// {{{ Private members
-	private char[] text;
+	private int gapEnd;
 
 	private int gapStart;
 
-	private int gapEnd;
-
 	private int length;
+
+	// {{{ Private members
+	private char[] text;
 
 	// {{{ ensureCapacity() method
 	private void ensureCapacity(int capacity)

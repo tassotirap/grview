@@ -37,11 +37,11 @@ public class CloseBracketIndentRule extends BracketIndentRule
 	// {{{ AlignBracket class
 	private static class AlignBracket implements IndentAction
 	{
-		private int line, offset;
-		private int openBracketLine;
-		private int openBracketColumn;
-		private CharSequence openBracketLineText;
 		private int extraIndent;
+		private int line, offset;
+		private int openBracketColumn;
+		private int openBracketLine;
+		private CharSequence openBracketLineText;
 
 		public AlignBracket(JEditBuffer buffer, int line, int offset)
 		{

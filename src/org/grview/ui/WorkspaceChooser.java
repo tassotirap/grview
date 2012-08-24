@@ -28,20 +28,20 @@ import org.jdesktop.layout.LayoutStyle;
  */
 public class WorkspaceChooser extends JFrame
 {
+	private static WorkspaceChooser instance;
+	private static final String LIST_FILE = "workspace";
 	private static final String PROJECTS_SCREEN_PNG = "projects_screen.png";
 	private static final long serialVersionUID = 1L;
-	private static final String LIST_FILE = "workspace";
-	private static WorkspaceChooser instance;
-	private String workspaceDir;
-
-	private boolean canceled;
-	private boolean done;
 	private JButton btnBrowse;
-	private JButton btnOk;
+
 	private JButton btnCancel;
+	private JButton btnOk;
+	private boolean canceled;
+	private JComboBox<String> ckbWorkspace;
+	private boolean done;
 	private JLabel imgWorkspace;
 	private JLabel lblWorkspace;
-	private JComboBox<String> ckbWorkspace;
+	private String workspaceDir;
 
 	private WorkspaceChooser()
 	{

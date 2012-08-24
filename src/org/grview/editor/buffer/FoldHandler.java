@@ -45,6 +45,9 @@ import javax.swing.text.Segment;
  */
 public abstract class FoldHandler
 {
+	/** The FoldHandlerProvider. */
+	public static FoldHandlerProvider foldHandlerProvider;
+
 	/**
 	 * The service type. See {@link org.grview.actions.ServiceManager}.
 	 * 
@@ -54,9 +57,6 @@ public abstract class FoldHandler
 	 */
 	@Deprecated
 	public static final String SERVICE = "org.gjt.sp.jedit.buffer.FoldHandler";
-
-	/** The FoldHandlerProvider. */
-	public static FoldHandlerProvider foldHandlerProvider;
 
 	private String name;
 

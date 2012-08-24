@@ -35,10 +35,10 @@ package org.grview.actions;
  */
 public abstract class AbstractEditAction<E>
 {
+	protected Object[] args;
+
 	// {{{ Private members
 	protected String name;
-
-	protected Object[] args;
 
 	// }}}
 

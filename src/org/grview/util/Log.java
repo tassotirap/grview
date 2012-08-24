@@ -162,8 +162,8 @@ public class Log
 	// {{{ LogOutputStream class
 	private static class LogOutputStream extends OutputStream
 	{
-		private final int urgency;
 		private final Object source;
+		private final int urgency;
 
 		// {{{ LogOutputStream constructor
 		LogOutputStream(int urgency, Object source)
@@ -247,52 +247,11 @@ public class Log
 		} // }}}
 	} // }}}
 
-	// {{{ Constants
-	/**
-	 * The maximum number of log messages that will be kept in memory.
-	 * 
-	 * @since jEdit 2.6pre5
-	 */
-	public static final int MAXLINES = 500;
+	private static int level;
 
-	/**
-	 * Debugging message urgency. Should be used for messages only useful when
-	 * debugging a problem.
-	 * 
-	 * @since jEdit 2.2pre2
-	 */
-	public static final int DEBUG = 1;
+	private static final String lineSep;
 
-	/**
-	 * Message urgency. Should be used for messages which give more detail than
-	 * notices.
-	 * 
-	 * @since jEdit 2.2pre2
-	 */
-	public static final int MESSAGE = 3;
-
-	/**
-	 * Notice urgency. Should be used for messages that directly affect the
-	 * user.
-	 * 
-	 * @since jEdit 2.2pre2
-	 */
-	public static final int NOTICE = 5;
-
-	/**
-	 * Warning urgency. Should be used for messages that warrant attention.
-	 * 
-	 * @since jEdit 2.2pre2
-	 */
-	public static final int WARNING = 7;
-
-	/**
-	 * Error urgency. Should be used for messages that signal a failure.
-	 * 
-	 * @since jEdit 2.2pre2
-	 */
-	public static final int ERROR = 9;
-	// }}}
+	private static final LogListModel listModel;
 
 	// {{{ Instance variables
 	private static final Object LOCK;
@@ -301,19 +260,60 @@ public class Log
 
 	private static int logLineCount;
 
-	private static boolean wrap;
+	private static final int MAX_THROWABLES = 10;
+
+	private static final PrintStream realErr;
+
+	private static final PrintStream realOut;
+
+	private static Writer stream;
 
 	// {{{ Private members
 
-	private static int level;
-	private static Writer stream;
-	private static final String lineSep;
-	private static final PrintStream realOut;
-	private static final PrintStream realErr;
-	private static final LogListModel listModel;
 	private static final DateFormat timeFormat;
-	private static final int MAX_THROWABLES = 10;
+	private static boolean wrap;
+	/**
+	 * Debugging message urgency. Should be used for messages only useful when
+	 * debugging a problem.
+	 * 
+	 * @since jEdit 2.2pre2
+	 */
+	public static final int DEBUG = 1;
+	/**
+	 * Error urgency. Should be used for messages that signal a failure.
+	 * 
+	 * @since jEdit 2.2pre2
+	 */
+	public static final int ERROR = 9;
+	// }}}
+	// {{{ Constants
+	/**
+	 * The maximum number of log messages that will be kept in memory.
+	 * 
+	 * @since jEdit 2.6pre5
+	 */
+	public static final int MAXLINES = 500;
+	/**
+	 * Message urgency. Should be used for messages which give more detail than
+	 * notices.
+	 * 
+	 * @since jEdit 2.2pre2
+	 */
+	public static final int MESSAGE = 3;
+	/**
+	 * Notice urgency. Should be used for messages that directly affect the
+	 * user.
+	 * 
+	 * @since jEdit 2.2pre2
+	 */
+	public static final int NOTICE = 5;
 	public static final List<Throwable> throwables;
+	/**
+	 * Warning urgency. Should be used for messages that warrant attention.
+	 * 
+	 * @since jEdit 2.2pre2
+	 */
+	public static final int WARNING = 7;
 	// }}}
 	// {{{ Class initializer
 	static

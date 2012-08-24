@@ -37,11 +37,11 @@ public class SegmentCharSequence implements CharSequence, Serializable
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private boolean reverse;
+	private int length;
 
 	private int offset;
 
-	private int length;
+	private boolean reverse;
 
 	private Segment seg;
 

@@ -20,15 +20,15 @@ public class ThemeManager
 		BlueHighlightDockingTheme, ClassicDockingTheme, DefaultDockingTheme, GradientDockingTheme, LookAndFeelDockingTheme, ShapedGradientDockingTheme, SlimFlatDockingTheme, SoftBlueIceDockingTheme,
 	}
 
-	private static BlueHighlightDockingTheme blueHighlightDockingTheme;
-	private static ClassicDockingTheme classicDockingTheme;
 	static DefaultDockingTheme defaultDockingTheme;
 	static GradientDockingTheme gradientDockingTheme;
 	static LookAndFeelDockingTheme lookAndFeelDockingTheme;
 	static ShapedGradientDockingTheme shapedGradientDockingTheme;
 	static SlimFlatDockingTheme slimFlatDockingTheme;
-
 	static SoftBlueIceDockingTheme softBlueIceDockingTheme;
+	private static BlueHighlightDockingTheme blueHighlightDockingTheme;
+
+	private static ClassicDockingTheme classicDockingTheme;
 
 	private static BlueHighlightDockingTheme getBlueHighlightDockingTheme()
 	{

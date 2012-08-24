@@ -9,27 +9,27 @@ import java.util.Vector;
 abstract public class SyntaxSubpart extends SyntaxElement
 {
 
-	/**
-	 * the number used to indicate this subpart, an alternative representation
-	 * necessary when compiling this grammar
-	 **/
-	protected int number;
-	/** used during search for mark this subpart for depth first search **/
-	protected boolean flag;
-	/**
-	 * The next subpart, observe that for now there's only support for one
-	 * successor only
-	 **/
-	protected SyntaxSubpart Sucessor;
+	static final long serialVersionUID = 1;
+	private String id;
 	/**
 	 * The next alternative subpart, observe that for now there's only support
 	 * for one alternative only
 	 **/
 	protected SyntaxSubpart Alternative;
-	private String id;
+	/** used during search for mark this subpart for depth first search **/
+	protected boolean flag;
 	protected Vector<Connection> inputs = new Vector<Connection>(4, 4);
+	/**
+	 * the number used to indicate this subpart, an alternative representation
+	 * necessary when compiling this grammar
+	 **/
+	protected int number;
 	protected Vector<Connection> outputs = new Vector<Connection>(4, 4);
-	static final long serialVersionUID = 1;
+	/**
+	 * The next subpart, observe that for now there's only support for one
+	 * successor only
+	 **/
+	protected SyntaxSubpart Sucessor;
 
 	public SyntaxSubpart(String id)
 	{

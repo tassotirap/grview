@@ -47,17 +47,12 @@ public class KeyEventTranslator
 	// {{{ Key class
 	public static class Key
 	{
-		public final String modifiers;
-		public final int key;
-		public final char input;
-
 		private final int hashCode;
 		/**
 		 * Wether this Key event applies to all jEdit windows (and not only a
 		 * specific jEdit GUI component).
 		 */
 		protected boolean isFromGlobalContext;
-
 		/**
 		 * Wether this Key event is a phantom key event. A phantom key event is
 		 * a kind of duplicate key event which should not - due to its nature of
@@ -67,6 +62,11 @@ public class KeyEventTranslator
 		 * generate any action and thus would be consumed.
 		 */
 		protected boolean isPhantom;
+
+		public final char input;
+		public final int key;
+
+		public final String modifiers;
 
 		public Key(String modifiers, int key, char input)
 		{
@@ -126,18 +126,18 @@ public class KeyEventTranslator
 
 	// {{{ translateKeyEvent() method
 
-	protected static KeyEvent lastKeyPressEvent;
-
-	protected static boolean lastKeyPressAccepted;
+	static int c, a, m, s;
 
 	// {{{ modifiersToString() method
 	private static final int[] MODS = { InputEvent.CTRL_MASK, InputEvent.ALT_MASK, InputEvent.META_MASK, InputEvent.SHIFT_MASK };
 
-	static int c, a, m, s;
-
 	// {{{ Private members
 	/** This map is a pool of Key. */
 	private static final Map<Key, Key> transMap = new HashMap<Key, Key>();
+
+	protected static boolean lastKeyPressAccepted;
+
+	protected static KeyEvent lastKeyPressEvent;
 
 	static
 	{

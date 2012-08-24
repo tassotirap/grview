@@ -11,11 +11,11 @@ import java.io.Serializable;
 
 public class StaticStateManager
 {
-	private Object object;
+	private File file;
 
 	private PropertyChangeSupport monitor;
 
-	private File file;
+	private Object object;
 
 	public StaticStateManager()
 	{

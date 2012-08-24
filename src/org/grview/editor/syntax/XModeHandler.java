@@ -54,32 +54,32 @@ public abstract class XModeHandler extends DefaultHandler
 	private class TagDecl
 	{
 
-		public String tagName;
-
-		public StringBuffer lastStart;
-
-		public StringBuffer lastEnd;
-		public StringBuffer lastKeyword;
-		public String lastSetName;
-		public String lastEscape;
-		public ParserRuleSet lastDelegateSet;
-		public String lastNoWordSep = "_";
-		public byte lastDefaultID = Token.NULL;
-		public byte lastTokenID;
-		public byte lastMatchType;
-		public int termChar = -1;
-		public boolean lastNoLineBreak;
-		public boolean lastNoWordBreak;
-		public boolean lastIgnoreCase = true;
-		public boolean lastHighlightDigits;
 		public boolean lastAtLineStart;
+
 		public boolean lastAtWhitespaceEnd;
+
 		public boolean lastAtWordStart;
-		public int lastStartPosMatch;
-		public int lastEndPosMatch;
+		public byte lastDefaultID = Token.NULL;
+		public ParserRuleSet lastDelegateSet;
 		public String lastDigitRE;
+		public StringBuffer lastEnd;
+		public int lastEndPosMatch;
+		public String lastEscape;
 		public String lastHashChar;
 		public String lastHashChars;
+		public boolean lastHighlightDigits;
+		public boolean lastIgnoreCase = true;
+		public StringBuffer lastKeyword;
+		public byte lastMatchType;
+		public boolean lastNoLineBreak;
+		public boolean lastNoWordBreak;
+		public String lastNoWordSep = "_";
+		public String lastSetName;
+		public StringBuffer lastStart;
+		public int lastStartPosMatch;
+		public byte lastTokenID;
+		public String tagName;
+		public int termChar = -1;
 
 		public TagDecl(String tagName, Attributes attrs)
 		{
@@ -267,28 +267,21 @@ public abstract class XModeHandler extends DefaultHandler
 		}
 	}
 
-	// {{{ Instance variables
-	private String modeName;
+	private KeywordMap keywords;
 
 	/** The token marker cannot be null. */
 	private final TokenMarker marker;
 
-	private KeywordMap keywords;
-
-	/** this stack can contains null elements. */
-	private Stack<TagDecl> stateStack;
-
-	private String propName;
-
-	private String propValue;
-
-	private Hashtable<String, String> props;
+	// {{{ Instance variables
+	private String modeName;
 
 	private Hashtable<String, String> modeProps;
 
-	// {{{ Protected members
+	private String propName;
 
-	private ParserRuleSet rules;
+	private Hashtable<String, String> props;
+
+	private String propValue;
 
 	/**
 	 * A list of modes to be reloaded at the end, loaded through DELEGATEs
@@ -298,6 +291,13 @@ public abstract class XModeHandler extends DefaultHandler
 	 *      =588&atid=100588
 	 */
 	private Vector<Mode> reloadModes;
+
+	// {{{ Protected members
+
+	private ParserRuleSet rules;
+
+	/** this stack can contains null elements. */
+	private Stack<TagDecl> stateStack;
 
 	// }}}
 

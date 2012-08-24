@@ -12,17 +12,17 @@ import java.util.Hashtable;
 public class SimpleNode extends SyntaxModel implements AbstractNode
 {
 
+	/** gets Track of available IDs by type **/
+	private static Hashtable<String, Integer> nextIDByType = new Hashtable<String, Integer>();
+
 	private static final long serialVersionUID = 1L;
+
+	private NodeLabel label;
 
 	/**
 	 * determines the type of this node (ex: a terminal, a non terminal, etc...)
 	 **/
 	private String type;
-
-	private NodeLabel label;
-
-	/** gets Track of available IDs by type **/
-	private static Hashtable<String, Integer> nextIDByType = new Hashtable<String, Integer>();
 
 	/**
 	 * @param type

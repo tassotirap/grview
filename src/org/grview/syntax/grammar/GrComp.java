@@ -4,13 +4,13 @@ package org.grview.syntax.grammar;
 public class GrComp
 {
 
+	private Object contents;
+	private boolean head;
+	private Object id;
+	private boolean lambda;
+	private boolean leftHand;
 	private boolean nonterminal;
 	private boolean terminal;
-	private boolean lambda;
-	private boolean head;
-	private boolean leftHand;
-	private Object contents;
-	private Object id;
 
 	public GrComp()
 	{

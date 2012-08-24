@@ -31,19 +31,20 @@ import java.lang.reflect.Field;
  */
 public class Token
 {
-	// {{{ Token types
-	public static final String[] TOKEN_TYPES = new String[]{ "NULL", "COMMENT1", "COMMENT2", "COMMENT3", "COMMENT4", "DIGIT", "FUNCTION", "INVALID", "KEYWORD1", "KEYWORD2", "KEYWORD3", "KEYWORD4", "LABEL", "LITERAL1", "LITERAL2", "LITERAL3", "LITERAL4", "MARKUP", "OPERATOR" };
-
-	public static final byte NULL = 0;
-
 	public static final byte COMMENT1 = 1;
 
 	public static final byte COMMENT2 = 2;
 
 	public static final byte COMMENT3 = 3;
+
 	public static final byte COMMENT4 = 4;
+
 	public static final byte DIGIT = 5;
+	// Special:
+	public static final byte END = 127;
 	public static final byte FUNCTION = 6;
+	// }}}
+	public static final byte ID_COUNT = 19;
 	public static final byte INVALID = 7;
 	public static final byte KEYWORD1 = 8;
 	public static final byte KEYWORD2 = 9;
@@ -55,11 +56,10 @@ public class Token
 	public static final byte LITERAL3 = 15;
 	public static final byte LITERAL4 = 16;
 	public static final byte MARKUP = 17;
+	public static final byte NULL = 0;
 	public static final byte OPERATOR = 18;
-	// }}}
-	public static final byte ID_COUNT = 19;
-	// Special:
-	public static final byte END = 127;
+	// {{{ Token types
+	public static final String[] TOKEN_TYPES = new String[]{ "NULL", "COMMENT1", "COMMENT2", "COMMENT3", "COMMENT4", "DIGIT", "FUNCTION", "INVALID", "KEYWORD1", "KEYWORD2", "KEYWORD3", "KEYWORD4", "LABEL", "LITERAL1", "LITERAL2", "LITERAL3", "LITERAL4", "MARKUP", "OPERATOR" };
 
 	// {{{ Instance variables
 	/**
@@ -68,24 +68,24 @@ public class Token
 	public byte id;
 
 	/**
-	 * The start offset of this token.
-	 */
-	public int offset;
-
-	/**
 	 * The length of this token.
 	 */
 	public int length;
 
 	/**
-	 * The rule set of this token.
-	 */
-	public ParserRuleSet rules;
-
-	/**
 	 * The next token in the linked list.
 	 */
 	public Token next;
+
+	/**
+	 * The start offset of this token.
+	 */
+	public int offset;
+
+	/**
+	 * The rule set of this token.
+	 */
+	public ParserRuleSet rules;
 
 	// }}}
 

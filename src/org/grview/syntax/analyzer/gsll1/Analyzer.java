@@ -51,31 +51,31 @@ public class Analyzer extends Thread
 		}
 	}
 
-	private SemanticRoutinesRepo sr;
-	private String currentSymbol;
-	private Object currentSemanticSymbol;
-	private String pastSymbol;
-	private String wrongLine;
-	private Yytoken currToken;
-	private Stack grViewStack;
-	private Stack parseStack;
-	private Stack nTermStack;
-	private TabGraphNode tabGraph[];
-	private TabNode tabT[];
-	private TabNode tabNT[];
-	private File fileIn;
-	private GrViewStackNode grViewSNode;
-
-	private ParseStackNode auxParseSNode;
-	private boolean stepping = false;
-
-	private boolean firstTime = true;
+	boolean continueSentinel;
 	int I;
 	int IU;
 	int toppsIU;
+	private ParseStackNode auxParseSNode;
+	private Object currentSemanticSymbol;
+	private String currentSymbol;
+	private Yytoken currToken;
+	private File fileIn;
+	private boolean firstTime = true;
+	private GrViewStackNode grViewSNode;
+	private Stack grViewStack;
 	private Yylex lex;
+	private Stack nTermStack;
 
-	boolean continueSentinel;
+	private Stack parseStack;
+	private String pastSymbol;
+
+	private SemanticRoutinesRepo sr;
+	private boolean stepping = false;
+	private TabGraphNode tabGraph[];
+	private TabNode tabNT[];
+	private TabNode tabT[];
+
+	private String wrongLine;
 
 	public Analyzer(TabGraphNode tbG[], TabNode tbT[], TabNode tbNt[], File fileIn, Yylex lex)
 	{

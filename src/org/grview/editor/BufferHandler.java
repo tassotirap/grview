@@ -44,13 +44,13 @@ import org.grview.editor.buffer.JEditBuffer;
  */
 class BufferHandler implements BufferListener
 {
+	private final JEditBuffer buffer;
+	private boolean delayedMultilineUpdate;
+	private boolean delayedUpdate;
+	private int delayedUpdateEnd;
+	private int delayedUpdateStart;
 	private final DisplayManager displayManager;
 	private final TextArea textArea;
-	private final JEditBuffer buffer;
-	private boolean delayedUpdate;
-	private boolean delayedMultilineUpdate;
-	private int delayedUpdateStart;
-	private int delayedUpdateEnd;
 
 	// {{{ BufferChangeHandler constructor
 	BufferHandler(DisplayManager displayManager, TextArea textArea, JEditBuffer buffer)

@@ -26,8 +26,8 @@ import javax.swing.filechooser.FileFilter;
 public class ExampleFileFilter extends FileFilter
 {
 
-	private Hashtable filters = null;
 	private String description = null;
+	private Hashtable filters = null;
 	private String fullDescription = null;
 	private boolean useExtensionsInDescription = true;
 

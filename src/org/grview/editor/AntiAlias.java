@@ -35,7 +35,7 @@ public class AntiAlias extends Object
 	public static final Object STANDARD = "standard";
 
 	public static final Object SUBPIXEL = "subpixel";
-
+	
 	public static final Object comboChoices[] = new Object[]{ NONE, STANDARD, SUBPIXEL };
 
 	private int m_val = 0;

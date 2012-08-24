@@ -25,15 +25,15 @@ public class IconNodeWidgetExt extends Widget implements MarkedWidget, TypedWidg
 
 	}
 
-	public Color DEFAULT_MARK_FOREGROUND = new Color(0, 0, 0);
-
 	private ImageWidget imageWidget;
+
 	private LabelWidget labelWidget;
+	private Paint markBackground;
+
+	private Color markForeground;
 
 	private String type;
-
-	private Paint markBackground;
-	private Color markForeground;
+	public Color DEFAULT_MARK_FOREGROUND = new Color(0, 0, 0);
 
 	/**
 	 * Creates an icon node widget with bottom-center orientation.

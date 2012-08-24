@@ -53,22 +53,22 @@ import org.grview.util.StandardUtilities;
  */
 public class Mode
 {
+	private String electricKeys;
+
+	private Pattern filenameRE;
+
+	private Pattern firstlineRE;
+
+	private boolean ignoreWhitespace;
+
+	private List<IndentRule> indentRules;
+
+	protected TokenMarker marker;
+
 	// {{{ Private members
 	protected String name;
 
 	protected Map<String, Object> props;
-
-	private Pattern firstlineRE;
-
-	private Pattern filenameRE;
-
-	protected TokenMarker marker;
-
-	private List<IndentRule> indentRules;
-
-	private String electricKeys;
-
-	private boolean ignoreWhitespace;
 
 	// }}}
 

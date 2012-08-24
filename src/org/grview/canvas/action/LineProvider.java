@@ -18,17 +18,17 @@ import org.grview.canvas.widget.LineWidget;
 public class LineProvider implements PropertyChangeListener
 {
 
-	private Canvas canvas;
-	private HashMap<Integer, LineWidget> lines;
-	private int lastYPos;
-	private LineWidget lastLine;
-	private LineWidget guideLine;
-	private boolean populated = false;
-
 	private static HashMap<Canvas, LineProvider> lineProviders = new HashMap<Canvas, LineProvider>();
-
 	/** the distance between lines **/
 	public final static int LINE_OFFSET = 25;
+	private Canvas canvas;
+	private LineWidget guideLine;
+	private LineWidget lastLine;
+	private int lastYPos;
+
+	private HashMap<Integer, LineWidget> lines;
+
+	private boolean populated = false;
 
 	private LineProvider(Canvas canvas)
 	{

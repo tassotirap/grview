@@ -3,11 +3,11 @@ package org.grview.syntax.analyzer.gsll1.exportable;
 /** The internal representation of a lexical token **/
 public class Yytoken
 {
-	public String m_p1;
-	public String m_text;
-	public int m_line;
 	public int m_charBegin;
 	public int m_charEnd;
+	public int m_line;
+	public String m_p1;
+	public String m_text;
 
 	/**
 	 * constructor

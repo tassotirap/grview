@@ -35,13 +35,13 @@ import org.netbeans.api.visual.widget.Widget;
 public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuProvider
 {
 
+	final JPopupMenu popup = new JPopupMenu();
 	private Canvas canvas;
-	private Widget widget;
 	private GridProvider gridProvider;
 	private LineProvider lineProvider;
 	private PropertyChangeSupport monitor;
 
-	final JPopupMenu popup = new JPopupMenu();
+	private Widget widget;
 
 	public CanvasPopupMenu(Canvas canvas)
 	{

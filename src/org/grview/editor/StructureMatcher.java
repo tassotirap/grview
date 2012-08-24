@@ -174,11 +174,11 @@ public interface StructureMatcher
 	 */
 	public static class Match
 	{
-		public StructureMatcher matcher;
-		public int startLine;
-		public int start;
-		public int endLine;
 		public int end;
+		public int endLine;
+		public StructureMatcher matcher;
+		public int start;
+		public int startLine;
 
 		public Match()
 		{

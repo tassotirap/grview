@@ -17,8 +17,8 @@ import org.grview.syntax.grammar.model.SyntaxSubpart;
 public class AsinEditor
 {
 
-	private SyntaxModel logicDiagram = new SyntaxModel();
 	private transient static AsinEditor instance;
+	private SyntaxModel logicDiagram = new SyntaxModel();
 
 	private AsinEditor()
 	{

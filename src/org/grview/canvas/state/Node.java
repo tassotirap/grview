@@ -6,11 +6,11 @@ public class Node extends CanvasSerializableElement
 {
 
 	private static final long serialVersionUID = -5146510630189874864L;
+	private Point location;
+	private String mark;
 	private String name;
 	private String title;
-	private Point location;
 	private String type;
-	private String mark;
 
 	public Point getLocation()
 	{

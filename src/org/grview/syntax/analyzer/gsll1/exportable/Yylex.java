@@ -12,15 +12,29 @@ package org.grview.syntax.analyzer.gsll1.exportable;
 class Yylex
 {
 
-	/** This character denotes the end of file */
-	public static final int YYEOF = -1;
+	/**
+	 * Translates DFA states to action switch labels.
+	 */
+	private static final int[] ZZ_ACTION = zzUnpackAction();
+
+	private static final String ZZ_ACTION_PACKED_0 = "\1\0\1\1\1\2\1\3\1\4\1\1\1\5\1\2" + "\1\6\1\7\1\10\1\11\1\12\1\13\1\14\1\15" + "\1\16\1\17\1\20\1\21\1\22\1\23\1\24\1\25" + "\1\26\1\27\1\2\3\1\2\2\2\0\1\30\1\31" + "\1\32\1\33\1\34\1\35\3\0\1\1\1\36\1\37" + "\1\1\2\0\1\30";
+
+	/**
+	 * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
+	 */
+	private static final int[] ZZ_ATTRIBUTE = zzUnpackAttribute();
+	private static final String ZZ_ATTRIBUTE_PACKED_0 = "\1\0\1\1\1\11\6\1\2\11\1\1\12\11\2\1" + "\2\11\3\1\1\11\2\1\2\0\6\11\3\0\1\1" + "\2\11\1\1\2\0\1\1";
 
 	/** initial size of the lookahead buffer */
 	private static final int ZZ_BUFFERSIZE = 16384;
 
-	/** lexical states */
-	public static final int YYINITIAL = 0;
-	public static final int COMMENT = 2;
+	/**
+	 * Translates characters to character classes
+	 */
+	private static final char[] ZZ_CMAP = { 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 5, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 0, 25, 0, 14, 15, 9, 21, 11, 27, 20, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 12, 13, 23, 22, 24, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 16, 6, 17, 0, 10, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 26, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+	/* error messages for the codes above */
+	private static final String ZZ_ERROR_MSG[] = { "Unkown internal scanner error", "Error: could not match input", "Error: pushback value was too large" };
 
 	/**
 	 * ZZ_LEXSTATE[l] is the state in the DFA for the lexical state l
@@ -29,17 +43,9 @@ class Yylex
 	 */
 	private static final int ZZ_LEXSTATE[] = { 0, 0, 1, 1 };
 
-	/**
-	 * Translates characters to character classes
-	 */
-	private static final char[] ZZ_CMAP = { 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 5, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 7, 0, 0, 0, 25, 0, 14, 15, 9, 21, 11, 27, 20, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 12, 13, 23, 22, 24, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 16, 6, 17, 0, 10, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 18, 26, 19, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+	private static final int ZZ_NO_MATCH = 1;
 
-	/**
-	 * Translates DFA states to action switch labels.
-	 */
-	private static final int[] ZZ_ACTION = zzUnpackAction();
-
-	private static final String ZZ_ACTION_PACKED_0 = "\1\0\1\1\1\2\1\3\1\4\1\1\1\5\1\2" + "\1\6\1\7\1\10\1\11\1\12\1\13\1\14\1\15" + "\1\16\1\17\1\20\1\21\1\22\1\23\1\24\1\25" + "\1\26\1\27\1\2\3\1\2\2\2\0\1\30\1\31" + "\1\32\1\33\1\34\1\35\3\0\1\1\1\36\1\37" + "\1\1\2\0\1\30";
+	private static final int ZZ_PUSHBACK_2BIG = 2;
 
 	/**
 	 * Translates a state to a row index in the transition table
@@ -58,26 +64,26 @@ class Yylex
 	/* error codes */
 	private static final int ZZ_UNKNOWN_ERROR = 0;
 
-	private static final int ZZ_NO_MATCH = 1;
+	public static final int COMMENT = 2;
 
-	private static final int ZZ_PUSHBACK_2BIG = 2;
+	/** This character denotes the end of file */
+	public static final int YYEOF = -1;
 
-	/* error messages for the codes above */
-	private static final String ZZ_ERROR_MSG[] = { "Unkown internal scanner error", "Error: could not match input", "Error: pushback value was too large" };
+	/** lexical states */
+	public static final int YYINITIAL = 0;
 
-	/**
-	 * ZZ_ATTRIBUTE[aState] contains the attributes of state <code>aState</code>
-	 */
-	private static final int[] ZZ_ATTRIBUTE = zzUnpackAttribute();
+	/* user code: */
+	private int comment_count = 0;
+	/* The two lines below can not be removed or edited */
+	private Analyzer.TabNode TabT[];
+	/** the number of characters up to the start of the matched text */
+	private int yychar;
 
-	private static final String ZZ_ATTRIBUTE_PACKED_0 = "\1\0\1\1\1\11\6\1\2\11\1\1\12\11\2\1" + "\2\11\3\1\1\11\2\1\2\0\6\11\3\0\1\1" + "\2\11\1\1\2\0\1\1";
+	/** number of newlines encountered up to the start of the matched text */
+	private int yyline;
 
-	/** the input device */
-	private java.io.Reader zzReader;
-	/** the current state of the DFA */
-	private int zzState;
-	/** the current lexical state */
-	private int zzLexicalState = YYINITIAL;
+	/** zzAtEOF == true <=> the scanner is at the EOF */
+	private boolean zzAtEOF;
 
 	/**
 	 * this buffer contains the current text to be matched and is the source of
@@ -85,14 +91,8 @@ class Yylex
 	 */
 	private char zzBuffer[] = new char[ZZ_BUFFERSIZE];
 
-	/** the textposition at the last accepting state */
-	private int zzMarkedPos;
-
 	/** the current text position in the buffer */
 	private int zzCurrentPos;
-
-	/** startRead marks the beginning of the yytext() string in the buffer */
-	private int zzStartRead;
 
 	/**
 	 * endRead marks the last character in the buffer, that has been read from
@@ -100,20 +100,20 @@ class Yylex
 	 */
 	private int zzEndRead;
 
-	/** number of newlines encountered up to the start of the matched text */
-	private int yyline;
+	/** the current lexical state */
+	private int zzLexicalState = YYINITIAL;
 
-	/** the number of characters up to the start of the matched text */
-	private int yychar;
+	/** the textposition at the last accepting state */
+	private int zzMarkedPos;
 
-	/** zzAtEOF == true <=> the scanner is at the EOF */
-	private boolean zzAtEOF;
+	/** the input device */
+	private java.io.Reader zzReader;
 
-	/* user code: */
-	private int comment_count = 0;
+	/** startRead marks the beginning of the yytext() string in the buffer */
+	private int zzStartRead;
 
-	/* The two lines below can not be removed or edited */
-	private Analyzer.TabNode TabT[];
+	/** the current state of the DFA */
+	private int zzState;
 
 	/**
 	 * Creates a new scanner. There is also java.io.Reader version of this

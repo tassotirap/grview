@@ -20,13 +20,13 @@ import org.grview.syntax.grammar.model.SyntaxSubpart;
 public class GrammarFactory
 {
 
-	private int cont;
-	private String htmlOutput; // html formated output
+	PrintWriter out;
+	String path = new String("");
 	private Grammar absGrammar;
 
-	PrintWriter out;
+	private int cont;
 
-	String path = new String("");
+	private String htmlOutput; // html formated output
 
 	/**
 	 * Constructor

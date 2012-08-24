@@ -13,17 +13,17 @@ import java.util.ArrayList;
 public final class Javac
 {
 
+	String bootclasspath;
+
 	String classpath;
+
+	String encoding;
+
+	String extdirs;
 
 	String outputdir;
 
 	String sourcepath;
-
-	String bootclasspath;
-
-	String extdirs;
-
-	String encoding;
 
 	String target;
 

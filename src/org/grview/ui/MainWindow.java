@@ -60,7 +60,13 @@ import org.grview.ui.toolbar.ToolBarFile;
 public class MainWindow extends Window implements ComponentListener
 {
 
-	private TabWindow tabPage[] = new TabWindow[6];
+	@SuppressWarnings("unchecked")
+	private Vector<DynamicView> defaultLayout[] = new Vector[6];
+
+	/**
+	 * Contains all the static views
+	 */
+	private ViewMap perspectiveMap = new ViewMap();
 
 	/**
 	 * The one and only root window
@@ -68,18 +74,12 @@ public class MainWindow extends Window implements ComponentListener
 	private RootWindow rootWindow;
 
 	/**
-	 * Contains all the static views
-	 */
-	private ViewMap perspectiveMap = new ViewMap();
-
-	@SuppressWarnings("unchecked")
-	private Vector<DynamicView> defaultLayout[] = new Vector[6];
-
-	/**
 	 * In this properties object the modified property values for close buttons
 	 * etc. are stored. This object is cleared when the theme is changed.
 	 */
 	private RootWindowProperties rootWindowProperties = new RootWindowProperties();
+
+	private TabWindow tabPage[] = new TabWindow[6];
 
 	/**
 	 * constructor sets all project paths, create a new default window, gets an

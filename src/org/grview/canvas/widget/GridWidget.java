@@ -11,12 +11,12 @@ import org.netbeans.api.visual.widget.Widget;
 public class GridWidget extends Widget
 {
 
+	public final static int GRID_SIZE = 16;
+	public final static Color LINE_COLOR = new Color(221, 221, 221);
 	private Canvas canvas;
+
 	private int height;
 	private int width;
-
-	public final static Color LINE_COLOR = new Color(221, 221, 221);
-	public final static int GRID_SIZE = 16;
 
 	public GridWidget(Canvas canvas)
 	{

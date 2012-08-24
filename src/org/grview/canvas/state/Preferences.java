@@ -7,13 +7,13 @@ public class Preferences extends CanvasSerializableElement
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private String moveStrategy;
 	private String connectionStrategy;
-	private int showStatus;
-
-	private boolean showLines;
-	private boolean showGuide;
+	private String moveStrategy;
 	private boolean showGrid;
+
+	private boolean showGuide;
+	private boolean showLines;
+	private int showStatus;
 
 	/**
 	 * @return the connectionStrategy

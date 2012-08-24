@@ -22,43 +22,43 @@ public class Menu<E> extends JMenuBar
 {
 	public static class MenuModel
 	{
+		public boolean copy;
+		public boolean cut;
+		public boolean ebnfExport;
+		public boolean find;
+		public boolean paste;
+		public boolean pngExport;
+		public boolean print;
+		public boolean redo;
 		public boolean save;
 		public boolean saveAll;
 		public boolean saveAs;
-		public boolean print;
-		public boolean pngExport;
-		public boolean ebnfExport;
-		public boolean copy;
-		public boolean cut;
-		public boolean paste;
 		public boolean undo;
-		public boolean redo;
 		public boolean zoomIn;
 		public boolean zoomOut;
-		public boolean find;
 	}
 
 	private static final long serialVersionUID = 1L;
-	ArrayList<String> menus;
-	Window window;
-	E context;
-	ProjectManager projectManager;
-	int contextDesc;
-
-	MenuModel model;
-	public final static int DEFAULT_CONTEXT = 0;
 	public final static int CANVAS_CONTEXT = 1;
+	public final static int DEFAULT_CONTEXT = 0;
+	public final static String DOTS = "...";
+	public final static String EDIT = "Edit";
+	public final static String FILE = "File";
+
+	public final static String HELP = "Help";
+	public final static String OPTIONS = "Options";
+	public final static String PROJECT = "Project";
 
 	public final static int TEXTAREA_CONTEXT = 2;
 
-	public final static String DOTS = "...";
-	public final static String FILE = "File";
-	public final static String EDIT = "Edit";
-	public final static String OPTIONS = "Options";
-	public final static String PROJECT = "Project";
 	public final static String WINDOW = "Window";
+	E context;
+	int contextDesc;
+	ArrayList<String> menus;
+	MenuModel model;
+	ProjectManager projectManager;
 
-	public final static String HELP = "Help";
+	Window window;
 
 	public Menu(String[] menus, Window window, E context, MenuModel model)
 	{

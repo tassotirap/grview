@@ -145,17 +145,17 @@ import org.xml.sax.helpers.DefaultHandler;
  */
 public abstract class AsinActionSet<E extends AbstractEditAction> implements InputHandlerProvider
 {
+	protected static final Object placeholder = new Object();
+
 	// {{{ Package-private members
 	AsinActionContext context;
 
 	// {{{ Private members
 	protected Hashtable<String, Object> actions;
 
-	protected URL uri;
-
 	protected boolean loaded;
 
-	protected static final Object placeholder = new Object();
+	protected URL uri;
 
 	// {{{ AsinActionSet constructor
 	/**

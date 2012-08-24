@@ -15,10 +15,10 @@ import org.netbeans.api.visual.widget.Widget;
 public class MultiMoveProvider implements MoveProvider
 {
 
-	private HashMap<Widget, Point> originals = new HashMap<Widget, Point>();
+	private PropertyChangeSupport monitor;
 	private Point original;
 
-	private PropertyChangeSupport monitor;
+	private HashMap<Widget, Point> originals = new HashMap<Widget, Point>();
 
 	public MultiMoveProvider(Canvas canvas)
 	{

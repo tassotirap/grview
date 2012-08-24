@@ -46,11 +46,11 @@ public class KeyEventWorkaround
 	// {{{ Private members
 	private static int last;
 
+	private static final int LAST_ALT = 2;
+
 	private static final int LAST_NOTHING = 0;
 
 	private static final int LAST_NUMKEYPAD = 1;
-
-	private static final int LAST_ALT = 2;
 
 	// }}}
 

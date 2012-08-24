@@ -48,9 +48,25 @@ public class ExtImageView extends View implements ImageObserver, MouseListener, 
 
 	// --- Attribute Values ------------------------------------------
 
-	public static final String TOP = "top", TEXTTOP = "texttop", MIDDLE = "middle", ABSMIDDLE = "absmiddle", CENTER = "center", BOTTOM = "bottom";
+	// $ move this someplace public
+	static final String IMAGE_CACHE_PROPERTY = "imageCache";
 
 	// --- Construction ----------------------------------------------
+
+	private static final boolean DEBUG = false;
+
+	// Height/width to use before we know the real size:
+	private static final int DEFAULT_WIDTH = 32, DEFAULT_HEIGHT = 32,
+	// Default value of BORDER param: //? possibly move into stylesheet?
+			DEFAULT_BORDER = 2;
+
+	private static final String PENDING_IMAGE_SRC = "icons/image-delayed.gif", // both
+																				// stolen
+																				// from
+																				// HotJava
+			MISSING_IMAGE_SRC = "icons/image-failed.gif";
+
+	private static int sIncRate = 100;
 
 	/*
 	 * /** Static properties for incremental drawing. Swiped from Component.java
@@ -59,51 +75,35 @@ public class ExtImageView extends View implements ImageObserver, MouseListener, 
 	 */
 	private static boolean sIsInc = true;
 
-	private static int sIncRate = 100;
+	private static Icon sPendingImageIcon, sMissingImageIcon;
+
+	public static final String TOP = "top", TEXTTOP = "texttop", MIDDLE = "middle", ABSMIDDLE = "absmiddle", CENTER = "center", BOTTOM = "bottom";
+
+	private String ApplicationImagePath;
 
 	private AttributeSet attr;
-
-	private Element fElement;
-
-	private Image fImage;
-
-	private int fHeight, fWidth;
-
-	private Container fContainer;
 
 	private Rectangle fBounds;
 
 	private Component fComponent;
 
+	private Container fContainer;
+
+	private Element fElement;
+
 	private Point fGrowBase; // base of drag while growing image
+
+	private int fHeight, fWidth;
+
+	// --- Painting --------------------------------------------------------
+
+	private Image fImage;
 
 	/**
 	 * Set to true, while the receiver is locked, to indicate the reciever is
 	 * loading the image. This is used in imageUpdate.
 	 */
 	private boolean loading;
-
-	private String ApplicationImagePath;
-
-	private static Icon sPendingImageIcon, sMissingImageIcon;
-
-	private static final String PENDING_IMAGE_SRC = "icons/image-delayed.gif", // both
-																				// stolen
-																				// from
-																				// HotJava
-			MISSING_IMAGE_SRC = "icons/image-failed.gif";
-
-	private static final boolean DEBUG = false;
-
-	// --- Painting --------------------------------------------------------
-
-	// $ move this someplace public
-	static final String IMAGE_CACHE_PROPERTY = "imageCache";
-
-	// Height/width to use before we know the real size:
-	private static final int DEFAULT_WIDTH = 32, DEFAULT_HEIGHT = 32,
-	// Default value of BORDER param: //? possibly move into stylesheet?
-			DEFAULT_BORDER = 2;
 
 	/**
 	 * Creates a new view that represents an IMG element.

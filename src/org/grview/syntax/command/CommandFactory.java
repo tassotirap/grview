@@ -4,12 +4,12 @@ public class CommandFactory
 {
 
 	private static AddCommand addCommand = new AddCommand();
+	private static AddRoutineCommand addRoutineCommand = new AddRoutineCommand();
 	private static ConnectCommand connCommand = new ConnectCommand();
 	private static DisconnectCommand dConnCommand = new DisconnectCommand();
-	private static RenameCommand renameCommand = new RenameCommand();
 	private static MoveCommand moveCommand = new MoveCommand();
-	private static AddRoutineCommand addRoutineCommand = new AddRoutineCommand();
 	private static RemoveRoutineCommand removeRoutineCommand = new RemoveRoutineCommand();
+	private static RenameCommand renameCommand = new RenameCommand();
 
 	public static AddCommand createAddCommand()
 	{

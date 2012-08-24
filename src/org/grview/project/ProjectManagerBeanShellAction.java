@@ -54,12 +54,12 @@ public class ProjectManagerBeanShellAction extends AbstractEditAction<ProjectMan
 		}
 	}
 
-	private String sanitizedName;
-
-	private String code;
-	private BshMethod cachedCode;
-
 	private static final BeanShellFacade<ProjectManager> bsh = new MyBeanShellFacade();
+
+	private BshMethod cachedCode;
+	private String code;
+
+	private String sanitizedName;
 
 	public ProjectManagerBeanShellAction(String name, String code)
 	{

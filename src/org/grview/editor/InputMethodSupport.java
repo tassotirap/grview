@@ -49,15 +49,15 @@ import java.text.CharacterIterator;
 
 class InputMethodSupport extends TextAreaExtension implements InputMethodRequests, InputMethodListener
 {
-	// The owner.
-	private TextArea owner;
-	// The composed text layout which was built from last InputMethodEvent.
-	private TextLayout composedTextLayout = null;
 	// The X offset to the caret in the composed text.
 	private int composedCaretX = 0;
+	// The composed text layout which was built from last InputMethodEvent.
+	private TextLayout composedTextLayout = null;
 	// Last committed information to support cancelLatestCommittedText()
 	private int lastCommittedAt = 0;
 	private String lastCommittedText = null;
+	// The owner.
+	private TextArea owner;
 
 	public InputMethodSupport(TextArea owner)
 	{

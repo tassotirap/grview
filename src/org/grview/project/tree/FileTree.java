@@ -110,11 +110,11 @@ public class FileTree implements TreeModelListener
 
 	}
 
-	private TreePath selectedNode;
+	private static FileSystemModel fsmInstances;
 
 	private static FileTree instance;
 
-	private static FileSystemModel fsmInstances;
+	private TreePath selectedNode;
 
 	private JTree tree;
 

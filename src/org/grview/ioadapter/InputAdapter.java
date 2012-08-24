@@ -26,20 +26,6 @@ import org.grview.util.dynacode.DynaCode;
 public class InputAdapter extends IOAdapter
 {
 
-	private JComponent formView;
-	private JComponent codeView;
-	private JComponent frameView;
-
-	private JFrame objectJFrame;
-
-	private InputAdapterComponent iaComponent;
-	private AdvancedTextAreaComponent codeAdvTextArea;
-	private TextArea codeTextArea;
-
-	private boolean built;
-	private boolean started;
-
-	private int stubInitPosition = -1;
 	InputAdapterStub stub;
 	/**
 	 * A reference to the main class of the new component included in this
@@ -52,13 +38,27 @@ public class InputAdapter extends IOAdapter
 	 */
 	private Object adapterInstance;
 
+	private boolean built;
+
+	private AdvancedTextAreaComponent codeAdvTextArea;
+	private TextArea codeTextArea;
+	private JComponent codeView;
+
+	private JComponent formView;
+	private JComponent frameView;
+
+	private InputAdapterComponent iaComponent;
+	private JarFileLoader jarLoader;
 	/**
 	 * when you are navigating through classes, this object holds an instance of
 	 * this last visited class
 	 **/
 	private Object lastInstance;
+	private JFrame objectJFrame;
 
-	private JarFileLoader jarLoader;
+	private boolean started;
+
+	private int stubInitPosition = -1;
 
 	public InputAdapter(InputAdapterComponent iaComponent)
 	{

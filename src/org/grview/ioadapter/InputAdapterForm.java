@@ -21,26 +21,26 @@ public class InputAdapterForm extends JPanel
 {
 
 	private static final long serialVersionUID = 1L;
-	private JLabel jarLabel = null;
-	private JTextField jarTextField = null;
-	private JButton browseButton = null;
-	private JLabel jframeLabel = null;
-	private JTextField mainTextField = null;
-	private JLabel jframeClass = null;
-	private JTextField jframeTextField = null;
-	private JLabel sendLabel = null;
-	private JTextField sentTextField = null;
-	private JButton buildButton = null;
-	private JButton startButton = null;
-	private JLabel infoLabel = null;
-
-	private InputAdapterForm instance;
-
-	private InputAdapter inputAdapter;
 	private JLabel argsLabel = null;
 	private JTextField argsTextField = null;
+	private JButton browseButton = null;
+	private JButton buildButton = null;
+	private JLabel infoLabel = null;
+	private InputAdapter inputAdapter;
+	private InputAdapterForm instance;
+	private JLabel jarLabel = null;
+	private JTextField jarTextField = null;
+	private JLabel jframeClass = null;
+	private JLabel jframeLabel = null;
 	private JLabel jframeName = null;
+
 	private JTextField jframeNameTextField = null;
+
+	private JTextField jframeTextField = null;
+	private JTextField mainTextField = null;
+	private JLabel sendLabel = null;
+	private JTextField sentTextField = null;
+	private JButton startButton = null;
 	private JButton stopButton = null;
 
 	public InputAdapterForm()

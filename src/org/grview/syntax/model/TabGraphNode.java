@@ -17,24 +17,24 @@ package org.grview.syntax.model;
 public class TabGraphNode
 {
 	/*
-	 * Quando a variável abaixo for true, node se trata de um nó terminal
+	 * A variavel a seguir, contém o indice do nó alternativo à esse nó
 	 */
-	private boolean term;
+	private int alt;
+	/* rotina semantica desse nó */
+	private String sem;
 	/*
 	 * A variável abaixo contém uma referencia para este nó na tabela de
 	 * simbolos terminais ou não terminais.
 	 */
 	private int sim;
 	/*
-	 * A variavel a seguir, contém o indice do nó alternativo à esse nó
-	 */
-	private int alt;
-	/*
 	 * A variavel a seguir, contém o indice do nó sucessor à esse nó
 	 */
 	private int suc;
-	/* rotina semantica desse nó */
-	private String sem;
+	/*
+	 * Quando a variável abaixo for true, node se trata de um nó terminal
+	 */
+	private boolean term;
 
 	public TabGraphNode()
 	{

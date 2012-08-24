@@ -15,32 +15,32 @@ import javax.swing.JComponent;
  */
 public class LineNumberBorder extends JComponent
 {
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
 	private final static Color DEFAULT_BACKGROUND = Color.lightGray;
+	private final static Font DEFAULT_FONT = new Font("monospaced", Font.PLAIN, 12);
 	private final static Color DEFAULT_FOREGROUND = Color.black;
 	private final static Color DEFAULT_HIGHLIGHT_COLOR = Color.RED;
-	private final static Font DEFAULT_FONT = new Font("monospaced", Font.PLAIN, 12);
-
 	// LineNumber height (abends when I use MAX_VALUE)
 	private final static int HEIGHT = Integer.MAX_VALUE - 1000000;
 
 	// Set right/left margin
 	private final static int MARGIN = 5;
 
-	// Variables for this LineNumber component
-	private FontMetrics fontMetrics;
-	private int lineHeight;
-	private int currentRowWidth;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	// Metrics of the component used in the constructor
 	private JComponent component;
-	private int componentFontHeight;
 	private int componentFontAscent;
+	private int componentFontHeight;
 
+	private int currentRowWidth;
+	// Variables for this LineNumber component
+	private FontMetrics fontMetrics;
 	private int highlightLinenumber = -1;
+
+	private int lineHeight;
 
 	/**
 	 * Convenience constructor for Text Components

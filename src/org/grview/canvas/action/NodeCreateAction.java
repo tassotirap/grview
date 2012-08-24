@@ -45,7 +45,7 @@ public class NodeCreateAction extends WidgetAction.Adapter
 		{
 			return String.format("S%d", (canvas.getStart().size() + 1));
 		}
-		return String.format("node%d", (canvas.customNodes.size() + 1));
+		return String.format("node%d", (canvas.getCustomNodes().size() + 1));
 	}
 
 	private boolean isNode(Canvas canvas)

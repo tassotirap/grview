@@ -21,10 +21,10 @@ public class ToolBarCanvas extends BaseToolBar<Canvas>
 {
 	private static final long serialVersionUID = 1L;
 
-	private JButton btnRun, btnZoomIn, btnZoomOut;
-
 	JButton[] buttons;
+
 	String[] names;
+	private JButton btnRun, btnZoomIn, btnZoomOut;
 
 	public ToolBarCanvas(Canvas canvas)
 	{

@@ -15,20 +15,20 @@ public class UnidirectionalAnchor extends Anchor
 
 	public static enum UnidirectionalAnchorKind
 	{
-		LEFT, RIGHT, TOP, BOTTOM
+		BOTTOM, LEFT, RIGHT, TOP
 	}
 
+	private static final int PREFERRED_GAP_INC = 30;
+	private static HashMap<String, Boolean> priorConnByConn = new HashMap<String, Boolean>();
+	private static HashMap<Widget, ConnectionWidget> refConnectionByWidget = new HashMap<Widget, ConnectionWidget>();
+	private static HashMap<String, Widget> refWidgetByConn = new HashMap<String, Widget>();
+
+	private String connection;
+	private boolean directConnection;
 	private int gap;
 	private UnidirectionalAnchorKind kind;
-	private Direction preferredDirection;
-	private String connection;
 
-	private boolean directConnection;
-	private static HashMap<String, Boolean> priorConnByConn = new HashMap<String, Boolean>();
-	private static HashMap<String, Widget> refWidgetByConn = new HashMap<String, Widget>();
-	private static HashMap<Widget, ConnectionWidget> refConnectionByWidget = new HashMap<Widget, ConnectionWidget>();
-
-	private static final int PREFERRED_GAP_INC = 30;;
+	private Direction preferredDirection;;
 
 	public UnidirectionalAnchor(Widget widget, String connection, boolean directConnection, UnidirectionalAnchorKind kind)
 	{

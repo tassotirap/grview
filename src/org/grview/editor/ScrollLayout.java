@@ -36,11 +36,13 @@ import javax.swing.border.Border;
 
 public class ScrollLayout implements LayoutManager
 {
-	public static final String CENTER = "center";
-	public static final String RIGHT = "right";
-	public static final String LEFT = "left";
 	public static final String BOTTOM = "bottom";
+	public static final String CENTER = "center";
+	public static final String LEFT = "left";
+	public static final String RIGHT = "right";
 	public static final String TOP = "top";
+
+	private Component bottom;
 
 	// {{{ Private members
 	private Component center;
@@ -48,8 +50,6 @@ public class ScrollLayout implements LayoutManager
 	private Component left;
 
 	private Component right;
-
-	private Component bottom;
 
 	private Component top;
 

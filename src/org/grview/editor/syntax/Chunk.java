@@ -45,28 +45,28 @@ import org.grview.actions.Debug;
  */
 public class Chunk extends Token
 {
+	// Flag to enable a workaround for a bug in Sun Java 5.
+	private static final boolean SUN_JAVA_5;
+
+	// }}}
+	// {{{ Private members
+	private float[] positions;
+
 	// {{{ Instance variables
 	public boolean accessable;
-
-	public boolean visible;
-
-	public boolean initialized;
-
-	// set up after init()
-	public SyntaxStyle style;
 
 	// this is either style.getBackgroundColor() or
 	// styles[defaultID].getBackgroundColor()
 	public Color background;
-	public float width;
-	public GlyphVector gv;
 
+	public GlyphVector gv;
+	public boolean initialized;
 	public String str;
-	// }}}
-	// {{{ Private members
-	private float[] positions;
-	// Flag to enable a workaround for a bug in Sun Java 5.
-	private static final boolean SUN_JAVA_5;
+
+	// set up after init()
+	public SyntaxStyle style;
+	public boolean visible;
+	public float width;
 
 	// {{{ Chunk constructor
 	public Chunk(byte id, int offset, int length, ParserRuleSet rules, SyntaxStyle[] styles, byte defaultID)

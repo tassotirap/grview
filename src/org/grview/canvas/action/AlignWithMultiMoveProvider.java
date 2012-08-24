@@ -57,8 +57,8 @@ import org.netbeans.modules.visual.action.AlignWithSupport;
 public final class AlignWithMultiMoveProvider extends AlignWithSupport implements MoveStrategy, MoveProvider
 {
 
-	private boolean outerBounds;
 	private MultiMoveProvider mmp;
+	private boolean outerBounds;
 
 	public AlignWithMultiMoveProvider(Canvas canvas, AlignWithWidgetCollector collector, LayerWidget interractionLayer, AlignWithMoveDecorator decorator, boolean outerBounds)
 	{

@@ -12,25 +12,25 @@ import org.grview.canvas.state.VolatileStateManager;
 
 public class CanvasFactory implements PropertyChangeListener
 {
-	private CanvasDecorator decorator;
-
-	private WidgetActionRepository actions;
-	private static String defaultCursor = CanvasData.SELECT;
 	private static String connStrategy = CanvasData.R_ORTHOGONAL;
+
+	private static int defaultBufferCapacity = 20;
+	private static String defaultCursor = CanvasData.SELECT;
+	private static CanvasFactory instance;
 
 	private static String moveStrategy = CanvasData.M_FREE;
 
 	private static String projectPath = "";
+	private WidgetActionRepository actions;
 	private Canvas canvas;
+	private CanvasDecorator decorator;
 	private String path;
-	private VolatileStateManager volatileStateManager;
-	private StaticStateManager staticStateManager;
 
 	private CanvasState state;
 
-	private static int defaultBufferCapacity = 20;
+	private StaticStateManager staticStateManager;
 
-	private static CanvasFactory instance;
+	private VolatileStateManager volatileStateManager;
 
 	private CanvasFactory()
 	{

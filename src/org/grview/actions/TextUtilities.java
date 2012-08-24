@@ -52,24 +52,24 @@ import org.grview.util.StandardUtilities;
  */
 public class TextUtilities
 {
-	// to avoid slowdown with large files; only scan 10000 lines either way
-	public static final int BRACKET_MATCH_LIMIT = 10000;
-
-	// {{{ getStringCase() method
-	public static final int MIXED = 0;
-
-	public static final int LOWER_CASE = 1;
-
-	public static final int UPPER_CASE = 2;
-
-	public static final int TITLE_CASE = 3;
+	private static final int SYMBOL = 2;
 
 	// {{{ Private members
 	private static final int WHITESPACE = 0;
 
 	private static final int WORD_CHAR = 1;
 
-	private static final int SYMBOL = 2;
+	// to avoid slowdown with large files; only scan 10000 lines either way
+	public static final int BRACKET_MATCH_LIMIT = 10000;
+
+	public static final int LOWER_CASE = 1;
+
+	// {{{ getStringCase() method
+	public static final int MIXED = 0;
+
+	public static final int TITLE_CASE = 3;
+
+	public static final int UPPER_CASE = 2;
 
 	// {{{ formatParagraph() method
 	private static void formatParagraph(String text, int maxLineLength, int tabSize, StringBuilder buf)

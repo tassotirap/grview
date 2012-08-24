@@ -95,11 +95,11 @@ public class RegexpIndentRule implements IndentRule
 		}
 	} // }}}
 
+	private boolean collapse;
+
 	private IndentAction prevPrevAction, prevAction, thisAction;
 
 	private Pattern regexp;
-
-	private boolean collapse;
 
 	// {{{ RegexpIndentRule constructor
 	/**

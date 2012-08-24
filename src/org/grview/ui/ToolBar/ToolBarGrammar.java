@@ -21,10 +21,10 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 {
 	private static final long serialVersionUID = 1L;
 
-	private JButton btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnLabel;
-	private JButton btnNTerminal, btnTerminal, btnLambdaAlternative, btnStart;
 	JButton[] buttons;
 	String[] names;
+	private JButton btnNTerminal, btnTerminal, btnLambdaAlternative, btnStart;
+	private JButton btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnLabel;
 
 	public ToolBarGrammar(Canvas canvas)
 	{

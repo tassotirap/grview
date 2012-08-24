@@ -4,11 +4,11 @@ package org.grview.syntax.grammar.model;
 public class NodeLabel extends SyntaxSubpart
 {
 
+	private static int count;
+
 	private static final long serialVersionUID = 1L;
 
 	private String text = SyntaxDefinitions.AsinPlugin_Tool_CreationTool_AsinLabel;
-
-	private static int count;
 
 	public NodeLabel(String label)
 	{

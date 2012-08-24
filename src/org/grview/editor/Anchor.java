@@ -33,15 +33,6 @@ import org.grview.util.Log;
  */
 abstract class Anchor
 {
-	protected final DisplayManager displayManager;
-	protected final TextArea textArea;
-	/** The physical line. */
-	int physicalLine;
-	/**
-	 * The visible line index. (from the top of the buffer). It can be different
-	 * from physical line when using soft wrap.
-	 */
-	int scrollLine;
 	/**
 	 * If this is set to true, the changed() method will be called in
 	 * {@link DisplayManager#notifyScreenLineChanges()}
@@ -52,6 +43,15 @@ abstract class Anchor
 	 * {@link DisplayManager#notifyScreenLineChanges()}
 	 */
 	boolean callReset;
+	/** The physical line. */
+	int physicalLine;
+	/**
+	 * The visible line index. (from the top of the buffer). It can be different
+	 * from physical line when using soft wrap.
+	 */
+	int scrollLine;
+	protected final DisplayManager displayManager;
+	protected final TextArea textArea;
 
 	// {{{ Anchor constructor
 	protected Anchor(DisplayManager displayManager, TextArea textArea)

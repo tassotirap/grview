@@ -29,19 +29,19 @@ import com.jidesoft.icons.ColorFilter;
 public class ParserComponent extends AbstractComponent
 {
 
-	private JButton open;
-	private JButton save;
-	private JButton parse;
-	private JButton parseNextStep;
+	public final static String ICONS_PATH = "/org/grview/images/";
 	private JPanel btBar;
 	private JPanel btBarLeft;
 	private JPanel btBarRight;
 	private JPanel main;
-	private JLabel modesLabel;
 	private JComboBox<String> modes;
+	private JLabel modesLabel;
+	private JButton open;
+	private JButton parse;
+	private JButton parseNextStep;
 	private String rootPath;
 
-	public final static String ICONS_PATH = "/org/grview/images/";
+	private JButton save;
 
 	private void createLayout(final ParsingEditor parser)
 	{

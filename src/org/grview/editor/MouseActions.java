@@ -29,9 +29,9 @@ import org.grview.editor.gui.KeyEventTranslator;
 
 public class MouseActions implements MouseActionsProvider
 {
-	private IPropertyManager propertyManager;
-
 	private String name;
+
+	private IPropertyManager propertyManager;
 
 	// {{{ MouseActions constructor
 	MouseActions(IPropertyManager propertyManager, String name)

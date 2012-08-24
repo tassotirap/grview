@@ -6,10 +6,10 @@ import org.grview.model.FileNames;
 
 public class FileEntry
 {
-	private final String title;
-	private final String imagePath;
 	private final FileNames extension;
 	private ImageIcon image;
+	private final String imagePath;
+	private final String title;
 
 	public FileEntry(String title, String imagePath, FileNames extension)
 	{

@@ -48,12 +48,12 @@ public class DeepIndentRule implements IndentRule
 	 */
 	private class Parens implements TokenHandler
 	{
-		int openOffset;
 		int closeOffset;
+		int openOffset;
 
-		private int searchPos;
-		private Stack<Integer> open;
 		private Stack<Integer> close;
+		private Stack<Integer> open;
+		private int searchPos;
 
 		Parens(JEditBuffer b, int line, int pos)
 		{
@@ -125,9 +125,9 @@ public class DeepIndentRule implements IndentRule
 		}
 	} // }}}
 
-	private final char openChar;
-
 	private final char closeChar;
+
+	private final char openChar;
 
 	public DeepIndentRule(char openChar, char closeChar)
 	{

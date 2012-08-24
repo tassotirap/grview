@@ -33,10 +33,102 @@ package org.grview.actions;
 public class Debug
 {
 	/**
+	 * If true, A+ shortcuts are disabled. If you use this, you should also
+	 * remap the the modifiers so that A+ is actually something else. <b>On by
+	 * default on MacOS.</b>
+	 */
+	public static boolean ALT_KEY_PRESSED_DISABLED = OperatingSystem.isMacOS();
+
+	/**
+	 * If true, an alternative dispatcher using key typed events will be used to
+	 * handle a modifier key press in conjunction with an alphabet key. <b>On by
+	 * default on MacOS.</b>
+	 */
+	public static boolean ALTERNATIVE_DISPATCHER = OperatingSystem.isMacOS();
+
+	/**
+	 * Logs messages when BeanShell code is evaluated.
+	 */
+	public static boolean BEANSHELL_DEBUG = false;
+
+	/**
+	 * For checking invalidation, etc.
+	 */
+	public static boolean CHUNK_CACHE_DEBUG = false;
+
+	/**
+	 * Paints boxes around chunks.
+	 */
+	public static boolean CHUNK_PAINT_DEBUG = false;
+
+	/**
+	 * Paint strings instead of glyph vectors.
+	 */
+	public static boolean DISABLE_GLYPH_VECTOR = false;
+
+	/**
+	 * Disable multihead support, since it can cause window positioning problems
+	 * with some Java versions.
+	 * 
+	 * @since jEdit 4.3pre1
+	 */
+	public static boolean DISABLE_MULTIHEAD = false;
+
+	/**
+	 * Create new search dialogs instead of reusing instances.
+	 */
+	public static boolean DISABLE_SEARCH_DIALOG_POOL = false;
+
+	/**
+	 * Dump key events received by text area?
+	 */
+	public static boolean DUMP_KEY_EVENTS = false;
+
+	/**
+	 * Show time taken for each EBComponent.
+	 */
+	public static boolean EB_TIMER = false;
+
+	/**
+	 * For checking fold level invalidation, etc.
+	 */
+	public static boolean FOLD_DEBUG = false;
+
+	/**
+	 * For checking the line visibility structure..
+	 */
+	public static boolean FOLD_VIS_DEBUG = false;
+
+	/**
+	 * Geometry workaround for X11.
+	 */
+	public static boolean GEOMETRY_WORKAROUND = false;
+
+	/**
+	 * Indent debug.
+	 */
+	public static boolean INDENT_DEBUG = false;
+
+	/**
 	 * Print messages when the gap moves, and other offset manager state
 	 * changes.
 	 */
 	public static boolean OFFSET_DEBUG = false;
+
+	/**
+	 * Show time taken to repaint text area painter.
+	 */
+	public static boolean PAINT_TIMER = false;
+
+	/**
+	 * Printing debug.
+	 */
+	public static boolean PRINT_DEBUG = false;
+
+	/**
+	 * Print messages when screen line counts change.
+	 */
+	public static boolean SCREEN_LINES_DEBUG = false;
 
 	/**
 	 * Print messages when text area and display manager perform scroll updates.
@@ -55,99 +147,7 @@ public class Debug
 	public static boolean SCROLL_VERIFY = false;
 
 	/**
-	 * Print messages when screen line counts change.
-	 */
-	public static boolean SCREEN_LINES_DEBUG = false;
-
-	/**
 	 * For checking context, etc.
 	 */
 	public static boolean TOKEN_MARKER_DEBUG = false;
-
-	/**
-	 * For checking fold level invalidation, etc.
-	 */
-	public static boolean FOLD_DEBUG = false;
-
-	/**
-	 * For checking the line visibility structure..
-	 */
-	public static boolean FOLD_VIS_DEBUG = false;
-
-	/**
-	 * For checking invalidation, etc.
-	 */
-	public static boolean CHUNK_CACHE_DEBUG = false;
-
-	/**
-	 * Paints boxes around chunks.
-	 */
-	public static boolean CHUNK_PAINT_DEBUG = false;
-
-	/**
-	 * Show time taken to repaint text area painter.
-	 */
-	public static boolean PAINT_TIMER = false;
-
-	/**
-	 * Show time taken for each EBComponent.
-	 */
-	public static boolean EB_TIMER = false;
-
-	/**
-	 * Paint strings instead of glyph vectors.
-	 */
-	public static boolean DISABLE_GLYPH_VECTOR = false;
-
-	/**
-	 * Logs messages when BeanShell code is evaluated.
-	 */
-	public static boolean BEANSHELL_DEBUG = false;
-
-	/**
-	 * If true, an alternative dispatcher using key typed events will be used to
-	 * handle a modifier key press in conjunction with an alphabet key. <b>On by
-	 * default on MacOS.</b>
-	 */
-	public static boolean ALTERNATIVE_DISPATCHER = OperatingSystem.isMacOS();
-
-	/**
-	 * If true, A+ shortcuts are disabled. If you use this, you should also
-	 * remap the the modifiers so that A+ is actually something else. <b>On by
-	 * default on MacOS.</b>
-	 */
-	public static boolean ALT_KEY_PRESSED_DISABLED = OperatingSystem.isMacOS();
-
-	/**
-	 * Geometry workaround for X11.
-	 */
-	public static boolean GEOMETRY_WORKAROUND = false;
-
-	/**
-	 * Dump key events received by text area?
-	 */
-	public static boolean DUMP_KEY_EVENTS = false;
-
-	/**
-	 * Indent debug.
-	 */
-	public static boolean INDENT_DEBUG = false;
-
-	/**
-	 * Printing debug.
-	 */
-	public static boolean PRINT_DEBUG = false;
-
-	/**
-	 * Create new search dialogs instead of reusing instances.
-	 */
-	public static boolean DISABLE_SEARCH_DIALOG_POOL = false;
-
-	/**
-	 * Disable multihead support, since it can cause window positioning problems
-	 * with some Java versions.
-	 * 
-	 * @since jEdit 4.3pre1
-	 */
-	public static boolean DISABLE_MULTIHEAD = false;
 }

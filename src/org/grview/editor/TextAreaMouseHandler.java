@@ -37,30 +37,30 @@ import org.grview.util.StandardUtilities;
  */
 public class TextAreaMouseHandler extends MouseInputAdapter
 {
-	// {{{ Private members
-	protected final TextArea textArea;
-
-	protected int dragStartLine;
-
-	protected int dragStartOffset;
-
-	protected int dragStart;
-
 	protected int clickCount;
-
-	protected boolean dragged;
-
-	protected boolean quickCopyDrag;
 
 	protected boolean control;
 
 	protected boolean ctrlForRectangularSelection;
+
+	protected boolean dragged;
+
+	protected int dragStart;
+
+	protected int dragStartLine;
+
+	protected int dragStartOffset;
 
 	/*
 	 * with drag and drop on, a mouse down in a selection does not immediately
 	 * deselect
 	 */
 	protected boolean maybeDragAndDrop;
+
+	protected boolean quickCopyDrag;
+
+	// {{{ Private members
+	protected final TextArea textArea;
 
 	// {{{ MouseHandler constructor
 	TextAreaMouseHandler(TextArea textArea)

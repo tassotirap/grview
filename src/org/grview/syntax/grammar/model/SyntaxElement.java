@@ -13,7 +13,7 @@ abstract public class SyntaxElement extends Properties implements Serializable, 
 {
 
 	static final long serialVersionUID = 1;
-	transient protected PropertyChangeSupport listeners = new PropertyChangeSupport(this);
+	public final static String CHILDREN = "Children";
 
 	/*
 	 * the types of probable syntax elements, used primarily for identify
@@ -21,7 +21,7 @@ abstract public class SyntaxElement extends Properties implements Serializable, 
 	 */
 	public final static String INPUTS = "Inputs";
 	public final static String OUTPUTS = "Outputs";
-	public final static String CHILDREN = "Children";
+	transient protected PropertyChangeSupport listeners = new PropertyChangeSupport(this);
 
 	/* for Serializable support */
 	private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException

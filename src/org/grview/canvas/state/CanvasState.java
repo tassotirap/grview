@@ -25,8 +25,8 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 
 	private static final long serialVersionUID = -7729464439313780001L;
 
-	private HashMap<String, Node> nodes = new HashMap<String, Node>();
 	private HashMap<String, Connection> connections = new HashMap<String, Connection>();
+	private HashMap<String, Node> nodes = new HashMap<String, Node>();
 	private Preferences preferences = new Preferences();
 
 	public CanvasState()

@@ -13,11 +13,11 @@ public class InvalidGrammarException extends Exception
 	 */
 	private static final long serialVersionUID = 2582912391213112321L;
 
-	private GrComp problem;
 	private String description;
+	private int iteratorIndex;
 
 	private List<InvalidGrammarException> nextExceptions = new ArrayList<InvalidGrammarException>();
-	private int iteratorIndex;
+	private GrComp problem;
 
 	public InvalidGrammarException(String message, String description, GrComp problem)
 	{

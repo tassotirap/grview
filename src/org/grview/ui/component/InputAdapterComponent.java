@@ -34,49 +34,49 @@ public class InputAdapterComponent extends AdapterComponent
 
 	private enum VIEW
 	{
-		FORM, CODE, FRAME
+		CODE, FORM, FRAME
 	}
 
-	private JButton formViewButton;
-	private JButton codeViewButton;
-	private JButton frameViewButton;
-	private JPanel window;
-	private JPanel toolbar;
-	private JComponent contentPane;
-	private JLabel listenersLabel;
-	private JComboBox<String> listComboBox;
-	private JLabel objectsLabel;
-	private JComboBox<String> objectsComboBox;
-	private JLabel methodsLabel;
-	private JComboBox<String> methodsComboBox;
-	private JButton addButton;
-
-	private JButton generateButton;
-
-	private InputAdapter inputAdapter;
-	private boolean built;
-
-	private boolean started;;
-	private VIEW activeView = VIEW.FORM;
-
 	public final static String ICONS_PATH = "/org/grview/images/";
-	private String path;
+	private VIEW activeView = VIEW.FORM;
+	private JButton addButton;
+	private boolean built;
+	private JButton codeViewButton;
+	private JComponent contentPane;
+	private JButton formViewButton;
+	private JButton frameViewButton;
+	private JButton generateButton;
+	private InputAdapter inputAdapter;
+	private JComboBox<String> listComboBox;
+	/**
+	 * A map to selected listeners
+	 */
+	private HashMap<String, Method> listenerMap;
+	private JLabel listenersLabel;
 
 	/** a chain of selected methods and fields **/
 	private String methodChain1;
 
 	/** another chain of selected methods and fields **/
 	private String methodChain2;
-
 	/**
 	 * A map to selected methods
 	 */
 	private HashMap<String, Method> methodMap;
 
-	/**
-	 * A map to selected listeners
-	 */
-	private HashMap<String, Method> listenerMap;
+	private JComboBox<String> methodsComboBox;;
+	private JLabel methodsLabel;
+
+	private JComboBox<String> objectsComboBox;
+	private JLabel objectsLabel;
+
+	private String path;
+
+	private boolean started;
+
+	private JPanel toolbar;
+
+	private JPanel window;
 
 	public InputAdapterComponent()
 	{

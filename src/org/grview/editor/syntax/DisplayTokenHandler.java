@@ -44,23 +44,23 @@ public class DisplayTokenHandler extends DefaultTokenHandler
 	// don't have chunks longer than 100 characters to avoid slowing things down
 	public static final int MAX_CHUNK_LEN = 100;
 
-	// {{{ Instance variables
-	private SyntaxStyle[] styles;
+	private Token end;
 
-	private FontRenderContext fontRenderContext;
+	private float endOfWhitespace;
 
-	private TabExpander expander;
+	private float endX;
 
 	// {{{ Private members
 
-	private float x;
+	private TabExpander expander;
+	private FontRenderContext fontRenderContext;
 	private List<Chunk> out;
-	private float wrapMargin;
-	private float endX;
-
-	private Token end;
 	private boolean seenNonWhitespace;
-	private float endOfWhitespace;
+
+	// {{{ Instance variables
+	private SyntaxStyle[] styles;
+	private float wrapMargin;
+	private float x;
 
 	// }}}
 	// {{{ canMerge() method

@@ -50,21 +50,25 @@ class ChunkCache
 	/** The informations on a line. (for fast access) */
 	static class LineInfo
 	{
-		int physicalLine;
-		int offset;
-		int length;
+		Chunk chunks;
 		boolean firstSubregion;
 		boolean lastSubregion;
-		Chunk chunks;
+		int length;
+		TokenMarker.LineContext lineContext;
+		int offset;
+		int physicalLine;
 		/** The line width. */
 		int width;
-		TokenMarker.LineContext lineContext;
 	} // }}}
 
-	// {{{ Instance variables
-	private final TextArea textArea;
-
 	private JEditBuffer buffer;
+
+	/** The first invalid line. All lines before this one are valid. */
+	private int firstInvalidLine;
+
+	private int lastScreenLine;
+
+	private int lastScreenLineP;
 
 	/**
 	 * The lineInfo array. There is LineInfo for each line that is visible in
@@ -73,16 +77,12 @@ class ChunkCache
 	 */
 	private LineInfo[] lineInfo;
 
+	private boolean needFullRepaint;
+
 	private final List<Chunk> out;
 
-	/** The first invalid line. All lines before this one are valid. */
-	private int firstInvalidLine;
-
-	private int lastScreenLineP;
-
-	private int lastScreenLine;
-
-	private boolean needFullRepaint;
+	// {{{ Instance variables
+	private final TextArea textArea;
 
 	private final DisplayTokenHandler tokenHandler;
 

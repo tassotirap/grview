@@ -46,11 +46,19 @@ public class LineManager
 	// {{{ Instance variables
 	private int[] endOffsets;
 
+	/**
+	 * If -1, all fold levels are valid. Otherwise, all lines after this have an
+	 * invalid fold level.
+	 */
+	private int firstInvalidFoldLevel;
+
+	/**
+	 * If -1, all contexts are valid. Otherwise, all lines after this have an
+	 * invalid context.
+	 */
+	private int firstInvalidLineContext;
+
 	private short[] foldLevels;
-
-	private TokenMarker.LineContext[] lineContext;
-
-	private int lineCount;
 
 	/**
 	 * If -1, then there is no gap. Otherwise, all lines from this line onwards
@@ -60,17 +68,9 @@ public class LineManager
 
 	private int gapWidth;
 
-	/**
-	 * If -1, all contexts are valid. Otherwise, all lines after this have an
-	 * invalid context.
-	 */
-	private int firstInvalidLineContext;
+	private TokenMarker.LineContext[] lineContext;
 
-	/**
-	 * If -1, all fold levels are valid. Otherwise, all lines after this have an
-	 * invalid fold level.
-	 */
-	private int firstInvalidFoldLevel;
+	private int lineCount;
 
 	// }}}
 

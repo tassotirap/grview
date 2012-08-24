@@ -99,14 +99,14 @@ public class JEditBuffer
 	// {{{ Used to store property values
 	protected static class PropValue
 	{
-		Object value;
-
 		/**
 		 * If this is true, then this value is cached from the mode or global
 		 * defaults, so when the defaults change this property value must be
 		 * reset.
 		 */
 		boolean defaultValue;
+
+		Object value;
 
 		PropValue(Object value, boolean defaultValue)
 		{
@@ -127,78 +127,78 @@ public class JEditBuffer
 	} // }}}
 
 	/**
-	 * Line separator property.
-	 */
-	public static final String LINESEP = "lineSeparator";
-
-	/**
 	 * Character encoding used when loading and saving.
 	 * 
 	 * @since jEdit 3.2pre4
 	 */
 	public static final String ENCODING = "encoding";
 
+	public static final int HIGH_PRIORITY = 1;
+
 	// {{{ Flags
+
+	/**
+	 * Line separator property.
+	 */
+	public static final String LINESEP = "lineSeparator";
 
 	// {{{ Buffer events
 	public static final int NORMAL_PRIORITY = 0;
 
-	public static final int HIGH_PRIORITY = 1;
+	// {{{ Private members
+	private List<Listener> bufferListeners;
+
+	private ContentManager contentMgr;
+
+	private boolean dirty;
+
+	private FoldHandler foldHandler;
+
+	private IntegerArray integerArray;
+
+	private boolean io;
+
+	private LineManager lineMgr;
+
+	// }}}
+
+	// {{{ Thread safety
+
+	private boolean loading;
+
+	private final ReentrantReadWriteLock lock;
+
+	private PositionManager positionMgr;
+
+	private final Map<Object, PropValue> properties;
+
+	// }}}
+
+	// {{{ Line offset methods
+
+	private final Object propertyLock;
+
+	private boolean readOnly;
+
+	private boolean readOnlyOverride;
+
+	private TokenMarker tokenMarker;
+
+	private boolean transaction;
+
+	private boolean undoInProgress;
 
 	protected Mode mode;
+
+	// }}}
+
+	// {{{ Text getters and setters
 
 	protected Segment seg;
 
 	protected boolean textMode;
 
 	protected UndoManager undoMgr;
-
-	// {{{ Private members
-	private List<Listener> bufferListeners;
-
-	private final ReentrantReadWriteLock lock;
-
-	private ContentManager contentMgr;
-
-	// }}}
-
-	// {{{ Thread safety
-
-	private LineManager lineMgr;
-
-	private PositionManager positionMgr;
-
-	private FoldHandler foldHandler;
-
-	private IntegerArray integerArray;
-
-	// }}}
-
-	// {{{ Line offset methods
-
-	private TokenMarker tokenMarker;
-
-	private boolean undoInProgress;
-
-	private boolean dirty;
-
-	private boolean readOnly;
-
-	private boolean readOnlyOverride;
-
-	private boolean transaction;
-
-	private boolean loading;
-
-	// }}}
-
-	// {{{ Text getters and setters
-
-	private boolean io;
-
-	private final Map<Object, PropValue> properties;
-
-	private final Object propertyLock;
 
 	// {{{ JEditBuffer constructor
 	/**

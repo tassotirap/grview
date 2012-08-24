@@ -133,41 +133,7 @@ import org.netbeans.modules.visual.action.ZoomAction;
 public final class ActionFactory
 {
 
-	private static final BasicStroke STROKE = new BasicStroke(1.0f, BasicStroke.JOIN_BEVEL, BasicStroke.CAP_BUTT, 5.0f, new float[]{ 6.0f, 3.0f }, 0.0f);
-
-	private static final MoveStrategy MOVE_STRATEGY_FREE = new MoveStrategy()
-	{
-		@Override
-		public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation)
-		{
-			return suggestedLocation;
-		}
-	};
-
-	private static final MoveProvider MOVE_PROVIDER_DEFAULT = new MoveProvider()
-	{
-		@Override
-		public Point getOriginalLocation(Widget widget)
-		{
-			return widget.getPreferredLocation();
-		}
-
-		@Override
-		public void movementFinished(Widget widget)
-		{
-		}
-
-		@Override
-		public void movementStarted(Widget widget)
-		{
-		}
-
-		@Override
-		public void setNewLocation(Widget widget, Point location)
-		{
-			widget.setPreferredLocation(location);
-		}
-	};
+	private static final ActionMapAction ACTION_MAP_ACTION = new ActionMapAction(null, null);
 
 	private static final AlignWithMoveDecorator ALIGN_WITH_MOVE_DECORATOR_DEFAULT = new AlignWithMoveDecorator()
 	{
@@ -180,10 +146,6 @@ public final class ActionFactory
 			return widget;
 		}
 	};
-
-	private static final MoveControlPointProvider MOVE_CONTROL_POINT_PROVIDER_FREE = new FreeMoveControlPointProvider();
-
-	private static final MoveControlPointProvider MOVE_CONTROL_POINT_PROVIDER_ORTHOGONAL = new OrthogonalMoveControlPointProvider();
 
 	private static final ConnectDecorator CONNECT_DECORATOR_DEFAULT = new ConnectDecorator()
 	{
@@ -214,6 +176,58 @@ public final class ActionFactory
 		}
 	};
 
+	private static WidgetCopyPasteAction COPY_PASTE_ACTION;
+
+	private static final WidgetAction CYCLE_FOCUS_OBJECT_SCENE = createCycleFocusAction(new CycleObjectSceneFocusProvider());
+
+	private static WidgetDeleteAction DELETE_ACTION;
+
+	private static final WidgetAction MOVE_ACTION = createMoveAction(null, null);
+
+	private static final WidgetAction MOVE_CONTROL_POINT_ACTION_FREE = createMoveControlPointAction(createFreeMoveControlPointProvider());
+
+	private static final WidgetAction MOVE_CONTROL_POINT_ACTION_ORTHOGONAL = createMoveControlPointAction(createOrthogonalMoveControlPointProvider());
+
+	private static final MoveControlPointProvider MOVE_CONTROL_POINT_PROVIDER_FREE = new FreeMoveControlPointProvider();
+
+	private static final MoveControlPointProvider MOVE_CONTROL_POINT_PROVIDER_ORTHOGONAL = new OrthogonalMoveControlPointProvider();
+
+	private static final MoveProvider MOVE_PROVIDER_DEFAULT = new MoveProvider()
+	{
+		@Override
+		public Point getOriginalLocation(Widget widget)
+		{
+			return widget.getPreferredLocation();
+		}
+
+		@Override
+		public void movementFinished(Widget widget)
+		{
+		}
+
+		@Override
+		public void movementStarted(Widget widget)
+		{
+		}
+
+		@Override
+		public void setNewLocation(Widget widget, Point location)
+		{
+			widget.setPreferredLocation(location);
+		}
+	};
+
+	private static final MoveStrategy MOVE_STRATEGY_FREE = new MoveStrategy()
+	{
+		@Override
+		public Point locationSuggested(Widget widget, Point originalLocation, Point suggestedLocation)
+		{
+			return suggestedLocation;
+		}
+	};
+
+	private static final PanAction PAN_ACTION = new PanAction();
+
 	private static final ReconnectDecorator RECONNECT_DECORATOR_DEFAULT = new ReconnectDecorator()
 	{
 		@Override
@@ -228,6 +242,10 @@ public final class ActionFactory
 			return AnchorFactory.createCenterAnchor(replacementWidget);
 		}
 	};
+
+	private static final WidgetAction RESIZE_ACTION = createResizeAction(null, null);
+
+	private static final ResizeControlPointResolver RESIZE_CONTROL_POINT_RESOLVER_DEFAULT = new ResizeCornersControlPointResolver();
 
 	private static final ResizeProvider RESIZE_PROVIDER_DEFAULT = new ResizeProvider()
 	{
@@ -251,25 +269,7 @@ public final class ActionFactory
 		}
 	};
 
-	private static final ResizeControlPointResolver RESIZE_CONTROL_POINT_RESOLVER_DEFAULT = new ResizeCornersControlPointResolver();
-
-	private static final ActionMapAction ACTION_MAP_ACTION = new ActionMapAction(null, null);
-
-	private static final WidgetAction MOVE_CONTROL_POINT_ACTION_FREE = createMoveControlPointAction(createFreeMoveControlPointProvider());
-
-	private static final WidgetAction MOVE_CONTROL_POINT_ACTION_ORTHOGONAL = createMoveControlPointAction(createOrthogonalMoveControlPointProvider());
-
-	private static final WidgetAction MOVE_ACTION = createMoveAction(null, null);
-
-	private static final WidgetAction RESIZE_ACTION = createResizeAction(null, null);
-
-	private static final WidgetAction CYCLE_FOCUS_OBJECT_SCENE = createCycleFocusAction(new CycleObjectSceneFocusProvider());
-
-	private static WidgetDeleteAction DELETE_ACTION;
-
-	private static WidgetCopyPasteAction COPY_PASTE_ACTION;
-
-	private static final PanAction PAN_ACTION = new PanAction();
+	private static final BasicStroke STROKE = new BasicStroke(1.0f, BasicStroke.JOIN_BEVEL, BasicStroke.CAP_BUTT, 5.0f, new float[]{ 6.0f, 3.0f }, 0.0f);
 
 	private static final WheelPanAction WHEEL_PAN_ACTION = new WheelPanAction();
 

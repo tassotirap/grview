@@ -38,24 +38,24 @@ public abstract class HtmlViewer implements HyperlinkListener
 
 	public static enum TOPIC
 	{
-		Grammar, SyntaxStack, SemanticStack, Output, Tokens, Error, Parser
+		Error, Grammar, Output, Parser, SemanticStack, SyntaxStack, Tokens
 	};
 
-	private Canvas activeScene;
-	private JEditorPane editorPane = new JEditorPane();
-	private ExtHTMLEditorKit kit = new ExtHTMLEditorKit();
-
-	private StyleSheet cssSheet = new StyleSheet();
 	public static final String ApplicationImagePath = new File("resources").getAbsolutePath();
-	public static final String SystemImagePathKey = "system.image.path.key";
-
-	public static final String SystemImagePath = new File("resources/images").getAbsolutePath();
-	public final static String HORIZONTAL_LINE = "<hr width=\"100%\" size=\"1\" color=\"gray\" align=\"center\">";
 	public final static String DEFAULT_FONT = "Arial";
-
 	public final static String DEFAULT_SIZE = "3";
 
+	public final static String HORIZONTAL_LINE = "<hr width=\"100%\" size=\"1\" color=\"gray\" align=\"center\">";
+	public static final String SystemImagePath = new File("resources/images").getAbsolutePath();
+	public static final String SystemImagePathKey = "system.image.path.key";
+
 	public final static boolean USE_CSSFILE = false;
+	private Canvas activeScene;
+	private StyleSheet cssSheet = new StyleSheet();
+
+	private JEditorPane editorPane = new JEditorPane();
+
+	private ExtHTMLEditorKit kit = new ExtHTMLEditorKit();
 
 	public HtmlViewer()
 	{

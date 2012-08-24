@@ -48,16 +48,16 @@ import org.grview.util.StandardUtilities;
  */
 public abstract class AsinActionContext<F extends AbstractEditAction, E extends AsinActionSet<F>>
 {
-	// {{{ Package-private members
-	String[] actionNames;
-
-	// }}}
-
 	/**
 	 * This map contains as key an action name, and as value the AsinActionSet
 	 * that contains this action
 	 */
 	Hashtable<String, E> actionHash = new Hashtable<String, E>();
+
+	// }}}
+
+	// {{{ Package-private members
+	String[] actionNames;
 
 	/** A map of built-in actions that were overridden by plugins. */
 	Hashtable<String, E> overriddenActions = new Hashtable<String, E>();

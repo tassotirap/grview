@@ -20,12 +20,12 @@ import org.netbeans.api.visual.widget.Widget;
 public class CanvasDecorator
 {
 
-	private String[] iconName = new String[]{ CanvasData.N_TERMINAL, CanvasData.TERMINAL, CanvasData.LEFT_SIDE, CanvasData.LAMBDA, CanvasData.START };
-
-	private URL[] icons = new URL[]{ getClass().getResource("/org/grview/images/n_terminal.png"), getClass().getResource("/org/grview/images/terminal.png"), getClass().getResource("/org/grview/images/left_side.png"), getClass().getResource("/org/grview/images/lambda.png"), getClass().getResource("/org/grview/images/start.png") };
+	protected static final ConnectDecorator CONNECT_DECORATOR_ALTERNATIVE = new AlternativeConnectorDecorator();
 
 	protected static final ConnectDecorator CONNECT_DECORATOR_SUCCESSOR = new SuccessorConnectorDecorator();
-	protected static final ConnectDecorator CONNECT_DECORATOR_ALTERNATIVE = new AlternativeConnectorDecorator();
+
+	private String[] iconName = new String[]{ CanvasData.N_TERMINAL, CanvasData.TERMINAL, CanvasData.LEFT_SIDE, CanvasData.LAMBDA, CanvasData.START };
+	private URL[] icons = new URL[]{ getClass().getResource("/org/grview/images/n_terminal.png"), getClass().getResource("/org/grview/images/terminal.png"), getClass().getResource("/org/grview/images/left_side.png"), getClass().getResource("/org/grview/images/lambda.png"), getClass().getResource("/org/grview/images/start.png") };
 
 	public ConnectionWidget drawConnection(String type, Canvas canvas, String label)
 	{

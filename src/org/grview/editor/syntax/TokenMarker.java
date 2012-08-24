@@ -61,12 +61,12 @@ public class TokenMarker
 	{
 		private static final Map<LineContext, LineContext> intern = new HashMap<LineContext, LineContext>();
 
-		public LineContext parent;
+		public ParserRule escapeRule;
 		public ParserRule inRule;
+		public LineContext parent;
 		public ParserRuleSet rules;
 		// used for SPAN_REGEXP rules; otherwise null
 		public char[] spanEndSubst;
-		public ParserRule escapeRule;
 
 		// {{{ LineContext constructor
 		public LineContext()
@@ -182,31 +182,31 @@ public class TokenMarker
 
 	} // }}}
 
-	// {{{ Instance variables
-	private final Map<String, ParserRuleSet> ruleSets = new Hashtable<String, ParserRuleSet>(64);
+	/** The context of the current line. */
+	private LineContext context;
 
-	private ParserRuleSet mainRuleSet;
+	private KeywordMap keywords;
 
-	// Instead of passing these around to each method, we just store them
-	// as instance variables. Note that this is not thread-safe.
-	private TokenHandler tokenHandler;
+	private int lastOffset;
 
 	/** The line from which we will mark the tokens. */
 	private Segment line;
 
-	/** The context of the current line. */
-	private LineContext context;
+	private int lineLength;
 
 	// {{{ Private members
 
-	private KeywordMap keywords;
+	private ParserRuleSet mainRuleSet;
 	private final Segment pattern = new Segment();
 
-	private int lastOffset;
-	private int lineLength;
 	private int pos;
-	private int whitespaceEnd;
+	// {{{ Instance variables
+	private final Map<String, ParserRuleSet> ruleSets = new Hashtable<String, ParserRuleSet>(64);
 	private boolean seenWhitespaceEnd;
+	// Instead of passing these around to each method, we just store them
+	// as instance variables. Note that this is not thread-safe.
+	private TokenHandler tokenHandler;
+	private int whitespaceEnd;
 
 	// }}}
 	// {{{ TokenMarker constructor
