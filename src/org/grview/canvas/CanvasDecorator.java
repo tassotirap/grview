@@ -8,8 +8,8 @@ import java.net.URL;
 import javax.swing.ImageIcon;
 
 import org.grview.canvas.widget.IconNodeWidgetExt;
-import org.grview.canvas.widget.LabelWidgetExt;
 import org.grview.canvas.widget.IconNodeWidgetExt.TextOrientation;
+import org.grview.canvas.widget.LabelWidgetExt;
 import org.netbeans.api.visual.action.ConnectDecorator;
 import org.netbeans.api.visual.anchor.AnchorShape;
 import org.netbeans.api.visual.anchor.PointShape;
@@ -109,6 +109,5 @@ public class CanvasDecorator
 	{
 		return CONNECT_DECORATOR_SUCCESSOR;
 	}
-	
-	
+
 }

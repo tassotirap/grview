@@ -49,7 +49,7 @@ public final class ProjectManager
 		if (ProjectManager.hasUnsavedView(gramComponent.getPath()))
 		{
 			gramComponent.saveFile();
-			
+
 			return gramComponent.getPath();
 		}
 		return null;

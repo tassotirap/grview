@@ -62,7 +62,7 @@ public class AsinEditor
 
 	private void addConnection(CanvasState canvasState, String connection, String type)
 	{
-		org.grview.canvas.state.Connection canvasConnection = canvasState.findConnection((Object) connection);
+		org.grview.canvas.state.Connection canvasConnection = canvasState.findConnection(connection);
 		if (connection != null)
 		{
 			connect(canvasConnection.getTarget(), canvasConnection.getSource(), connection, type);

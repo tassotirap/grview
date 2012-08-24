@@ -29,7 +29,7 @@ public class SemanticRoutinesRepo
 	public static final String BEGIN_SEMANTIC_ROUTINES = "/* BEGIN SEMANTIC ROUTINES */";
 
 	public static final String BEGIN_ROUTINE = "/* BEGIN ROUTINE: ";
-	
+
 	private Yytoken currentToken;
 
 	private ArrayList<TokenListener> listeners = new ArrayList<TokenListener>();
@@ -46,13 +46,13 @@ public class SemanticRoutinesRepo
 
 	private static String getRoutineName(String line)
 	{
-		return line.substring(line.indexOf(BEGIN_ROUTINE) + BEGIN_ROUTINE.length()).replace("*/","").trim();
+		return line.substring(line.indexOf(BEGIN_ROUTINE) + BEGIN_ROUTINE.length()).replace("*/", "").trim();
 	}
 
 	public static String getCode(String routineName)
 	{
 		if (routineName != null)
-		{ 
+		{
 			HashMap<String, String> routineCode = getRoutineCode();
 			if (routineCode.containsKey(routineName))
 			{
@@ -61,7 +61,7 @@ public class SemanticRoutinesRepo
 		}
 		return null;
 	}
-	
+
 	public static Set<String> getRegRoutines()
 	{
 		return getRoutineCode().keySet();
@@ -108,7 +108,7 @@ public class SemanticRoutinesRepo
 						line = bufferedReader.readLine();
 					}
 				}
-				
+
 				line = bufferedReader.readLine();
 			}
 			bufferedReader.close();

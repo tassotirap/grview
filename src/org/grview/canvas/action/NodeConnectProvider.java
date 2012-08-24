@@ -5,8 +5,8 @@ import java.beans.PropertyChangeSupport;
 import java.util.Collection;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.CanvasData;
+import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
 import org.netbeans.api.visual.action.ConnectProvider;
 import org.netbeans.api.visual.action.ConnectorState;

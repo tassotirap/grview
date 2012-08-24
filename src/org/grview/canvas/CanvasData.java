@@ -3,7 +3,7 @@ package org.grview.canvas;
 public class CanvasData
 {
 	private final static String ORG_GRVIEW_IMAGES = "/org/grview/images/";
-	
+
 	public final static String SELECT = "SELECT";
 	public final static String CTRL_SELECT = "CTRL_SELECT";
 	public final static String LEFT_SIDE = "LEFT_SIDE";

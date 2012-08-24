@@ -13,7 +13,6 @@ import org.grview.canvas.action.WidgetActionRepository;
 import org.grview.canvas.state.CanvasState;
 import org.grview.canvas.state.Connection;
 import org.grview.canvas.state.Node;
-import org.grview.canvas.strategy.MoveStrategy;
 import org.grview.canvas.widget.GridWidget;
 import org.grview.canvas.widget.GuideLineWidget;
 import org.grview.canvas.widget.LabelWidgetExt;
@@ -21,7 +20,6 @@ import org.grview.canvas.widget.LineWidget;
 import org.grview.canvas.widget.MarkedWidget;
 import org.grview.canvas.widget.TypedWidget;
 import org.grview.util.Log;
-import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.anchor.Anchor.Direction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
@@ -33,50 +31,6 @@ import org.netbeans.api.visual.widget.Widget;
 
 public class CanvasTemplate extends Canvas
 {
-	private static class MoveTracker extends MoveStrategy
-	{
-		private static Canvas canvas;
-
-		private WidgetAction activeMovement;
-
-		// private constructor: singleton
-		/**
-		 * Creates a new MoveTracker, this class is supposed to look after
-		 * changes in the policy of movement, and make the proper modifications
-		 * on existing nodes on canvas, and also notify the active action
-		 * repository.
-		 * 
-		 * @param canvas
-		 */
-		private MoveTracker(Canvas canvas, WidgetActionRepository arepo)
-		{
-			MoveTracker.canvas = canvas;
-			activeMovement = canvas.actions.getAction("Move", canvas);
-			addObserver(arepo);
-		}
-
-		@Override
-		public void notifyObservers(Object obj)
-		{
-			setChanged();
-			super.notifyObservers(obj);
-			WidgetAction ma = canvas.actions.getAction("Move", canvas);
-			for (String nd : canvas.getNodes())
-			{
-				Object objw = canvas.findWidget(nd);
-				if (objw != null)
-				{
-					Widget w = (Widget) objw;
-					if (w instanceof LabelWidgetExt)
-					{
-						w.getActions(CanvasData.SELECT).removeAction(activeMovement);
-						w.getActions(CanvasData.SELECT).addAction(ma);
-					}
-				}
-			}
-			activeMovement = ma;
-		}
-	}
 
 	private LayerWidget backgroundLayer = new LayerWidget(this);
 	private LayerWidget mainLayer = new LayerWidget(this);
@@ -717,9 +671,9 @@ public class CanvasTemplate extends Canvas
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_ADDED);
 		addObjectSceneListener(state, ObjectSceneEventType.OBJECT_REMOVED);
 		this.state = state;
-		
+
 		state.update(this);
-		
+
 		validate();
 	}
 }

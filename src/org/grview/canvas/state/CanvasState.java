@@ -61,11 +61,10 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 		return null;
 	}
 
-
 	@Override
 	public void focusChanged(ObjectSceneEvent event, Object oldObject, Object newObject)
 	{
-		
+
 	}
 
 	/**
@@ -123,7 +122,7 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 		Canvas canvas = (Canvas) event.getObjectScene();
 		Widget widget = canvas.findWidget(added);
 		String name = (String) added;
-		
+
 		if (canvas.isNode(added) || canvas.isLabel(added))
 		{
 
@@ -149,7 +148,7 @@ public class CanvasState implements Serializable, ObjectSceneListener, PropertyC
 			nodes.put(name, node);
 		}
 		else if (canvas.isSuccessor(name) || canvas.isAlternative(name))
-		{	
+		{
 			Connection conn = new Connection();
 			conn.setName(name);
 			conn.setType(canvas.getCanvasActiveTool());

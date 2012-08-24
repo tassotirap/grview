@@ -17,7 +17,7 @@ public abstract class CanvasSelectProvider implements SelectProvider
 	public void select(Widget arg0, Point arg1, boolean arg2)
 	{
 		CanvasFactory.getCanvas().setFocused(); // caso ainda não tenha
-														// sido focado
+												// sido focado
 	}
 
 }

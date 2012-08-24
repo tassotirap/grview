@@ -28,22 +28,16 @@ public final class OutlineTopComponent extends TopComponent
 	public OutlineTopComponent(GraphScene scene)
 	{
 		initComponents();
-		// setIcon(Utilities.loadImage(ICON_PATH, true));
 
 		add(scene.createSatelliteView(), BorderLayout.CENTER);
 
 		setSize(900, 700);
 	}
 
-	// End of variables declaration//GEN-END:variables
-
-	// <editor-fold defaultstate="collapsed"
-	// desc="Generated Code">//GEN-BEGIN:initComponents
 	private void initComponents()
 	{
 		setLayout(new java.awt.BorderLayout());
-	}// </editor-fold>//GEN-END:initComponents
-		// Variables declaration - do not modify//GEN-BEGIN:variables
+	}
 
 	@Override
 	protected String preferredID()
@@ -54,13 +48,11 @@ public final class OutlineTopComponent extends TopComponent
 	@Override
 	public void componentClosed()
 	{
-		// TODO add custom code on component closing
 	}
 
 	@Override
 	public void componentOpened()
 	{
-		// TODO add custom code on component opening
 	}
 
 	@Override
@@ -69,7 +61,6 @@ public final class OutlineTopComponent extends TopComponent
 		return TopComponent.PERSISTENCE_NEVER;
 	}
 
-	/** replaces this in object stream */
 	@Override
 	public Object writeReplace()
 	{

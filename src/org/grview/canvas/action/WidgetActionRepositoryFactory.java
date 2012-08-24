@@ -4,8 +4,8 @@ import java.util.HashMap;
 import java.util.Observable;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasPopupMenu;
 import org.grview.canvas.CanvasData;
+import org.grview.canvas.CanvasPopupMenu;
 import org.grview.canvas.strategy.MoveStrategy;
 import org.grview.canvas.widget.GridWidget;
 import org.netbeans.api.visual.action.WidgetAction;

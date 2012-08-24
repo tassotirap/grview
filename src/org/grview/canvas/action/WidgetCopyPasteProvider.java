@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.CanvasData;
+import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.state.Connection;
 import org.grview.canvas.state.Node;
 import org.grview.syntax.command.CommandFactory;

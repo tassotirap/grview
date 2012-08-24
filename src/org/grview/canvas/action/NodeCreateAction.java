@@ -4,8 +4,8 @@ import java.awt.event.MouseEvent;
 import java.beans.PropertyChangeSupport;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.CanvasData;
+import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.api.visual.widget.Widget;

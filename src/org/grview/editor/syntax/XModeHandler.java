@@ -293,7 +293,7 @@ public abstract class XModeHandler extends DefaultHandler
 	/**
 	 * A list of modes to be reloaded at the end, loaded through DELEGATEs
 	 * 
-	 * @see http
+	 * @see http 
 	 *      ://sourceforge.net/tracker/index.php?func=detail&aid=1742250&group_id
 	 *      =588&atid=100588
 	 */

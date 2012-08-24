@@ -277,7 +277,7 @@ public final class DynaCode
 	{
 		for (int i = 0; i < sourceDirs.size(); i++)
 		{
-			SourceDir src = (SourceDir) sourceDirs.get(i);
+			SourceDir src = sourceDirs.get(i);
 			if (new File(src.srcDir, resource).exists())
 			{
 				return src;
@@ -329,7 +329,7 @@ public final class DynaCode
 			// check existence
 			for (int i = 0; i < sourceDirs.size(); i++)
 			{
-				SourceDir src = (SourceDir) sourceDirs.get(i);
+				SourceDir src = sourceDirs.get(i);
 				if (src.srcDir.equals(srcDir))
 				{
 					return false;

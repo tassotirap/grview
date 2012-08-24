@@ -44,8 +44,6 @@ import org.netbeans.api.visual.widget.LayerWidget;
 public abstract class Canvas extends GraphScene.StringGraph implements PropertyChangeListener, ActionContextHolder<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>>
 {
 
-	
-
 	/**
 	 * This inner classes acts as a facade used to forward key events to
 	 * keylisteners "hanged" to this canvas This class was created to deal with
@@ -86,7 +84,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	// The different possible types of cursor, only the static ones
 
-	
 	private ArrayList<String> candidateSuc = new ArrayList<String>();
 	private ArrayList<String> candidateAlt = new ArrayList<String>();
 	private ArrayList<String> successors = new ArrayList<String>();
@@ -111,7 +108,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	// Used to draw the canvas properly
 	public CanvasDecorator decorator;
-
 
 	// provides an action context, specially for user input
 	private AsinActionContext<CanvasBeanShellAction, AsinActionSet<CanvasBeanShellAction>> actionContext;
@@ -250,7 +246,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 
 	public abstract String getConnStrategy();
 
-
 	public AbstractInputHandler<?> getInputHandler()
 	{
 		return inputHandlerProvider.getInputHandler();
@@ -282,7 +277,6 @@ public abstract class Canvas extends GraphScene.StringGraph implements PropertyC
 	}
 
 	public abstract String getMoveStrategy();
-
 
 	public abstract String getNodeType(Object node);
 

@@ -13,7 +13,6 @@ public class DelCommand extends Command
 		return SyntaxDefinitions.DeleteCommand_Description;
 	}
 
-
 	public String getTargetType()
 	{
 		return targetType;

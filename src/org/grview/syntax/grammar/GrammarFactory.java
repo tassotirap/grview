@@ -35,7 +35,7 @@ public class GrammarFactory
 	 */
 	public GrammarFactory()
 	{
-		
+
 	}
 
 	private boolean canPerformAction()
@@ -264,11 +264,11 @@ public class GrammarFactory
 	public String run(boolean isFile) throws Exception
 	{
 		StringBuffer grammar = new StringBuffer();
-		
+
 		ArrayList start = new ArrayList();
-		
+
 		List children = AsinEditor.getInstance().getLogicDiagram(ProjectManager.getMainWindow().getActiveScene()).getChildrenNodes();
-		
+
 		Object o;
 
 		AppOutput.clearGeneratedGrammar();

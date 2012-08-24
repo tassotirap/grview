@@ -3,8 +3,8 @@ package org.grview.canvas.action;
 import java.beans.PropertyChangeSupport;
 
 import org.grview.canvas.Canvas;
-import org.grview.canvas.CanvasFactory;
 import org.grview.canvas.CanvasData;
+import org.grview.canvas.CanvasFactory;
 import org.grview.syntax.command.CommandFactory;
 import org.grview.syntax.command.RenameCommand;
 import org.netbeans.api.visual.action.TextFieldInplaceEditor;

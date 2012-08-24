@@ -49,13 +49,13 @@ public class RoutineWizard
 			{
 				String name = window.getNameTextField().getText();
 				String code = window.getCodeTextArea().getText();
-				
-				if(name.equals("") || code.equals(""))
+
+				if (name.equals("") || code.equals(""))
 					return;
-				
+
 				if (((routineName == null && semFileManager.canInsert(routineName)) || (routineName != null && !semFileManager.canInsert(routineName))) && semFileManager.isValid())
 				{
-					
+
 					if (routineName != null)
 					{
 						semFileManager.editRouine(name, code);

@@ -309,7 +309,7 @@ public class Analyzer
 		{
 		}
 		bufferedReader.close();
-		
+
 		in = new BufferedReader(fileReader);
 		this.lex = lex;
 		initialize(out, err);
