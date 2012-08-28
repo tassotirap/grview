@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.grview.canvas.Canvas;
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.project.ProjectManager;
@@ -13,6 +14,7 @@ import org.grview.syntax.grammar.model.LambdaAlternative;
 import org.grview.syntax.grammar.model.NodeLabel;
 import org.grview.syntax.grammar.model.SimpleNode;
 import org.grview.syntax.grammar.model.SyntaxDefinitions;
+import org.grview.syntax.grammar.model.SyntaxElement;
 import org.grview.syntax.grammar.model.SyntaxModel;
 import org.grview.syntax.grammar.model.SyntaxSubpart;
 
@@ -47,40 +49,40 @@ public class GrammarFactory
 	 * This function extracts the name and the routine semantic number from one
 	 * string
 	 */
-	private String[] nameAndRsExtractor(SyntaxModel sm)
+	private String[] nameAndRsExtractor(SyntaxModel syntaxModel)
 	{
 		String name;
-		String sr;
-		String[] str = new String[2];
-		String[] ret = new String[3];
-		SimpleNode sn;
-		List<NodeLabel> listChildren = sm.getChildrenAsLabels();
+		String semanticRoutine;
+		String[] stringValue = new String[2];
+		String[] returnValue = new String[3];
+		SimpleNode simpleNode;
+		List<NodeLabel> listChildren = syntaxModel.getChildrenAsLabels();
 		NodeLabel label = listChildren.iterator().next();
-		str = label.getLabelContents().split("#");
-		if (sm instanceof AbstractNode && ((AbstractNode) sm).getType().equals(AbstractNode.LAMBDA_ALTERNATIVE))
+		stringValue = label.getLabelContents().split("#");
+		if (syntaxModel instanceof AbstractNode && ((AbstractNode) syntaxModel).getType().equals(AbstractNode.LAMBDA_ALTERNATIVE))
 		{
 			name = SyntaxDefinitions.EmptyNodeLabel;
 		}
 		else
 		{
-			name = str[0];
+			name = stringValue[0];
 		}
-		if (str.length >= 2)
+		if (stringValue.length >= 2)
 		{
-			sr = str[1];
+			semanticRoutine = stringValue[1];
 		}
-		else if ((sn = sm.getSemanticNode()) != null)
+		else if ((simpleNode = syntaxModel.getSemanticNode()) != null)
 		{
-			sr = sn.getLabel().getLabelContents();
+			semanticRoutine = simpleNode.getLabel().getLabelContents();
 		}
 		else
 		{
-			sr = "-1";
+			semanticRoutine = "-1";
 		}
-		ret[0] = new String(name);
-		ret[1] = new String(sr);
-		ret[2] = sm.getID();
-		return ret;
+		returnValue[0] = new String(name);
+		returnValue[1] = new String(semanticRoutine);
+		returnValue[2] = syntaxModel.getID();
+		return returnValue;
 	}
 
 	protected boolean calculateEnabled()
@@ -263,109 +265,131 @@ public class GrammarFactory
 
 	public String run(boolean isFile) throws Exception
 	{
-		StringBuffer grammar = new StringBuffer();
-
-		ArrayList start = new ArrayList();
-
-		List children = AsinEditor.getInstance().getLogicDiagram(ProjectManager.getMainWindow().getActiveScene()).getChildrenNodes();
-
-		Object o;
 
 		AppOutput.clearGeneratedGrammar();
 		AppOutput.displayHorizontalLine(TOPIC.Output);
 		AppOutput.displayText("<a>Run grammar generate...</a><br>", TOPIC.Output);
+
+		StringBuffer grammar = new StringBuffer();
+
+		Canvas canvas = ProjectManager.getMainWindow().getActiveScene();
+		List<SyntaxElement> children = AsinEditor.getInstance().getLogicDiagram(canvas).getChildrenNodes();
+
 		/*
-		 * Com o laço a seguir colocarei todos os nós LeftSide, que apontam para
-		 * o começo de uma produção no vetor start. Esse vetor então guardará
-		 * todos as cabeças das produções.
+		 * This loop will put all LeftSide nodes in startNodes vector, and will
+		 * set object flat to false
 		 */
-		for (int i = 0; i < children.size(); i++)
-		{
-			o = children.get(i);
-			/* Colocando false no flag, para fazer a busca em profundidade */
-			if (o instanceof SyntaxSubpart)
-				((SyntaxSubpart) o).setFlag(false);
-			/* Se o nó for cabeça de uma produção, coloco-o no vetor start. */
-			if (o instanceof AbstractNode && ((AbstractNode) o).getType().equals(AbstractNode.LEFTSIDE))
-			{
-				start.add(o);
-			}
-			if (o instanceof AbstractNode && ((AbstractNode) o).getType().equals(AbstractNode.START))
-			{
-				start.add(0, (o));
-			}
-		}
-		SyntaxSubpart first = null;
-		for (int i = 0; i < start.size(); i++)
+		List<AbstractNode> startNodes = clearAndSetStartNodes(children);
+
+		for (int i = 0; i < startNodes.size(); i++)
 		{
 			cont = 0;
-			SyntaxModel headCandidate = ((SyntaxModel) start.get(i));
+			SyntaxModel headCandidate = ((SyntaxModel) startNodes.get(i));
 			if (headCandidate == null)
 			{
 				throw new Exception("Could not find the grammar start node.");
 			}
-			first = headCandidate.getSucessor();
-			if (first == null)
+			SyntaxSubpart successorNode = headCandidate.getSucessor();
+			if (successorNode == null)
 			{
 				throw new Exception("Could not find the successor node of the grammar head.");
 			}
-			first.setNumber(++cont);
-			List listChildren = ((SyntaxModel) start.get(i)).getChildrenAsLabels();
+			successorNode.setNumber(++cont);
+
+			List listChildren = ((SyntaxModel) startNodes.get(i)).getChildrenAsLabels();
 			NodeLabel label = (NodeLabel) listChildren.iterator().next();
 
-			AppOutput.displayText("<a>>>Begining a new leftside..." + label.getLabelContents() + "</a><br>", TOPIC.Output);
-			/* preparando a string 'sout', que será escrita no arquivo */
+			writeBegining(label);
+
 			htmlOutput = "<table cellspacing=\"0\" cellpadding=\"0\" border=\"1px\" width=\"100%\">";
-			htmlOutput += "<tr style=\"background-color: #EEEEEE; font-weight: bold;\"><td></td><td>Node</td><td>Number</td><td>Alternative</td><td>Successor</td><td>Semantic Rout.</td></tr>";
-			if (((AbstractNode) start.get(i)).getType().equals(AbstractNode.START))
+			htmlOutput += "<tr style=\"background-color: #EEEEEE; font-weight: bold;\"><td></td>";
+			htmlOutput += "<td>Node</td><td>Number</td><td>Alternative</td><td>Successor</td>";
+			htmlOutput += "<td>Semantic Rout.</td></tr>";
+			if (((AbstractNode) startNodes.get(i)).getType().equals(AbstractNode.START))
 			{
-				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_s2.png\" alt=\"Initial Node\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel) start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
-				GrComp gh = new GrComp(label.getLabelContents(), ((SyntaxModel) start.get(i)).getID());
-				gh.setHead(true);
-				if (i == 0) // it's the first found
-					absGrammar = new Grammar(gh);
-				absGrammar.setHead(gh);
-				absGrammar.setCurrent(gh);
+				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\">";
+				htmlOutput += "<img src=\"images/icon_s2.png\" alt=\"Initial Node\"></td>";
+				htmlOutput += "<td style=\"font-weight: bold;\" >";
+				htmlOutput += "<a href=\"" + ((SyntaxModel) startNodes.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td>";
+				htmlOutput += "<td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">" + successorNode.getNumber() + "</td>";
+				htmlOutput += "<td align=\"center\">-</td></tr>";
+				GrComp grammarHead = new GrComp(label.getLabelContents(), ((SyntaxModel) startNodes.get(i)).getID());
+				grammarHead.setHead(true);
+				if (i == 0)
+					absGrammar = new Grammar(grammarHead);
+				absGrammar.setHead(grammarHead);
+				absGrammar.setCurrent(grammarHead);
 			}
 			else
 			{
-				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\"><img src=\"images/icon_H2.png\" alt=\"Left Side\"></td><td style=\"font-weight: bold;\" ><a href=\"" + ((SyntaxModel) start.get(i)).getID() + "\">" + label.getLabelContents() + "</a></td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">-</td><td align=\"center\">-</td></tr>";
-				GrComp gl = new GrComp(label.getLabelContents(), ((SyntaxModel) start.get(i)).getID());
-				gl.setLeftHand(true);
+				htmlOutput += "<tr><td style=\"background-color: #EEEEEE;\">";
+				htmlOutput += "<img src=\"images/icon_H2.png\" alt=\"Left Side\"></td>";
+				htmlOutput += "<td style=\"font-weight: bold;\" >";
+				htmlOutput += "<a href=\"" + ((SyntaxModel) startNodes.get(i)).getID() + "\">" + label.getLabelContents() + "</a>";
+				htmlOutput += "</td><td align=\"center\">-1</td><td align=\"center\">-</td><td align=\"center\">" + successorNode.getNumber() + "</td>";
+				htmlOutput += "<td align=\"center\">-</td></tr>";
+				GrComp grammarLeftside = new GrComp(label.getLabelContents(), ((SyntaxModel) startNodes.get(i)).getID());
+				grammarLeftside.setLeftHand(true);
 				if (i == 0)
-					absGrammar = new Grammar(gl);
-				absGrammar.addLeftHand(gl);
-				absGrammar.setCurrent(gl);
+					absGrammar = new Grammar(grammarLeftside);
+				absGrammar.addLeftHand(grammarLeftside);
+				absGrammar.setCurrent(grammarLeftside);
 			}
-			String sout = ((SyntaxModel) start.get(i)).getID() + " H " + label.getLabelContents() + " -1 -1 -1 -1\n";
+			String sout = ((SyntaxModel) startNodes.get(i)).getID() + " H " + label.getLabelContents() + " -1 -1 -1 -1\n";
 			if (isFile && out != null)
 			{
 				out.write(sout);
 				out.flush();
 			}
 			grammar.append(sout);
-			/* chamando a busca em profundidade para o primeiro nó da produção */
-			String[] name = nameAndRsExtractor((SyntaxModel) first);
+			String[] name = nameAndRsExtractor((SyntaxModel) successorNode);
 			GrComp firstGuy = new GrComp(name[0], name[2]);
-			if (((AbstractNode) first).getType().equals(AbstractNode.NTERMINAL))
+			if (((AbstractNode) successorNode).getType().equals(AbstractNode.NTERMINAL))
 			{
 				firstGuy.setNonterminal(true);
 			}
-			else if (((AbstractNode) first).getType().equals(AbstractNode.TERMINAL))
+			else if (((AbstractNode) successorNode).getType().equals(AbstractNode.TERMINAL))
 			{
 				firstGuy.setTerminal(true);
 			}
-			else if (((AbstractNode) first).getType().equals(AbstractNode.LAMBDA_ALTERNATIVE))
+			else if (((AbstractNode) successorNode).getType().equals(AbstractNode.LAMBDA_ALTERNATIVE))
 			{
 				firstGuy.setLambda(true);
 			}
 			absGrammar.addSuccessor(firstGuy);
-			grammar.append(dfs(isFile, first));
+			grammar.append(dfs(isFile, successorNode));
 			htmlOutput += "</table>";
 			AppOutput.displayGeneratedGrammar(htmlOutput);
 		}
 		absGrammar.finalize();
 		return grammar.toString();
+	}
+
+	private void writeBegining(NodeLabel label)
+	{
+		AppOutput.displayText("<a>>>Begining a new leftside..." + label.getLabelContents() + "</a><br>", TOPIC.Output);
+	}
+
+	private List<AbstractNode> clearAndSetStartNodes(List<SyntaxElement> children)
+	{
+		List<AbstractNode> startNodes = new ArrayList<AbstractNode>();
+
+		for (SyntaxElement object : children)
+		{
+			if (object instanceof SyntaxSubpart)
+			{
+				((SyntaxSubpart) object).setFlag(false);
+			}
+			if (object instanceof AbstractNode && ((AbstractNode) object).getType().equals(AbstractNode.LEFTSIDE))
+			{
+				startNodes.add((AbstractNode) object);
+			}
+			if (object instanceof AbstractNode && ((AbstractNode) object).getType().equals(AbstractNode.START))
+			{
+				startNodes.add(0, (AbstractNode) object);
+			}
+		}
+		return startNodes;
 	}
 
 	public void setAbsGrammar(Grammar absGrammar)
