@@ -1,7 +1,7 @@
 package org.grview.syntax.grammar;
 
 /** Just any component on a grammar; an abstract representation **/
-public class GrComp
+public class GrammarComponent
 {
 
 	private Object contents;
@@ -12,11 +12,11 @@ public class GrComp
 	private boolean nonterminal;
 	private boolean terminal;
 
-	public GrComp()
+	public GrammarComponent()
 	{
 	}
 
-	public GrComp(Object contents, Object id)
+	public GrammarComponent(Object contents, Object id)
 	{
 		this.contents = contents;
 		this.id = id;

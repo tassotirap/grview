@@ -140,7 +140,7 @@ public class Analyzer extends Thread
 			if (tabGraph[IX].isTerm())
 			{
 				/* emite terminal esperado */
-				AppOutput.displayText(tabT[tabGraph[IX].getSim()].getName() + "  ", TOPIC.Output);
+				AppOutput.displayText(tabT[tabGraph[IX].getSim()].getName() + " expected.", TOPIC.Output);
 				/* vai para a proxima alternativa */
 				IX = tabGraph[IX].getAlt();
 			}
@@ -150,7 +150,6 @@ public class Analyzer extends Thread
 				IX = tabNT[tabGraph[IX].getSim()].getPrim();
 			}
 		}
-		AppOutput.displayText(" expected. ", TOPIC.Output);
 		/* Tenta corrigir o erro utilizando a estratégia da eliminação */
 		if (!estrategiaEliminacao(oldI, toppsIU, column, line))
 		{
@@ -629,7 +628,6 @@ public class Analyzer extends Thread
 		try
 		{
 			currToken = lex.yylex();
-			// System.err.println(lex.yylength());
 			pastSymbol = currentSymbol;
 			String tkAp1 = currToken.m_p1;
 			if (tkAp1.equals("Res") || tkAp1.equals("Esp") || tkAp1.equals("EOF"))
@@ -646,7 +644,7 @@ public class Analyzer extends Thread
 		{
 			AppOutput.printlnToken("Token read error\n");
 		}
-		AppOutput.printlnToken("Current Token: " + currToken + "\n");
+		AppOutput.printToken("Current Token: " + currToken);
 	}
 
 	@Override
@@ -866,6 +864,10 @@ public class Analyzer extends Thread
 		{
 			AppOutput.displayText("Expression Successfully recognized.", TOPIC.Output);
 		}
+		else
+			{
+				AppOutput.displayText("Expression can't be recognized.", TOPIC.Output);
+			}
 	}
 
 	public void setStepping(boolean stepping)

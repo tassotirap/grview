@@ -3,7 +3,7 @@ package org.grview.syntax.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.grview.syntax.grammar.GrComp;
+import org.grview.syntax.grammar.GrammarComponent;
 
 public class InvalidGrammarException extends Exception
 {
@@ -17,9 +17,9 @@ public class InvalidGrammarException extends Exception
 	private int iteratorIndex;
 
 	private List<InvalidGrammarException> nextExceptions = new ArrayList<InvalidGrammarException>();
-	private GrComp problem;
+	private GrammarComponent problem;
 
-	public InvalidGrammarException(String message, String description, GrComp problem)
+	public InvalidGrammarException(String message, String description, GrammarComponent problem)
 	{
 		super(message);
 		this.description = description;
@@ -55,7 +55,7 @@ public class InvalidGrammarException extends Exception
 		iteratorIndex = 0;
 	}
 
-	public void setGrComp(GrComp problem)
+	public void setGrComp(GrammarComponent problem)
 	{
 		this.problem = problem;
 	}

@@ -8,32 +8,32 @@ import java.util.List;
 public class Grammar
 {
 
-	private HashMap<GrComp, List<GrComp>> alternatives;
-	private HashMap<GrComp, List<GrComp>> antiAlternatives;
-	private HashMap<GrComp, List<GrComp>> antiSuccessors;
-	private List<GrComp> components;
-	private GrComp current;
-	private GrComp head;
-	private List<GrComp> heads;
-	private List<GrComp> leftHands;
-	private HashMap<GrComp, List<GrComp>> successors;
+	private HashMap<GrammarComponent, List<GrammarComponent>> alternatives;
+	private HashMap<GrammarComponent, List<GrammarComponent>> antiAlternatives;
+	private HashMap<GrammarComponent, List<GrammarComponent>> antiSuccessors;
+	private List<GrammarComponent> components;
+	private GrammarComponent current;
+	private GrammarComponent head;
+	private List<GrammarComponent> heads;
+	private List<GrammarComponent> leftHands;
+	private HashMap<GrammarComponent, List<GrammarComponent>> successors;
 
-	public Grammar(GrComp current)
+	public Grammar(GrammarComponent current)
 	{
-		this.alternatives = new HashMap<GrComp, List<GrComp>>();
-		this.antiAlternatives = new HashMap<GrComp, List<GrComp>>();
-		this.successors = new HashMap<GrComp, List<GrComp>>();
-		this.antiSuccessors = new HashMap<GrComp, List<GrComp>>();
-		this.leftHands = new ArrayList<GrComp>();
-		this.heads = new ArrayList<GrComp>();
-		this.components = new ArrayList<GrComp>();
+		this.alternatives = new HashMap<GrammarComponent, List<GrammarComponent>>();
+		this.antiAlternatives = new HashMap<GrammarComponent, List<GrammarComponent>>();
+		this.successors = new HashMap<GrammarComponent, List<GrammarComponent>>();
+		this.antiSuccessors = new HashMap<GrammarComponent, List<GrammarComponent>>();
+		this.leftHands = new ArrayList<GrammarComponent>();
+		this.heads = new ArrayList<GrammarComponent>();
+		this.components = new ArrayList<GrammarComponent>();
 		setCurrent(current);
 	}
 
-	private GrComp addComp(GrComp comp)
+	private GrammarComponent addComp(GrammarComponent comp)
 	{
 		// is there a corresponding comp already?
-		for (GrComp c : components)
+		for (GrammarComponent c : components)
 		{
 			if (c.getId().equals(comp.getId()))
 			{
@@ -42,19 +42,19 @@ public class Grammar
 		}
 		if (!alternatives.containsKey(comp))
 		{
-			alternatives.put(comp, new ArrayList<GrComp>());
+			alternatives.put(comp, new ArrayList<GrammarComponent>());
 		}
 		if (!successors.containsKey(comp))
 		{
-			successors.put(comp, new ArrayList<GrComp>());
+			successors.put(comp, new ArrayList<GrammarComponent>());
 		}
 		if (!antiAlternatives.containsKey(comp))
 		{
-			antiAlternatives.put(comp, new ArrayList<GrComp>());
+			antiAlternatives.put(comp, new ArrayList<GrammarComponent>());
 		}
 		if (!antiSuccessors.containsKey(comp))
 		{
-			antiSuccessors.put(comp, new ArrayList<GrComp>());
+			antiSuccessors.put(comp, new ArrayList<GrammarComponent>());
 		}
 		if (!components.contains(comp) && comp != head)
 		{
@@ -63,7 +63,7 @@ public class Grammar
 		return comp;
 	}
 
-	public void addAlternative(GrComp alternative)
+	public void addAlternative(GrammarComponent alternative)
 	{
 		alternative = addComp(alternative);
 		alternatives.get(current).add(alternative);
@@ -71,13 +71,13 @@ public class Grammar
 
 	}
 
-	public void addLeftHand(GrComp lh)
+	public void addLeftHand(GrammarComponent lh)
 	{
 		addComp(lh);
 		leftHands.add(lh);
 	}
 
-	public void addSuccessor(GrComp successor)
+	public void addSuccessor(GrammarComponent successor)
 	{
 		successor = addComp(successor);
 		successors.get(current).add(successor);
@@ -90,7 +90,7 @@ public class Grammar
 		this.current = null;
 	}
 
-	public List<GrComp> getAlternatives(GrComp source)
+	public List<GrammarComponent> getAlternatives(GrammarComponent source)
 	{
 		if (alternatives.containsKey(source))
 		{
@@ -99,7 +99,7 @@ public class Grammar
 		return null;
 	}
 
-	public List<GrComp> getAntiAlternatives(GrComp target)
+	public List<GrammarComponent> getAntiAlternatives(GrammarComponent target)
 	{
 		if (antiAlternatives.containsKey(target))
 		{
@@ -108,7 +108,7 @@ public class Grammar
 		return null;
 	}
 
-	public List<GrComp> getAntiSuccessors(GrComp target)
+	public List<GrammarComponent> getAntiSuccessors(GrammarComponent target)
 	{
 		if (antiSuccessors.containsKey(target))
 		{
@@ -120,32 +120,32 @@ public class Grammar
 	/**
 	 * @return the components
 	 */
-	public List<GrComp> getComponents()
+	public List<GrammarComponent> getComponents()
 	{
 		return components;
 	}
 
-	public GrComp getCurrent()
+	public GrammarComponent getCurrent()
 	{
 		return this.current;
 	}
 
-	public GrComp getHead()
+	public GrammarComponent getHead()
 	{
 		return head;
 	}
 
-	public List<GrComp> getHeads()
+	public List<GrammarComponent> getHeads()
 	{
 		return heads;
 	}
 
-	public List<GrComp> getLeftHands()
+	public List<GrammarComponent> getLeftHands()
 	{
 		return leftHands;
 	}
 
-	public List<GrComp> getSucessors(GrComp source)
+	public List<GrammarComponent> getSucessors(GrammarComponent source)
 	{
 		if (successors.containsKey(source))
 		{
@@ -159,13 +159,13 @@ public class Grammar
 		return current != null;
 	}
 
-	public void setCurrent(GrComp current)
+	public void setCurrent(GrammarComponent current)
 	{
 		current = addComp(current);
 		this.current = current;
 	}
 
-	public void setHead(GrComp head)
+	public void setHead(GrammarComponent head)
 	{
 		this.head = head;
 		this.heads.add(head);

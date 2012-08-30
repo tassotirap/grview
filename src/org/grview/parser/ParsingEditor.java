@@ -33,30 +33,35 @@ public class ParsingEditor implements BufferListener, CaretListener
 {
 
 	private static ParsingEditor instance;
-	private SyntacticLoader cs;
-	private StringReader in;
+	private SyntacticLoader syntacticLoader;
+	private StringReader stringReader;
 	private int lastLine;
-	private Yylex lex;
-	private StringBuffer newText;
+	private Yylex yylex;
+	private StringBuffer textToParse;
 	private ArrayList<JButton> parsingButtons;
 	private Thread parsingThread;
 	private String rootPath;
 
-	private StandaloneTextArea sta;
+	private StandaloneTextArea standaloneTextArea;
 
-	public ParsingEditor(SyntacticLoader cs, Mode mode, String rootPath)
+	public ParsingEditor(SyntacticLoader syntacticLoader, Mode mode, String rootPath)
 	{
-		this.cs = cs;
-		this.rootPath = rootPath;
-		sta = StandaloneTextArea.createTextArea();
-		sta.getBuffer().setMode(mode);
 		instance = this;
-		newText = new StringBuffer();
-		parsingButtons = new ArrayList<JButton>();
-		sta.getBuffer().addBufferListener(this);
-		sta.addCaretListener(this);
-		sta.setCaretBlinkEnabled(true);
-		in = new StringReader("");
+
+		this.standaloneTextArea = StandaloneTextArea.createTextArea();
+		this.standaloneTextArea.getBuffer().setMode(mode);
+		this.standaloneTextArea.getBuffer().addBufferListener(this);
+		this.standaloneTextArea.addCaretListener(this);
+		this.standaloneTextArea.setCaretBlinkEnabled(true);
+
+		this.parsingButtons = new ArrayList<JButton>();
+
+		this.syntacticLoader = syntacticLoader;
+		this.rootPath = rootPath;
+
+		this.textToParse = new StringBuffer();
+
+		this.stringReader = new StringReader("");
 	}
 
 	public static ParsingEditor getInstance()
@@ -73,18 +78,20 @@ public class ParsingEditor implements BufferListener, CaretListener
 	 */
 	private void clearBufferAndGoToNextLine(boolean insertNewLine)
 	{
-		sta.goToBufferEnd(false);
+		standaloneTextArea.goToBufferEnd(false);
 		if (insertNewLine)
-			sta.insertEnterAndIndent();
-		sta.goToNextLine(false);
-		sta.scrollToCaret(true);
-		lastLine = sta.getLastPhysicalLine();
-		newText = new StringBuffer();
+		{
+			standaloneTextArea.insertEnterAndIndent();
+		}
+		standaloneTextArea.goToNextLine(false);
+		standaloneTextArea.scrollToCaret(true);
+		lastLine = standaloneTextArea.getLastPhysicalLine();
+		textToParse = new StringBuffer();
 	}
 
 	private void updateParsingButtons()
 	{
-		if (newText.toString().equals(""))
+		if (textToParse.toString().equals(""))
 		{
 			for (JButton button : parsingButtons)
 			{
@@ -117,7 +124,7 @@ public class ParsingEditor implements BufferListener, CaretListener
 
 	public ParsingEditor build()
 	{
-		lex = YyFactory.getYylex(rootPath + "/generated_code", null, in);
+		yylex = YyFactory.getYylex(rootPath + "/generated_code", null, stringReader);
 		return instance;
 	}
 
@@ -125,20 +132,20 @@ public class ParsingEditor implements BufferListener, CaretListener
 	@Override
 	public void caretUpdate(CaretEvent e)
 	{
-		if (sta.getLineOfOffset(e.getDot()) < lastLine)
+		if (standaloneTextArea.getLineOfOffset(e.getDot()) < lastLine)
 		{
-			if (sta.getLastPhysicalLine() == sta.getLineOfOffset(e.getDot()))
+			if (standaloneTextArea.getLastPhysicalLine() == standaloneTextArea.getLineOfOffset(e.getDot()))
 			{
-				sta.insertEnterAndIndent();
+				standaloneTextArea.insertEnterAndIndent();
 			}
 			else
 			{
-				sta.getBuffer().setReadOnly(true);
+				standaloneTextArea.getBuffer().setReadOnly(true);
 			}
 		}
 		else
 		{
-			sta.getBuffer().setReadOnly(false);
+			standaloneTextArea.getBuffer().setReadOnly(false);
 		}
 	}
 
@@ -147,7 +154,7 @@ public class ParsingEditor implements BufferListener, CaretListener
 	{
 		if (startLine >= lastLine)
 		{
-			newText.append(buffer.getText(offset, length));
+			textToParse.append(buffer.getText(offset, length));
 			updateParsingButtons();
 		}
 
@@ -158,27 +165,27 @@ public class ParsingEditor implements BufferListener, CaretListener
 	{
 		if (startLine >= lastLine)
 		{
-			newText = new StringBuffer();
-			newText.append(buffer.getText(buffer.getLineStartOffset(lastLine), buffer.getLength() - buffer.getLineStartOffset(lastLine)));
+			textToParse = new StringBuffer();
+			textToParse.append(buffer.getText(buffer.getLineStartOffset(lastLine), buffer.getLength() - buffer.getLineStartOffset(lastLine)));
 		}
 	}
 
 	public void displayInputTextNewLine(String str)
 	{
-		sta.goToBufferEnd(false);
-		sta.getBuffer().insert(sta.getText().length(), "\n" + str);
+		standaloneTextArea.goToBufferEnd(false);
+		standaloneTextArea.getBuffer().insert(standaloneTextArea.getText().length(), "\n" + str);
 	}
 
 	public void displayInputTextNoLine(String str)
 	{
-		sta.goToBufferEnd(false);
-		sta.getBuffer().insert(sta.getText().length(), str);
+		standaloneTextArea.goToBufferEnd(false);
+		standaloneTextArea.getBuffer().insert(standaloneTextArea.getText().length(), str);
 	}
 
 	public void displayOutputText(String str)
 	{
 		clearBufferAndGoToNextLine(false);
-		sta.getBuffer().insert(sta.getText().length(), str);
+		standaloneTextArea.getBuffer().insert(standaloneTextArea.getText().length(), str);
 		clearBufferAndGoToNextLine(true);
 		Output.getInstance().displayTextExt("** Result: " + str, TOPIC.Parser);
 	}
@@ -197,7 +204,7 @@ public class ParsingEditor implements BufferListener, CaretListener
 
 	public Mode getMode()
 	{
-		return sta.getBuffer().getMode();
+		return standaloneTextArea.getBuffer().getMode();
 	}
 
 	/**
@@ -210,12 +217,12 @@ public class ParsingEditor implements BufferListener, CaretListener
 
 	public TextArea getTextArea()
 	{
-		return sta;
+		return standaloneTextArea;
 	}
 
 	public JComponent getView()
 	{
-		return sta;
+		return standaloneTextArea;
 	}
 
 	public void open()
@@ -241,11 +248,11 @@ public class ParsingEditor implements BufferListener, CaretListener
 						text.append("\n");
 					}
 				}
-				sta.getBuffer().beginCompoundEdit();
-				sta.setText(text.toString());
-				sta.setCaretPosition(text.length());
-				sta.scrollToCaret(true);
-				sta.getBuffer().endCompoundEdit();
+				standaloneTextArea.getBuffer().beginCompoundEdit();
+				standaloneTextArea.setText(text.toString());
+				standaloneTextArea.setCaretPosition(text.length());
+				standaloneTextArea.scrollToCaret(true);
+				standaloneTextArea.getBuffer().endCompoundEdit();
 				br.close();
 				fis.close();
 			}
@@ -276,25 +283,25 @@ public class ParsingEditor implements BufferListener, CaretListener
 	{
 		if ((parsingThread != null && !parsingThread.isAlive()) || parsingThread == null)
 		{
-			if (cs != null)
+			if (syntacticLoader != null)
 			{
-				if (newText.toString().equals(""))
+				if (textToParse.toString().equals(""))
 				{
 					JOptionPane.showMessageDialog(null, "There is nothing to parse", "Can not parse", JOptionPane.WARNING_MESSAGE);
 				}
 				else
 				{
-					Output.getInstance().displayTextExt("<< " + newText.toString(), TOPIC.Parser);
-					in = new StringReader(newText.toString());
+					Output.getInstance().displayTextExt("<< " + textToParse.toString(), TOPIC.Parser);
+					stringReader = new StringReader(textToParse.toString());
 					try
 					{
-						lex.yyreset(in);
+						yylex.yyreset(stringReader);
 					}
 					catch (IOException e1)
 					{
 						Log.log(Log.ERROR, this, "An internal error has occurred!", e1);
 					}
-					Analyzer asin = new Analyzer(cs.tabGraph(), cs.tabT(), cs.tabNt(), null, lex);
+					Analyzer asin = new Analyzer(syntacticLoader.tabGraph(), syntacticLoader.tabT(), syntacticLoader.tabNt(), null, yylex);
 					synchronized (asin)
 					{
 						asin.setStepping(stepping);
@@ -344,7 +351,7 @@ public class ParsingEditor implements BufferListener, CaretListener
 					if (file.createNewFile())
 					{
 						FileWriter fw = new FileWriter(file);
-						fw.write(sta.getText());
+						fw.write(standaloneTextArea.getText());
 						fw.close();
 					}
 				}
@@ -362,19 +369,19 @@ public class ParsingEditor implements BufferListener, CaretListener
 
 	public void setMode(Mode mode)
 	{
-		sta.getBuffer().setMode(mode);
-		String text = sta.getText();
-		int carret = sta.getCaretPosition();
-		sta.setText("");
-		sta.setText(text);
-		sta.setCaretPosition(carret);
-		sta.scrollToCaret(true);
+		standaloneTextArea.getBuffer().setMode(mode);
+		String text = standaloneTextArea.getText();
+		int carret = standaloneTextArea.getCaretPosition();
+		standaloneTextArea.setText("");
+		standaloneTextArea.setText(text);
+		standaloneTextArea.setCaretPosition(carret);
+		standaloneTextArea.scrollToCaret(true);
 
 	}
 
 	public void setSyntacticLoader(SyntacticLoader cs)
 	{
-		this.cs = cs;
+		this.syntacticLoader = cs;
 	}
 
 	public void stepRun()

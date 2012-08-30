@@ -48,7 +48,7 @@ public class Controller
 			validated = false;
 			errorFound(ex);
 		}
-		Grammar absGrammar = grammarFactory.getAbsGrammar();
+		Grammar absGrammar = grammarFactory.getGrammar();
 		if (absGrammar != null)
 		{
 			GrammarRule gr = new GSLL1Rules(absGrammar, false);

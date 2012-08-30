@@ -3,7 +3,7 @@ package org.grview.syntax.validation;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.grview.syntax.grammar.GrComp;
+import org.grview.syntax.grammar.GrammarComponent;
 import org.grview.syntax.grammar.Grammar;
 
 public class GSLL1Rules extends GrammarRule
@@ -39,7 +39,7 @@ public class GSLL1Rules extends GrammarRule
 	 **/
 	public InvalidGrammarException r1()
 	{
-		GrComp head = grammar.getHead();
+		GrammarComponent head = grammar.getHead();
 		int index = -1;
 		if (grammar.getLeftHands() != null && grammar.getLeftHands().size() > 0)
 		{
@@ -93,7 +93,7 @@ public class GSLL1Rules extends GrammarRule
 	/** only one successor and one alternative by node **/
 	public InvalidGrammarException r3()
 	{
-		for (GrComp comp : grammar.getComponents())
+		for (GrammarComponent comp : grammar.getComponents())
 		{
 			if (grammar.getAntiAlternatives(comp).size() > 1 || grammar.getAntiSuccessors(comp).size() > 1 || grammar.getSucessors(comp).size() > 1 || grammar.getAlternatives(comp).size() > 1)
 			{
@@ -108,7 +108,7 @@ public class GSLL1Rules extends GrammarRule
 	{
 		if (!onTheFly)
 		{
-			for (GrComp comp : grammar.getComponents())
+			for (GrammarComponent comp : grammar.getComponents())
 			{
 				if (comp != grammar.getHead() && grammar.getAlternatives(comp).size() == 0 && grammar.getSucessors(comp).size() == 0 && grammar.getAntiAlternatives(comp).size() == 0 && grammar.getAntiSuccessors(comp).size() == 0)
 				{
@@ -127,11 +127,11 @@ public class GSLL1Rules extends GrammarRule
 	 **/
 	public InvalidGrammarException r5()
 	{
-		for (GrComp comp : grammar.getComponents())
+		for (GrammarComponent comp : grammar.getComponents())
 		{
 			if (comp.isTerminal() && grammar.getAlternatives(comp).size() > 0)
 			{
-				GrComp alt = grammar.getAlternatives(comp).get(0);
+				GrammarComponent alt = grammar.getAlternatives(comp).get(0);
 				while (alt != null)
 				{
 					if ((alt.isTerminal() && alt.getContents().equals(comp.getContents())) || alt == comp)
@@ -140,7 +140,7 @@ public class GSLL1Rules extends GrammarRule
 					}
 					if (alt.isNonterminal())
 					{
-						for (GrComp lh : grammar.getLeftHands())
+						for (GrammarComponent lh : grammar.getLeftHands())
 						{
 							if (lh.getContents().equals(alt.getContents()))
 							{
