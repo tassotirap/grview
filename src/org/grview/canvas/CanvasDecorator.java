@@ -51,7 +51,9 @@ public class CanvasDecorator
 		if (type.equals(CanvasData.LAMBDA))
 		{
 			IconNodeWidgetExt iwidget = new IconNodeWidgetExt(canvas.getMainLayer().getScene(), TextOrientation.RIGHT_CENTER);
+			
 			iwidget.setImage(new ImageIcon(findIconPath(type)).getImage());
+			
 			iwidget.setOpaque(true);
 			iwidget.repaint();
 			widget = iwidget;

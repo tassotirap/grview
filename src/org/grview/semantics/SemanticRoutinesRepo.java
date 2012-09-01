@@ -95,7 +95,7 @@ public class SemanticRoutinesRepo
 								}
 								else
 								{
-									code += line;
+									code += line + "\n";
 									line = bufferedReader.readLine();
 								}
 							}
