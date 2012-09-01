@@ -1,10 +1,16 @@
 package org.grview.canvas;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.grview.canvas.action.WidgetActionRepository;
 import org.grview.canvas.strategy.MoveStrategy;
+import org.grview.canvas.widget.IconNodeWidgetExt;
 import org.grview.canvas.widget.LabelWidgetExt;
 import org.netbeans.api.visual.action.WidgetAction;
+import org.netbeans.api.visual.action.WidgetAction.Chain;
 import org.netbeans.api.visual.widget.Widget;
+import org.netbeans.modules.visual.action.MoveAction;
 
 class MoveTracker extends MoveStrategy
 {
@@ -35,12 +41,29 @@ class MoveTracker extends MoveStrategy
 			if (obecjtWidget != null)
 			{
 				Widget widget = (Widget) obecjtWidget;
-				if (widget instanceof LabelWidgetExt)
+				if (widget instanceof LabelWidgetExt || widget instanceof IconNodeWidgetExt)
 				{
-					widget.getActions(CanvasData.SELECT).removeAction(activeMovement);
+					removeAllMoveAction(widget.getActions(CanvasData.SELECT));
 					widget.getActions(CanvasData.SELECT).addAction(activeMovement);
 				}
 			}
 		}
+	}
+
+	private void removeAllMoveAction(Chain chainActions)
+	{
+		List<WidgetAction> tmpActions = new ArrayList<WidgetAction>();
+		for(WidgetAction action : chainActions.getActions())
+		{
+			if(action instanceof MoveAction)
+			{
+				tmpActions.add(action);
+			}
+		}
+		for(WidgetAction action : tmpActions)
+		{
+			chainActions.removeAction(action);
+		}
+		
 	}
 }
