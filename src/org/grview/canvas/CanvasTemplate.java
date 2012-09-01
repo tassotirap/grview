@@ -106,9 +106,7 @@ public class CanvasTemplate extends Canvas
 			connection = decorator.drawConnection(activeTool, this, edge);
 			connection.setRouter(getActiveRouter());
 			connection.createActions(CanvasData.SELECT).addAction(actions.getAction("ConnSelect", this));
-			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("Reconnect", this));
-			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("FreeMoveCP", this));
-			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("AddRemoveCP", this));
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("Reconnect", this));			
 			connectionLayer.addChild(connection);
 			if (activeTool.equals(CanvasData.SUCCESSOR))
 			{

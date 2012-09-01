@@ -581,7 +581,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			}
 		}
 		popup.removeAll();
-		if (activeWidget != null && !canvas.isLabel(focusedWidget))
+		if (activeWidget != null && !canvas.isLabel(focusedWidget) && activeWidget instanceof MarkedWidget)
 		{
 			this.widget = activeWidget;
 			popup.add(createCopyMenu());
@@ -589,6 +589,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			popup.add(new JSeparator());
 			popup.add(createDeleteMenu());
 			popup.add(new JSeparator());
+
 			popup.add(createSemanticRoutinesMenu());
 			popup.add(new JSeparator());
 		}

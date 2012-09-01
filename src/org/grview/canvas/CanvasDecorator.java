@@ -38,10 +38,12 @@ public class CanvasDecorator
 		{
 			connection = CONNECT_DECORATOR_ALTERNATIVE.createConnectionWidget(canvas.getMainLayer().getScene());
 		}
+		
 		connection.setTargetAnchorShape(AnchorShape.TRIANGLE_FILLED);
 		connection.setEndPointShape(PointShape.SQUARE_FILLED_BIG);
 		connection.setPaintControlPoints(true);
 		connection.setControlPointShape(PointShape.SQUARE_FILLED_BIG);
+		connection.getActions();
 		return connection;
 	}
 

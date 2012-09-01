@@ -118,14 +118,7 @@ public class WidgetActionRepositoryFactory
 			{
 				if (actions.get(MOVE_LINES) == null)
 				{
-					actions.put(MOVE_LINES, ActionFactory.createMoveAction(ActionFactory.createSnapToLineMoveStrategy(canvas), new MultiMoveProvider(canvas)));// ActionFactory.createAlignWithMultiMoveAction(canvas,
-																																								// (AlignWithWidgetCollector)new
-																																								// SingleLayerAlignWithWidgetCollector
-																																								// (canvas.getMainLayer(),
-																																								// true),
-																																								// canvas.getInterractionLayer(),
-																																								// ActionFactory.createDefaultAlignWithMoveDecorator(),
-																																								// true));
+					actions.put(MOVE_LINES, ActionFactory.createMoveAction(ActionFactory.createSnapToLineMoveStrategy(canvas), new MultiMoveProvider(canvas)));																																				// true));
 				}
 				return actions.get(MOVE_LINES);
 			}

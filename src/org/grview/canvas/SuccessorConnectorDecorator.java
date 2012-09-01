@@ -34,6 +34,7 @@ public class SuccessorConnectorDecorator implements ConnectDecorator
 	public Anchor createFloatAnchor(Point location)
 	{
 		return AnchorFactory.createFixedAnchor(location);
+		
 	}
 
 	@Override

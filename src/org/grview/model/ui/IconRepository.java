@@ -13,7 +13,6 @@ public class IconRepository
 	public final String ICONS_PATH = "/org/grview/images/";
 	
 	public final Icon ACTIVE_OUTPUT_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "active-output.png"));
-	public final Icon CONSOLE_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "console.png"));
 	public final Icon DIR_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "project-dir.png"));
 	public final Icon GRAM_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "grammar-file.png"));
 	public final Icon GRAMMAR_ICON = new ImageIcon(getClass().getResource(ICONS_PATH + "grammar.png"));
