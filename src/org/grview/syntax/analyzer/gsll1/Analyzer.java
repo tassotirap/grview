@@ -75,7 +75,7 @@ public class Analyzer extends Thread
 	private TabNode tabNT[];
 	private TabNode tabT[];
 
-	private String wrongLine;
+	
 
 	public Analyzer(TabGraphNode tbG[], TabNode tbT[], TabNode tbNt[], File fileIn, Yylex lex)
 	{
@@ -110,16 +110,17 @@ public class Analyzer extends Thread
 		{
 			if (fileIn != null)
 			{
+				
 				BufferedReader bufferedReader = new BufferedReader(new FileReader(fileIn));
 				for (int j = 0; j < line; j++)
 				{
 					bufferedReader.readLine();
 				}
-				/* Imprime a linha que occorreu o erro */
-				wrongLine = bufferedReader.readLine();
+				String wrongLine = bufferedReader.readLine();
 				bufferedReader.close();
+				AppOutput.displayText("\n" + wrongLine + "\n", TOPIC.Output);
 			}
-			AppOutput.displayText("\n" + wrongLine + "\n", TOPIC.Output);
+				
 		}
 		catch (IOException e)
 		{
@@ -128,25 +129,31 @@ public class Analyzer extends Thread
 				AppOutput.displayText("File not found...", TOPIC.Output);
 			}
 		}
-		// AppOutput.displayText("\nErro:");
 		AppOutput.displayText("Error found at the symbol of line: " + line + ", column: " + column + ". ", TOPIC.Output);
-		// for (int i = 0; i < column; i++)
-		// txt = txt+"_";
-		// AppOutput.displayText(txt+"^: ");
-		/* falta fazer back-tracking */
+
+		
+		Stack<TabGraphNode> nTerminalStack = new Stack<TabGraphNode>();
+		
 		while (IX != 0)
 		{
-			/* eh terminal? */
+			/* is terminal */
 			if (tabGraph[IX].isTerm())
 			{
-				/* emite terminal esperado */
 				AppOutput.displayText(tabT[tabGraph[IX].getSim()].getName() + " expected.", TOPIC.Output);
-				/* vai para a proxima alternativa */
+				
 				IX = tabGraph[IX].getAlt();
+				
+				/* don't have alternative but have non terminal */
+				if(IX == 0 && nTerminalStack.size() > 0)
+				{
+					IX = nTerminalStack.pop().getAlt();
+				}
+				
 			}
 			else
 			{
-				/* no nao terminal */
+				/* push non terminal in stack */
+				nTerminalStack.push(tabGraph[IX]);
 				IX = tabNT[tabGraph[IX].getSim()].getPrim();
 			}
 		}
@@ -757,7 +764,7 @@ public class Analyzer extends Thread
 									 * 2 Se a pilhaNãoTerminal está vazia, tenho
 									 * que tratar o erro
 									 */
-									dealWithError(IU, toppsIU, currToken.m_charBegin, currToken.m_line);
+									dealWithError(IU, toppsIU, currToken.m_charBegin + 1, currToken.m_line + 1);
 								}
 								else
 								{
@@ -778,7 +785,7 @@ public class Analyzer extends Thread
 									}
 									else
 									{
-										dealWithError(IU, toppsIU, currToken.m_charBegin, currToken.m_line);
+										dealWithError(IU, toppsIU, currToken.m_charBegin + 1, currToken.m_line + 1);
 									}
 								}
 							}
@@ -865,9 +872,9 @@ public class Analyzer extends Thread
 			AppOutput.displayText("Expression Successfully recognized.", TOPIC.Output);
 		}
 		else
-			{
-				AppOutput.displayText("Expression can't be recognized.", TOPIC.Output);
-			}
+		{
+			AppOutput.displayText("Expression can't be recognized.", TOPIC.Output);
+		}
 	}
 
 	public void setStepping(boolean stepping)
