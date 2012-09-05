@@ -185,9 +185,13 @@ public class Analyzer extends Thread
 						 */
 						this.readNext();
 						if (currToken.m_text.equals("$"))
+						{
 							continueSentinel = false;
+						}
 						else
+						{
 							this.dealWithError(oldI, toppsIU, currToken.m_charBegin, currToken.m_line);
+						}
 					}
 				}
 			}
