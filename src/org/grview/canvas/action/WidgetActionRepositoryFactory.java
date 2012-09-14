@@ -230,7 +230,7 @@ public class WidgetActionRepositoryFactory
 			{
 				if (actions.get(FREE_MOVE_CP) == null)
 				{
-					actions.put(FREE_MOVE_CP, ActionFactory.createFreeMoveControlPointAction());
+					actions.put(FREE_MOVE_CP, org.netbeans.api.visual.action.ActionFactory.createFreeMoveControlPointAction());
 				}
 				return actions.get(FREE_MOVE_CP);
 			}
@@ -238,7 +238,7 @@ public class WidgetActionRepositoryFactory
 			{
 				if (actions.get(ADD_REMOVE_CP) == null)
 				{
-					actions.put(ADD_REMOVE_CP, ActionFactory.createAddRemoveControlPointAction());
+					actions.put(ADD_REMOVE_CP, org.netbeans.api.visual.action.ActionFactory.createAddRemoveControlPointAction());
 				}
 				return actions.get(ADD_REMOVE_CP);
 			}

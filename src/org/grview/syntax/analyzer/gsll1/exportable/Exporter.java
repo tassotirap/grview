@@ -69,12 +69,6 @@ public class Exporter
 			dir.mkdir();
 		}
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/Yytoken.txt"), new File(rootPath, "export_code/Yytoken.java"));
-		// IOUtilities.copyFile(new
-		// File(getClass().getResource("/org/grview/syntax/analyzer/gsll1/exportable/TabGraphNode.txt").toURI()),
-		// new File(rootPath, "export_code/TabGraphNode.java"));
-		// IOUtilities.copyFile(new
-		// File(getClass().getResource("/org/grview/syntax/analyzer/gsll1/exportable/TabNode.txt").toURI()),
-		// new File(rootPath, "export_code/TabNode.java"));
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/ParseStackNode.txt"), new File(rootPath, "export_code/ParseStackNode.java"));
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/SemanticRoutines.txt"), new File(rootPath, "export_code/SemanticRoutines.java"));
 		File libDir = new File(rootPath, "export_code/lib");

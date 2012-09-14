@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.grview.canvas.UnidirectionalAnchor.UnidirectionalAnchorKind;
+
 import org.grview.canvas.action.GridProvider;
 import org.grview.canvas.action.LineProvider;
 import org.grview.canvas.action.NodeSelectProvider;
@@ -20,6 +21,7 @@ import org.grview.canvas.widget.LineWidget;
 import org.grview.canvas.widget.MarkedWidget;
 import org.grview.canvas.widget.TypedWidget;
 import org.grview.util.Log;
+import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.anchor.Anchor.Direction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.model.ObjectSceneEventType;
@@ -106,7 +108,10 @@ public class CanvasTemplate extends Canvas
 			connection = decorator.drawConnection(activeTool, this, edge);
 			connection.setRouter(getActiveRouter());
 			connection.createActions(CanvasData.SELECT).addAction(actions.getAction("ConnSelect", this));
-			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("Reconnect", this));			
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("Reconnect", this));
+			
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("FreeMoveCP", this));
+			connection.getActions(CanvasData.SELECT).addAction(actions.getAction("AddRemoveCP", this));
 			connectionLayer.addChild(connection);
 			if (activeTool.equals(CanvasData.SUCCESSOR))
 			{

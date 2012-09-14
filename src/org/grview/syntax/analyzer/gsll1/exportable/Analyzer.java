@@ -379,6 +379,7 @@ public class Analyzer
 			while (true)
 			{
 				System.out.print("> ");
+				@SuppressWarnings("resource")
 				Scanner scanner = new Scanner(System.in);
 				source = scanner.next();
 				try
@@ -390,7 +391,6 @@ public class Analyzer
 					System.err.println("Could not create and run the analyzer");
 					e.printStackTrace();
 				}
-				scanner.close();
 			}
 		}
 
@@ -816,7 +816,6 @@ public class Analyzer
 		try
 		{
 			currToken = lex.yylex();
-			// System.err.println(lex.yylength());
 			pastSymbol = currentSymbol;
 			String tkAp1 = currToken.m_p1;
 			if (tkAp1.equals("Res") || tkAp1.equals("Esp") || tkAp1.equals("EOF"))
