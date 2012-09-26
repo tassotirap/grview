@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.grview.canvas.UnidirectionalAnchor.UnidirectionalAnchorKind;
-
 import org.grview.canvas.action.GridProvider;
 import org.grview.canvas.action.LineProvider;
 import org.grview.canvas.action.NodeSelectProvider;
@@ -21,7 +20,6 @@ import org.grview.canvas.widget.LineWidget;
 import org.grview.canvas.widget.MarkedWidget;
 import org.grview.canvas.widget.TypedWidget;
 import org.grview.util.Log;
-import org.netbeans.api.visual.action.ActionFactory;
 import org.netbeans.api.visual.anchor.Anchor.Direction;
 import org.netbeans.api.visual.anchor.AnchorFactory;
 import org.netbeans.api.visual.model.ObjectSceneEventType;

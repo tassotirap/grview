@@ -122,9 +122,9 @@ public class SyntacticLoader
 					{
 						if (indicesTabNtEncontrados[j] != -1)
 							/* 2 TabNt[E]->prim = 0 ? */
-							if (TabNt[indicesTabNtEncontrados[j]].getPrim() == 0)
+							if (TabNt[indicesTabNtEncontrados[j]].getFirstNode() == 0)
 								/* 2 Se sim */
-								TabNt[indicesTabNtEncontrados[j]].setPrim(IndPrim);
+								TabNt[indicesTabNtEncontrados[j]].setFirstNode(IndPrim);
 							else
 							{
 								/* 2 Se não */
@@ -148,7 +148,7 @@ public class SyntacticLoader
 				/* 2 se Tipo for igual a T e Nomer não for um lambda-nó */
 				if (Tipo == 'T')
 				{
-					TabGraph[I].setTerm(true);
+					TabGraph[I].setIsTerm(true);
 
 					if (!Nomer.equals(new String("-1")) && !Nomer.equals(SyntaxDefinitions.EmptyNodeLabel))
 					{
@@ -199,34 +199,34 @@ public class SyntacticLoader
 						TabNt[MaxNt] = new TabNode(Flag, Nomer, 0);
 						indiceEncontrado = MaxNt;
 					}
-					TabGraph[I].setTerm(false);
+					TabGraph[I].setIsTerm(false);
 				}
 				if (Nomer.equals("-1") || Nomer.equals(SyntaxDefinitions.EmptyNodeLabel))
 				{
-					TabGraph[I].setSim(0);
+					TabGraph[I].setSimReference(0);
 				}
 				else
 				{
-					TabGraph[I].setSim(indiceEncontrado);
+					TabGraph[I].setSimReference(indiceEncontrado);
 				}
 				if (AltR != 0)
 				{
-					TabGraph[I].setAlt(IndPrim + AltR - 1);
+					TabGraph[I].setAlternativeIndex(IndPrim + AltR - 1);
 				}
 				else
 				{
-					TabGraph[I].setAlt(0);
+					TabGraph[I].setAlternativeIndex(0);
 				}
 				if (SucR != 0)
 				{
-					TabGraph[I].setSuc(IndPrim + SucR - 1);
+					TabGraph[I].setSucessorIndex(IndPrim + SucR - 1);
 				}
 				else
 				{
-					TabGraph[I].setSuc(0);
+					TabGraph[I].setSucessorIndex(0);
 				}
 				/* Colocando o valor da rotina semantica */
-				TabGraph[I].setSem(SemR);
+				TabGraph[I].setSemanticRoutine(SemR);
 
 				if (NoMax < NumNo)
 					NoMax = NumNo;

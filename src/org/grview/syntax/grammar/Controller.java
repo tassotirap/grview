@@ -5,8 +5,10 @@ import java.io.IOException;
 
 import javax.swing.DefaultListModel;
 
+import org.grview.lexical.YyFactory;
 import org.grview.output.AppOutput;
 import org.grview.parser.ParsingEditor;
+import org.grview.project.ProjectManager;
 import org.grview.project.tree.FileTree;
 import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
@@ -33,6 +35,7 @@ public class Controller
 
 	public static void generateAndParseCurrentGrammar(boolean export)
 	{
+		YyFactory.createYylex(ProjectManager.getProject().getLexFile().getParent(), "generated_code", ProjectManager.getProject().getLexFile().getPath());
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
 		GrammarFactory grammarFactory = new GrammarFactory();

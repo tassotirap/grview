@@ -16,95 +16,72 @@ package org.grview.syntax.model;
  */
 public class TabGraphNode
 {
-	/*
-	 * A variavel a seguir, contém o indice do nó alternativo à esse nó
-	 */
-	private int alt;
-	/* rotina semantica desse nó */
-	private String sem;
-	/*
-	 * A variável abaixo contém uma referencia para este nó na tabela de
-	 * simbolos terminais ou não terminais.
-	 */
-	private int sim;
-	/*
-	 * A variavel a seguir, contém o indice do nó sucessor à esse nó
-	 */
-	private int suc;
-	/*
-	 * Quando a variável abaixo for true, node se trata de um nó terminal
-	 */
-	private boolean term;
+
+	private int alternativeIndex;
+	private String semanticRoutine;
+	private int simReference;
+	private int sucessorIndex;
+	private boolean isTerm;
 
 	public TabGraphNode()
 	{
 
 	}
 
-	/* retorna o valor da alternativa */
-	public int getAlt()
+	public int getAlternativeIndex()
 	{
-		return alt;
+		return alternativeIndex;
 	}
 
-	/* retorna o valor de sem */
-	public String getSem()
+	public String getSemanticRoutine()
 	{
-		return sem;
+		return semanticRoutine;
 	}
 
-	/* retorna o valor de sim */
-	public int getSim()
+	public int getSimReference()
 	{
-		return sim;
+		return simReference;
 	}
 
-	/* retorna o valor de suc */
-	public int getSuc()
+	public int getSucessorIndex()
 	{
-		return suc;
+		return sucessorIndex;
 	}
 
-	/* retorna o valor de term */
 	public boolean isTerm()
 	{
-		return term;
+		return isTerm;
 	}
 
-	/* atribui um valor a alt */
-	public void setAlt(int node)
+	public void setAlternativeIndex(int node)
 	{
-		alt = node;
+		alternativeIndex = node;
 	}
 
-	/* atribui um valor a sem */
-	public void setSem(String routine)
+	public void setSemanticRoutine(String routine)
 	{
-		sem = routine;
+		semanticRoutine = routine;
 	}
 
-	/* atribui um valor a sim */
-	public void setSim(int node)
+	public void setSimReference(int node)
 	{
-		sim = node;
+		simReference = node;
 	}
 
-	/* atribui um valor a suc */
-	public void setSuc(int node)
+	public void setSucessorIndex(int node)
 	{
-		suc = node;
+		sucessorIndex = node;
 	}
 
-	/* atribui um valor à term */
-	public void setTerm(boolean bool)
+	public void setIsTerm(boolean bool)
 	{
-		term = bool;
+		isTerm = bool;
 	}
 
 	@Override
 	public String toString()
 	{
-		return term + " " + sim + " " + alt + " " + suc + " " + sem;
+		return isTerm + " " + simReference + " " + alternativeIndex + " " + sucessorIndex + " " + semanticRoutine;
 	}
 
 }

@@ -1,44 +1,25 @@
 package org.grview.syntax.model;
 
-/*
- * Created on 11/08/2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-
-/**
- * * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- * 
- * @author gohan
- */
 public class TabNode
 {
 	private String flag;
-	/* nome do nó */
+	
 	private String name;
-	/*
-	 * Só utilizado em nós não terminais, onde prim aponta para o primeiro nó do
-	 * não terminal
-	 */
-	private int prim;
 
-	/* Construtuores */
-	/* utilizado para construir terminais */
+	private int firstNode;
+
 	public TabNode(String flag, String nodeName)
 	{
 		this.flag = flag;
 		getName(nodeName);
-		setPrim(-1);
+		setFirstNode(-1);
 	}
 
-	/* utilizado para construir não terminais */
-	public TabNode(String flag, String nodeName, int nodePrim)
+	public TabNode(String flag, String nodeName, int firstNode)
 	{
 		this.flag = flag;
 		getName(nodeName);
-		setPrim(nodePrim);
+		setFirstNode(firstNode);
 	}
 
 	public String getFlag()
@@ -46,22 +27,19 @@ public class TabNode
 		return flag;
 	}
 
-	/* retorna o nome desse nó */
 	public String getName()
 	{
 		return name;
 	}
 
-	/* Atribui o nome presente em nodeName ao nome desse nó */
 	public void getName(String nodeName)
 	{
 		name = nodeName;
 	}
 
-	/* retorna o prim desse nó */
-	public int getPrim()
+	public int getFirstNode()
 	{
-		return prim;
+		return firstNode;
 	}
 
 	public void setFlag(String flag)
@@ -69,13 +47,12 @@ public class TabNode
 		this.flag = flag;
 	}
 
-	/* Atribui o nó presente em nodePrim em prim desse nó */
-	public void setPrim(int nodePrim)
+
+	public void setFirstNode(int nodePrim)
 	{
-		prim = nodePrim;
+		firstNode = nodePrim;
 	}
 
-	/* to string... */
 	@Override
 	public String toString()
 	{

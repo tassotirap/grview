@@ -32,10 +32,10 @@ public class Exporter
 			tbG[i] = new Analyzer.TabGraphNode();
 			if (sl.tabGraph()[i] != null)
 			{
-				tbG[i].setAlt(sl.tabGraph()[i].getAlt());
-				tbG[i].setSuc(sl.tabGraph()[i].getSuc());
-				tbG[i].setSim(sl.tabGraph()[i].getSim());
-				tbG[i].setSem(sl.tabGraph()[i].getSem());
+				tbG[i].setAlt(sl.tabGraph()[i].getAlternativeIndex());
+				tbG[i].setSuc(sl.tabGraph()[i].getSucessorIndex());
+				tbG[i].setSim(sl.tabGraph()[i].getSimReference());
+				tbG[i].setSem(sl.tabGraph()[i].getSemanticRoutine());
 				tbG[i].setTerm(sl.tabGraph()[i].isTerm());
 			}
 		}
@@ -52,7 +52,7 @@ public class Exporter
 		{
 			if (sl.tabNt()[i] != null)
 			{
-				tbNt[i] = new Analyzer.TabNode(sl.tabNt()[i].getFlag(), sl.tabNt()[i].getName(), sl.tabNt()[i].getPrim());
+				tbNt[i] = new Analyzer.TabNode(sl.tabNt()[i].getFlag(), sl.tabNt()[i].getName(), sl.tabNt()[i].getFirstNode());
 			}
 		}
 		this.rootPath = rootPath;
