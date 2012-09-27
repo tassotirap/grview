@@ -19,9 +19,9 @@ public class TabGraphNode
 
 	private int alternativeIndex;
 	private String semanticRoutine;
-	private int simReference;
+	private int nodeReference;
 	private int sucessorIndex;
-	private boolean isTerm;
+	private boolean isTerminal;
 
 	public TabGraphNode()
 	{
@@ -38,9 +38,9 @@ public class TabGraphNode
 		return semanticRoutine;
 	}
 
-	public int getSimReference()
+	public int getNodeReference()
 	{
-		return simReference;
+		return nodeReference;
 	}
 
 	public int getSucessorIndex()
@@ -48,9 +48,9 @@ public class TabGraphNode
 		return sucessorIndex;
 	}
 
-	public boolean isTerm()
+	public boolean IsTerminal()
 	{
-		return isTerm;
+		return isTerminal;
 	}
 
 	public void setAlternativeIndex(int node)
@@ -63,9 +63,9 @@ public class TabGraphNode
 		semanticRoutine = routine;
 	}
 
-	public void setSimReference(int node)
+	public void setNodeReference(int node)
 	{
-		simReference = node;
+		nodeReference = node;
 	}
 
 	public void setSucessorIndex(int node)
@@ -73,15 +73,15 @@ public class TabGraphNode
 		sucessorIndex = node;
 	}
 
-	public void setIsTerm(boolean bool)
+	public void setIsTerminal(boolean bool)
 	{
-		isTerm = bool;
+		isTerminal = bool;
 	}
 
 	@Override
 	public String toString()
 	{
-		return isTerm + " " + simReference + " " + alternativeIndex + " " + sucessorIndex + " " + semanticRoutine;
+		return isTerminal + " " + nodeReference + " " + alternativeIndex + " " + sucessorIndex + " " + semanticRoutine;
 	}
 
 }

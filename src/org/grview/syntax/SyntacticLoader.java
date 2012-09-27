@@ -148,7 +148,7 @@ public class SyntacticLoader
 				/* 2 se Tipo for igual a T e Nomer não for um lambda-nó */
 				if (Tipo == 'T')
 				{
-					TabGraph[I].setIsTerm(true);
+					TabGraph[I].setIsTerminal(true);
 
 					if (!Nomer.equals(new String("-1")) && !Nomer.equals(SyntaxDefinitions.EmptyNodeLabel))
 					{
@@ -199,15 +199,15 @@ public class SyntacticLoader
 						TabNt[MaxNt] = new TabNode(Flag, Nomer, 0);
 						indiceEncontrado = MaxNt;
 					}
-					TabGraph[I].setIsTerm(false);
+					TabGraph[I].setIsTerminal(false);
 				}
 				if (Nomer.equals("-1") || Nomer.equals(SyntaxDefinitions.EmptyNodeLabel))
 				{
-					TabGraph[I].setSimReference(0);
+					TabGraph[I].setNodeReference(0);
 				}
 				else
 				{
-					TabGraph[I].setSimReference(indiceEncontrado);
+					TabGraph[I].setNodeReference(indiceEncontrado);
 				}
 				if (AltR != 0)
 				{

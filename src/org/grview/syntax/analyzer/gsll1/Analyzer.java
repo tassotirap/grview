@@ -1,9 +1,3 @@
-/*
- * Created on 21/08/2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package org.grview.syntax.analyzer.gsll1;
 
 import java.io.BufferedReader;
@@ -23,21 +17,13 @@ import org.grview.syntax.model.TabGraphNode;
 import org.grview.syntax.model.TabNode;
 import org.grview.util.Log;
 
-/**
- * @author gohan
- * 
- *         To change the template for this generated type comment go to
- *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-
 public class Analyzer extends Thread
 {
 	boolean continueSentinel;
-	int I;
-	int IU;
-	int toppsIU;
-	private ParseStackNode auxParseSNode;
-	private Object currentSemanticSymbol;
+	int indexNode;
+	
+	
+	private String currentSemanticSymbol;
 	private String currentSymbol;
 	private Yytoken currToken;
 	private File fileIn;
@@ -46,41 +32,29 @@ public class Analyzer extends Thread
 	
 	private Yylex yylex;
 	
-	private Stack grViewStack;
-	private Stack nTermStack;
-	private Stack parseStack;
+	private Stack<GrViewStackNode> grViewStack;
+	private Stack<Integer> nTermStack;
+	private Stack<ParseStackNode> parseStack;
 	private String lastSymbol;
 
 	private SemanticRoutinesRepo semanticRoutinesRepo;
 	private boolean stepping = false;
-	private TabGraphNode tabGraph[];
+	
+	private TabGraphNode tabGraphNodes[];
 	private TabNode nTerminalTab[];
 	private TabNode termialTab[];
 
 	
 
-	public Analyzer(TabGraphNode tbG[], TabNode tbT[], TabNode tbNt[], File fileIn, Yylex lex)
+	public Analyzer(TabGraphNode tabGraphNodes[], TabNode termialTab[], TabNode nTerminalTab[], File fileIn, Yylex yylex)
 	{
-		this.tabGraph = tbG;
-		this.termialTab = tbT;
-		this.nTerminalTab = tbNt;
+		this.tabGraphNodes = tabGraphNodes;
+		this.termialTab = termialTab;
+		this.nTerminalTab = nTerminalTab;
 		this.fileIn = fileIn;
-		this.yylex = lex;
+		this.yylex = yylex;
 	}
 
-	/*
-	 * A rotina de tratamento de erro é chamada quando o sibolo lido não
-	 * coincide com os simbolos esperados, nesse caso, tentamos quatro técnicas
-	 * de correção de erros são elas: a)Eliminação de um símbolo: Nesta
-	 * estratégia supomos que o usuário cometeu o engano de escrever a cadeia de
-	 * entrada com um simbolo a mais. Tal simbolo (o simbolo que acabou de ser
-	 * lido) deve então ser eliminado. b)Inserção de um símbolo: Nessa
-	 * estratégia supomos que o usuário cometeu o engano de omitir um símbolo
-	 * que deve ser inserido. c)Um símbolo trocado: Nesta estratégia supomos que
-	 * o usuário escreveu um símbolo erradamente. d)Busca de Delimitador: Nesta
-	 * estratégia, procuramos um simbolo que delimite o não terminal sendo
-	 * procurado.
-	 */
 	private void dealWithError(int IX, int toppsIU, int column, int line)
 	{
 		int oldI = IX;
@@ -119,11 +93,11 @@ public class Analyzer extends Thread
 		while (IX != 0)
 		{
 			/* is terminal */
-			if (tabGraph[IX].isTerm())
+			if (tabGraphNodes[IX].IsTerminal())
 			{
-				AppOutput.displayText(termialTab[tabGraph[IX].getSimReference()].getName() + " expected.", TOPIC.Output);
+				AppOutput.displayText(termialTab[tabGraphNodes[IX].getNodeReference()].getName() + " expected.", TOPIC.Output);
 				
-				IX = tabGraph[IX].getAlternativeIndex();
+				IX = tabGraphNodes[IX].getAlternativeIndex();
 				
 				/* don't have alternative but have non terminal */
 				if(IX == 0 && nTerminalStack.size() > 0)
@@ -135,12 +109,12 @@ public class Analyzer extends Thread
 			else
 			{
 				/* push non terminal in stack */
-				nTerminalStack.push(tabGraph[IX]);
-				IX = nTerminalTab[tabGraph[IX].getSimReference()].getFirstNode();
+				nTerminalStack.push(tabGraphNodes[IX]);
+				IX = nTerminalTab[tabGraphNodes[IX].getNodeReference()].getFirstNode();
 			}
 		}
 		/* Tenta corrigir o erro utilizando a estratégia da eliminação */
-		if (!estrategiaEliminacao(oldI, toppsIU, column, line))
+		if (!deleteStrategy(oldI, toppsIU, column, line))
 		{
 			AppOutput.errorRecoveryStatus("\nDeleting a symbol strategy has not succeeded\n");
 			/* Tenta corrigir o erro utilizando a estratégia de inserção */
@@ -184,7 +158,7 @@ public class Analyzer extends Thread
 	{
 		boolean achou = false;
 		Stack pilhaAnalisadorBackup = new Stack();
-		Stack pilhaAuxAnalisador = new Stack();
+		Stack<GrViewStackNode> pilhaAuxAnalisador = new Stack<GrViewStackNode>();
 		Stack pilhaNaoTerminalY = new Stack();
 		GrViewStackNode temp;
 		pilhaAnalisadorBackup = (Stack) this.grViewStack.clone();
@@ -201,19 +175,19 @@ public class Analyzer extends Thread
 			if (IX != 0)
 			{
 				/* Procurando por um não terminal */
-				while (IX != 0 && this.tabGraph[IX].isTerm())
-					IX = this.tabGraph[IX].getAlternativeIndex();
+				while (IX != 0 && this.tabGraphNodes[IX].IsTerminal())
+					IX = this.tabGraphNodes[IX].getAlternativeIndex();
 			}
 			/* Preciso desempilhar um nó da pilha do analisador */
 			if (IX == 0)
 			{
 				/* desempilha e vai para o percurso */
 				temp = (GrViewStackNode) grViewStack.pop();
-				IX = temp.no;
-				toppsAux = temp.r;
+				IX = temp.indexNode;
+				toppsAux = temp.size;
 			}
 			/* inicio do percurso */
-			IY = this.tabGraph[IX].getSucessorIndex();
+			IY = this.tabGraphNodes[IX].getSucessorIndex();
 			/* inicializando as duas pilhas auxiliares... */
 			pilhaNaoTerminalY.clear();
 			pilhaAuxAnalisador.clear();
@@ -221,25 +195,25 @@ public class Analyzer extends Thread
 			while (IY != 0 && !achou)
 			{
 				/* é terminal? */
-				if (this.tabGraph[IY].isTerm())
+				if (this.tabGraphNodes[IY].IsTerminal())
 				{
 					/* é lambda-nó? */
-					if (this.tabGraph[IY].getSimReference() == 0)
+					if (this.tabGraphNodes[IY].getNodeReference() == 0)
 					{
-						IY = this.tabGraph[IY].getSucessorIndex();
+						IY = this.tabGraphNodes[IY].getSucessorIndex();
 					}
 					else
 					{
-						String tmp = this.termialTab[this.tabGraph[IY].getSimReference()].getName();
+						String tmp = this.termialTab[this.tabGraphNodes[IY].getNodeReference()].getName();
 						if (tmp.equals(this.currentSymbol))
 						{
 							while (this.parseStack.size() >= toppsAux)
 							{
 								this.parseStack.pop();
 							}
-							this.parseStack.push(new ParseStackNode(this.nTerminalTab[this.tabGraph[IX].getSimReference()].getFlag(), this.nTerminalTab[this.tabGraph[IX].getSimReference()].getName()));
+							this.parseStack.push(new ParseStackNode(this.nTerminalTab[this.tabGraphNodes[IX].getNodeReference()].getFlag(), this.nTerminalTab[this.tabGraphNodes[IX].getNodeReference()].getName()));
 							achou = true;
-							I = IY;
+							indexNode = IY;
 						}
 						else
 							IY = this.findAlternative(IY, pilhaNaoTerminalY, pilhaAuxAnalisador);
@@ -248,13 +222,13 @@ public class Analyzer extends Thread
 				else
 				{ /* é não terminal */
 					pilhaAuxAnalisador.push(new GrViewStackNode(IY, toppsAux));
-					pilhaNaoTerminalY.push(new Integer(IY));
-					IY = this.nTerminalTab[this.tabGraph[IY].getSimReference()].getFirstNode();
+					pilhaNaoTerminalY.push(IY);
+					IY = this.nTerminalTab[this.tabGraphNodes[IY].getNodeReference()].getFirstNode();
 
 				}
 			}
 			if (!achou)
-				IX = this.tabGraph[IX].getAlternativeIndex();
+				IX = this.tabGraphNodes[IX].getAlternativeIndex();
 		}
 		if (achou)
 		{
@@ -276,80 +250,65 @@ public class Analyzer extends Thread
 		return achou;
 	}
 
-	private boolean estrategiaEliminacao(int IX, int toppsIU, int column, int line)
+	private boolean deleteStrategy(int topIndexNodeTemp, int topParseStackSizeTemp, int column, int line)
 	{
-		boolean sucesso = false;
-		/* ler o proximo simbolo */
+		boolean success = false;
+		
 		readNext();
-		/*
-		 * Tenta achar um terminal que seja igual ao simbolo lido, percorrendo
-		 * as alternativas do nó atual
-		 */
-		while (IX != 0)
+
+		while (topIndexNodeTemp != 0)
 		{
-			/* eh terminal? */
-			if (tabGraph[IX].isTerm())
+
+			if (tabGraphNodes[topIndexNodeTemp].IsTerminal())
 			{
-				/* o simbolo deste terminal é igual ao simbolo atual? */
-				if (termialTab[tabGraph[IX].getSimReference()].getName().equals(currentSymbol))
+				if (termialTab[tabGraphNodes[topIndexNodeTemp].getNodeReference()].getName().equals(currentSymbol))
 				{
-					/*
-					 * 2 Se o nó representado por I é igual ao ultimo valor
-					 * lido.
-					 */
-					/* 2 Então coloque o ultimo valor lido na parseStack */
-					parseStack.push(new ParseStackNode(termialTab[tabGraph[IX].getSimReference()].getFlag(), currentSymbol, currentSemanticSymbol));
-					// imprimePilha(parseStack);
+					
+					AppOutput.displayText("Action: "+lastSymbol+" symbol will be deleted\n", TOPIC.Output);
+					
+					parseStack.push(new ParseStackNode(termialTab[tabGraphNodes[topIndexNodeTemp].getNodeReference()].getFlag(), currentSymbol, currentSemanticSymbol));
+										
+					semanticRoutinesRepo.setCurrentToken(currToken);
+					semanticRoutinesRepo.execFunction(tabGraphNodes[topIndexNodeTemp].getSemanticRoutine());
+					
 					readNext();
-					/*
-					 * 2 Acabei de reconhecer um simbolo, posso esvaziar a
-					 * pilhaNãoTerminal
-					 */
+
 					nTermStack.clear();
-					/* 2 Faça I <- sucessor do IX atual */
-					I = tabGraph[IX].getSucessorIndex();
-					IU = I;
-					toppsIU = this.parseStack.size();
-					/*
-					 * imprimir mensagem que o penultimo simbolo lido foi
-					 * ignorado
-					 */
-					AppOutput.errorRecoveryStatus("Action: This symbol will be ignorated\n");
-					/* consegui corrigir */
-					sucesso = true;
-					/* sair do laço */
+					
+					indexNode = tabGraphNodes[topIndexNodeTemp].getSucessorIndex();
+					
+					topIndexNodeTemp = indexNode;
+					
+					topParseStackSizeTemp = this.parseStack.size();
+					
+					success = true;
+					
 					break;
 				}
 				else
 				{
-					/* não é igual, vai para a proxima alternativa */
 					int alternative = 0;
-					alternative = this.findAlternative(IX, nTermStack, grViewStack);
-					IX = alternative;
+					alternative = this.findAlternative(topIndexNodeTemp, nTermStack, grViewStack);
+					topIndexNodeTemp = alternative;
 				}
 			}
 			else
 			{
-				/* 2 Se IX não representa nó terminal */
-				/* 2 Empilha o nó representado por IX na pilha do analisador */
-				grViewStack.push(new GrViewStackNode(IX, parseStack.size() + 1));
-				/* 2 Empilha o nó representado por IX na pilhaNãoTerminal */
-				nTermStack.push(new Integer(IX));
-				/* 2 Faço IX representar o primeiro nó desse nao terminal */
-				IX = nTerminalTab[tabGraph[IX].getSimReference()].getFirstNode();
+				grViewStack.push(new GrViewStackNode(topIndexNodeTemp, parseStack.size() + 1));
+				nTermStack.push(topIndexNodeTemp);
+				topIndexNodeTemp = nTerminalTab[tabGraphNodes[topIndexNodeTemp].getNodeReference()].getFirstNode();
 			}
 		}
-		if (!sucesso)
+		if (!success)
 		{
 			currentSymbol = lastSymbol;
-			/* volta um token na cabeça de leitura do analisador léxico. */
 			yylex.pushback(yylex.yylength());
-			while (this.grViewStack.size() > toppsIU)
+			while (this.grViewStack.size() > topParseStackSizeTemp)
 			{
 				this.grViewStack.pop();
 			}
 		}
-		return sucesso;
+		return success;
 	}
 
 	private boolean estrategiaInsercao(int IX, int toppsIU, int column, int line)
@@ -365,33 +324,33 @@ public class Analyzer extends Thread
 		while (IX != 0 && !achou)
 		{
 			/* o simbolo espereado é terminal? */
-			if (this.tabGraph[IX].isTerm())
+			if (this.tabGraphNodes[IX].IsTerminal())
 			{
 				// topoaux2 = topoaux1;
-				IY = this.tabGraph[IX].getSucessorIndex();
+				IY = this.tabGraphNodes[IX].getSucessorIndex();
 				pilhaNaoTerminalY.clear();
 				/* percorre s1,s2,...,sn */
 				while (IY != 0 && !achou)
 				{
 					/* é terminal? */
-					if (this.tabGraph[IY].isTerm())
+					if (this.tabGraphNodes[IY].IsTerminal())
 					{
 						/* é lambda-nó? */
-						if (this.tabGraph[IY].getSimReference() == 0)
+						if (this.tabGraphNodes[IY].getNodeReference() == 0)
 						{
-							IY = this.tabGraph[IY].getSucessorIndex();
+							IY = this.tabGraphNodes[IY].getSucessorIndex();
 						}
 						else
 						{
-							String temp = this.termialTab[this.tabGraph[IY].getSimReference()].getName();
+							String temp = this.termialTab[this.tabGraphNodes[IY].getNodeReference()].getName();
 							if (temp.equals(this.currentSymbol))
 							{
 								/* empilha ti na pilha sintática... */
-								this.parseStack.push(new ParseStackNode(this.termialTab[this.tabGraph[IX].getSimReference()].getFlag(), this.termialTab[this.tabGraph[IX].getSimReference()].getName()));
+								this.parseStack.push(new ParseStackNode(this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getFlag(), this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getName()));
 								this.printStack(parseStack);
 								topps++;
 								/* novo nó para asin... */
-								I = IY;
+								indexNode = IY;
 								/* correção obteve sucesso... */
 								achou = true;
 							}
@@ -406,8 +365,8 @@ public class Analyzer extends Thread
 						// this.asinStack.add(topoaux2,new GrViewStackNode(IY,
 						// topps + 2));
 						this.grViewStack.push(new GrViewStackNode(IY, topps + 2));
-						pilhaNaoTerminalY.push(new Integer(IY));
-						IY = this.nTerminalTab[this.tabGraph[IY].getSimReference()].getFirstNode();
+						pilhaNaoTerminalY.push(IY);
+						IY = this.nTerminalTab[this.tabGraphNodes[IY].getNodeReference()].getFirstNode();
 					}
 				}
 				/*
@@ -429,8 +388,8 @@ public class Analyzer extends Thread
 				// this.asinStack.add(topoaux1,new GrViewStackNode(IX, topps +
 				// 1));
 				this.grViewStack.push(new GrViewStackNode(IX, topps + 1));
-				this.nTermStack.push(new Integer(IX));
-				IX = this.nTerminalTab[this.tabGraph[IX].getSimReference()].getFirstNode();
+				this.nTermStack.push(IX);
+				IX = this.nTerminalTab[this.tabGraphNodes[IX].getNodeReference()].getFirstNode();
 			}
 		}
 		if (achou)
@@ -440,7 +399,7 @@ public class Analyzer extends Thread
 			// currentSymbol = pastSymbol;
 			/* volta um token na cabeça de leitura do analisador léxico. */
 			// lex.yypushback(lex.yylength());
-			AppOutput.errorRecoveryStatus("Action: " + this.termialTab[this.tabGraph[IX].getSimReference()].getName() + " inserted before column " + column + "\n");
+			AppOutput.errorRecoveryStatus("Action: " + this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getName() + " inserted before column " + column + "\n");
 		}
 		/*
 		 * deixa a pilha do Analisador como estava antes de começar essa
@@ -475,32 +434,32 @@ public class Analyzer extends Thread
 		while (IX != 0 && !achou)
 		{
 			/* o simbolo espereado é terminal? */
-			if (this.tabGraph[IX].isTerm())
+			if (this.tabGraphNodes[IX].IsTerminal())
 			{
-				IY = this.tabGraph[IX].getSucessorIndex();
+				IY = this.tabGraphNodes[IX].getSucessorIndex();
 				pilhaNaoTerminalY.clear();
 				/* percorre s1,s2,...,sn */
 				while (IY != 0 && !achou)
 				{
 					/* é terminal? */
-					if (this.tabGraph[IY].isTerm())
+					if (this.tabGraphNodes[IY].IsTerminal())
 					{
 						/* é lambda-nó? */
-						if (this.tabGraph[IY].getSimReference() == 0)
+						if (this.tabGraphNodes[IY].getNodeReference() == 0)
 						{
-							IY = this.tabGraph[IY].getSucessorIndex();
+							IY = this.tabGraphNodes[IY].getSucessorIndex();
 						}
 						else
 						{
-							String temp = this.termialTab[this.tabGraph[IY].getSimReference()].getName();
+							String temp = this.termialTab[this.tabGraphNodes[IY].getNodeReference()].getName();
 							if (temp.equals(this.currentSymbol))
 							{
 								/* empilha ti na pilha sintática... */
-								this.parseStack.push(new ParseStackNode(this.termialTab[this.tabGraph[IX].getSimReference()].getFlag(), this.termialTab[this.tabGraph[IX].getSimReference()].getName()));
+								this.parseStack.push(new ParseStackNode(this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getFlag(), this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getName()));
 								this.printStack(parseStack);
 								topps++;
 								/* novo nó para asin... */
-								I = IY;
+								indexNode = IY;
 								/* correção obteve sucesso... */
 								achou = true;
 							}
@@ -512,8 +471,8 @@ public class Analyzer extends Thread
 					else
 					{
 						this.grViewStack.push(new GrViewStackNode(IY, topps + 2));
-						pilhaNaoTerminalY.push(new Integer(IY));
-						IY = this.nTerminalTab[this.tabGraph[IY].getSimReference()].getFirstNode();
+						pilhaNaoTerminalY.push(IY);
+						IY = this.nTerminalTab[this.tabGraphNodes[IY].getNodeReference()].getFirstNode();
 					}
 				}
 				/*
@@ -532,8 +491,8 @@ public class Analyzer extends Thread
 			{
 				/* não terminal na sequencia dos esperados */
 				this.grViewStack.push(new GrViewStackNode(IX, topps + 1));
-				this.nTermStack.push(new Integer(IX));
-				IX = this.nTerminalTab[this.tabGraph[IX].getSimReference()].getFirstNode();
+				this.nTermStack.push(IX);
+				IX = this.nTerminalTab[this.tabGraphNodes[IX].getNodeReference()].getFirstNode();
 			}
 		}
 		if (achou)
@@ -541,7 +500,7 @@ public class Analyzer extends Thread
 			/* novo topo... */
 			/* volta um token na cabeça de leitura do analisador léxico. */
 			// lex.yypushback(lex.yylength());
-			AppOutput.errorRecoveryStatus("Action: This symbol has been replaced by " + this.termialTab[this.tabGraph[IX].getSimReference()].getName() + "\n");
+			AppOutput.errorRecoveryStatus("Action: This symbol has been replaced by " + this.termialTab[this.tabGraphNodes[IX].getNodeReference()].getName() + "\n");
 		}
 		else
 		{
@@ -571,11 +530,11 @@ public class Analyzer extends Thread
 	private int findAlternative(int IZ, Stack pilhaNaoTerm, Stack pilhaAna)
 	{
 		int alternative = 0;
-		alternative = this.tabGraph[IZ].getAlternativeIndex();
+		alternative = this.tabGraphNodes[IZ].getAlternativeIndex();
 		while (alternative == 0 && !pilhaNaoTerm.empty())
 		{
 			pilhaAna.pop();
-			alternative = tabGraph[((Integer) pilhaNaoTerm.pop()).intValue()].getAlternativeIndex();
+			alternative = tabGraphNodes[((Integer) pilhaNaoTerm.pop()).intValue()].getAlternativeIndex();
 		}
 		return alternative;
 	}
@@ -612,9 +571,9 @@ public class Analyzer extends Thread
 		AppOutput.printlnSemanticStack(lineSem, true);
 	}
 
-	/*
-	 * Esta função lê o proximo token de entrada, guardando o token em currToken
-	 * e o simbolo correspondente em simbolo Atual
+
+	/**
+	 * Read next char
 	 */
 	public void readNext()
 	{
@@ -642,132 +601,89 @@ public class Analyzer extends Thread
 	@Override
 	public void run()
 	{
+		int topParseStackSize;
+		int topIndexNode;
+		ParseStackNode auxParseSNode = null;
+		
 		currentSemanticSymbol = null;	
 		
-		grViewStack = new Stack();
-		parseStack = new Stack();
-		nTermStack = new Stack();		
+		grViewStack = new Stack<GrViewStackNode>();
+		parseStack = new Stack<ParseStackNode>();
+		nTermStack = new Stack<Integer>();		
 		
-		boolean sucess = false;
+		boolean sucess = true;
 		
 		semanticRoutinesRepo = new SemanticRoutinesRepo(parseStack, termialTab);
 
-		/* Passing the Tab of terminals to scanner */
 		yylex.TabT(termialTab);
 
-		int objective = 1;
-		/* 2 To let the things work, tabGraph[0]=(false,objetivo,0,0) */
-		tabGraph[0] = new TabGraphNode();
-		tabGraph[0].setIsTerm(false);
-		tabGraph[0].setSimReference(objective);
-		tabGraph[0].setAlternativeIndex(0);
-		tabGraph[0].setSucessorIndex(0);
-		/* 2 Read the first entry's simbol and put in currentSymbol */
-		readNext();
-		/* 2 Initialization of analyzer stack */
+		tabGraphNodes[0] = new TabGraphNode();
+		tabGraphNodes[0].setIsTerminal(false);
+		tabGraphNodes[0].setNodeReference(1);
+		tabGraphNodes[0].setAlternativeIndex(0);
+		tabGraphNodes[0].setSucessorIndex(0);
 		grViewStack.push(new GrViewStackNode(0, 1));
-		/*
-		 * 2 Inicia o percurso do grafo sintatico pelo primeiro nó apontado pelo
-		 * simbolo não terminal inicial
-		 */
-		IU = I = nTerminalTab[objective].getFirstNode();
-		toppsIU = 0;
-		/* 2 Initialize the sentinel */
+
+		readNext();
+		
+		topIndexNode = indexNode = nTerminalTab[1].getFirstNode();
+		topParseStackSize = 0;
 		continueSentinel = true;
-		/* 2 go through the parser graph */
 		while (continueSentinel)
 		{
-			/* 2 Não chegou ao fim do lado direito de uma produção: */
-			if (I != 0)
+			if (indexNode != 0)
 			{
-				/* 2 Is current node a terminal? */
-				if (tabGraph[I].isTerm())
-					/* 2 Is terminal a empty chain? */
-					if (tabGraph[I].getSimReference() == 0)
+				if (tabGraphNodes[indexNode].IsTerminal())
+					if (tabGraphNodes[indexNode].getNodeReference() == 0)
 					{
-						/* calling the semantic routine */
 						semanticRoutinesRepo.setCurrentToken(null);
-						semanticRoutinesRepo.execFunction(tabGraph[I].getSemanticRoutine());
-						I = tabGraph[I].getSucessorIndex();
-						IU = I;
-						toppsIU = this.parseStack.size();
+						semanticRoutinesRepo.execFunction(tabGraphNodes[indexNode].getSemanticRoutine());
+						indexNode = tabGraphNodes[indexNode].getSucessorIndex();
+						topIndexNode = indexNode;
+						topParseStackSize = this.parseStack.size();
 					}
 					else
 					{
-						/* 2 I isn't the lambda-node */
-						if ((termialTab[tabGraph[I].getSimReference()].getName()).equals(currentSymbol))
+						if ((termialTab[tabGraphNodes[indexNode].getNodeReference()].getName()).equals(currentSymbol))
 						{
-							/*
-							 * 2 Se o nó representado por I é igual ao ultimo
-							 * valor lido.
-							 */
-							/* 2 Então coloque o ultimo valor lido na parseStack */
-							parseStack.push(new ParseStackNode(termialTab[tabGraph[I].getSimReference()].getFlag(), currentSymbol, currentSemanticSymbol));
+							parseStack.push(new ParseStackNode(termialTab[tabGraphNodes[indexNode].getNodeReference()].getFlag(), currentSymbol, currentSemanticSymbol));
 							printStack(parseStack);
-							/*
-							 * 2 chamada da RS referenciada pelo nó terminal
-							 * reconhecido
-							 */
+							
 							semanticRoutinesRepo.setCurrentToken(currToken);
-							semanticRoutinesRepo.execFunction(tabGraph[I].getSemanticRoutine());
+							semanticRoutinesRepo.execFunction(tabGraphNodes[indexNode].getSemanticRoutine());
 							readNext();
-							/*
-							 * 2 Acabei de reconhecer um simbolo, posso esvaziar
-							 * a pilhaNãoTerminal
-							 */
+							
 							nTermStack.clear();
-							/* 2 Faça I <- sucessor do I atual */
-							I = tabGraph[I].getSucessorIndex();
-							IU = I;
-							toppsIU = this.parseStack.size();
+							
+							indexNode = tabGraphNodes[indexNode].getSucessorIndex();
+							topIndexNode = indexNode;
+							topParseStackSize = this.parseStack.size();
 						}
 						else
 						{
-							/*
-							 * 2 Se o nó representado por I não é igual ao
-							 * ultimo valor lido
-							 */
-							if (tabGraph[I].getAlternativeIndex() != 0)
-								/*
-								 * 2 Se o nó representado por I possui
-								 * alternativa.
-								 */
-								/* 2 Faça o I representar essa alternativa */
-								I = tabGraph[I].getAlternativeIndex();
+							if (tabGraphNodes[indexNode].getAlternativeIndex() != 0)
+							{
+								indexNode = tabGraphNodes[indexNode].getAlternativeIndex();
+							}
 							else
 							{
-								/*
-								 * 2 Se o nó representado por I não possui
-								 * alternativa
-								 */
 								if (nTermStack.empty())
 								{
-									/*
-									 * 2 Se a pilhaNãoTerminal está vazia, tenho
-									 * que tratar o erro
-									 */
-									dealWithError(IU, toppsIU, currToken.charBegin + 1, currToken.line + 1);
+									dealWithError(topIndexNode, topParseStackSize, currToken.charBegin + 1, currToken.line + 1);
+									sucess = false;
 								}
 								else
 								{
-									/* 2 Se a pilhaNãoTerminal não está vazia. */
-									/*
-									 * 2 Desempilho então um nó da pilha, que no
-									 * caso corresponde a uma não terminal,
-									 */
-									/*
-									 * 2 e atribuo à I o nó alternativo desse
-									 * não terminal
-									 */
 									int alternative;
-									alternative = this.findAlternative(I, nTermStack, grViewStack);
+									alternative = this.findAlternative(indexNode, nTermStack, grViewStack);
 									if (alternative != 0)
 									{
-										I = alternative;
+										indexNode = alternative;
 									}
 									else
 									{
-										dealWithError(IU, toppsIU, currToken.charBegin + 1, currToken.line + 1);
+										dealWithError(topIndexNode, topParseStackSize, currToken.charBegin + 1, currToken.line + 1);
+										sucess = false;
 									}
 								}
 							}
@@ -775,76 +691,49 @@ public class Analyzer extends Thread
 					}
 				else
 				{
-					/* 2 Se I não representa nó terminal */
-					/* 2 Empilha o nó representado por I na pilha do analisador */
-					grViewStack.push(new GrViewStackNode(I, parseStack.size() + 1));
-					/* 2 Empilha o nó representado por I na pilhaNãoTerminal */
-					nTermStack.push(new Integer(I));
-					/* 2 Faço I representar o primeiro nó desse nao terminal */
-					I = nTerminalTab[tabGraph[I].getSimReference()].getFirstNode();
+					grViewStack.push(new GrViewStackNode(indexNode, parseStack.size() + 1));
+					nTermStack.push(indexNode);
+					indexNode = nTerminalTab[tabGraphNodes[indexNode].getNodeReference()].getFirstNode();
 				}
 			}
 			else
 			{
-				/* 2 Terminou o lado direito de uma produção? */
 				if (!grViewStack.empty())
 				{
-					/* 2 A pilha do analisador não está vazia? */
-					/*
-					 * 2 Desempilha o nó da pilha do analisador e coloco-o em
-					 * grViewSNode
-					 */
+
 					grViewSNode = (GrViewStackNode) grViewStack.pop();
-					/*
-					 * 2 Desempilho todos os nós da parseStack que representam o
-					 * não terminal reconhecido
-					 */
-					while (parseStack.size() >= grViewSNode.r)
+
+					while (parseStack.size() >= grViewSNode.size)
 					{
 						auxParseSNode = (ParseStackNode) parseStack.pop();
 					}
-					/* 2 Empilha na parseStack o nó do não terminal reconhecido */
-					parseStack.push(new ParseStackNode(nTerminalTab[tabGraph[grViewSNode.no].getSimReference()].getFlag(), nTerminalTab[tabGraph[grViewSNode.no].getSimReference()].getName(), auxParseSNode.getSem()));
+					
+					parseStack.push(new ParseStackNode(nTerminalTab[tabGraphNodes[grViewSNode.indexNode].getNodeReference()].getFlag(), nTerminalTab[tabGraphNodes[grViewSNode.indexNode].getNodeReference()].getName(), auxParseSNode.getSem()));
 					printStack(parseStack);
-					/* 2 Faço I representar o nó correspondente à grViewSNode */
-					I = grViewSNode.no;
-					/*
-					 * 2 Chamada a rotina semantica referenciada pelo nó
-					 * não-terminal reconhecido
-					 */
+					
+					indexNode = grViewSNode.indexNode;
+					
 					semanticRoutinesRepo.setCurrentToken(currToken);
-					semanticRoutinesRepo.execFunction(tabGraph[I].getSemanticRoutine());
-					/* 2 Faço I representar o nó sucessor ao I atual */
-					I = tabGraph[I].getSucessorIndex();
-					IU = I;
-					toppsIU = this.parseStack.size();
+					semanticRoutinesRepo.execFunction(tabGraphNodes[indexNode].getSemanticRoutine());
+					
+					indexNode = tabGraphNodes[indexNode].getSucessorIndex();
+					topIndexNode = indexNode;
+					topParseStackSize = this.parseStack.size();
 				}
 				else
 				{
-					/* 2 Não atigiu o lado direito de uma produçao */
-					/* 2 Se a pilha do analisador está vazia */
-					if (currentSymbol.equals(new String("$")))
+					if (!currentSymbol.equals(new String("$")))
 					{
-						/*
-						 * 2 Se a ultima palavra lida for igual ao final de
-						 * arquivo
-						 */
-						/* 2 Então reconheci a linguagem... */
-						// AppOutput.displayText("End of File");
-						sucess = true;
-					}
-					else
-					{
-						/*
-						 * 2 Se a ultima palavra lida não for igual ao final de
-						 * arquivo
-						 */
-						/* 2 Então não reconheci a linguagem... */
-						AppOutput.displayText("The fist non-teminal of the grammar has been recognized. ", TOPIC.Output);
-						AppOutput.displayText("But the end-of-file symbol has not been recognized.", TOPIC.Output);
 						sucess = false;
+						// AppOutput.displayText("End of File");
+						//sucess = true;
 					}
-					/* 2 Indica que deve encerrar a analise */
+//					else
+//					{
+//						AppOutput.displayText("The fist non-teminal of the grammar has been recognized. ", TOPIC.Output);
+//						AppOutput.displayText("But the end-of-file symbol has not been recognized.", TOPIC.Output);
+//						
+//					}
 					continueSentinel = false;
 				}
 			}

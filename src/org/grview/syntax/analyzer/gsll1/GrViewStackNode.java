@@ -2,19 +2,19 @@ package org.grview.syntax.analyzer.gsll1;
 
 public class GrViewStackNode
 {
-	public int no;
-	public int r;
+	public int indexNode;
+	public int size;
 
-	GrViewStackNode(int no, int r)
+	GrViewStackNode(int indexNode, int size)
 	{
-		this.no = no;
-		this.r = r;
+		this.indexNode = indexNode;
+		this.size = size;
 	}
 
 	@Override
 	public String toString()
 	{
-		return no + "," + r;
+		return indexNode + "," + size;
 
 	}
 }

@@ -34,9 +34,9 @@ public class Exporter
 			{
 				tbG[i].setAlt(sl.tabGraph()[i].getAlternativeIndex());
 				tbG[i].setSuc(sl.tabGraph()[i].getSucessorIndex());
-				tbG[i].setSim(sl.tabGraph()[i].getSimReference());
+				tbG[i].setSim(sl.tabGraph()[i].getNodeReference());
 				tbG[i].setSem(sl.tabGraph()[i].getSemanticRoutine());
-				tbG[i].setTerm(sl.tabGraph()[i].isTerm());
+				tbG[i].setTerm(sl.tabGraph()[i].IsTerminal());
 			}
 		}
 		this.tbT = new Analyzer.TabNode[sl.tabT().length];
