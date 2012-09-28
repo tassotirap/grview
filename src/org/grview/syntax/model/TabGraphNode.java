@@ -78,6 +78,11 @@ public class TabGraphNode
 		isTerminal = bool;
 	}
 
+	public boolean isLambda()
+	{
+		return nodeReference == 0;
+	}
+
 	@Override
 	public String toString()
 	{

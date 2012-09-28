@@ -1,38 +1,23 @@
-/*
- * Created on 24/03/2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package org.grview.syntax.model;
 
-/**
- * @author Fernando
- * 
- *         To change the template for this generated type comment go to
- *         Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-
-/* ParseStackNode objects are pushed on the parseStack */
 public class ParseStackNode
 {
-	/* The flag, a unique identifier for presentation and debug */
 	private String flag;
-	/* The semantic symbol of the token */
-	private Object sem;
-	/* The type of the token */
-	private String syn;
+	
+	private Object semanticSymbol;
+	
+	private String type;
 
 	public ParseStackNode(String flag, String str)
 	{
 		this(flag, str, null);
 	}
 
-	public ParseStackNode(String flag, String str, Object obj)
+	public ParseStackNode(String flag, String type, Object semanticSymbol)
 	{
 		this.flag = flag;
-		syn = str;
-		sem = obj;
+		this.type = type;
+		this.semanticSymbol = semanticSymbol;
 	}
 
 	public String getFlag()
@@ -40,40 +25,40 @@ public class ParseStackNode
 		return flag;
 	}
 
-	public Object getSem()
+	public Object getSemanticSymbol()
 	{
-		return sem;
+		return semanticSymbol;
 	}
 
-	public String getSyn()
+	public String getType()
 	{
-		return syn;
+		return type;
 	}
 
-	public int intSem()
+	public int intSemanticSymbol()
 	{
-		return Integer.parseInt(stringSem());
+		return Integer.parseInt(stringSemanticSymbol());
 	}
 
-	public void setSem(Object obj)
+	public void setSemanticSymbol(Object semanticSymbol)
 	{
-		sem = obj;
+		this.semanticSymbol = semanticSymbol;
 	}
 
-	public void setSyn(String str)
+	public void setType(String type)
 	{
-		syn = str;
+		this.type = type;
 	}
 
-	public String stringSem()
+	public String stringSemanticSymbol()
 	{
-		return sem.toString();
+		return semanticSymbol.toString();
 	}
 
 	@Override
 	public String toString()
 	{
-		return "Syn: " + getSyn() + " Sem: " + getSem();
+		return "Syn: " + getType() + " Sem: " + getSemanticSymbol();
 	}
 
 }
