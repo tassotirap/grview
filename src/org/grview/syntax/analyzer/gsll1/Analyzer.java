@@ -22,7 +22,7 @@ public class Analyzer extends Thread
 
 	private AnalyzerAlternative syntaxAlternative;
 	private AnalyzerError syntaxError;
-	private AnalyzerToken syntaxToken;
+	private AnalyzerToken analyzerToken;
 	
 	private AnalyzerStacks analyzerStacks;
 	private AnalyzerTabs analyzerTabs;
@@ -34,17 +34,17 @@ public class Analyzer extends Thread
 		analyzerTabs = new AnalyzerTabs(tabGraphNodes, nTerminalTab, termialTab);
 		analyzerStacks = new AnalyzerStacks();
 		syntaxAlternative = new AnalyzerAlternative(analyzerTabs);
-		syntaxToken = new AnalyzerToken(yylex);
+		analyzerToken = new AnalyzerToken(yylex);
 		analyzerPrint = new AnalyzerPrint(this);
 		analyzerIndex = new AnalyzerIndex();
-		syntaxError = new AnalyzerError(fileIn, analyzerTabs, analyzerStacks, analyzerPrint,analyzerIndex, syntaxToken);
+		syntaxError = new AnalyzerError(fileIn, analyzerTabs, analyzerStacks, analyzerPrint, analyzerIndex, analyzerToken);
 	}
 
 	@Override
 	public void run()
 	{
 
-		syntaxToken.setCurrentSemanticSymbol(null);
+		analyzerToken.setCurrentSemanticSymbol(null);
 
 		analyzerStacks.init();
 
@@ -53,7 +53,7 @@ public class Analyzer extends Thread
 		semanticRoutinesRepo = new SemanticRoutinesRepo(analyzerStacks.getParseStack(), analyzerTabs.getTermialTab());
 		syntaxError.setSemanticRoutinesRepo(semanticRoutinesRepo);
 
-		syntaxToken.getYylex().TabT(analyzerTabs.getTermialTab());
+		analyzerToken.getYylex().TabT(analyzerTabs.getTermialTab());
 
 		analyzerTabs.getTabGraphNodes()[0] = new TabGraphNode();
 		analyzerTabs.getTabGraphNodes()[0].setIsTerminal(false);
@@ -62,7 +62,7 @@ public class Analyzer extends Thread
 		analyzerTabs.getTabGraphNodes()[0].setSucessorIndex(0);
 		analyzerStacks.getGrViewStack().push(new GrViewStackNode(0, 1));
 
-		syntaxToken.readNext();
+		analyzerToken.readNext();
 
 		analyzerIndex.setIndexNode(analyzerTabs.getnTerminalTab()[1].getFirstNode());
 		analyzerIndex.setTopIndexNode(analyzerIndex.getIndexNode());
@@ -87,14 +87,14 @@ public class Analyzer extends Thread
 					}
 					else
 					{
-						if ((currentTerminal.getName()).equals(syntaxToken.getCurrentSymbol()))
+						if ((currentTerminal.getName()).equals(analyzerToken.getCurrentSymbol()))
 						{
-							analyzerStacks.getParseStack().push(new ParseStackNode(currentTerminal.getFlag(), syntaxToken.getCurrentSymbol(), syntaxToken.getCurrentSemanticSymbol()));
+							analyzerStacks.getParseStack().push(new ParseStackNode(currentTerminal.getFlag(), analyzerToken.getCurrentSymbol(), analyzerToken.getCurrentSemanticSymbol()));
 							analyzerPrint.printStack(analyzerStacks.getParseStack());
 
-							semanticRoutinesRepo.setCurrentToken(syntaxToken.getCurrentToken());
+							semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
 							semanticRoutinesRepo.execFunction(currentGraphNode.getSemanticRoutine());
-							syntaxToken.readNext();
+							analyzerToken.readNext();
 
 							analyzerStacks.getnTermStack().clear();
 
@@ -112,7 +112,7 @@ public class Analyzer extends Thread
 							{
 								if (analyzerStacks.getnTermStack().empty())
 								{
-									continueSentinel = syntaxError.dealWithError(analyzerIndex.getTopIndexNode(), analyzerIndex.getTopParseStackSize(), syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
+									continueSentinel = syntaxError.dealWithError(analyzerIndex.getTopIndexNode(), analyzerIndex.getTopParseStackSize(), analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
 									sucess = false;
 								}
 								else
@@ -125,7 +125,7 @@ public class Analyzer extends Thread
 									}
 									else
 									{
-										continueSentinel = syntaxError.dealWithError(analyzerIndex.getTopIndexNode(), analyzerIndex.getTopParseStackSize(), syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
+										continueSentinel = syntaxError.dealWithError(analyzerIndex.getTopIndexNode(), analyzerIndex.getTopParseStackSize(), analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
 										sucess = false;
 									}
 								}
@@ -158,7 +158,7 @@ public class Analyzer extends Thread
 
 					analyzerIndex.setIndexNode(grViewStackNode.indexNode);
 
-					semanticRoutinesRepo.setCurrentToken(syntaxToken.getCurrentToken());
+					semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
 					semanticRoutinesRepo.execFunction(analyzerTabs.getTabGraphNodes()[analyzerIndex.getIndexNode()].getSemanticRoutine());
 
 					analyzerIndex.setIndexNode(analyzerTabs.getTabGraphNodes()[analyzerIndex.getIndexNode()].getSucessorIndex());
@@ -167,8 +167,10 @@ public class Analyzer extends Thread
 				}
 				else
 				{
-					if (!syntaxToken.getCurrentSymbol().equals(new String("$")))
+					if (!analyzerToken.getCurrentSymbol().equals(new String("$")))
 					{
+						AppOutput.displayText("The fist non-teminal of the grammar has been recognized. ", TOPIC.Output);
+						AppOutput.displayText("But the end-of-file symbol has not been recognized.", TOPIC.Output);
 						sucess = false;
 					}
 					continueSentinel = false;
