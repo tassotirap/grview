@@ -1,6 +1,6 @@
 package org.grview.syntax.model;
 
-public class TabNode
+public class TableNode
 {
 	private String flag;
 	
@@ -8,14 +8,14 @@ public class TabNode
 
 	private int firstNode;
 
-	public TabNode(String flag, String nodeName)
+	public TableNode(String flag, String nodeName)
 	{
 		this.flag = flag;
 		getName(nodeName);
 		setFirstNode(-1);
 	}
 
-	public TabNode(String flag, String nodeName, int firstNode)
+	public TableNode(String flag, String nodeName, int firstNode)
 	{
 		this.flag = flag;
 		getName(nodeName);

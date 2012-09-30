@@ -15,15 +15,15 @@ public class SemanticRoutines {
 	
 	private File scriptsFile = new File("srs.groovy");
 	private Stack<ParseStackNode> parseStack;
-	private Analyzer.TabNode[] tabT;
+	private Analyzer.TableNode[] tabT;
 	private Yytoken currentToken;
 	private PrintStream out;
 	
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out) {
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TableNode[] tabT, PrintStream out) {
 		this (parseStack, tabT, out, null);
 	}
 
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out, File scriptsFile) {
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TableNode[] tabT, PrintStream out, File scriptsFile) {
 		this.tabT = tabT;
 		this.parseStack = parseStack;
 		this.out = out;
@@ -82,11 +82,11 @@ public class SemanticRoutines {
 		return parseStack;
 	}
 
-	public void setTabT(Analyzer.TabNode[] tabT) {
+	public void setTabT(Analyzer.TableNode[] tabT) {
 		this.tabT = tabT;
 	}
 
-	public Analyzer.TabNode[] getTabT() {
+	public Analyzer.TableNode[] getTabT() {
 		return tabT;
 	}
 

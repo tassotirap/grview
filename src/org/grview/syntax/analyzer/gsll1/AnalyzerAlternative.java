@@ -1,24 +1,38 @@
 package org.grview.syntax.analyzer.gsll1;
 
-import java.util.Stack;
+import org.grview.syntax.model.GrViewStack;
+import org.grview.syntax.model.NTerminalStack;
 
 public class AnalyzerAlternative
 {
-	AnalyzerTabs analyzerTabs;
+	AnalyzerTableRepository analyzerTabs;
 	
-	public AnalyzerAlternative(AnalyzerTabs analyzerTabs)
+	private static AnalyzerAlternative instance;
+	
+	public static AnalyzerAlternative getInstance()
 	{
-		this.analyzerTabs = analyzerTabs;
+		return instance;
 	}
 	
-	public int findAlternative(int indexNode, Stack<Integer> nTermStack, Stack<GrViewStackNode> grViewStack)
+	public static AnalyzerAlternative setInstance()
+	{
+		instance = new AnalyzerAlternative();
+		return instance;
+	}	
+	
+	private AnalyzerAlternative()
+	{
+		this.analyzerTabs = AnalyzerTableRepository.getInstance();
+	}
+	
+	public int findAlternative(int indexNode, NTerminalStack nTermStack, GrViewStack grViewStack)
 	{
 		int alternative = 0;
-		alternative = analyzerTabs.getTabGraphNodes()[indexNode].getAlternativeIndex();
+		alternative = analyzerTabs.getGraphNode(indexNode).getAlternativeIndex();
 		while (alternative == 0 && !nTermStack.empty())
 		{
 			grViewStack.pop();
-			alternative = analyzerTabs.getTabGraphNodes()[(nTermStack.pop()).intValue()].getAlternativeIndex();
+			alternative = analyzerTabs.getGraphNode(nTermStack.pop()).getAlternativeIndex();
 		}
 		return alternative;
 	}

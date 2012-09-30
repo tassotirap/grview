@@ -14,11 +14,11 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
-import java.util.Stack;
 
 import org.grview.lexical.Yytoken;
 import org.grview.project.ProjectManager;
-import org.grview.syntax.model.TabNode;
+import org.grview.syntax.model.ParseStack;
+import org.grview.syntax.model.TableNode;
 
 public class SemanticRoutinesRepo
 {
@@ -35,11 +35,23 @@ public class SemanticRoutinesRepo
 	private ArrayList<TokenListener> listeners = new ArrayList<TokenListener>();
 
 	private SemanticRoutinesIvoker srIvoker;
-
-	/* The constructor of this class */
-	public SemanticRoutinesRepo(Stack parseStack, TabNode tabNodes[])
+	
+	private static SemanticRoutinesRepo instance;
+	
+	public static SemanticRoutinesRepo getInstance()
 	{
-		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tabNodes, this);
+		return instance;
+	}
+	
+	public static SemanticRoutinesRepo setInstance(ParseStack parseStack, TableNode tableNode[])
+	{
+		instance = new SemanticRoutinesRepo(parseStack, tableNode);
+		return instance;
+	}
+	
+	private SemanticRoutinesRepo(ParseStack parseStack, TableNode tableNode[])
+	{
+		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tableNode, this);
 		srIvoker.setCurrentToken(currentToken);
 		listeners.add(srIvoker);
 	}

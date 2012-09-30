@@ -1,6 +1,6 @@
 package org.grview.syntax.model;
 
-public class ParseStackNode
+public class ParseNode
 {
 	private String flag;
 	
@@ -8,12 +8,12 @@ public class ParseStackNode
 	
 	private String type;
 
-	public ParseStackNode(String flag, String str)
+	public ParseNode(String flag, String str)
 	{
 		this(flag, str, null);
 	}
 
-	public ParseStackNode(String flag, String type, Object semanticSymbol)
+	public ParseNode(String flag, String type, Object semanticSymbol)
 	{
 		this.flag = flag;
 		this.type = type;

@@ -50,22 +50,22 @@ public abstract class AppOutput
 
 	static public void printlnSemanticStack(String str)
 	{
-		printSemanticStack(str + "<br>", false);
+		printSemanticStack(str, false);
 	}
 
 	static public void printlnSemanticStack(String str, boolean showLine)
 	{
-		SemanticStack.getInstance().displayTextExt(str + "<br>", showLine);
+		SemanticStack.getInstance().displayTextExt(str, showLine);
 	}
 
 	static public void printlnSyntaxStack(String str)
 	{
-		printSyntaxStack(str + "<br>", false);
+		printSyntaxStack(str, false);
 	}
 
 	static public void printlnSyntaxStack(String str, boolean showLine)
 	{
-		printSyntaxStack(str + "<br>", showLine);
+		printSyntaxStack(str, showLine);
 	}
 
 	static public void printlnToken(String str)

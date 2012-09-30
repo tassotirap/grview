@@ -14,7 +14,7 @@ package org.grview.syntax.model;
  * @author gohan
  * 
  */
-public class TabGraphNode
+public class TableGraphNode
 {
 
 	private int alternativeIndex;
@@ -23,7 +23,7 @@ public class TabGraphNode
 	private int sucessorIndex;
 	private boolean isTerminal;
 
-	public TabGraphNode()
+	public TableGraphNode()
 	{
 
 	}

@@ -130,7 +130,7 @@ public class Analyzer
 
 	}
 
-	static class TabNode implements Serializable
+	static class TableNode implements Serializable
 	{
 
 		private static final long serialVersionUID = -8851101063205670628L;
@@ -148,7 +148,7 @@ public class Analyzer
 		 * @param nodeName
 		 *            the name of the node
 		 */
-		public TabNode(String flag, String nodeName)
+		public TableNode(String flag, String nodeName)
 		{
 			this.flag = flag;
 			setName(nodeName);
@@ -162,7 +162,7 @@ public class Analyzer
 		 * @param nodeName
 		 * @param nodePrim
 		 */
-		public TabNode(String flag, String nodeName, int nodePrim)
+		public TableNode(String flag, String nodeName, int nodePrim)
 		{
 			this.flag = flag;
 			setName(nodeName);
@@ -279,12 +279,12 @@ public class Analyzer
 	/** the graph of nodes **/
 	private TabGraphNode tabGraph[];
 	/** the symbol table containing the non-terminal nodes **/
-	private TabNode tabNT[];
+	private TableNode tabNT[];
 
 	/* --------------- END VARIABLES ---------------- */
 
 	/** the symbol table containing the terminal nodes **/
-	private TabNode tabT[];
+	private TableNode tabT[];
 
 	private int toppsIU;
 
@@ -563,8 +563,8 @@ public class Analyzer
 	private void initialize(PrintStream out, PrintStream err) throws IOException, ClassNotFoundException
 	{
 		tabGraph = (TabGraphNode[]) read(StabGraph);
-		tabT = (TabNode[]) read(StabT);
-		tabNT = (TabNode[]) read(StabNT);
+		tabT = (TableNode[]) read(StabT);
+		tabNT = (TableNode[]) read(StabNT);
 		this.out = out;
 		this.err = err;
 	}

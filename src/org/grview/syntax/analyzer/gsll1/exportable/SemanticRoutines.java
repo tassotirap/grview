@@ -18,14 +18,14 @@ public class SemanticRoutines
 	private PrintStream out;
 	private Stack<ParseStackNode> parseStack;
 	private File scriptsFile = new File("srs.groovy");
-	private Analyzer.TabNode[] tabT;
+	private Analyzer.TableNode[] tabT;
 
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out)
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TableNode[] tabT, PrintStream out)
 	{
 		this(parseStack, tabT, out, null);
 	}
 
-	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TabNode[] tabT, PrintStream out, File scriptsFile)
+	public SemanticRoutines(Stack<ParseStackNode> parseStack, Analyzer.TableNode[] tabT, PrintStream out, File scriptsFile)
 	{
 		this.tabT = tabT;
 		this.parseStack = parseStack;
@@ -90,7 +90,7 @@ public class SemanticRoutines
 		return parseStack;
 	}
 
-	public Analyzer.TabNode[] getTabT()
+	public Analyzer.TableNode[] getTabT()
 	{
 		return tabT;
 	}
@@ -105,7 +105,7 @@ public class SemanticRoutines
 		this.parseStack = parseStack;
 	}
 
-	public void setTabT(Analyzer.TabNode[] tabT)
+	public void setTabT(Analyzer.TableNode[] tabT)
 	{
 		this.tabT = tabT;
 	}

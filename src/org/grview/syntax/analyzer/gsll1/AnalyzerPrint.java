@@ -1,33 +1,47 @@
 package org.grview.syntax.analyzer.gsll1;
 
 import java.util.Iterator;
-import java.util.Stack;
 
 import org.grview.output.AppOutput;
-import org.grview.syntax.model.ParseStackNode;
+import org.grview.syntax.model.ParseNode;
+import org.grview.syntax.model.ParseStack;
 import org.grview.util.Log;
 
 public class AnalyzerPrint
 {
-	private boolean firstTime = true;
-	private boolean stepping = false;
+	private boolean firstTime;
+	private boolean stepping;
+	private Thread thread;
 	
-	Analyzer analyzer;
+	private static AnalyzerPrint instance;
 	
-	public AnalyzerPrint(Analyzer analyzer)
+	public static AnalyzerPrint getInstance()
 	{
-		this.analyzer = analyzer;
+		return instance;
 	}
 	
-	public void printStack(Stack s)
+	public static AnalyzerPrint setInstance(Thread thread)
+	{
+		instance = new AnalyzerPrint(thread);
+		return instance;
+	}
+
+	private AnalyzerPrint(Thread thread)
+	{
+		this.thread = thread;
+		this.firstTime = true;
+		this.stepping = false;
+	}
+
+	private void synchronize()
 	{
 		if (isStepping() && !firstTime)
 		{
-			synchronized (analyzer)
+			synchronized (thread)
 			{
 				try
 				{
-					analyzer.wait();
+					thread.wait();
 				}
 				catch (InterruptedException e)
 				{
@@ -35,25 +49,33 @@ public class AnalyzerPrint
 				}
 			}
 		}
-		firstTime = false;
-		Iterator i = s.iterator();
-		ParseStackNode tmp;
-		String lineSyn = "";
-		String lineSem = "";
-		while (i.hasNext())
-		{
-			tmp = (ParseStackNode) i.next();
-			lineSyn += "<a style=\"color: #000000; text-decoration: none; font-weight: bold;\" href=\"" + tmp.getFlag() + "\">" + tmp.getType() + "</a>&nbsp;";
-			lineSem += tmp.getSemanticSymbol() + "&nbsp;";
-		}
-		AppOutput.showAndSelectNode(((ParseStackNode) s.peek()).getFlag());
-		AppOutput.printlnSyntaxStack(lineSyn, true);
-		AppOutput.printlnSemanticStack(lineSem, true);
 	}
 
 	public boolean isStepping()
 	{
 		return stepping;
+	}
+
+	public void printStack(ParseStack parseStackNode)
+	{
+		synchronize();
+
+		firstTime = false;
+		
+		Iterator<ParseNode> iterator = parseStackNode.iterator();
+		ParseNode parseStackNodeTemp = null;
+		String lineSyntax = "";
+		String lineSemantic = "";
+		while (iterator.hasNext())
+		{
+			parseStackNodeTemp = iterator.next();
+			lineSyntax += "<a style=\"color: #000000; font-weight: bold;\" href=\"" + parseStackNodeTemp.getFlag() + "\">" + parseStackNodeTemp.getType() + "</a>&nbsp;";
+			lineSemantic += parseStackNodeTemp.getSemanticSymbol() + "&nbsp;";
+		}
+		
+		AppOutput.showAndSelectNode((parseStackNode.peek()).getFlag());
+		AppOutput.printlnSyntaxStack(lineSyntax, true);
+		AppOutput.printlnSemanticStack(lineSemantic, true);
 	}
 
 	public void setStepping(boolean stepping)

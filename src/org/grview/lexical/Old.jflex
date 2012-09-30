@@ -5,8 +5,8 @@ package org.eclipse.gef.asindesigner.model.analisador;
 %{
   private int comment_count = 0;
   /*The two lines below can not be removed or edited*/
-  private TabNode TabT[];
-  public void TabT(TabNode TbT[]){
+  private TableNode TabT[];
+  public void TabT(TableNode TbT[]){
 	TabT = TbT;
   }
   /*If the simbol in text is in TabT this method returs its index otherwise returns

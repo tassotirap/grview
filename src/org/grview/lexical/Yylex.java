@@ -2,7 +2,7 @@ package org.grview.lexical;
 
 import java.io.IOException;
 
-import org.grview.syntax.model.TabNode;
+import org.grview.syntax.model.TableNode;
 
 public interface Yylex
 {
@@ -23,7 +23,7 @@ public interface Yylex
 
 	public abstract void setReader(java.io.Reader in);
 
-	public abstract void TabT(TabNode TbT[]);
+	public abstract void TabT(TableNode TbT[]);
 
 	/**
 	 * Enters a new lexical state

@@ -7,16 +7,28 @@ import org.grview.lexical.Yytoken;
 import org.grview.output.AppOutput;
 
 public class AnalyzerToken
-{
+{	
+	private Yytoken currentToken;
 	
 	private String currentSemanticSymbol;
 	private String currentSymbol;
-	private Yytoken currentToken;
-	private String lastSymbol;
-	
+	private String lastSymbol;	
 	private Yylex yylex;
 	
-	public AnalyzerToken(Yylex yylex)
+	private static AnalyzerToken instance;
+	
+	public static AnalyzerToken getInstance()
+	{
+		return instance;
+	}
+	
+	public static AnalyzerToken setInstance(Yylex yylex)
+	{
+		instance = new AnalyzerToken(yylex);
+		return instance;
+	}
+	
+	private AnalyzerToken(Yylex yylex)
 	{
 		this.yylex = yylex;
 	}
@@ -52,6 +64,7 @@ public class AnalyzerToken
 		{
 			setCurrentToken(getYylex().yylex());
 			setLastSymbol(getCurrentSymbol());
+			
 			if (getCurrentToken().type.equals("Res") || getCurrentToken().type.equals("Esp") || getCurrentToken().type.equals("EOF"))
 			{
 				setCurrentSymbol(getCurrentToken().text);
@@ -60,6 +73,7 @@ public class AnalyzerToken
 			{
 				setCurrentSymbol(getCurrentToken().type);
 			}
+			
 			setCurrentSemanticSymbol(getCurrentToken().text);
 		}
 		catch (IOException e)

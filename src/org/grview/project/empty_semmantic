@@ -1,4 +1,4 @@
-import org.grview.syntax.model.ParseStackNode
+import org.grview.syntax.model.ParseNode
 
 /*-------------- SEMANTIC ROUTINES ESPECIFICATION ------------*/
 /* you can modify the lines bellow */

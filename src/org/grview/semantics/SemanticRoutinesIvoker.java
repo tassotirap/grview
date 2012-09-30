@@ -11,14 +11,14 @@ import java.io.OutputStreamWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
-import java.util.Stack;
 
 import org.grview.lexical.Yytoken;
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.output.SemanticRoutinesOutput;
 import org.grview.project.Project;
-import org.grview.syntax.model.TabNode;
+import org.grview.syntax.model.ParseStack;
+import org.grview.syntax.model.TableNode;
 import org.grview.util.Log;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -39,13 +39,13 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 
 	private GroovyObject goo;
 	private boolean loaded = false;
-	private Stack parseStack;
+	private ParseStack parseStack;
 
 	private Project project;
 	private SemanticRoutinesRepo repository;
 	private Object scriptlet;
 
-	private TabNode[] tabT;
+	private TableNode[] tabT;
 
 	public SemanticRoutinesIvoker(Project project) throws MalformedURLException
 	{
@@ -58,7 +58,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return lastInstance;
 	}
 
-	public static SemanticRoutinesIvoker getLastInstance(Stack parseStack, TabNode[] tabT, SemanticRoutinesRepo repository)
+	public static SemanticRoutinesIvoker getLastInstance(ParseStack parseStack, TableNode[] tabT, SemanticRoutinesRepo repository)
 	{
 
 		SemanticRoutinesIvoker instance = lastInstance;
@@ -125,7 +125,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return goo;
 	}
 
-	public Stack getParseStack()
+	public ParseStack getParseStack()
 	{
 		return parseStack;
 	}
@@ -135,7 +135,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return repository;
 	}
 
-	public TabNode[] getTabT()
+	public TableNode[] getTabT()
 	{
 		return tabT;
 	}
@@ -240,7 +240,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		this.goo = goo;
 	}
 
-	public void setParseStack(Stack parseStack)
+	public void setParseStack(ParseStack parseStack)
 	{
 		this.parseStack = parseStack;
 	}
@@ -250,7 +250,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		this.repository = repository;
 	}
 
-	public void setTabT(TabNode[] tabT)
+	public void setTabT(TableNode[] tabT)
 	{
 		this.tabT = tabT;
 	}

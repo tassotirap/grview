@@ -1,8 +1,8 @@
 package org.grview.syntax;
 
 import org.grview.syntax.grammar.model.SyntaxDefinitions;
-import org.grview.syntax.model.TabGraphNode;
-import org.grview.syntax.model.TabNode;
+import org.grview.syntax.model.TableGraphNode;
+import org.grview.syntax.model.TableNode;
 
 /*
  * Created on 11/08/2003
@@ -28,10 +28,10 @@ public class SyntacticLoader
 	int NumNo;
 	String SemR;
 	int SucR;
-	TabGraphNode TabGraph[];
+	TableGraphNode TabGraph[];
 
-	TabNode TabNt[];
-	TabNode TabT[];
+	TableNode TabNt[];
+	TableNode TabT[];
 	char Tipo;
 
 	public SyntacticLoader(TableCreate argTab)
@@ -42,9 +42,9 @@ public class SyntacticLoader
 		NoMax = 0;
 		TableCreate t = argTab;
 		String tab[][] = t.getTab();
-		TabT = new TabNode[t.getNLines() + 1];
-		TabNt = new TabNode[t.getNLines() + 1];
-		TabGraph = new TabGraphNode[t.getNLines() + 1];
+		TabT = new TableNode[t.getNLines() + 1];
+		TabNt = new TableNode[t.getNLines() + 1];
+		TabGraph = new TableGraphNode[t.getNLines() + 1];
 		int registrosLidos;
 		int iterator;
 		int indicesTabNtEncontrados[] = new int[t.getNLines() + 1];
@@ -110,7 +110,7 @@ public class SyntacticLoader
 				{
 					MaxNt = MaxNt + 1;
 					/* 2 Coloco na TABNT um o não-terminal TabNT */
-					TabNt[MaxNt] = new TabNode(Flag, Nomer, IndPrim);
+					TabNt[MaxNt] = new TableNode(Flag, Nomer, IndPrim);
 				}
 				else
 				{
@@ -139,7 +139,7 @@ public class SyntacticLoader
 				/* 2 I <- IndPrim + NumNo -1 */
 				int I = IndPrim + NumNo - 1;
 				/* O nó que será inserido em TabGraph é criado agora */
-				TabGraph[I] = new TabGraphNode();
+				TabGraph[I] = new TableGraphNode();
 				/*
 				 * IndiceEncontrado será utilizado na localização de uma simbolo
 				 * na Tabela de simbolos Terminais
@@ -170,7 +170,7 @@ public class SyntacticLoader
 							 * simbolos terminais terá de ser criada
 							 */
 							MaxT = MaxT + 1;
-							TabT[MaxT] = new TabNode(Flag, Nomer);
+							TabT[MaxT] = new TableNode(Flag, Nomer);
 							indiceEncontrado = MaxT;
 						}
 					}
@@ -196,7 +196,7 @@ public class SyntacticLoader
 						 * será criada
 						 */
 						MaxNt = MaxNt + 1;
-						TabNt[MaxNt] = new TabNode(Flag, Nomer, 0);
+						TabNt[MaxNt] = new TableNode(Flag, Nomer, 0);
 						indiceEncontrado = MaxNt;
 					}
 					TabGraph[I].setIsTerminal(false);
@@ -234,17 +234,17 @@ public class SyntacticLoader
 		} // while (registrosLidos < t.linhas()) ...
 	} // public CarregadorSintatico() ...
 
-	public TabGraphNode[] tabGraph()
+	public TableGraphNode[] tabGraph()
 	{
 		return TabGraph;
 	}
 
-	public TabNode[] tabNt()
+	public TableNode[] tabNt()
 	{
 		return TabNt;
 	}
 
-	public TabNode[] tabT()
+	public TableNode[] tabT()
 	{
 		return TabT;
 	}

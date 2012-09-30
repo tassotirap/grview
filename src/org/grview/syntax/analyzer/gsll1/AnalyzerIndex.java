@@ -6,28 +6,51 @@ public class AnalyzerIndex
 	private int topIndexNode;
 	private int indexNode;
 	
-	public int getTopParseStackSize()
+	private static AnalyzerIndex instance;
+	
+	public static AnalyzerIndex getInstance()
 	{
-		return topParseStackSize;
+		return instance;		
 	}
-	public void setTopParseStackSize(int topParseStackSize)
+	
+	public static AnalyzerIndex setInstance()
 	{
-		this.topParseStackSize = topParseStackSize;
+		instance = new AnalyzerIndex();
+		return instance;		
 	}
-	public int getTopIndexNode()
+	
+	private AnalyzerIndex()
 	{
-		return topIndexNode;
+		
 	}
-	public void setTopIndexNode(int topIndexNode)
-	{
-		this.topIndexNode = topIndexNode;
-	}
+	
 	public int getIndexNode()
 	{
 		return indexNode;
 	}
+	
+	public int getTopIndexNode()
+	{
+		return topIndexNode;
+	}
+	
+	public int getTopParseStackSize()
+	{
+		return topParseStackSize;
+	}
+	
 	public void setIndexNode(int indexNode)
 	{
 		this.indexNode = indexNode;
+	}
+	
+	public void setTopIndexNode(int topIndexNode)
+	{
+		this.topIndexNode = topIndexNode;
+	}
+	
+	public void setTopParseStackSize(int topParseStackSize)
+	{
+		this.topParseStackSize = topParseStackSize;
 	}	
 }

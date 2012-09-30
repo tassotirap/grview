@@ -1,11 +1,11 @@
-package org.grview.syntax.analyzer.gsll1;
+package org.grview.syntax.model;
 
-public class GrViewStackNode
+public class GrViewNode
 {
 	public int indexNode;
 	public int size;
 
-	GrViewStackNode(int indexNode, int size)
+	public GrViewNode(int indexNode, int size)
 	{
 		this.indexNode = indexNode;
 		this.size = size;
@@ -15,6 +15,5 @@ public class GrViewStackNode
 	public String toString()
 	{
 		return indexNode + "," + size;
-
 	}
 }

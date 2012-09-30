@@ -75,7 +75,7 @@ class Yylex
 	/* user code: */
 	private int comment_count = 0;
 	/* The two lines below can not be removed or edited */
-	private Analyzer.TabNode TabT[];
+	private Analyzer.TableNode TabT[];
 	/** the number of characters up to the start of the matched text */
 	private int yychar;
 
@@ -363,7 +363,7 @@ class Yylex
 		zzReader = in;
 	}
 
-	public void TabT(Analyzer.TabNode TbT[])
+	public void TabT(Analyzer.TableNode TbT[])
 	{
 		TabT = TbT;
 	}

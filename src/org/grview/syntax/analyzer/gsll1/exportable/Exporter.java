@@ -21,8 +21,8 @@ public class Exporter
 
 	private String rootPath;
 	private Analyzer.TabGraphNode[] tbG;
-	private Analyzer.TabNode[] tbNt;
-	private Analyzer.TabNode[] tbT;
+	private Analyzer.TableNode[] tbNt;
+	private Analyzer.TableNode[] tbT;
 
 	public Exporter(SyntacticLoader sl, String rootPath)
 	{
@@ -39,20 +39,20 @@ public class Exporter
 				tbG[i].setTerm(sl.tabGraph()[i].IsTerminal());
 			}
 		}
-		this.tbT = new Analyzer.TabNode[sl.tabT().length];
+		this.tbT = new Analyzer.TableNode[sl.tabT().length];
 		for (int i = 0; i < tbT.length; i++)
 		{
 			if (sl.tabT()[i] != null)
 			{
-				tbT[i] = new Analyzer.TabNode(sl.tabT()[i].getFlag(), sl.tabT()[i].getName());
+				tbT[i] = new Analyzer.TableNode(sl.tabT()[i].getFlag(), sl.tabT()[i].getName());
 			}
 		}
-		this.tbNt = new Analyzer.TabNode[sl.tabNt().length];
+		this.tbNt = new Analyzer.TableNode[sl.tabNt().length];
 		for (int i = 0; i < tbNt.length; i++)
 		{
 			if (sl.tabNt()[i] != null)
 			{
-				tbNt[i] = new Analyzer.TabNode(sl.tabNt()[i].getFlag(), sl.tabNt()[i].getName(), sl.tabNt()[i].getFirstNode());
+				tbNt[i] = new Analyzer.TableNode(sl.tabNt()[i].getFlag(), sl.tabNt()[i].getName(), sl.tabNt()[i].getFirstNode());
 			}
 		}
 		this.rootPath = rootPath;
@@ -90,9 +90,9 @@ public class Exporter
 		br = new BufferedReader(fr);
 		while ((line = br.readLine()) != null)
 		{
-			if (line.contains("import org.grview.syntax.model.ParseStackNode"))
+			if (line.contains("import org.grview.syntax.model.ParseNode"))
 			{
-				line = line.replace("import org.grview.syntax.model.ParseStackNode", "import org.grview.syntax.analyzer.gsll1.exportable.ParseStackNode");
+				line = line.replace("import org.grview.syntax.model.ParseNode", "import org.grview.syntax.analyzer.gsll1.exportable.ParseNode");
 			}
 			result += line + "\n";
 		}
@@ -120,9 +120,9 @@ public class Exporter
 				else if (line.contains("import org.grview.syntax.model.*;"))
 				{
 				}
-				else if (line.contains("TabNode"))
+				else if (line.contains("TableNode"))
 				{
-					result += line.replace("TabNode", "Analyzer.TabNode") + "\n";
+					result += line.replace("TableNode", "Analyzer.TableNode") + "\n";
 				}
 				else if (line.matches(".*implements org.grview.lexical.Yylex.*"))
 				{
