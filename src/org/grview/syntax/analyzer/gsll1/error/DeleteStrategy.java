@@ -50,8 +50,8 @@ public class DeleteStrategy implements IErroStrategy
 
 				if (terminalNode.getName().equals(analyzerToken.getCurrentSymbol()))
 				{
+					AppOutput.displayText("Action: symbol \"" + analyzerToken.getLastToken().text +"\" was skipped.\n", TOPIC.Output);
 					
-
 					analyzerStack.getParseStack().push(new ParseNode(terminalNode.getFlag(), analyzerToken.getCurrentSymbol(), analyzerToken.getCurrentSemanticSymbol()));
 
 					semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
@@ -83,11 +83,7 @@ public class DeleteStrategy implements IErroStrategy
 			}
 		}
 		
-		if(success)
-		{
-			AppOutput.displayText("Action: " + analyzerToken.getLastSymbol() + " symbol deleted\n", TOPIC.Output);
-		}
-		else
+		if(!success)
 		{
 			analyzerToken.setCurrentSymbol(analyzerToken.getLastSymbol());
 			analyzerToken.getYylex().pushback(analyzerToken.getYylex().yylength());

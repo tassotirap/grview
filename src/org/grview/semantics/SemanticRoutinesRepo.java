@@ -17,6 +17,7 @@ import java.util.Set;
 
 import org.grview.lexical.Yytoken;
 import org.grview.project.ProjectManager;
+import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
 import org.grview.syntax.model.ParseStack;
 import org.grview.syntax.model.TableNode;
 
@@ -43,15 +44,15 @@ public class SemanticRoutinesRepo
 		return instance;
 	}
 	
-	public static SemanticRoutinesRepo setInstance(ParseStack parseStack, TableNode tableNode[])
+	public static SemanticRoutinesRepo setInstance(ParseStack parseStack, TableNode tableNode[], AnalyzerGlobalVariavel globalVariable)
 	{
-		instance = new SemanticRoutinesRepo(parseStack, tableNode);
+		instance = new SemanticRoutinesRepo(parseStack, tableNode, globalVariable);
 		return instance;
 	}
 	
-	private SemanticRoutinesRepo(ParseStack parseStack, TableNode tableNode[])
+	private SemanticRoutinesRepo(ParseStack parseStack, TableNode tableNode[], AnalyzerGlobalVariavel globalVariable)
 	{
-		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tableNode, this);
+		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tableNode, this, globalVariable);
 		srIvoker.setCurrentToken(currentToken);
 		listeners.add(srIvoker);
 	}
