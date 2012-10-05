@@ -1,6 +1,7 @@
 package org.grview.syntax.analyzer.gsll1;
 
 import java.io.File;
+
 import org.grview.lexical.Yylex;
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
@@ -24,7 +25,7 @@ public class Analyzer extends Thread
 	private AnalyzerAlternative analyzerAlternative;
 	private AnalyzerErrorFacede analyzerError;
 	private AnalyzerToken analyzerToken;
-	
+
 	private AnalyzerStackRepository analyzerStacks;
 	private AnalyzerTableRepository analyzerTabs;
 	private AnalyzerPrint analyzerPrint;
@@ -35,13 +36,16 @@ public class Analyzer extends Thread
 		analyzerPrint = AnalyzerPrint.setInstance(this);
 		analyzerToken = AnalyzerToken.setInstance(yylex);
 		analyzerTabs = AnalyzerTableRepository.setInstance(tabGraphNodes, nTerminalTab, termialTab);
+
 		analyzerStacks = AnalyzerStackRepository.setInstance();
-		
+
 		analyzerIndex = AnalyzerIndex.setInstance();
-		
-		analyzerAlternative = AnalyzerAlternative.setInstance();		
+
+		analyzerAlternative = AnalyzerAlternative.setInstance();
 		analyzerError = new AnalyzerErrorFacede(fileIn);
 	}
+
+	
 
 	@Override
 	public void run()
@@ -62,7 +66,7 @@ public class Analyzer extends Thread
 		analyzerTabs.getGraphNode(0).setNodeReference(1);
 		analyzerTabs.getGraphNode(0).setAlternativeIndex(0);
 		analyzerTabs.getGraphNode(0).setSucessorIndex(0);
-		
+
 		analyzerStacks.getGrViewStack().push(new GrViewNode(0, 1));
 
 		analyzerToken.readNext();
@@ -70,7 +74,7 @@ public class Analyzer extends Thread
 		analyzerIndex.setIndexNode(analyzerTabs.getNTerminal(1).getFirstNode());
 		analyzerIndex.setTopIndexNode(analyzerIndex.getIndexNode());
 		analyzerIndex.setTopParseStackSize(0);
-		
+
 		continueSentinel = true;
 		while (continueSentinel)
 		{
@@ -97,7 +101,7 @@ public class Analyzer extends Thread
 
 							semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
 							semanticRoutinesRepo.execFunction(currentGraphNode.getSemanticRoutine());
-							
+
 							analyzerToken.readNext();
 
 							analyzerStacks.getNTerminalStack().clear();

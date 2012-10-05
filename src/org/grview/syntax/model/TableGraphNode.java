@@ -1,5 +1,7 @@
 package org.grview.syntax.model;
 
+import java.io.Serializable;
+
 /*
  * Created on 11/08/2003
  *
@@ -14,9 +16,13 @@ package org.grview.syntax.model;
  * @author gohan
  * 
  */
-public class TableGraphNode
+public class TableGraphNode implements Serializable
 {
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private int alternativeIndex;
 	private String semanticRoutine;
 	private int nodeReference;

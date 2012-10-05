@@ -12,6 +12,8 @@ import java.io.StringReader;
 import java.util.Scanner;
 import java.util.Stack;
 
+import org.grview.syntax.model.TableGraphNode;
+
 public class Analyzer
 {
 
@@ -435,15 +437,25 @@ public class Analyzer
 			}
 		}
 		displayError("Error found at the symbol of line: " + line + ", column: " + column + ". ");
+		
+		Stack<TabGraphNode> nTerminalStack = new Stack<TabGraphNode>();
+		
 		while (IX != 0)
 		{
 			if (tabGraph[IX].isTerm())
 			{
 				displayError(tabT[tabGraph[IX].getSim()].getName() + "  ");
+				
 				IX = tabGraph[IX].getAlt();
+
+				if (IX == 0 && nTerminalStack.size() > 0)
+				{
+					IX = nTerminalStack.pop().getAlt();
+				}
 			}
 			else
 			{
+				nTerminalStack.push(tabGraph[IX]);
 				IX = tabNT[tabGraph[IX].getSim()].getPrim();
 			}
 		}

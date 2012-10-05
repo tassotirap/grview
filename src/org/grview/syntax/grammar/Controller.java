@@ -1,7 +1,9 @@
 package org.grview.syntax.grammar;
 
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 
 import javax.swing.DefaultListModel;
 
@@ -14,6 +16,8 @@ import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
 import org.grview.syntax.TableCreate;
 import org.grview.syntax.analyzer.gsll1.exportable.Exporter;
+import org.grview.syntax.model.TableGraphNode;
+import org.grview.syntax.model.TableNode;
 import org.grview.syntax.validation.GSLL1Rules;
 import org.grview.syntax.validation.GrammarRule;
 import org.grview.syntax.validation.InvalidGrammarException;
@@ -35,6 +39,9 @@ public class Controller
 
 	public static void generateAndParseCurrentGrammar(boolean export)
 	{
+		
+		
+		
 		YyFactory.createYylex(ProjectManager.getProject().getLexFile().getParent(), "generated_code", ProjectManager.getProject().getLexFile().getPath());
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
@@ -91,6 +98,58 @@ public class Controller
 				}
 			}
 			parsingEditor.setSyntacticLoader(syntacticLoader);
+			
+			toFileTerminalTab(syntacticLoader.tabT());
+			toFileTnTerminalTab(syntacticLoader.tabNt());
+			toFileTabGraphNodes(syntacticLoader.tabGraph());
 		}
+	}
+	
+	private static void toFileTerminalTab(TableNode termialTab[])
+	{
+		try
+		{
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\termialTab.dat");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(termialTab);
+			oos.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private static void toFileTnTerminalTab(TableNode nTerminalTab[])
+	{
+		try
+		{
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\nTerminalTab.dat");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(nTerminalTab);
+			oos.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
+	}
+
+	private static void toFileTabGraphNodes(TableGraphNode tabGraphNodes[])
+	{
+		try
+		{
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\tabGraphNodes.dat");
+			ObjectOutputStream oos = new ObjectOutputStream(fout);
+			oos.writeObject(tabGraphNodes);
+			oos.close();
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+		}
+
 	}
 }

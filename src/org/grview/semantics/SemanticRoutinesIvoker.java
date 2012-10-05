@@ -41,15 +41,15 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 	private boolean loaded = false;
 	private ParseStack parseStack;
 
-	private Project project;
 	private SemanticRoutinesRepo repository;
 	private Object scriptlet;
 
 	private TableNode[] tabT;
+	private File semFile;
 
-	public SemanticRoutinesIvoker(Project project) throws MalformedURLException
+	public SemanticRoutinesIvoker(File semFile) throws MalformedURLException
 	{
-		this.project = project;
+		this.semFile = semFile;
 		lastInstance = this;
 	}
 
@@ -72,7 +72,6 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 
 	public void configureAndLoad()
 	{
-		File semFile = project.getSemFile();
 		File modBeanInjection = new File(System.getProperty("java.io.tmpdir"), "beaninjection.xml");
 		File beanInjection = new File(SPRING_XML_MODEL);
 		try
@@ -117,7 +116,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 
 	public String getExtenalSemanticRoutinesClass()
 	{
-		return project.getProperty("semanticRoutineClass");
+		return DEFAULT_SR_CLASS;
 	}
 
 	public GroovyObject getGoo()

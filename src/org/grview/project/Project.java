@@ -38,7 +38,6 @@ public class Project implements Serializable
 
 	public final static String DEFAULT_NAME = "Untitled";
 
-	public final static String DEFAULT_SEMANTIC_ROUTINE_CLASS = "org.grview.semantics.SemanticRoutines";
 	/**
 	 * Current GrammarFile
 	 */
@@ -113,7 +112,6 @@ public class Project implements Serializable
 		properties.put("name", name);
 		properties.put("description", description);
 		properties.put("baseDir", baseDir);
-		properties.put("semanticRoutineClass", DEFAULT_SEMANTIC_ROUTINE_CLASS);
 		GrammarFile gramFile = new GrammarFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.GRAM_EXTENSION);
 		SemanticFile semFile = new SemanticFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.SEM_EXTENSION);
 		LexicalFile lexFile = new LexicalFile(baseDir.getAbsoluteFile() + "/" + name + FileNames.LEX_EXTENSION);
@@ -225,7 +223,7 @@ public class Project implements Serializable
 	{
 		try
 		{
-			new SemanticRoutinesIvoker(this);
+			new SemanticRoutinesIvoker(this.getSemFile());
 		}
 		catch (MalformedURLException e)
 		{

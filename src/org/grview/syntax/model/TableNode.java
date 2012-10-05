@@ -1,7 +1,14 @@
 package org.grview.syntax.model;
 
-public class TableNode
+import java.io.Serializable;
+
+public class TableNode implements Serializable
 {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	private String flag;
 	
 	private String name;

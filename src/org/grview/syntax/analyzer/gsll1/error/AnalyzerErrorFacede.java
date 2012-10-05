@@ -287,7 +287,6 @@ public class AnalyzerErrorFacede
 			}
 			else
 			{
-				/* push non terminal in stack */
 				nTerminalStack.push(analyzerTable.getGraphNode(indexNode));
 				indexNode = analyzerTable.getNTerminal(analyzerTable.getGraphNode(indexNode).getNodeReference()).getFirstNode();
 			}
