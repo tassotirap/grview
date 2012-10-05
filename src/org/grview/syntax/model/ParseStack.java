@@ -53,4 +53,13 @@ public class ParseStack
 		return parseNode.iterator();
 	}
 	
+	public ParseNode elementAt(int index)
+	{
+		return parseNode.elementAt(index);
+	}
+	
+	public int topIndex()
+	{
+		return parseNode.size() - 1;
+	}
 }

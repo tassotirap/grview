@@ -17,6 +17,7 @@ import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.output.SemanticRoutinesOutput;
 import org.grview.project.Project;
+import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
 import org.grview.syntax.model.ParseStack;
 import org.grview.syntax.model.TableNode;
 import org.grview.util.Log;
@@ -40,6 +41,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 	private GroovyObject goo;
 	private boolean loaded = false;
 	private ParseStack parseStack;
+	private AnalyzerGlobalVariavel globalVariable;
 
 	private SemanticRoutinesRepo repository;
 	private Object scriptlet;
@@ -58,13 +60,14 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return lastInstance;
 	}
 
-	public static SemanticRoutinesIvoker getLastInstance(ParseStack parseStack, TableNode[] tabT, SemanticRoutinesRepo repository)
+	public static SemanticRoutinesIvoker getLastInstance(ParseStack parseStack, TableNode[] tabT, SemanticRoutinesRepo repository, AnalyzerGlobalVariavel globalVariable)
 	{
 
 		SemanticRoutinesIvoker instance = lastInstance;
 		instance.parseStack = parseStack;
 		instance.tabT = tabT;
 		instance.repository = repository;
+		instance.globalVariable = globalVariable;
 		if (!instance.loaded)
 			instance.configureAndLoad();
 		return instance;
@@ -212,8 +215,8 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 
 	public void ivokeMethodFromFile(String function)
 	{
-		goo.setProperty("tabT", tabT);
 		goo.setProperty("parseStack", parseStack);
+		goo.setProperty("globalVariavel", globalVariable);
 		goo.setProperty("currentToken", currentToken);
 		goo.setProperty("output", SemanticRoutinesOutput.getInstance());
 
