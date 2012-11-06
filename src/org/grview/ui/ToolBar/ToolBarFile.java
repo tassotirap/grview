@@ -8,12 +8,12 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.ui.wizard.NewFileWizard;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarFile<E> extends BaseToolBar<ProjectManager>
+public class ToolBarFile<E> extends BaseToolBar<ProjectMediator>
 {
 	private static final long serialVersionUID = 1L;
 

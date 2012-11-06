@@ -12,8 +12,6 @@ import java.io.StringReader;
 import java.util.Scanner;
 import java.util.Stack;
 
-import org.grview.syntax.model.TableGraphNode;
-
 public class Analyzer
 {
 

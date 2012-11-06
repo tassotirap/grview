@@ -7,7 +7,7 @@ import java.beans.PropertyChangeSupport;
 import javax.swing.WindowConstants;
 
 import org.grview.canvas.widget.MarkedWidget;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.semantics.SemFileManager;
 import org.grview.util.Log;
 
@@ -32,7 +32,7 @@ public class RoutineWizard
 		this.widget = widget;
 		this.widgetName = widgetName;
 		this.routineName = routineName;
-		semFileManager = new SemFileManager(ProjectManager.getProject().getSemFile(), monitor);
+		semFileManager = new SemFileManager(ProjectMediator.getProject().getSemanticFile(), monitor);
 		if (widgetName != null && widget != null)
 		{
 			initWindow();

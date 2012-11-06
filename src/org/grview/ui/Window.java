@@ -20,7 +20,7 @@ import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.model.ui.IconView;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdapterComponent;
@@ -259,7 +259,7 @@ public abstract class Window
 		return toolBars.get(ref);
 	}
 
-	protected abstract BaseToolBar<ProjectManager> getNewFileToolBar();
+	protected abstract BaseToolBar<ProjectMediator> getNewFileToolBar();
 
 	/**
 	 * Initializes the frame and shows it.

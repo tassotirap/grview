@@ -13,7 +13,7 @@ import javax.swing.KeyStroke;
 
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.ui.ThemeManager.Theme;
 import org.grview.ui.wizard.NewFileWizard;
 import org.grview.util.LangHelper;
@@ -56,7 +56,7 @@ public class Menu<E> extends JMenuBar
 	int contextDesc;
 	ArrayList<String> menus;
 	MenuModel model;
-	ProjectManager projectManager;
+	ProjectMediator projectManager;
 
 	Window window;
 
@@ -173,7 +173,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ProjectManager.saveAllFiles();
+				ProjectMediator.saveAllFiles();
 			}
 		});
 
@@ -187,7 +187,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ProjectManager.saveFile(context);
+				ProjectMediator.saveFile(context);
 			}
 		});
 
@@ -199,7 +199,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ProjectManager.print(context);
+				ProjectMediator.print(context);
 			}
 		});
 
@@ -228,7 +228,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				ProjectManager.exit();
+				ProjectMediator.exit();
 			}
 		});
 
@@ -294,7 +294,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.BlueHighlightDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.BlueHighlightDockingTheme);
 			}
 		});
 		theme.add(themeBlueHighlight);
@@ -306,7 +306,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.ClassicDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.ClassicDockingTheme);
 			}
 		});
 		theme.add(themeClassic);
@@ -318,7 +318,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.DefaultDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.DefaultDockingTheme);
 			}
 		});
 		theme.add(themeDefault);
@@ -330,7 +330,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.GradientDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.GradientDockingTheme);
 			}
 		});
 		theme.add(themeGradient);
@@ -342,7 +342,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.LookAndFeelDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.LookAndFeelDockingTheme);
 			}
 		});
 		theme.add(themeLookAndFeel);
@@ -354,7 +354,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.ShapedGradientDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.ShapedGradientDockingTheme);
 			}
 		});
 		theme.add(themeShapedGradient);
@@ -366,7 +366,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.SlimFlatDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.SlimFlatDockingTheme);
 			}
 		});
 		theme.add(themeSlimFlatt);
@@ -378,7 +378,7 @@ public class Menu<E> extends JMenuBar
 			@Override
 			public void actionPerformed(ActionEvent arg0)
 			{
-				ProjectManager.getMainWindow().changeTheme(Theme.SoftBlueIceDockingTheme);
+				ProjectMediator.getMainWindow().changeTheme(Theme.SoftBlueIceDockingTheme);
 			}
 		});
 		theme.add(themeSoftBlueIce);

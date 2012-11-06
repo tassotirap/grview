@@ -3,11 +3,9 @@ package org.grview.parser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.ObjectOutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 
@@ -27,11 +25,8 @@ import org.grview.lexical.YyFactory;
 import org.grview.lexical.Yylex;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.output.Output;
-import org.grview.project.ProjectManager;
 import org.grview.syntax.SyntacticLoader;
 import org.grview.syntax.analyzer.gsll1.Analyzer;
-import org.grview.syntax.model.TableGraphNode;
-import org.grview.syntax.model.TableNode;
 import org.grview.util.Log;
 
 public class ParsingEditor implements BufferListener, CaretListener

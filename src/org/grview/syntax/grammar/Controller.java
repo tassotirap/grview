@@ -10,7 +10,7 @@ import javax.swing.DefaultListModel;
 import org.grview.lexical.YyFactory;
 import org.grview.output.AppOutput;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.project.tree.FileTree;
 import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
@@ -42,7 +42,7 @@ public class Controller
 		
 		
 		
-		YyFactory.createYylex(ProjectManager.getProject().getLexFile().getParent(), "generated_code", ProjectManager.getProject().getLexFile().getPath());
+		YyFactory.createYylex(ProjectMediator.getProject().getLexicalFile().getParent(), "generated_code", ProjectMediator.getProject().getLexicalFile().getPath());
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
 		GrammarFactory grammarFactory = new GrammarFactory();
@@ -109,7 +109,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\termialTab.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\termialTab.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(termialTab);
 			oos.close();
@@ -125,7 +125,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\nTerminalTab.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\nTerminalTab.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(nTerminalTab);
 			oos.close();
@@ -141,7 +141,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectManager.getProject().getProjectDir().getAbsolutePath() + "\\tabGraphNodes.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\tabGraphNodes.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(tabGraphNodes);
 			oos.close();

@@ -7,7 +7,7 @@ import net.infonode.docking.DockingWindowAdapter;
 import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
@@ -113,14 +113,14 @@ public class WindowAdapter extends DockingWindowAdapter
 		if (dWindow instanceof DynamicView)
 		{
 			DynamicView dynamicView = (DynamicView) dWindow;
-			if (ProjectManager.hasUnsavedView(dynamicView))
+			if (ProjectMediator.hasUnsavedView(dynamicView))
 			{
 				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
 				if (option == JOptionPane.YES_OPTION)
 				{
-					ProjectManager.saveFile(dynamicView.getComponentModel());
+					ProjectMediator.saveFile(dynamicView.getComponentModel());
 				}
 			}
 		}

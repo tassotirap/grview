@@ -8,7 +8,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 import org.grview.model.FileNames;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.util.LangHelper;
 import org.grview.util.Log;
 
@@ -46,7 +46,7 @@ public class NewFileWizard
 				FileEntry entry = (FileEntry) newFileWizardWindow.getJList().getSelectedValue();
 				try
 				{
-					ProjectManager.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
+					ProjectMediator.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
 					newFileWizardWindow.setVisible(false);
 				}
 				catch (IOException ex)

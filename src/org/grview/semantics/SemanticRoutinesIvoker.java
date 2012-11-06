@@ -16,7 +16,6 @@ import org.grview.lexical.Yytoken;
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.output.SemanticRoutinesOutput;
-import org.grview.project.Project;
 import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
 import org.grview.syntax.model.ParseStack;
 import org.grview.syntax.model.TableNode;

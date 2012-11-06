@@ -22,8 +22,8 @@ import org.grview.canvas.action.WidgetCopyPasteProvider;
 import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.canvas.widget.MarkedWidget;
-import org.grview.project.Project;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
+import org.grview.project.interfaces.IProject;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.CommandFactory;
 import org.grview.syntax.grammar.Controller;
@@ -382,16 +382,16 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			public void actionPerformed(ActionEvent e)
 			{
 				String semFile = null;
-				if (ProjectManager.getProject().getSemFile() != null)
+				if (ProjectMediator.getProject().getSemanticFile() != null)
 				{
-					semFile = ProjectManager.getProject().getSemFile().getAbsolutePath();
+					semFile = ProjectMediator.getProject().getSemanticFile().getAbsolutePath();
 				}
-				if (semFile != null && ProjectManager.hasUnsavedView(semFile))
+				if (semFile != null && ProjectMediator.hasUnsavedView(semFile))
 				{
 					int option = JOptionPane.showConfirmDialog(popup, "A new semantic routine can not be created while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (option == JOptionPane.YES_OPTION)
 					{
-						ProjectManager.saveFile(semFile);
+						ProjectMediator.saveFile(semFile);
 					}
 					else
 					{
@@ -421,22 +421,22 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				Project project = ProjectManager.getProject();
+				IProject project = ProjectMediator.getProject();
 				if (project != null)
 				{
 					String semFile = null;
-					if (project.getSemFile() != null)
+					if (project.getSemanticFile() != null)
 					{
-						semFile = project.getSemFile().getAbsolutePath();
+						semFile = project.getSemanticFile().getAbsolutePath();
 					}
 					if (semFile != null)
 					{
-						if (ProjectManager.hasUnsavedView(semFile))
+						if (ProjectMediator.hasUnsavedView(semFile))
 						{
 							int option = JOptionPane.showConfirmDialog(popup, "A semantic routine can not be edited while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 							if (option == JOptionPane.YES_OPTION)
 							{
-								ProjectManager.saveFile(semFile);
+								ProjectMediator.saveFile(semFile);
 							}
 							else
 							{

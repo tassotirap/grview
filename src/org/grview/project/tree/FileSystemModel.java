@@ -10,7 +10,7 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 
 public class FileSystemModel implements TreeModel
 {
@@ -127,9 +127,9 @@ public class FileSystemModel implements TreeModel
 		File oldFile = (File) path.getLastPathComponent();
 		String fileParentPath = oldFile.getParent();
 
-		if (ProjectManager.isFileOpen(oldFile.getAbsolutePath()))
+		if (ProjectMediator.isFileOpen(oldFile.getAbsolutePath()))
 		{
-			JOptionPane.showMessageDialog(ProjectManager.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(ProjectMediator.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		String newFileName = (String) value;
@@ -141,7 +141,7 @@ public class FileSystemModel implements TreeModel
 		fireTreeNodesChanged(path.getParentPath(), changedChildrenIndices, changedChildren);
 		fireTreeStructureChanged(this, path.getParentPath());
 
-		ProjectManager.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
+		ProjectMediator.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
 	}
 
 }

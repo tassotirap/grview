@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -32,7 +33,7 @@ import net.infonode.util.Direction;
 import org.grview.canvas.CanvasFactory;
 import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
-import org.grview.project.ProjectManager;
+import org.grview.project.ProjectMediator;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.ThemeManager.Theme;
 import org.grview.ui.component.AbstractComponent;
@@ -56,6 +57,7 @@ import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
 import org.grview.ui.toolbar.BaseToolBar;
 import org.grview.ui.toolbar.ToolBarFile;
+
 
 public class MainWindow extends Window implements ComponentListener
 {
@@ -87,7 +89,7 @@ public class MainWindow extends Window implements ComponentListener
 	 * **/
 	private MainWindow(String projectsRootPath)
 	{
-		ProjectManager.init(this, projectsRootPath);
+		ProjectMediator.init(this, projectsRootPath);
 		createRootWindow();
 		createDefaultViews();
 		setDefaultLayout();
@@ -122,7 +124,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private void createDefaultViews()
 	{
-		activeScene = CanvasFactory.createCanvas(ProjectManager.getProject().getGrammarFile());
+		activeScene = CanvasFactory.createCanvas(ProjectMediator.getProject().getGrammarFile());
 		try
 		{
 			ArrayList<TabItem> tabItems = createTabs();
@@ -224,22 +226,22 @@ public class MainWindow extends Window implements ComponentListener
 	private ArrayList<TabItem> createTabs() throws BadParameterException
 	{
 		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-		tabItems.add(new TabItem("Project", new ProjectsComponent().create(ProjectManager.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(ProjectMediator.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
 		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
 		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
 		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
 		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
 		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-		tabItems.add(new TabItem("Parser", new ParserComponent().create(ProjectManager.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(ProjectMediator.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 		return tabItems;
 	}
 
 	private void openFiles() throws BadParameterException
 	{
-		ArrayList<File> filesToOpen = ProjectManager.getProject().getOpenedFiles();
+		List<File> filesToOpen = ProjectMediator.getProject().getOpenedFiles();
 		if (filesToOpen.size() == 0)
 		{
-			ProjectManager.getProject().getOpenedFiles().add(ProjectManager.getProject().getGrammarFile());
+			ProjectMediator.getProject().getOpenedFiles().add(ProjectMediator.getProject().getGrammarFile());
 		}
 		for (int i = 0; i < filesToOpen.size(); i++)
 		{
@@ -284,9 +286,9 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	protected BaseToolBar<ProjectManager> getNewFileToolBar()
+	protected BaseToolBar<ProjectMediator> getNewFileToolBar()
 	{
-		ToolBarFile<ProjectManager> toolBarNewFile = new ToolBarFile<ProjectManager>();
+		ToolBarFile<ProjectMediator> toolBarNewFile = new ToolBarFile<ProjectMediator>();
 		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
 		return toolBarNewFile;
 	}
@@ -334,7 +336,7 @@ public class MainWindow extends Window implements ComponentListener
 			DynamicView view = dynamicViewsByComponent.get(source);
 			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
 				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
-			ProjectManager.setUnsavedView(((FileComponent) source).getPath(), view);
+			ProjectMediator.setUnsavedView(((FileComponent) source).getPath(), view);
 		}
 
 	}
@@ -354,7 +356,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void removeFileFromProject(String fileName)
 	{
-		ProjectManager.closeFile(fileName);
+		ProjectMediator.closeFile(fileName);
 	}
 
 	public void setSaved(String path)
@@ -363,7 +365,7 @@ public class MainWindow extends Window implements ComponentListener
 		{
 			DynamicView dynamicView = dynamicViewsByPath.get(path);
 
-			if (ProjectManager.hasUnsavedView(dynamicView))
+			if (ProjectMediator.hasUnsavedView(dynamicView))
 			{
 				if (dynamicView.getTitle().startsWith(UNSAVED_PREFIX))
 				{
@@ -371,9 +373,9 @@ public class MainWindow extends Window implements ComponentListener
 				}
 			}
 
-			while (ProjectManager.hasUnsavedView(dynamicView))
+			while (ProjectMediator.hasUnsavedView(dynamicView))
 			{
-				ProjectManager.removeUnsavedView(path);
+				ProjectMediator.removeUnsavedView(path);
 			}
 		}
 	}
