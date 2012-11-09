@@ -7,7 +7,7 @@ import java.util.List;
 import org.grview.canvas.Canvas;
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.syntax.command.AsinEditor;
 import org.grview.syntax.grammar.model.AbstractNode;
 import org.grview.syntax.grammar.model.LambdaAlternative;
@@ -126,7 +126,7 @@ public class GrammarFactory
 
 		StringBuffer returnString = new StringBuffer();
 
-		Canvas canvas = ProjectMediator.getMainWindow().getActiveScene();
+		Canvas canvas = ProjectManager.getInstance().getMainWindow().getActiveScene();
 		
 		List<SyntaxElement> children = AsinEditor.getInstance().getLogicDiagram(canvas).getChildrenNodes();
 		List<AbstractNode> startNodes = clearAndSetStartNodes(children);

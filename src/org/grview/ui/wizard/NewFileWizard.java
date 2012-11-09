@@ -8,7 +8,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 import org.grview.model.FileNames;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.util.LangHelper;
 import org.grview.util.Log;
 
@@ -24,18 +24,26 @@ public class NewFileWizard
 	private final static String newSem = img_path + "new-file-sem.png";
 	private final static String newTxt = img_path + "new-file-txt.png";
 
+	private final ProjectManager projectMediator;
+
 	private FileEntry[] entrys = new FileEntry[]{ new FileEntry(LangHelper.new_gram, newGram, new FileNames(FileNames.GRAM_EXTENSION)), new FileEntry(LangHelper.new_sem, newSem, new FileNames(FileNames.SEM_EXTENSION)), new FileEntry(LangHelper.new_lex, newLex, new FileNames(FileNames.LEX_EXTENSION)), new FileEntry(LangHelper.new_txt, newTxt, new FileNames(FileNames.TXT_EXTENSION)), new FileEntry(LangHelper.new_in, newIn, new FileNames(FileNames.IN_EXTENSION)), new FileEntry(LangHelper.new_out, newOut, new FileNames(FileNames.OUT_EXTENSION)) };
 
 	public HashMap<String, String> descByName = new HashMap<String, String>();
 
-	public NewFileWizard()
+	public NewFileWizard(ProjectManager projectMediator)
 	{
+		this.projectMediator = projectMediator;
 		descByName.put(LangHelper.new_gram, LangHelper.new_gram_desc);
 		descByName.put(LangHelper.new_sem, LangHelper.new_sem_desc);
 		descByName.put(LangHelper.new_lex, LangHelper.new_lex_desc);
 		descByName.put(LangHelper.new_txt, LangHelper.new_txt_desc);
 		descByName.put(LangHelper.new_in, LangHelper.new_in_desc);
 		descByName.put(LangHelper.new_out, LangHelper.new_out_desc);
+		CreateNewFileWizardWindow();
+	}
+
+	private void CreateNewFileWizardWindow()
+	{
 		final NewFileWizardWindow newFileWizardWindow = new NewFileWizardWindow(entrys, descByName);
 		newFileWizardWindow.getOkButton().addActionListener(new ActionListener()
 		{
@@ -46,7 +54,7 @@ public class NewFileWizard
 				FileEntry entry = (FileEntry) newFileWizardWindow.getJList().getSelectedValue();
 				try
 				{
-					ProjectMediator.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
+					projectMediator.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
 					newFileWizardWindow.setVisible(false);
 				}
 				catch (IOException ex)

@@ -8,21 +8,23 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.ui.wizard.NewFileWizard;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarFile<E> extends BaseToolBar<ProjectMediator>
+public class ToolBarFile<E> extends BaseToolBar<ProjectManager>
 {
 	private static final long serialVersionUID = 1L;
+	private ProjectManager projectMediator;
 
 	JButton btnNewFile;
 
-	public ToolBarFile()
+	public ToolBarFile(ProjectManager projectMediator)
 	{
 		super(null);
 		this.add(btnNewFile);
+		this.projectMediator = projectMediator;
 	}
 
 	@Override
@@ -34,7 +36,7 @@ public class ToolBarFile<E> extends BaseToolBar<ProjectMediator>
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				new NewFileWizard();
+				new NewFileWizard(projectMediator);
 			}
 		});
 	}

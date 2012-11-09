@@ -8,6 +8,7 @@ import org.grview.canvas.CanvasData;
 import org.grview.canvas.CanvasPopupMenu;
 import org.grview.canvas.strategy.MoveStrategy;
 import org.grview.canvas.widget.GridWidget;
+import org.grview.project.ProjectManager;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.modules.visual.action.SingleLayerAlignWithWidgetCollector;
 
@@ -19,10 +20,14 @@ public class WidgetActionRepositoryFactory
 
 		HashMap<String, WidgetAction> actions = new HashMap<String, WidgetAction>();
 
+		ProjectManager projectMediator;
+
 		private String activeMoveAction = null;
 
 		public WAR()
 		{
+			this.projectMediator = ProjectManager.getInstance();
+
 			actions.put(CREATE, null);
 			actions.put(SELECT, null);
 			actions.put(MULTI_SELECT, null);
@@ -118,7 +123,7 @@ public class WidgetActionRepositoryFactory
 			{
 				if (actions.get(MOVE_LINES) == null)
 				{
-					actions.put(MOVE_LINES, ActionFactory.createMoveAction(ActionFactory.createSnapToLineMoveStrategy(canvas), new MultiMoveProvider(canvas)));																																				// true));
+					actions.put(MOVE_LINES, ActionFactory.createMoveAction(ActionFactory.createSnapToLineMoveStrategy(canvas), new MultiMoveProvider(canvas))); // true));
 				}
 				return actions.get(MOVE_LINES);
 			}
@@ -190,7 +195,7 @@ public class WidgetActionRepositoryFactory
 			{
 				if (actions.get(POPUP_MENU_MAIN) == null)
 				{
-					actions.put(POPUP_MENU_MAIN, ActionFactory.createPopupMenuAction(new CanvasPopupMenu(canvas)));
+					actions.put(POPUP_MENU_MAIN, ActionFactory.createPopupMenuAction(new CanvasPopupMenu(canvas, projectMediator)));
 				}
 				return actions.get(POPUP_MENU_MAIN);
 			}
@@ -295,7 +300,7 @@ public class WidgetActionRepositoryFactory
 		}
 	}
 
-	private static WidgetActionRepository war = new WAR();
+	private static WidgetActionRepository war;;
 
 	public static WidgetActionRepository createRepository()
 	{

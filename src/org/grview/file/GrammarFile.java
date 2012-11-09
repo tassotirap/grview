@@ -5,7 +5,7 @@ import java.io.IOException;
 
 import org.grview.canvas.Canvas;
 import org.grview.project.Project;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.GrammarFactory;
 import org.grview.util.IOUtilities;
@@ -30,7 +30,7 @@ public class GrammarFile extends File
 	public String saveGrammarFile(Canvas canvas)
 	{
 		GrammarComponent gramComponent = GrammarFactory.getCompByCanvas();
-		if (ProjectMediator.hasUnsavedView(gramComponent.getPath()))
+		if (ProjectManager.getInstance().hasUnsavedView(gramComponent.getPath()))
 		{
 			gramComponent.saveFile();
 

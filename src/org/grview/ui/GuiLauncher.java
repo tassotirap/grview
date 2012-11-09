@@ -28,15 +28,15 @@ public class GuiLauncher
 		guiLauncher.startWorkspaceChooser();
 	}
 
-	private String[] createNewArgs(String firstArgs)
+	private String[] setUpArgs(String firstArgs)
 	{
-		String[] nargs = new String[args.length + 1];
-		nargs[0] = firstArgs;
+		String[] arguments = new String[args.length + 1];
+		arguments[0] = firstArgs;
 		for (int i = 0; i < args.length; i++)
 		{
-			nargs[i + 1] = args[i];
+			arguments[i + 1] = args[i];
 		}
-		return nargs;
+		return arguments;
 	}
 
 	/**
@@ -45,7 +45,6 @@ public class GuiLauncher
 	private void startWorkspaceChooser()
 	{
 		WorkspaceChooser workspaceChooser = WorkspaceChooser.getInstance();
-
 		SplashWindow.invokeMain(WORKSPACE_CHOOSER, args);
 		while (!workspaceChooser.isCanceled() && !workspaceChooser.isDone())
 		{
@@ -61,7 +60,7 @@ public class GuiLauncher
 		if (workspaceChooser.isDone())
 		{
 			SplashWindow.splash(GuiLauncher.class.getResource(SPLASH_SCREEN_PNG));
-			String[] nargs = createNewArgs(workspaceChooser.getWorkspaceDir());
+			String[] nargs = setUpArgs(workspaceChooser.getWorkspaceDir());
 			SplashWindow.invokeMain(MAIN_WINDOW, nargs);
 			SplashWindow.disposeSplash();
 		}

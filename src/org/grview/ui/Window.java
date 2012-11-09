@@ -20,7 +20,7 @@ import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.model.ui.IconView;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdapterComponent;
@@ -90,11 +90,12 @@ public abstract class Window
 	 */
 	protected JFrame frame;
 	protected WindowAdapter windowAdapter;
+	
+	protected ProjectManager projectMediator;
 
 	public Window()
 	{
 		this(DEFAULT_TITLE);
-		windowAdapter = new WindowAdapter(this);
 	}
 
 	public Window(String title)
@@ -103,6 +104,8 @@ public abstract class Window
 		frame.setName(DEFAULT_NAME);
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 	}
+	
+	
 
 	/**
 	 * Create Drawable Canvas Toolbar
@@ -259,7 +262,7 @@ public abstract class Window
 		return toolBars.get(ref);
 	}
 
-	protected abstract BaseToolBar<ProjectMediator> getNewFileToolBar();
+	protected abstract BaseToolBar<ProjectManager> getNewFileToolBar();
 
 	/**
 	 * Initializes the frame and shows it.
@@ -302,7 +305,7 @@ public abstract class Window
 	@SuppressWarnings("rawtypes")
 	public <E extends ActionContextHolder> JMenuBar createMenuBarExt(E context, MenuModel model)
 	{
-		Menu<E> menu = new Menu<E>(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model);
+		Menu<E> menu = new Menu<E>(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model, projectMediator);
 		menu.build();
 		return menu;
 	}
@@ -382,7 +385,6 @@ public abstract class Window
 
 	public void updateFocusedComponent(AbstractComponent comp)
 	{
-		// TODO should identify the parser in a more elegant way
 		if (comp == null)
 		{
 			View view = getRootWindow().getFocusedView();

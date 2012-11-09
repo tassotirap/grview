@@ -21,7 +21,7 @@ import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.editor.StandaloneTextArea;
 import org.grview.editor.buffer.JEditBuffer;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
@@ -74,7 +74,7 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ProjectMediator.saveFile(context);
+				ProjectManager.getInstance().saveFile(context);
 			}
 
 		});
@@ -83,7 +83,7 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ProjectMediator.saveAllFiles();
+				ProjectManager.getInstance().saveAllFiles();
 			}
 
 		});
@@ -92,7 +92,7 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				ProjectMediator.print(context);
+				ProjectManager.getInstance().print(context);
 			}
 		});
 	}

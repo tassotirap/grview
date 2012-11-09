@@ -10,7 +10,7 @@ import javax.swing.DefaultListModel;
 import org.grview.lexical.YyFactory;
 import org.grview.output.AppOutput;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.project.tree.FileTree;
 import org.grview.semantics.SemanticRoutinesIvoker;
 import org.grview.syntax.SyntacticLoader;
@@ -25,7 +25,6 @@ import org.grview.ui.debug.ErrorDialog;
 
 public class Controller
 {
-
 	private static void errorFound(Exception ex)
 	{
 		ErrorDialog ed = new ErrorDialog(null);
@@ -39,10 +38,7 @@ public class Controller
 
 	public static void generateAndParseCurrentGrammar(boolean export)
 	{
-		
-		
-		
-		YyFactory.createYylex(ProjectMediator.getProject().getLexicalFile().getParent(), "generated_code", ProjectMediator.getProject().getLexicalFile().getPath());
+		YyFactory.createYylex(ProjectManager.getInstance().getProject().getLexicalFile().getParent(), "generated_code", ProjectManager.getInstance().getProject().getLexicalFile().getPath());
 		AppOutput.clearOutputBuffer();
 		AppOutput.clearStacks();
 		GrammarFactory grammarFactory = new GrammarFactory();
@@ -109,7 +105,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\termialTab.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getInstance().getProject().getProjectDir().getAbsolutePath() + "\\termialTab.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(termialTab);
 			oos.close();
@@ -125,7 +121,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\nTerminalTab.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getInstance().getProject().getProjectDir().getAbsolutePath() + "\\nTerminalTab.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(nTerminalTab);
 			oos.close();
@@ -141,7 +137,7 @@ public class Controller
 	{
 		try
 		{
-			FileOutputStream fout = new FileOutputStream(ProjectMediator.getProject().getProjectDir().getAbsolutePath() + "\\tabGraphNodes.dat");
+			FileOutputStream fout = new FileOutputStream(ProjectManager.getInstance().getProject().getProjectDir().getAbsolutePath() + "\\tabGraphNodes.dat");
 			ObjectOutputStream oos = new ObjectOutputStream(fout);
 			oos.writeObject(tabGraphNodes);
 			oos.close();

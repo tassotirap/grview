@@ -16,8 +16,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 
-import org.grview.project.ProjectMediator;
-import org.grview.project.interfaces.IProject;
+import org.grview.project.ProjectHelper;
 import org.grview.util.Log;
 import org.jdesktop.layout.GroupLayout;
 import org.jdesktop.layout.LayoutStyle;
@@ -43,6 +42,7 @@ public class WorkspaceChooser extends JFrame
 	private JLabel imgWorkspace;
 	private JLabel lblWorkspace;
 	private String workspaceDir;
+	
 
 	private WorkspaceChooser()
 	{
@@ -288,14 +288,13 @@ public class WorkspaceChooser extends JFrame
 
 	private boolean verifyOrCreateProject(File file) throws Exception
 	{
-		if (!ProjectMediator.isProject(file))
+		if (!ProjectHelper.isProject(file))
 		{
 			if (file.listFiles().length > 0)
 			{
 				throw new Exception("Must be a new, empty, or existing project directory!");
 			}
-			IProject project = ProjectMediator.createNewProject(file, null, null);
-			ProjectMediator.saveProject(project);
+			ProjectHelper.createNewProject(file);
 			return true;
 		}
 		return false;

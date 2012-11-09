@@ -11,7 +11,7 @@ import net.infonode.docking.theme.ShapedGradientDockingTheme;
 import net.infonode.docking.theme.SlimFlatDockingTheme;
 import net.infonode.docking.theme.SoftBlueIceDockingTheme;
 
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 
 public class ThemeManager
 {
@@ -91,12 +91,12 @@ public class ThemeManager
 		DockingWindowsTheme oldTheme = getCurrentTheme();
 		DockingWindowsTheme newTheme = getTheme(theme);
 		rootWindowProperties.replaceSuperObject(oldTheme.getRootWindowProperties(), newTheme.getRootWindowProperties());
-		ProjectMediator.getProject().setTheme(theme);
+		ProjectManager.getInstance().getProject().setTheme(theme);
 	}
 
 	public static DockingWindowsTheme getCurrentTheme()
 	{
-		return getTheme(ProjectMediator.getProject().getTheme());
+		return getTheme(ProjectManager.getInstance().getProject().getTheme());
 	}
 
 	public static DockingWindowsTheme getTheme(Theme theme)

@@ -17,7 +17,7 @@ import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
 import org.grview.model.ui.IconRepository;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 
 /**
  * Display a file system in a JTree view
@@ -125,11 +125,11 @@ public class FileTree implements TreeModelListener
 		CustomTreeCellRenderer renderer = new CustomTreeCellRenderer();
 		tree.setCellRenderer(renderer);
 		tree.setEditable(true);
-		tree.setModel(getFileSystemModel(ProjectMediator.getProject().getProjectDir().getAbsolutePath()));
+		tree.setModel(getFileSystemModel(ProjectManager.getInstance().getProject().getProjectDir().getAbsolutePath()));
 		tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		tree.addTreeSelectionListener(new FileTreeSelectionListener());
 		tree.addMouseListener(new FileTreeMouseListener());
-		getFileSystemModel(ProjectMediator.getProject().getProjectDir().getAbsolutePath()).addTreeModelListener(this);
+		getFileSystemModel(ProjectManager.getInstance().getProject().getProjectDir().getAbsolutePath()).addTreeModelListener(this);
 	}
 
 	private static FileSystemModel getFileSystemModel(String rootPath)
@@ -193,7 +193,7 @@ public class FileTree implements TreeModelListener
 		if (node.isFile())
 		{
 			String path = node.getAbsolutePath();
-			ProjectMediator.openFile(path);
+			ProjectManager.getInstance().openFile(path);
 		}
 	}
 

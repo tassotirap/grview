@@ -22,7 +22,7 @@ import org.grview.canvas.action.WidgetCopyPasteProvider;
 import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.canvas.widget.MarkedWidget;
-import org.grview.project.ProjectMediator;
+import org.grview.project.ProjectManager;
 import org.grview.project.interfaces.IProject;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.CommandFactory;
@@ -40,16 +40,19 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 	private GridProvider gridProvider;
 	private LineProvider lineProvider;
 	private PropertyChangeSupport monitor;
+	
+	ProjectManager projectMediator;
 
 	private Widget widget;
 
-	public CanvasPopupMenu(Canvas canvas)
+	public CanvasPopupMenu(Canvas canvas, ProjectManager projectMediator)
 	{
 		this.canvas = canvas;
 		gridProvider = GridProvider.getInstance(canvas);
 		lineProvider = LineProvider.getInstance(canvas);
 		monitor = new PropertyChangeSupport(this);
 		monitor.addPropertyChangeListener(CanvasFactory.getVolatileStateManager());
+		this.projectMediator = projectMediator;
 	}
 
 	private JMenuItem createBuildAndExport()
@@ -382,16 +385,16 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			public void actionPerformed(ActionEvent e)
 			{
 				String semFile = null;
-				if (ProjectMediator.getProject().getSemanticFile() != null)
+				if (projectMediator.getProject().getSemanticFile() != null)
 				{
-					semFile = ProjectMediator.getProject().getSemanticFile().getAbsolutePath();
+					semFile = projectMediator.getProject().getSemanticFile().getAbsolutePath();
 				}
-				if (semFile != null && ProjectMediator.hasUnsavedView(semFile))
+				if (semFile != null && projectMediator.hasUnsavedView(semFile))
 				{
 					int option = JOptionPane.showConfirmDialog(popup, "A new semantic routine can not be created while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 					if (option == JOptionPane.YES_OPTION)
 					{
-						ProjectMediator.saveFile(semFile);
+						projectMediator.saveFile(semFile);
 					}
 					else
 					{
@@ -421,7 +424,7 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				IProject project = ProjectMediator.getProject();
+				IProject project = projectMediator.getProject();
 				if (project != null)
 				{
 					String semFile = null;
@@ -431,12 +434,12 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 					}
 					if (semFile != null)
 					{
-						if (ProjectMediator.hasUnsavedView(semFile))
+						if (projectMediator.hasUnsavedView(semFile))
 						{
 							int option = JOptionPane.showConfirmDialog(popup, "A semantic routine can not be edited while the semantic routines file remains unsaved.\nWould you like to save it now?", "Can not create a new routine", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 							if (option == JOptionPane.YES_OPTION)
 							{
-								ProjectMediator.saveFile(semFile);
+								projectMediator.saveFile(semFile);
 							}
 							else
 							{
