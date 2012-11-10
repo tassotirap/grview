@@ -9,7 +9,8 @@ import javax.swing.JOptionPane;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.model.FileNames;
-import org.grview.model.ui.IconRepository;
+import org.grview.model.ui.IconFactory;
+import org.grview.model.ui.IconFactory.IconType;
 import org.grview.project.interfaces.IFileManager;
 import org.grview.project.interfaces.IProject;
 import org.grview.project.interfaces.IViewManager;
@@ -135,6 +136,7 @@ public class FileManager implements IFileManager
 	@Override
 	public void openFile(String path)
 	{
+		IconFactory iconFactory = new IconFactory();
 		File file = new File(path);
 		if (!isFileOpen(path))
 		{
@@ -143,37 +145,37 @@ public class FileManager implements IFileManager
 				if (file.getName().toLowerCase().endsWith(FileNames.LEX_EXTENSION.toLowerCase()))
 				{
 					LexComponent lexComponent = new LexComponent();
-					mainWindow.addComponent(lexComponent.create(path), lexComponent, file.getName(), path, IconRepository.getInstance().LEX_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(lexComponent.create(path), lexComponent, file.getName(), path, iconFactory.getIcon(IconType.LEX_ICON), TabPlace.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.SEM_EXTENSION.toLowerCase()))
 				{
 					SemComponent semComponent = new SemComponent();
-					mainWindow.addComponent(semComponent.create(path), semComponent, file.getName(), path, IconRepository.getInstance().SEM_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(semComponent.create(path), semComponent, file.getName(), path, iconFactory.getIcon(IconType.SEM_ICON), TabPlace.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.GRAM_EXTENSION.toLowerCase()))
 				{
 					GrammarComponent gramComponent = new GrammarComponent();
-					mainWindow.addComponent(gramComponent.create(path), gramComponent, file.getName(), path, IconRepository.getInstance().GRAM_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(gramComponent.create(path), gramComponent, file.getName(), path, iconFactory.getIcon(IconType.GRAM_ICON), TabPlace.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.XML_EXTENSION.toLowerCase()))
 				{
 					XMLComponent xMLComponent = new XMLComponent();
-					mainWindow.addComponent(xMLComponent.create(path), xMLComponent, file.getName(), path, IconRepository.getInstance().XML_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(xMLComponent.create(path), xMLComponent, file.getName(), path, iconFactory.getIcon(IconType.XML_ICON), TabPlace.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.JAVA_EXTENSION.toLowerCase()))
 				{
 					JavaComponent javaComponent = new JavaComponent();
-					mainWindow.addComponent(javaComponent.create(path), javaComponent, file.getName(), path, IconRepository.getInstance().JAVA_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(javaComponent.create(path), javaComponent, file.getName(), path, iconFactory.getIcon(IconType.JAVA_ICON), TabPlace.CENTER_TABS);
 				}
 				else if (file.getName().toLowerCase().endsWith(FileNames.IN_EXTENSION.toLowerCase()))
 				{
 					InputAdapterComponent inputAdapterComponent = new InputAdapterComponent();
-					mainWindow.addComponent(inputAdapterComponent.create(path), inputAdapterComponent, file.getName(), path, IconRepository.getInstance().IN_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(inputAdapterComponent.create(path), inputAdapterComponent, file.getName(), path, iconFactory.getIcon(IconType.IN_ICON), TabPlace.CENTER_TABS);
 				}
 				else
 				{
 					AdvancedTextAreaComponent advancedTextAreaComponent = new AdvancedTextAreaComponent(null);
-					mainWindow.addComponent(advancedTextAreaComponent.create(path), advancedTextAreaComponent, file.getName(), path, IconRepository.getInstance().TXT_ICON, TabPlace.CENTER_TABS);
+					mainWindow.addComponent(advancedTextAreaComponent.create(path), advancedTextAreaComponent, file.getName(), path, iconFactory.getIcon(IconType.TXT_ICON), TabPlace.CENTER_TABS);
 				}
 				project.getOpenedFiles().add(new File(path));
 

@@ -30,7 +30,8 @@ import net.infonode.util.Direction;
 
 import org.grview.canvas.CanvasFactory;
 import org.grview.model.FileNames;
-import org.grview.model.ui.IconRepository;
+import org.grview.model.ui.IconFactory;
+import org.grview.model.ui.IconFactory.IconType;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.TabWindowList.TabPlace;
@@ -58,8 +59,6 @@ public class MainWindow extends Window implements ComponentListener
 	private ViewMap perspectiveMap = new ViewMap();
 	private RootWindowProperties rootWindowProperties;
 
-	
-
 	public MainWindow(String projectsRootPath)
 	{
 		setLookAndFeel();
@@ -68,8 +67,6 @@ public class MainWindow extends Window implements ComponentListener
 		this.menuBarFactory = new MenuBarFactory(projectManager, this);
 		this.toolBarFactory = new ToolBarFactory(projectManager);
 		this.rootWindowProperties = new RootWindowProperties();
-
-		
 
 		createRootWindow();
 		createDefaultViews();
@@ -144,8 +141,9 @@ public class MainWindow extends Window implements ComponentListener
 			}
 		});
 
-		rootWindow = DockingUtil.createRootWindow(perspectiveMap, handler, true);
 		rootWindowProperties.addSuperObject(ThemeManager.getCurrentTheme().getRootWindowProperties());
+		
+		rootWindow = DockingUtil.createRootWindow(perspectiveMap, handler, true);
 		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
 		rootWindow.addListener(new WindowAdapter(this, projectManager));
@@ -154,24 +152,22 @@ public class MainWindow extends Window implements ComponentListener
 
 	private ArrayList<TabItem> createTabs() throws BadParameterException
 	{
+		IconFactory iconFactory = new IconFactory();
 		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectManager.getProject()), TabPlace.RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
-		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), TabPlace.RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
-		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
-		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
-		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
-		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectManager.getProject().getProjectsRootPath()), TabPlace.BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectManager.getProject()), TabPlace.RIGHT_BOTTOM_TABS, iconFactory.getIcon(IconType.PROJECT_ICON)));
+		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), TabPlace.RIGHT_TOP_TABS, iconFactory.getIcon(IconType.OVERVIEW_CON)));
+		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, iconFactory.getIcon(IconType.GRAMMAR_ICON)));
+		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, iconFactory.getIcon(IconType.SYNTACTIC_STACK_ICON)));
+		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, iconFactory.getIcon(IconType.SEMANTIC_STACK_ICON)));
+		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, iconFactory.getIcon(IconType.ACTIVE_OUTPUT_ICON)));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectManager.getProject().getProjectsRootPath()), TabPlace.BOTTOM_RIGHT_TABS, iconFactory.getIcon(IconType.PARSER_ICON)));
 		return tabItems;
 	}
 
 	private void openFiles() throws BadParameterException
 	{
-		List<File> filesToOpen = projectManager.getProject().getOpenedFiles();
-		if (filesToOpen.size() == 0)
-		{
-			projectManager.getProject().getOpenedFiles().add(projectManager.getProject().getGrammarFile());
-		}
+		List<File> filesToOpen = projectManager.getOpenedFiles();
+		
 		for (int i = 0; i < filesToOpen.size(); i++)
 		{
 			String name = filesToOpen.get(i).getName();
@@ -180,8 +176,9 @@ public class MainWindow extends Window implements ComponentListener
 			if (component != null)
 			{
 				component.addComponentListener(this);
-
-				Icon icon = IconRepository.getIconByFileName(name);
+				
+				IconFactory iconFactory = new IconFactory();
+				Icon icon = iconFactory.getIcon(name);
 				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name, filesToOpen.get(i).getAbsolutePath(), icon, TabPlace.CENTER_TABS);
 				if (i == filesToOpen.size() - 1)
 				{

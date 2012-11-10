@@ -1,7 +1,9 @@
 package org.grview.project;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JOptionPane;
 
@@ -36,6 +38,16 @@ public final class ProjectManager
 			System.exit(0);
 		}
 		return instance;
+	}
+	
+	public List<File> getOpenedFiles()
+	{
+		List<File> filesOpened = project.getOpenedFiles();
+		if (filesOpened.size() == 0)
+		{
+			project.getOpenedFiles().add(project.getGrammarFile());
+		}
+		return filesOpened;			
 	}
 	
 	public void exit()

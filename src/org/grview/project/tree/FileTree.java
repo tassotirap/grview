@@ -16,7 +16,8 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 
-import org.grview.model.ui.IconRepository;
+import org.grview.model.ui.IconFactory;
+import org.grview.model.ui.IconFactory.IconType;
 import org.grview.project.ProjectManager;
 
 /**
@@ -38,15 +39,18 @@ public class FileTree implements TreeModelListener
 		{
 
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-
+			IconFactory iconFactory = new IconFactory();
 			if (leaf)
 			{
 				if (!value.toString().startsWith("."))
-					setIcon(IconRepository.getIconByFileName(value.toString()));
+				{
+					
+					setIcon(iconFactory.getIcon(value.toString()));
+				}
 			}
 			else
 			{
-				setIcon(IconRepository.getInstance().DIR_ICON);
+				setIcon(iconFactory.getIcon(IconType.DIR_ICON));
 			}
 
 			return this;
