@@ -12,10 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
-import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 import net.infonode.docking.RootWindow;
 import net.infonode.docking.SplitWindow;
@@ -55,44 +54,33 @@ import org.grview.ui.component.SimpleTextAreaComponent;
 import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.component.XMLComponent;
-import org.grview.ui.toolbar.BaseToolBar;
-import org.grview.ui.toolbar.ToolBarFile;
+import org.grview.ui.menubar.MenuBarFactory;
+import org.grview.ui.toolbar.ToolBarFactory;
 
 public class MainWindow extends Window implements ComponentListener
 {
 	private Vector<DynamicView> defaultLayout[];
 
-	/**
-	 * Contains all the static views
-	 */
 	private ViewMap perspectiveMap = new ViewMap();
 
-	/**
-	 * The one and only root window
-	 */
 	private RootWindow rootWindow;
 
-	/**
-	 * In this properties object the modified property values for close buttons
-	 * etc. are stored. This object is cleared when the theme is changed.
-	 */
 	private RootWindowProperties rootWindowProperties;
 
 	protected WindowAdapter windowAdapter;
 
 	private TabWindow tabPage[];
 
-	/**
-	 * constructor sets all project paths, create a new default window, gets an
-	 * id, and says hello on the volatile state manager
-	 * **/
-	private MainWindow(String projectsRootPath)
+	public MainWindow(String projectsRootPath)
 	{
-		projectMediator = new ProjectManager(this, projectsRootPath);
-		windowAdapter = new WindowAdapter(this, projectMediator);
-		rootWindowProperties = new RootWindowProperties();
-		defaultLayout = new Vector[6];
-		tabPage = new TabWindow[6];
+		setLookAndFeel();
+		this.projectManager = new ProjectManager(this, projectsRootPath);
+		this.windowAdapter = new WindowAdapter(this, projectManager);
+		this.menuBarFactory = new MenuBarFactory(projectManager, this);
+		this.toolBarFactory = new ToolBarFactory(projectManager);
+		this.rootWindowProperties = new RootWindowProperties();
+		this.defaultLayout = new Vector[6];
+		this.tabPage = new TabWindow[6];
 
 		createRootWindow();
 		createDefaultViews();
@@ -108,18 +96,16 @@ public class MainWindow extends Window implements ComponentListener
 		showFrame();
 	}
 
-	public static void main(String[] args) throws Exception
+	private void setLookAndFeel()
 	{
-		UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		final String projectRootPath = (args.length >= 1) ? args[0] : ".";
-		SwingUtilities.invokeLater(new Runnable()
+		try
 		{
-			@Override
-			public void run()
-			{
-				new MainWindow(projectRootPath);
-			}
-		});
+			UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
+		}
+		catch (UnsupportedLookAndFeelException e)
+		{
+			e.printStackTrace();
+		}
 	}
 
 	/**
@@ -127,7 +113,7 @@ public class MainWindow extends Window implements ComponentListener
 	 */
 	private void createDefaultViews()
 	{
-		activeScene = CanvasFactory.createCanvas(projectMediator.getProject().getGrammarFile());
+		activeScene = CanvasFactory.createCanvas(projectManager.getProject().getGrammarFile());
 		try
 		{
 			ArrayList<TabItem> tabItems = createTabs();
@@ -187,13 +173,13 @@ public class MainWindow extends Window implements ComponentListener
 		{
 			model.zoomIn = true;
 			model.zoomOut = true;
-			addToolBar(createToolBar(activeScene, true, true), false, false);
-			addMenuBar(createMenuBar(activeScene, model), false, false);
+			addToolBar(toolBarFactory.createToolBar(activeScene, true, true), false, false);
+			addMenuBar(menuBarFactory.createMenuBar(activeScene, model), false, false);
 		}
 		else
 		{
-			addToolBar(createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
-			addMenuBar(createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
+			addToolBar(toolBarFactory.createToolBar(TextAreaRepo.getTextArea(component), true, false), false, false);
+			addMenuBar(menuBarFactory.createMenuBar(TextAreaRepo.getTextArea(component), model), false, false);
 		}
 	}
 
@@ -222,29 +208,29 @@ public class MainWindow extends Window implements ComponentListener
 		rootWindowProperties.addSuperObject(ThemeManager.getCurrentTheme().getRootWindowProperties());
 		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
-		rootWindow.addListener(new WindowAdapter(this, projectMediator));
+		rootWindow.addListener(new WindowAdapter(this, projectManager));
 		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);
 	}
 
 	private ArrayList<TabItem> createTabs() throws BadParameterException
 	{
 		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectMediator.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectManager.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
 		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
 		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
 		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
 		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
 		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectMediator.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectManager.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 		return tabItems;
 	}
 
 	private void openFiles() throws BadParameterException
 	{
-		List<File> filesToOpen = projectMediator.getProject().getOpenedFiles();
+		List<File> filesToOpen = projectManager.getProject().getOpenedFiles();
 		if (filesToOpen.size() == 0)
 		{
-			projectMediator.getProject().getOpenedFiles().add(projectMediator.getProject().getGrammarFile());
+			projectManager.getProject().getOpenedFiles().add(projectManager.getProject().getGrammarFile());
 		}
 		for (int i = 0; i < filesToOpen.size(); i++)
 		{
@@ -288,13 +274,7 @@ public class MainWindow extends Window implements ComponentListener
 			windowBar.getChildWindow(0).close();
 	}
 
-	@Override
-	protected BaseToolBar<ProjectManager> getNewFileToolBar()
-	{
-		ToolBarFile<ProjectManager> toolBarNewFile = new ToolBarFile<ProjectManager>(projectMediator);
-		toolBarNewFile.setLayout(new BoxLayout(toolBarNewFile, BoxLayout.LINE_AXIS));
-		return toolBarNewFile;
-	}
+
 
 	/**
 	 * Initializes the frame and shows it.
@@ -339,7 +319,7 @@ public class MainWindow extends Window implements ComponentListener
 			DynamicView view = dynamicViewsByComponent.get(source);
 			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
 				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
-			projectMediator.setUnsavedView(((FileComponent) source).getPath(), view);
+			projectManager.setUnsavedView(((FileComponent) source).getPath(), view);
 		}
 
 	}
@@ -359,7 +339,7 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void removeFileFromProject(String fileName)
 	{
-		projectMediator.closeFile(fileName);
+		projectManager.closeFile(fileName);
 	}
 
 	public void setSaved(String path)
@@ -368,7 +348,7 @@ public class MainWindow extends Window implements ComponentListener
 		{
 			DynamicView dynamicView = dynamicViewsByPath.get(path);
 
-			if (projectMediator.hasUnsavedView(dynamicView))
+			if (projectManager.hasUnsavedView(dynamicView))
 			{
 				if (dynamicView.getTitle().startsWith(UNSAVED_PREFIX))
 				{
@@ -376,9 +356,9 @@ public class MainWindow extends Window implements ComponentListener
 				}
 			}
 
-			while (projectMediator.hasUnsavedView(dynamicView))
+			while (projectManager.hasUnsavedView(dynamicView))
 			{
-				projectMediator.removeUnsavedView(path);
+				projectManager.removeUnsavedView(path);
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 package org.grview.ui;
 
+import javax.swing.JFrame;
+
 import org.grview.ui.lib.SplashWindow;
 
 /**
@@ -12,40 +14,54 @@ import org.grview.ui.lib.SplashWindow;
  */
 public class GuiLauncher
 {
-	private final static String MAIN_WINDOW = "org.grview.ui.MainWindow";
 	private final static String SPLASH_SCREEN_PNG = "splash_screen.png";
-	private final static String WORKSPACE_CHOOSER = "org.grview.ui.WorkspaceChooser";
-	private final String[] args;
 
-	private GuiLauncher(String[] args)
+	private void showFrame(final JFrame frame)
 	{
-		this.args = args;
-	}
-
-	public static void main(String[] args)
-	{
-		GuiLauncher guiLauncher = new GuiLauncher(args);
-		guiLauncher.startWorkspaceChooser();
-	}
-
-	private String[] setUpArgs(String firstArgs)
-	{
-		String[] arguments = new String[args.length + 1];
-		arguments[0] = firstArgs;
-		for (int i = 0; i < args.length; i++)
+		java.awt.EventQueue.invokeLater(new Runnable()
 		{
-			arguments[i + 1] = args[i];
-		}
-		return arguments;
+			@Override
+			public void run()
+			{
+				frame.setVisible(true);
+			}
+		});
 	}
 
-	/**
-	 * Start a WorkspaceChooser Class
-	 */
-	private void startWorkspaceChooser()
+	private void showFrame(final MainWindow frame)
 	{
-		WorkspaceChooser workspaceChooser = WorkspaceChooser.getInstance();
-		SplashWindow.invokeMain(WORKSPACE_CHOOSER, args);
+		java.awt.EventQueue.invokeLater(new Runnable()
+		{
+			@Override
+			public void run()
+			{
+				frame.showFrame();
+			}
+		});
+	}
+
+	private void startApp()
+	{
+		WorkspaceChooser workspaceChooser = startWorkspaceChooser();
+		if (workspaceChooser.isDone())
+		{
+			SplashWindow.splash(GuiLauncher.class.getResource(SPLASH_SCREEN_PNG));
+			startMainWindow(workspaceChooser);
+			SplashWindow.disposeSplash();
+		}
+	}
+
+	private MainWindow startMainWindow(WorkspaceChooser workspaceChooser)
+	{	
+		MainWindow mainWindow = new MainWindow(workspaceChooser.getWorkspaceDir());
+		showFrame(mainWindow);
+		return mainWindow;		
+	}
+
+	private WorkspaceChooser startWorkspaceChooser()
+	{
+		WorkspaceChooser workspaceChooser = new WorkspaceChooser();
+		showFrame(workspaceChooser);
 		while (!workspaceChooser.isCanceled() && !workspaceChooser.isDone())
 		{
 			try
@@ -57,12 +73,12 @@ public class GuiLauncher
 				e.printStackTrace();
 			}
 		}
-		if (workspaceChooser.isDone())
-		{
-			SplashWindow.splash(GuiLauncher.class.getResource(SPLASH_SCREEN_PNG));
-			String[] nargs = setUpArgs(workspaceChooser.getWorkspaceDir());
-			SplashWindow.invokeMain(MAIN_WINDOW, nargs);
-			SplashWindow.disposeSplash();
-		}
+		return workspaceChooser;
+	}
+	
+	public static void main(String[] args)
+	{
+		GuiLauncher guiLauncher = new GuiLauncher();
+		guiLauncher.startApp();
 	}
 }

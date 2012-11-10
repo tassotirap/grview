@@ -13,7 +13,7 @@ import org.grview.ui.wizard.NewFileWizard;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarFile<E> extends BaseToolBar<ProjectManager>
+public class ToolBarFile extends BaseToolBar
 {
 	private static final long serialVersionUID = 1L;
 	private ProjectManager projectMediator;

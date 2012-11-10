@@ -2,15 +2,17 @@ package org.grview.ui.toolbar;
 
 import javax.swing.JToolBar;
 
-public abstract class BaseToolBar<E> extends JToolBar
+import org.grview.actions.ActionContextHolder;
+
+public abstract class BaseToolBar extends JToolBar
 {
 	private static final long serialVersionUID = 1L;
 
-	protected E context;
+	protected ActionContextHolder context;
 
 	protected final String imgPath = "/org/grview/images/";
 
-	public BaseToolBar(E context)
+	public BaseToolBar(ActionContextHolder context)
 	{
 		this.context = context;
 		initComponets();

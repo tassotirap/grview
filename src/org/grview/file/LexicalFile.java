@@ -8,6 +8,7 @@ import org.grview.util.IOUtilities;
 
 public class LexicalFile extends File
 {
+	private static final String ORG_GRVIEW_PROJECT_EMPTY_LEX = "/org/grview/project/empty_lex";
 	private static final long serialVersionUID = 1L;
 
 	public LexicalFile(String pathname)
@@ -15,12 +16,11 @@ public class LexicalFile extends File
 		super(pathname);
 	}
 
-	public void createEmpty() throws IOException
+	public void create() throws IOException
 	{
-		if(!this.exists() && !this.createNewFile())
-			throw new IOException("Could not create LexicalFile");
-		
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_lex"), this);		
-	}
+		if (!this.exists() && !this.createNewFile())
+			throw new IOException("Could not create Lexical File");
 
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream(ORG_GRVIEW_PROJECT_EMPTY_LEX), this);
+	}
 }

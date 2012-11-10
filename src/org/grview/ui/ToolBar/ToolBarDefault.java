@@ -13,6 +13,7 @@ import javax.swing.JSeparator;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 
+import org.grview.actions.ActionContextHolder;
 import org.grview.actions.Registers;
 import org.grview.canvas.Canvas;
 import org.grview.canvas.CanvasFactory;
@@ -26,7 +27,7 @@ import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeListener
+public class ToolBarDefault<E> extends BaseToolBar implements PropertyChangeListener
 {
 	private static final long serialVersionUID = 1L;
 
@@ -36,7 +37,7 @@ public class ToolBarDefault<E> extends BaseToolBar<E> implements PropertyChangeL
 	private JButton btnCut, btnPaste, btnUndo, btnRedo;
 	private JButton btnSave, btnSaveAll, btnPrint, btnCopy;
 
-	public ToolBarDefault(E context)
+	public ToolBarDefault(ActionContextHolder context)
 	{
 		super(context);
 		if (context instanceof Canvas)

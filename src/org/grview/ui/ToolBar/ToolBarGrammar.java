@@ -17,18 +17,20 @@ import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarGrammar extends BaseToolBar<Canvas>
+public class ToolBarGrammar extends BaseToolBar
 {
 	private static final long serialVersionUID = 1L;
 
 	JButton[] buttons;
 	String[] names;
+	Canvas canvas;
 	private JButton btnNTerminal, btnTerminal, btnLambdaAlternative, btnStart;
 	private JButton btnSelect, btnSucessor, btnAlternative, btnLeftHand, btnLabel;
 
 	public ToolBarGrammar(Canvas canvas)
 	{
 		super(canvas);
+		this.canvas = canvas;
 		for (int i = 0; i < buttons.length; i++)
 		{
 			buttons[i].setName(names[i]);
@@ -63,7 +65,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.SELECT);
+				canvas.setActiveTool(CanvasData.SELECT);
 			}
 
 		});
@@ -72,7 +74,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.SUCCESSOR);
+				canvas.setActiveTool(CanvasData.SUCCESSOR);
 			}
 
 		});
@@ -81,7 +83,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.ALTERNATIVE);
+				canvas.setActiveTool(CanvasData.ALTERNATIVE);
 			}
 
 		});
@@ -90,7 +92,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.LEFT_SIDE);
+				canvas.setActiveTool(CanvasData.LEFT_SIDE);
 			}
 
 		});
@@ -99,7 +101,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.N_TERMINAL);
+				canvas.setActiveTool(CanvasData.N_TERMINAL);
 			}
 
 		});
@@ -108,7 +110,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.TERMINAL);
+				canvas.setActiveTool(CanvasData.TERMINAL);
 			}
 
 		});
@@ -117,7 +119,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.LAMBDA);
+				canvas.setActiveTool(CanvasData.LAMBDA);
 			}
 
 		});
@@ -126,7 +128,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.LABEL);
+				canvas.setActiveTool(CanvasData.LABEL);
 			}
 
 		});
@@ -135,7 +137,7 @@ public class ToolBarGrammar extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				context.setActiveTool(CanvasData.START);
+				canvas.setActiveTool(CanvasData.START);
 			}
 
 		});

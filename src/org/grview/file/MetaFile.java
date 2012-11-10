@@ -9,9 +9,8 @@ import org.grview.util.IOUtilities;
 public class MetaFile extends File
 {
 
-	/**
-	 * 
-	 */
+	private static final String ORG_GRVIEW_PROJECT_NEW_METADATA = "/org/grview/project/new_metadata";
+
 	private static final long serialVersionUID = 1L;
 
 	public MetaFile(String pathname)
@@ -19,13 +18,11 @@ public class MetaFile extends File
 		super(pathname);
 	}
 
-	public void createEmpty() throws IOException
+	public void create() throws IOException
 	{
-		if(!this.exists() && !this.createNewFile())
+		if (!this.exists() && !this.createNewFile())
 			throw new IOException("Could not create MetaFile");
-		
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/new_metadata"), this);
-		
-	}
 
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream(ORG_GRVIEW_PROJECT_NEW_METADATA), this);
+	}
 }

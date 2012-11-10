@@ -21,6 +21,7 @@ import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GrammarComponent;
+import org.grview.ui.component.GrammarFactory;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.JavaComponent;
 import org.grview.ui.component.LexComponent;
@@ -275,7 +276,13 @@ public class FileManager implements IFileManager
 
 	private String saveFile(Canvas canvas)
 	{
-		return project.getGrammarFile().saveGrammarFile(canvas);
+		GrammarComponent grammarComponent = GrammarFactory.getGrammarComponent();
+		if (viewManager.hasUnsavedView(grammarComponent.getPath()))
+		{
+			grammarComponent.saveFile();
+			return grammarComponent.getPath();
+		}
+		return null;
 	}
 
 	private String saveFile(GrammarComponent grammarComponent)

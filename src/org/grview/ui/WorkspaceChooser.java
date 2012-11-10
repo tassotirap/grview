@@ -28,7 +28,6 @@ import org.jdesktop.layout.LayoutStyle;
  */
 public class WorkspaceChooser extends JFrame
 {
-	private static WorkspaceChooser instance;
 	private static final String LIST_FILE = "workspace";
 	private static final String PROJECTS_SCREEN_PNG = "projects_screen.png";
 	private static final long serialVersionUID = 1L;
@@ -44,33 +43,12 @@ public class WorkspaceChooser extends JFrame
 	private String workspaceDir;
 	
 
-	private WorkspaceChooser()
+	public WorkspaceChooser()
 	{
 		setPanelProperties();
 		setPanelLocation();
 		initComponents();
 		readDirsFromList();
-	}
-
-	public static WorkspaceChooser getInstance()
-	{
-		if (instance == null)
-		{
-			instance = new WorkspaceChooser();
-		}
-		return instance;
-	}
-
-	public static void main(String args[])
-	{
-		java.awt.EventQueue.invokeLater(new Runnable()
-		{
-			@Override
-			public void run()
-			{
-				getInstance().setVisible(true);
-			}
-		});
 	}
 
 	private void addDirToList(String filename)

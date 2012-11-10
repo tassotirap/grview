@@ -11,6 +11,7 @@ import javax.swing.JMenuItem;
 import javax.swing.JSeparator;
 import javax.swing.KeyStroke;
 
+import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.project.ProjectManager;
@@ -18,7 +19,7 @@ import org.grview.ui.ThemeManager.Theme;
 import org.grview.ui.wizard.NewFileWizard;
 import org.grview.util.LangHelper;
 
-public class Menu<E> extends JMenuBar
+public class Menu extends JMenuBar
 {
 	public static class MenuModel
 	{
@@ -54,7 +55,7 @@ public class Menu<E> extends JMenuBar
 	public final static int TEXTAREA_CONTEXT = 2;
 
 	public final static String WINDOW = "Window";
-	E context;
+	ActionContextHolder context;
 	int contextDesc;
 	ArrayList<String> menus;
 	MenuModel model;
@@ -62,7 +63,7 @@ public class Menu<E> extends JMenuBar
 
 	Window window;
 
-	public Menu(String[] menus, Window window, E context, MenuModel model, ProjectManager projectManager)
+	public Menu(String[] menus, Window window, ActionContextHolder context, MenuModel model, ProjectManager projectManager)
 	{
 		this.window = window;
 		this.menus = new ArrayList<String>();

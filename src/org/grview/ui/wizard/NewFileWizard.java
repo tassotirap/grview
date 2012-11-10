@@ -51,19 +51,25 @@ public class NewFileWizard
 			@Override
 			public void actionPerformed(ActionEvent e)
 			{
-				FileEntry entry = (FileEntry) newFileWizardWindow.getJList().getSelectedValue();
-				try
-				{
-					projectMediator.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
-					newFileWizardWindow.setVisible(false);
-				}
-				catch (IOException ex)
-				{
-					JOptionPane.showMessageDialog(null, "Could not create file!", "Error", JOptionPane.ERROR_MESSAGE);
-					Log.log(Log.ERROR, this, "An IOException was thrown while trying to create a new file.", ex);
-				}
+				newFile(newFileWizardWindow);
 			}
+
 		});
 		newFileWizardWindow.setVisible(true);
+	}
+	
+	private void newFile(final NewFileWizardWindow newFileWizardWindow)
+	{
+		FileEntry entry = (FileEntry) newFileWizardWindow.getJList().getSelectedValue();
+		try
+		{
+			projectMediator.createFile(newFileWizardWindow.getJTextField().getText(), entry.getExtension());
+			newFileWizardWindow.setVisible(false);
+		}
+		catch (IOException ex)
+		{
+			JOptionPane.showMessageDialog(null, "Could not create file!", "Error", JOptionPane.ERROR_MESSAGE);
+			Log.log(Log.ERROR, this, "An IOException was thrown while trying to create a new file.", ex);
+		}
 	}
 }

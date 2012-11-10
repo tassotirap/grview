@@ -9,7 +9,7 @@ public abstract class GrammarFactory
 		GrammarFactory.gramComponent = gramComponent;
 	}
 
-	public static GrammarComponent getCompByCanvas()
+	public static GrammarComponent getGrammarComponent()
 	{
 		return gramComponent;
 	}

@@ -2,41 +2,24 @@ package org.grview.file;
 
 import java.io.File;
 import java.io.IOException;
-
-import org.grview.canvas.Canvas;
 import org.grview.project.Project;
-import org.grview.project.ProjectManager;
-import org.grview.ui.component.GrammarComponent;
-import org.grview.ui.component.GrammarFactory;
 import org.grview.util.IOUtilities;
 
 public class GrammarFile extends File
 {
+	private static final String ORG_GRVIEW_PROJECT_EMPTY_GRAMMAR = "/org/grview/project/empty_grammar";
 	private static final long serialVersionUID = 1L;
 
 	public GrammarFile(String pathname)
 	{
 		super(pathname);
 	}
-	
-	public void createEmpty() throws IOException
-	{
-		if(!this.exists() && !this.createNewFile())
-			throw new IOException("Could not create GrammarFile");
-		
-		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream("/org/grview/project/empty_grammar"), this);
-	}
-	
-	public String saveGrammarFile(Canvas canvas)
-	{
-		GrammarComponent gramComponent = GrammarFactory.getCompByCanvas();
-		if (ProjectManager.getInstance().hasUnsavedView(gramComponent.getPath()))
-		{
-			gramComponent.saveFile();
 
-			return gramComponent.getPath();
-		}
-		return null;
-	}
+	public void create() throws IOException
+	{
+		if (!this.exists() && !this.createNewFile())
+			throw new IOException("Could not create Grammar File");
 
+		IOUtilities.copyFileFromInputSteam(Project.class.getResourceAsStream(ORG_GRVIEW_PROJECT_EMPTY_GRAMMAR), this);
+	}
 }

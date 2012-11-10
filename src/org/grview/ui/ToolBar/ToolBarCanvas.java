@@ -17,18 +17,21 @@ import org.grview.util.LangHelper;
 
 import com.jidesoft.icons.ColorFilter;
 
-public class ToolBarCanvas extends BaseToolBar<Canvas>
+public class ToolBarCanvas extends BaseToolBar
 {
-	private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L; 
+	private
 
 	JButton[] buttons;
 
 	String[] names;
 	private JButton btnRun, btnZoomIn, btnZoomOut;
+	private Canvas canvas;
 
 	public ToolBarCanvas(Canvas canvas)
 	{
 		super(canvas);
+		this.canvas = canvas;
 		for (int i = 0; i < buttons.length; i++)
 		{
 			buttons[i].setName(names[i]);
@@ -54,10 +57,10 @@ public class ToolBarCanvas extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				if (context.canZoomIn())
+				if (canvas.canZoomIn())
 				{
-					context.setZoomFactor(context.getZoomFactor() * 1.1);
-					context.validate();
+					canvas.setZoomFactor(canvas.getZoomFactor() * 1.1);
+					canvas.validate();
 				}
 			}
 
@@ -68,10 +71,10 @@ public class ToolBarCanvas extends BaseToolBar<Canvas>
 			@Override
 			public void actionPerformed(ActionEvent evt)
 			{
-				if (context.canZoomOut())
+				if (canvas.canZoomOut())
 				{
-					context.setZoomFactor(context.getZoomFactor() * 0.9);
-					context.validate();
+					canvas.setZoomFactor(canvas.getZoomFactor() * 0.9);
+					canvas.validate();
 				}
 			}
 

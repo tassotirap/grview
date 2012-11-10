@@ -1,9 +1,9 @@
 package org.grview.ui;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.HashMap;
 
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
@@ -15,7 +15,6 @@ import net.infonode.docking.RootWindow;
 import net.infonode.docking.TabWindow;
 import net.infonode.docking.View;
 
-import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
 import org.grview.model.ui.IconView;
@@ -23,15 +22,13 @@ import org.grview.parser.ParsingEditor;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.component.AbstractComponent;
-import org.grview.ui.component.AdapterComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.component.TextAreaRepo;
-import org.grview.ui.toolbar.BaseToolBar;
-import org.grview.ui.toolbar.ToolBarCanvas;
-import org.grview.ui.toolbar.ToolBarDefault;
+import org.grview.ui.menubar.MenuBarFactory;
+import org.grview.ui.toolbar.ToolBarFactory;
 
 /** An abstract, top-level windows with docking **/
 public abstract class Window
@@ -49,49 +46,29 @@ public abstract class Window
 	public final static Icon VIEW_ICON = new IconView();
 
 	private JMenuBar currentMenuBar;
-
 	private JComponent currentToolBar;
-
-	private JMenuBar defaultMenuBar;
-
-	private JComponent defaultToolBar;
+	
+	
 
 	private HashMap<Integer, DynamicView> dummyViews = new HashMap<Integer, DynamicView>();
+	
+	
 
-	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
-
-	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
-
-	/**
-	 * The focused canvas, where graphs can be drawn
-	 */
 	protected Canvas activeScene;
 
-	/**
-	 * Contains the dynamic views that have been added to the root window,
-	 * mapped by its component
-	 */
 	protected HashMap<AbstractComponent, DynamicView> dynamicViewsByComponent = new HashMap<AbstractComponent, DynamicView>();
 
-	/**
-	 * Contains the dynamic views that have been added to the root window,
-	 * mapped by id
-	 */
 	protected HashMap<Integer, DynamicView> dynamicViewsById = new HashMap<Integer, DynamicView>();
 
-	/**
-	 * Contains the dynamic views that have been added to the root window, the
-	 * filename of it's component, when there is one
-	 */
 	protected HashMap<String, DynamicView> dynamicViewsByPath = new HashMap<String, DynamicView>();
 
-	/**
-	 * The application frame
-	 */
 	protected JFrame frame;
+	
 	protected WindowAdapter windowAdapter;
 	
-	protected ProjectManager projectMediator;
+	protected ProjectManager projectManager;
+	protected MenuBarFactory menuBarFactory;
+	protected ToolBarFactory toolBarFactory;
 
 	public Window()
 	{
@@ -103,65 +80,6 @@ public abstract class Window
 		frame = new JFrame(title);
 		frame.setName(DEFAULT_NAME);
 		frame.setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
-	}
-	
-	
-
-	/**
-	 * Create Drawable Canvas Toolbar
-	 * 
-	 * @param ref
-	 * @param toolBar
-	 * @return
-	 */
-	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> ToolBarCanvas createToolBarCanvas(final T ref)
-	{
-		ToolBarCanvas toolBarCanvas = new ToolBarCanvas((Canvas) ref);
-		toolBarCanvas.setLayout(new BoxLayout(toolBarCanvas, BoxLayout.LINE_AXIS));
-		return toolBarCanvas;
-	}
-
-	/**
-	 * Always create a new tool bar
-	 * 
-	 * @param <T>
-	 *            the context, in witch the tool bar will be created
-	 * @param ref
-	 *            an instance of the same class of context
-	 * @param enableToolBarFile
-	 *            indicates whether the toolbar 1 will be shown
-	 * @param enableToolBarCanvas
-	 *            indicates whether the toolbar 2 will be shown
-	 * @return a new toolbar
-	 */
-	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> JComponent createToolBarExt(final T ref, boolean enableToolBarFile, boolean enableToolBarCanvas)
-	{
-		JPanel panel = new JPanel();
-		panel.setLayout(new BoxLayout(panel, BoxLayout.LINE_AXIS));
-		panel.add(getNewFileToolBar());
-
-		if (enableToolBarFile)
-		{
-			ToolBarDefault<T> toolBarFile = createToolBarFile(ref);
-			panel.add(toolBarFile);
-		}
-		if (enableToolBarCanvas)
-		{
-			ToolBarCanvas toolBarCanvas = createToolBarCanvas(ref);
-			panel.add(toolBarCanvas);
-		}
-		return panel;
-
-	}
-
-	@SuppressWarnings("rawtypes")
-	private <T extends ActionContextHolder> ToolBarDefault<T> createToolBarFile(final T ref)
-	{
-		ToolBarDefault<T> toolBarFile = new ToolBarDefault<T>(ref);
-		toolBarFile.setLayout(new BoxLayout(toolBarFile, BoxLayout.LINE_AXIS));
-		return toolBarFile;
 	}
 
 	/**
@@ -221,55 +139,21 @@ public abstract class Window
 	 * 
 	 * @return the frame menu bar
 	 */
-	@SuppressWarnings("rawtypes")
-	protected <E extends ActionContextHolder> JMenuBar createMenuBar(final E context, MenuModel model)
-	{
-		if (context == null)
-		{
-			if (defaultMenuBar == null)
-			{
-				defaultMenuBar = createMenuBarExt(null, model);
-				return defaultMenuBar;
-			}
-		}
-		if (!menuBars.containsKey(context))
-		{
-			menuBars.put(context, createMenuBarExt(context, model));
-		}
-		return menuBars.get(context);
-	}
+
 
 	/**
 	 * Creates the frame tool bar.
 	 * 
 	 * @return the frame tool bar
 	 */
-	@SuppressWarnings("rawtypes")
-	protected <T extends ActionContextHolder> JComponent createToolBar(final T ref, boolean enableToolBarFile, boolean enableToolBarCanvas)
-	{
-		if (ref == null)
-		{
-			if (defaultToolBar == null)
-			{
-				defaultToolBar = createToolBarExt(ref, false, false);
-				return defaultToolBar;
-			}
-		}
-		if (!toolBars.containsKey(ref) || ref instanceof AdapterComponent)
-		{
-			toolBars.put(ref, createToolBarExt(ref, enableToolBarFile, enableToolBarCanvas));
-		}
-		return toolBars.get(ref);
-	}
-
-	protected abstract BaseToolBar<ProjectManager> getNewFileToolBar();
+	
 
 	/**
 	 * Initializes the frame and shows it.
 	 */
 	protected abstract void showFrame();
 
-	public abstract DynamicView addComponent(java.awt.Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place);
+	public abstract DynamicView addComponent(Component component, AbstractComponent componentModel, String title, String fileName, Icon icon, int place);
 
 	// ---------------- DEFs AND CONs
 	// -------------------------------------------
@@ -301,14 +185,6 @@ public abstract class Window
 	 *            the context instance
 	 * @return a new menubar
 	 */
-
-	@SuppressWarnings("rawtypes")
-	public <E extends ActionContextHolder> JMenuBar createMenuBarExt(E context, MenuModel model)
-	{
-		Menu<E> menu = new Menu<E>(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, this, context, model, projectMediator);
-		menu.build();
-		return menu;
-	}
 
 	public Canvas getActiveScene()
 	{
@@ -393,20 +269,20 @@ public abstract class Window
 				if (((DynamicView) view).getTitle().equals("Parser"))
 				{
 					TextArea ta = ParsingEditor.getInstance().getTextArea();
-					addToolBar(createToolBar(ta, true, false), true, true);
+					addToolBar(toolBarFactory.createToolBar(ta, true, false), true, true);
 					MenuModel model = new MenuModel();
-					addMenuBar(createMenuBar(ta, model), true, true);
+					addMenuBar(menuBarFactory.createMenuBar(ta, model), true, true);
 				}
 				else
 				{
-					addToolBar(createToolBar(null, false, false), true, true);
-					addMenuBar(createMenuBar(null, new MenuModel()), true, true);
+					addToolBar(toolBarFactory.createToolBar(null, false, false), true, true);
+					addMenuBar(menuBarFactory.createMenuBar(null, new MenuModel()), true, true);
 				}
 			}
 			else
 			{
-				addToolBar(createToolBar(null, false, false), true, true);
-				addMenuBar(createMenuBar(null, new MenuModel()), true, true);
+				addToolBar(toolBarFactory.createToolBar(null, false, false), true, true);
+				addMenuBar(menuBarFactory.createMenuBar(null, new MenuModel()), true, true);
 			}
 			return;
 		}
@@ -427,8 +303,8 @@ public abstract class Window
 			TextArea ta;
 			if ((ta = TextAreaRepo.getTextArea(comp)) != null)
 			{
-				addToolBar(createToolBar(ta, true, false), true, true);
-				addMenuBar(createMenuBar(ta, model), true, true);
+				addToolBar(toolBarFactory.createToolBar(ta, true, false), true, true);
+				addMenuBar(menuBarFactory.createMenuBar(ta, model), true, true);
 			}
 			else
 			{
@@ -436,8 +312,8 @@ public abstract class Window
 				{
 					model.zoomIn = true;
 					model.zoomOut = true;
-					addToolBar(createToolBar(activeScene, true, true), true, true);
-					addMenuBar(createMenuBar(activeScene, model), true, true);
+					addToolBar(toolBarFactory.createToolBar(activeScene, true, true), true, true);
+					addMenuBar(menuBarFactory.createMenuBar(activeScene, model), true, true);
 				}
 			}
 		}

@@ -34,16 +34,19 @@ public class ProjectHelper
 		String basePath = projectRoot.getAbsoluteFile() + "/";
 
 		GrammarFile gramFile = new GrammarFile(basePath + name + FileNames.GRAM_EXTENSION);
+		gramFile.create();
+		
+		
 		SemanticFile semFile = new SemanticFile(basePath + name + FileNames.SEM_EXTENSION);
 		LexicalFile lexFile = new LexicalFile(basePath + name + FileNames.LEX_EXTENSION);
 		PropertiesFile propertiesFile = new PropertiesFile(basePath + FileNames.PROPERTIES_FILENAME);
 		MetaFile metadataFile = new MetaFile(basePath + FileNames.METADATA_FILENAME);
 
-		gramFile.createEmpty();
-		semFile.createEmpty();
-		lexFile.createEmpty();
-		propertiesFile.createEmpty();
-		metadataFile.createEmpty();
+		
+		semFile.create();
+		lexFile.create();
+		propertiesFile.create();
+		metadataFile.create();
 
 		IProject project = new Project(projectRoot.getAbsolutePath());
 		project.setGrammarFile(gramFile);
