@@ -11,6 +11,7 @@ import org.grview.project.ProjectManager;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
+import org.grview.ui.dynamicview.DynamicView;
 
 /** An adapter to control how a window should react when changed **/
 public class WindowAdapter extends DockingWindowAdapter
@@ -24,48 +25,7 @@ public class WindowAdapter extends DockingWindowAdapter
 		this.window = window;
 		this.projectMediator = projectMediator;
 	}
-
-	/**
-	 * Update view menu items and dynamic view map.
-	 * 
-	 * @param window
-	 *            the window in which to search for views
-	 * @param added
-	 *            if true the window was added
-	 */
-	public void updateViews(DockingWindow dWindow, boolean added)
-	{
-		if (dWindow instanceof View)
-		{
-			if (dWindow instanceof DynamicView)
-			{
-				DynamicView dv = (DynamicView) dWindow;
-				if (added)
-				{
-					window.getDynamicViewsById().put(new Integer(dv.getId()), dv);
-					window.getDynamicViewByComponent().put(dv.getComponentModel(), dv);
-					if (dv.getFileName() != null)
-					{
-						window.getDynamicViewByPath().put(dv.getFileName(), dv);
-					}
-				}
-				else
-				{
-					window.getDynamicViewsById().remove(new Integer(dv.getId()));
-					window.getDynamicViewByComponent().remove(dv.getComponentModel());
-					if (window.getDynamicViewByPath().containsKey(dv.getFileName()))
-					{
-						window.getDynamicViewByPath().remove(dv.getFileName());
-					}
-				}
-			}
-		}
-		else
-		{
-			for (int i = 0; i < dWindow.getChildWindowCount(); i++)
-				updateViews(dWindow.getChildWindow(i), added);
-		}
-	}
+	
 
 	@Override
 	public void viewFocusChanged(View ov, View nv)
@@ -83,13 +43,13 @@ public class WindowAdapter extends DockingWindowAdapter
 	{
 		if (addedWindow instanceof DynamicView)
 		{
-			updateViews(addedWindow, true);
+			window.update(addedWindow, true);
 			AbstractComponent comp = ((DynamicView) addedWindow).getComponentModel();
 			if (!(comp instanceof EmptyComponent))
 			{
-				if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(addedWindow) >= 0)
+				if (window.getTabPage().getCenterTab().getChildWindowIndex(addedWindow) >= 0)
 				{
-					window.removeDummyView(Window.CENTER_TABS);
+					window.removeEmptyDynamicView();
 				}
 			}
 		}
@@ -126,15 +86,15 @@ public class WindowAdapter extends DockingWindowAdapter
 				}
 			}
 		}
-		if (window.getTabPage()[Window.CENTER_TABS].getChildWindowIndex(dWindow) >= 0 && window.getTabPage()[Window.CENTER_TABS].getChildWindowCount() == 1)
+		if (window.getTabPage().getCenterTab().getChildWindowIndex(dWindow) >= 0 && window.getTabPage().getCenterTab().getChildWindowCount() == 1)
 		{
-			window.addDummyView(Window.CENTER_TABS);
+			window.addEmptyDynamicView();
 		}
 	}
 
 	@Override
 	public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow)
 	{
-		updateViews(removedWindow, false);
+		window.update(removedWindow, false);
 	}
 }

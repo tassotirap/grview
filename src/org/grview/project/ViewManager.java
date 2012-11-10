@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.grview.project.interfaces.IViewManager;
-import org.grview.ui.DynamicView;
+import org.grview.ui.dynamicview.DynamicView;
 
 public class ViewManager implements IViewManager
 {

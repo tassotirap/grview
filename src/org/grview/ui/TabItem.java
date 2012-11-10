@@ -3,18 +3,20 @@ package org.grview.ui;
 import javax.swing.Icon;
 import javax.swing.JComponent;
 
+import org.grview.ui.TabWindowList.TabPlace;
+
 public class TabItem
 {
 	private JComponent component;
-	private int layoutOrder;
+	private TabPlace tabPlace;
 	private String title;
 	private Icon viewIcon;
 
-	public TabItem(String title, JComponent component, int layoutOrder, Icon viewIcon)
+	public TabItem(String title, JComponent component, TabPlace tabPlace, Icon viewIcon)
 	{
 		this.title = title;
 		this.component = component;
-		this.layoutOrder = layoutOrder;
+		this.tabPlace = tabPlace;
 		this.viewIcon = viewIcon;
 	}
 
@@ -23,9 +25,14 @@ public class TabItem
 		return component;
 	}
 
+	public TabPlace getLayout()
+	{
+		return tabPlace;
+	}
+	
 	public int getLayoutOrder()
 	{
-		return layoutOrder;
+		return tabPlace.ordinal();
 	}
 
 	public String getTitle()
@@ -43,9 +50,9 @@ public class TabItem
 		this.component = component;
 	}
 
-	public void setLayoutOrder(int layoutOrder)
+	public void setLayoutOrder(TabPlace tabPlace)
 	{
-		this.layoutOrder = layoutOrder;
+		this.tabPlace = tabPlace;
 	}
 
 	public void setTitle(String title)

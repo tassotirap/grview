@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import org.grview.model.FileNames;
-import org.grview.ui.DynamicView;
+import org.grview.ui.dynamicview.DynamicView;
 
 public interface IFileManager
 {

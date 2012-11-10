@@ -10,7 +10,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.Icon;
 import javax.swing.UIManager;
@@ -34,42 +33,32 @@ import org.grview.model.FileNames;
 import org.grview.model.ui.IconRepository;
 import org.grview.project.ProjectManager;
 import org.grview.ui.Menu.MenuModel;
+import org.grview.ui.TabWindowList.TabPlace;
 import org.grview.ui.ThemeManager.Theme;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.ComponentListener;
+import org.grview.ui.component.ComponetFactory;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.component.GeneratedGrammarComponent;
 import org.grview.ui.component.GrammarComponent;
-import org.grview.ui.component.InputAdapterComponent;
-import org.grview.ui.component.JavaComponent;
-import org.grview.ui.component.LexComponent;
 import org.grview.ui.component.OutlineComponent;
 import org.grview.ui.component.OutputComponent;
 import org.grview.ui.component.ParserComponent;
 import org.grview.ui.component.ProjectsComponent;
-import org.grview.ui.component.SemComponent;
 import org.grview.ui.component.SemanticStackComponent;
-import org.grview.ui.component.SimpleTextAreaComponent;
 import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
-import org.grview.ui.component.XMLComponent;
+import org.grview.ui.dynamicview.DynamicView;
 import org.grview.ui.menubar.MenuBarFactory;
 import org.grview.ui.toolbar.ToolBarFactory;
 
 public class MainWindow extends Window implements ComponentListener
 {
-	private Vector<DynamicView> defaultLayout[];
-
 	private ViewMap perspectiveMap = new ViewMap();
-
-	private RootWindow rootWindow;
-
 	private RootWindowProperties rootWindowProperties;
 
-	protected WindowAdapter windowAdapter;
-
-	private TabWindow tabPage[];
+	
 
 	public MainWindow(String projectsRootPath)
 	{
@@ -79,8 +68,8 @@ public class MainWindow extends Window implements ComponentListener
 		this.menuBarFactory = new MenuBarFactory(projectManager, this);
 		this.toolBarFactory = new ToolBarFactory(projectManager);
 		this.rootWindowProperties = new RootWindowProperties();
-		this.defaultLayout = new Vector[6];
-		this.tabPage = new TabWindow[6];
+
+		
 
 		createRootWindow();
 		createDefaultViews();
@@ -96,64 +85,18 @@ public class MainWindow extends Window implements ComponentListener
 		showFrame();
 	}
 
-	private void setLookAndFeel()
-	{
-		try
-		{
-			UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
-		}
-		catch (UnsupportedLookAndFeelException e)
-		{
-			e.printStackTrace();
-		}
-	}
-
-	/**
-	 * Creates the default views
-	 */
 	private void createDefaultViews()
 	{
-		activeScene = CanvasFactory.createCanvas(projectManager.getProject().getGrammarFile());
 		try
 		{
+			activeScene = CanvasFactory.createCanvas(this.projectManager.getProject().getGrammarFile());
 			ArrayList<TabItem> tabItems = createTabs();
-
-			for (int i = 0; i < defaultLayout.length; i++)
-				defaultLayout[i] = new Vector<DynamicView>();
-
-			for (int i = 0; i < tabItems.size(); i++)
-			{
-				int nextId = getDynamicViewId();
-				DynamicView view = new DynamicView(tabItems.get(i).getTitle(), tabItems.get(i).getViewIcon(), tabItems.get(i).getComponent(), null, null, nextId);
-				defaultLayout[tabItems.get(i).getLayoutOrder()].add(view);
-				perspectiveMap.addView(i, view);
-				windowAdapter.updateViews(view, true);
-			}
-
+			dynamicaViewRepository.createDefaultViews(tabItems, perspectiveMap);
 		}
-		catch (Exception e)
+		catch (BadParameterException e)
 		{
 			e.printStackTrace();
 		}
-	}
-
-	private org.grview.ui.component.AbstractComponent createFileComponent(String type)
-	{
-		if (type.equalsIgnoreCase(FileNames.GRAM_EXTENSION))
-			return new GrammarComponent();
-		if (type.equalsIgnoreCase(FileNames.LEX_EXTENSION))
-			return new LexComponent();
-		if (type.equalsIgnoreCase(FileNames.SEM_EXTENSION))
-			return new SemComponent();
-		if (type.equalsIgnoreCase(FileNames.XML_EXTENSION))
-			return new XMLComponent();
-		if (type.equalsIgnoreCase(FileNames.TXT_EXTENSION))
-			return new SimpleTextAreaComponent();
-		if (type.equalsIgnoreCase(FileNames.JAVA_EXTENSION))
-			return new JavaComponent();
-		if (type.equalsIgnoreCase(FileNames.IN_EXTENSION))
-			return new InputAdapterComponent();
-		return null;
 	}
 
 	private void createMenuModel(String name, org.grview.ui.component.AbstractComponent component)
@@ -183,9 +126,6 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
-	/**
-	 * Creates the root window and the views.
-	 */
 	private void createRootWindow()
 	{
 
@@ -194,7 +134,7 @@ public class MainWindow extends Window implements ComponentListener
 			@Override
 			public View readView(ObjectInputStream in) throws IOException
 			{
-				return getDynamicView(in.readInt());
+				return dynamicaViewRepository.getDynamicView(in.readInt());
 			}
 
 			@Override
@@ -215,13 +155,13 @@ public class MainWindow extends Window implements ComponentListener
 	private ArrayList<TabItem> createTabs() throws BadParameterException
 	{
 		ArrayList<TabItem> tabItems = new ArrayList<TabItem>();
-		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectManager.getProject()), RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
-		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
-		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
-		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
-		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
-		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
-		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectManager.getProject().getProjectsRootPath()), BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
+		tabItems.add(new TabItem("Project", new ProjectsComponent().create(projectManager.getProject()), TabPlace.RIGHT_BOTTOM_TABS, IconRepository.getInstance().PROJECT_ICON));
+		tabItems.add(new TabItem("Outline", new OutlineComponent().create(activeScene), TabPlace.RIGHT_TOP_TABS, IconRepository.getInstance().OVERVIEW_CON));
+		tabItems.add(new TabItem("Grammar", new GeneratedGrammarComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().GRAMMAR_ICON));
+		tabItems.add(new TabItem("Syntax Stack", new SyntaxStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().SYNTACTIC_STACK_ICON));
+		tabItems.add(new TabItem("Sem. Stack", new SemanticStackComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().SEMANTIC_STACK_ICON));
+		tabItems.add(new TabItem("Output", new OutputComponent().create(activeScene), TabPlace.BOTTOM_LEFT_TABS, IconRepository.getInstance().ACTIVE_OUTPUT_ICON));
+		tabItems.add(new TabItem("Parser", new ParserComponent().create(projectManager.getProject().getProjectsRootPath()), TabPlace.BOTTOM_RIGHT_TABS, IconRepository.getInstance().PARSER_ICON));
 		return tabItems;
 	}
 
@@ -235,14 +175,14 @@ public class MainWindow extends Window implements ComponentListener
 		for (int i = 0; i < filesToOpen.size(); i++)
 		{
 			String name = filesToOpen.get(i).getName();
-			AbstractComponent component = createFileComponent(name.substring(name.lastIndexOf(".")));
+			AbstractComponent component = ComponetFactory.createFileComponent(name.substring(name.lastIndexOf(".")));
 
 			if (component != null)
 			{
 				component.addComponentListener(this);
 
 				Icon icon = IconRepository.getIconByFileName(name);
-				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name, filesToOpen.get(i).getAbsolutePath(), icon, CENTER_TABS);
+				addComponent(component.create(filesToOpen.get(i).getAbsolutePath()), component, name, filesToOpen.get(i).getAbsolutePath(), icon, TabPlace.CENTER_TABS);
 				if (i == filesToOpen.size() - 1)
 				{
 					createMenuModel(name, component);
@@ -251,22 +191,18 @@ public class MainWindow extends Window implements ComponentListener
 		}
 	}
 
-	/**
-	 * Sets the default window layout.
-	 */
 	private void setDefaultLayout()
 	{
-		DynamicView views[];
-		for (int i = 0; i < tabPage.length; i++)
+		for (int i = 0; i < TabWindowList.TAB_SIZE; i++)
 		{
-			if (defaultLayout.length > i)
+			if (dynamicaViewRepository.getDefaultLayout().size() > i)
 			{
-				views = new DynamicView[defaultLayout[i].size()];
-				tabPage[i] = new TabWindow(defaultLayout[i].toArray(views));
-				tabPage[i].getTabWindowProperties().getCloseButtonProperties().setVisible(false);
+				TabWindow tabWindow = new TabWindow(dynamicaViewRepository.getDefaultLayout().get(i).toArray());
+				getTabWindowList().add(tabWindow);
+				getTabWindowList().getTabWindow(i).getTabWindowProperties().getCloseButtonProperties().setVisible(false);
 			}
 		}
-		rootWindow.setWindow(new SplitWindow(false, 0.75f, new SplitWindow(true, 0.8f, tabPage[CENTER_TABS], new SplitWindow(false, 0.5f, tabPage[RIGHT_TOP_TABS], tabPage[RIGHT_BOTTOM_TABS])), new SplitWindow(true, 0.7f, tabPage[BOTTOM_LEFT_TABS], tabPage[BOTTOM_RIGHT_TABS])));
+		rootWindow.setWindow(new SplitWindow(false, 0.75f, new SplitWindow(true, 0.8f, getTabWindowList().getCenterTab(), new SplitWindow(false, 0.5f, getTabWindowList().getRightTopTab(), getTabWindowList().getRightBottonTab())), new SplitWindow(true, 0.7f, getTabWindowList().getBottonLeftTab(), getTabWindowList().getBottonRightTab())));
 
 		WindowBar windowBar = rootWindow.getWindowBar(Direction.DOWN);
 
@@ -274,11 +210,18 @@ public class MainWindow extends Window implements ComponentListener
 			windowBar.getChildWindow(0).close();
 	}
 
+	private void setLookAndFeel()
+	{
+		try
+		{
+			UIManager.setLookAndFeel(new javax.swing.plaf.metal.MetalLookAndFeel());
+		}
+		catch (UnsupportedLookAndFeelException e)
+		{
+			e.printStackTrace();
+		}
+	}
 
-
-	/**
-	 * Initializes the frame and shows it.
-	 */
 	@Override
 	protected void showFrame()
 	{
@@ -291,16 +234,16 @@ public class MainWindow extends Window implements ComponentListener
 	}
 
 	@Override
-	public DynamicView addComponent(Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, int place)
+	public DynamicView addComponent(Component component, org.grview.ui.component.AbstractComponent componentModel, String title, String fileName, Icon icon, TabPlace place)
 	{
-		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, getDynamicViewId());
+		DynamicView view = new DynamicView(title, icon, component, componentModel, fileName, dynamicaViewRepository.getDynamicViewId());
 		if (componentModel instanceof GrammarComponent)
 		{
 			activeScene = CanvasFactory.getCanvasFromFile(fileName);
 		}
 		if (componentModel != null)
 			componentModel.addComponentListener(this);
-		tabPage[place].addTab(view);
+		getTabWindowList().getTabWindow(place).addTab(view);
 		if (componentModel != null)
 			updateFocusedComponent(componentModel);
 		return view;
@@ -314,9 +257,9 @@ public class MainWindow extends Window implements ComponentListener
 	@Override
 	public void ContentChanged(org.grview.ui.component.AbstractComponent source, Object oldValue, Object newValue)
 	{
-		if (dynamicViewsByComponent.containsKey(source))
+		if (dynamicaViewRepository.containsDynamicView(source))
 		{
-			DynamicView view = dynamicViewsByComponent.get(source);
+			DynamicView view = dynamicaViewRepository.getDynamicView(source);
 			if (!view.getTitle().startsWith(UNSAVED_PREFIX))
 				view.getViewProperties().setTitle(UNSAVED_PREFIX + view.getTitle());
 			projectManager.setUnsavedView(((FileComponent) source).getPath(), view);
@@ -330,11 +273,7 @@ public class MainWindow extends Window implements ComponentListener
 		return rootWindow;
 	}
 
-	@Override
-	public TabWindow[] getTabPage()
-	{
-		return tabPage;
-	}
+
 
 	@Override
 	public void removeFileFromProject(String fileName)
@@ -344,9 +283,9 @@ public class MainWindow extends Window implements ComponentListener
 
 	public void setSaved(String path)
 	{
-		if (dynamicViewsByPath.containsKey(path))
+		if (dynamicaViewRepository.containsDynamicView(path))
 		{
-			DynamicView dynamicView = dynamicViewsByPath.get(path);
+			DynamicView dynamicView = dynamicaViewRepository.getDynamicView(path);
 
 			if (projectManager.hasUnsavedView(dynamicView))
 			{

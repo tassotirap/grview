@@ -2,7 +2,7 @@ package org.grview.project.interfaces;
 
 import java.util.ArrayList;
 
-import org.grview.ui.DynamicView;
+import org.grview.ui.dynamicview.DynamicView;
 
 public interface IViewManager
 {

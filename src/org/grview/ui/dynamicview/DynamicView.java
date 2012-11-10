@@ -1,4 +1,4 @@
-package org.grview.ui;
+package org.grview.ui.dynamicview;
 
 import java.awt.Component;
 
@@ -8,31 +8,13 @@ import net.infonode.docking.View;
 
 import org.grview.ui.component.AbstractComponent;
 
-/**
- * A dynamically created view containing an id.
- */
 public class DynamicView extends View
 {
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private AbstractComponent componentModel;
 	private String fileName;
 	private int id;
 
-	/**
-	 * Constructor.
-	 * 
-	 * @param title
-	 *            the view title
-	 * @param icon
-	 *            the view icon
-	 * @param component
-	 *            the view component
-	 * @param id
-	 *            the view id
-	 */
 	public DynamicView(String title, Icon icon, Component component, AbstractComponent componentModel, String fileName, int id)
 	{
 		super(title, icon, component);
@@ -51,11 +33,6 @@ public class DynamicView extends View
 		return fileName;
 	}
 
-	/**
-	 * Returns the view id.
-	 * 
-	 * @return the view id
-	 */
 	public int getId()
 	{
 		return id;
