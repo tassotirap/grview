@@ -14,7 +14,7 @@ import javax.swing.JFrame;
 import org.grview.editor.TextArea;
 import org.grview.parser.ParserProxy;
 import org.grview.parser.ParserProxyFactory;
-import org.grview.ui.Window;
+import org.grview.ui.MainWindow;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.InputAdapterComponent;
@@ -325,7 +325,7 @@ public class InputAdapter extends IOAdapter
 						}
 					}
 				}
-				else if (w instanceof JFrame && !w.getName().equals(Window.DEFAULT_NAME))
+				else if (w instanceof JFrame && !w.getName().equals(MainWindow.DEFAULT_NAME))
 				{
 					w.setVisible(false);
 					// RISKY...Could get dialogs and other stuff

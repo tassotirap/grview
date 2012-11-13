@@ -126,7 +126,7 @@ public class GrammarFactory
 
 		StringBuffer returnString = new StringBuffer();
 
-		Canvas canvas = ProjectManager.getInstance().getMainWindow().getActiveScene();
+		Canvas canvas = ProjectManager.getInstance().getActiveScene();
 		
 		List<SyntaxElement> children = AsinEditor.getInstance().getLogicDiagram(canvas).getChildrenNodes();
 		List<AbstractNode> startNodes = clearAndSetStartNodes(children);

@@ -6,18 +6,18 @@ import javax.swing.JMenuBar;
 
 import org.grview.actions.ActionContextHolder;
 import org.grview.project.ProjectManager;
+import org.grview.ui.MainWindow;
 import org.grview.ui.Menu;
 import org.grview.ui.Menu.MenuModel;
-import org.grview.ui.Window;
 
 public class MenuBarFactory
 {
 	private JMenuBar defaultMenuBar;
 	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
 	private ProjectManager projectManager;
-	private Window window;
+	private MainWindow window;
 
-	public MenuBarFactory(ProjectManager projectManager, Window window)
+	public MenuBarFactory(ProjectManager projectManager, MainWindow window)
 	{
 		this.projectManager = projectManager;	
 		this.window = window;

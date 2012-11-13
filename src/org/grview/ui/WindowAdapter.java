@@ -9,6 +9,7 @@ import net.infonode.docking.View;
 
 import org.grview.project.ProjectManager;
 import org.grview.ui.component.AbstractComponent;
+import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.dynamicview.DynamicView;
@@ -17,13 +18,13 @@ import org.grview.ui.dynamicview.DynamicView;
 public class WindowAdapter extends DockingWindowAdapter
 {
 
-	private Window window;
-	private ProjectManager projectMediator;
+	private MainWindow window;
+	private ProjectManager projectManager;
 
-	public WindowAdapter(Window window, ProjectManager projectMediator)
+	public WindowAdapter(MainWindow window, ProjectManager projectMediator)
 	{
 		this.window = window;
-		this.projectMediator = projectMediator;
+		this.projectManager = projectMediator;
 	}
 	
 
@@ -43,11 +44,11 @@ public class WindowAdapter extends DockingWindowAdapter
 	{
 		if (addedWindow instanceof DynamicView)
 		{
-			window.update(addedWindow, true);
+			window.updateWindow(addedWindow, true);
 			AbstractComponent comp = ((DynamicView) addedWindow).getComponentModel();
 			if (!(comp instanceof EmptyComponent))
 			{
-				if (window.getTabPage().getCenterTab().getChildWindowIndex(addedWindow) >= 0)
+				if (window.getTabs().getCenterTab().getChildWindowIndex(addedWindow) >= 0)
 				{
 					window.removeEmptyDynamicView();
 				}
@@ -64,7 +65,7 @@ public class WindowAdapter extends DockingWindowAdapter
 			if (view.getComponentModel() instanceof FileComponent)
 			{
 				String path = ((FileComponent) view.getComponentModel()).getPath();
-				window.removeFileFromProject(path);
+				projectManager.closeFile(path);
 			}
 		}
 	}
@@ -75,26 +76,33 @@ public class WindowAdapter extends DockingWindowAdapter
 		if (dWindow instanceof DynamicView)
 		{
 			DynamicView dynamicView = (DynamicView) dWindow;
-			if (projectMediator.hasUnsavedView(dynamicView))
+			if (projectManager.hasUnsavedView(dynamicView))
 			{
-				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before closing?");
+				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(MainWindow.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
 				if (option == JOptionPane.YES_OPTION)
 				{
-					projectMediator.saveFile(dynamicView.getComponentModel());
+					projectManager.saveFile(dynamicView.getComponentModel());
 				}
 			}
 		}
-		if (window.getTabPage().getCenterTab().getChildWindowIndex(dWindow) >= 0 && window.getTabPage().getCenterTab().getChildWindowCount() == 1)
+		if (window.getTabs().getCenterTab().getChildWindowIndex(dWindow) >= 0 && window.getTabs().getCenterTab().getChildWindowCount() == 1)
 		{
-			window.addEmptyDynamicView();
+			try
+			{
+				window.addEmptyDynamicView();
+			}
+			catch (BadParameterException e)
+			{
+				e.printStackTrace();
+			}
 		}
 	}
 
 	@Override
 	public void windowRemoved(DockingWindow removedFromWindow, DockingWindow removedWindow)
 	{
-		window.update(removedWindow, false);
+		window.updateWindow(removedWindow, false);
 	}
 }

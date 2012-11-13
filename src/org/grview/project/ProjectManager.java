@@ -15,7 +15,6 @@ import org.grview.project.interfaces.IFileManager;
 import org.grview.project.interfaces.IProject;
 import org.grview.project.interfaces.IViewManager;
 import org.grview.ui.MainWindow;
-import org.grview.ui.Window;
 import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.dynamicview.DynamicView;
 import org.grview.util.ComponentPrinter;
@@ -28,6 +27,7 @@ public final class ProjectManager
 	private IProject project;
 	private IFileManager fileManager;
 	private IViewManager viewManager;
+	private Canvas activeScene;
 
 	private static ProjectManager instance = null;
 
@@ -56,12 +56,12 @@ public final class ProjectManager
 
 		for (DynamicView dynamicView : unsavedViews)
 		{
-			int option = JOptionPane.showConfirmDialog(getMainWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(Window.UNSAVED_PREFIX, "") + "' before exiting?");
+			int option = JOptionPane.showConfirmDialog(getMainWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(MainWindow.UNSAVED_PREFIX, "") + "' before exiting?");
 			if (option == JOptionPane.CANCEL_OPTION)
 				return;
 			if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GrammarComponent)
 			{
-				StaticStateManager StaticStateManager = getMainWindow().getActiveScene().getStaticStateManager();
+				StaticStateManager StaticStateManager = activeScene.getStaticStateManager();
 				try
 				{
 					StaticStateManager.write();
@@ -172,5 +172,15 @@ public final class ProjectManager
 	public void setUnsavedView(String path, DynamicView view)
 	{
 		viewManager.setUnsavedView(path, view);
+	}
+
+	public Canvas getActiveScene()
+	{
+		return activeScene;
+	}
+
+	public void setActiveScene(Canvas activeScene)
+	{
+		this.activeScene = activeScene;
 	}
 }

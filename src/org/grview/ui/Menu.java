@@ -61,9 +61,9 @@ public class Menu extends JMenuBar
 	MenuModel model;
 	ProjectManager projectManager;
 
-	Window window;
+	MainWindow window;
 
-	public Menu(String[] menus, Window window, ActionContextHolder context, MenuModel model, ProjectManager projectManager)
+	public Menu(String[] menus, MainWindow window, ActionContextHolder context, MenuModel model, ProjectManager projectManager)
 	{
 		this.window = window;
 		this.menus = new ArrayList<String>();
