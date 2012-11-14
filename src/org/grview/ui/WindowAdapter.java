@@ -21,10 +21,10 @@ public class WindowAdapter extends DockingWindowAdapter
 	private MainWindow window;
 	private ProjectManager projectManager;
 
-	public WindowAdapter(MainWindow window, ProjectManager projectMediator)
+	public WindowAdapter()
 	{
-		this.window = window;
-		this.projectManager = projectMediator;
+		this.projectManager = ProjectManager.getInstance();
+		this.window = projectManager.getMainWindow();		
 	}
 	
 

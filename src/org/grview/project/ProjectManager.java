@@ -39,7 +39,12 @@ public final class ProjectManager
 		}
 		return instance;
 	}
-	
+
+	public static void initGrView(MainWindow window, String projectPath)
+	{
+		new ProjectManager(window, projectPath);
+	}
+
 	public List<File> getOpenedFiles()
 	{
 		List<File> filesOpened = project.getOpenedFiles();
@@ -47,9 +52,9 @@ public final class ProjectManager
 		{
 			project.getOpenedFiles().add(project.getGrammarFile());
 		}
-		return filesOpened;			
+		return filesOpened;
 	}
-	
+
 	public void exit()
 	{
 		ArrayList<DynamicView> unsavedViews = getUnsavedViews();
@@ -97,21 +102,25 @@ public final class ProjectManager
 		return project;
 	}
 
-	public ProjectManager(MainWindow window, String projectPath)
+	private ProjectManager(MainWindow window, String projectPath)
 	{
+		ProjectManager.instance = this;
 		this.mainWindow = window;
 		this.project = ProjectHelper.openProject(projectPath);
 		this.viewManager = new ViewManager();
-		this.fileManager = new FileManager(project, mainWindow, viewManager);
-		instance = this;	
+		this.fileManager = new FileManager();
 	}
 
 	public void print(Object object)
 	{
-		if(object instanceof StandaloneTextArea)
-			TextPrinter.printText(((StandaloneTextArea)object).getText());
-		else if(object instanceof Canvas)
-			ComponentPrinter.printWidget((Canvas)object);
+		if (object instanceof StandaloneTextArea)
+		{
+			TextPrinter.printText(((StandaloneTextArea) object).getText());
+		}
+		else if (object instanceof Canvas)
+		{
+			ComponentPrinter.printWidget((Canvas) object);
+		}
 	}
 
 	public void saveAllFiles()
@@ -182,5 +191,10 @@ public final class ProjectManager
 	public void setActiveScene(Canvas activeScene)
 	{
 		this.activeScene = activeScene;
+	}
+
+	public IViewManager getViewManager()
+	{
+		return viewManager;
 	}
 }

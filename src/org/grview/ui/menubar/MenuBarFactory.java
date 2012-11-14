@@ -17,16 +17,16 @@ public class MenuBarFactory
 	private ProjectManager projectManager;
 	private MainWindow window;
 
-	public MenuBarFactory(ProjectManager projectManager, MainWindow window)
+	public MenuBarFactory()
 	{
-		this.projectManager = projectManager;	
-		this.window = window;
+		this.projectManager = ProjectManager.getInstance();	
+		this.window = projectManager.getMainWindow();
 	}
 	
 	@SuppressWarnings("rawtypes")
 	public JMenuBar createMenuBarExt(ActionContextHolder context, MenuModel model)
 	{
-		Menu menu = new Menu(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, window, context, model, projectManager);
+		Menu menu = new Menu(new String[]{ Menu.FILE, Menu.EDIT, Menu.OPTIONS, Menu.PROJECT, Menu.WINDOW, Menu.HELP }, window, context, model);
 		menu.build();
 		return menu;
 	}

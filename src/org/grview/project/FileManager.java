@@ -37,11 +37,11 @@ public class FileManager implements IFileManager
 	private MainWindow mainWindow;
 	private IViewManager viewManager;
 
-	public FileManager(IProject project, MainWindow mainWindow, IViewManager viewManager)
+	public FileManager()
 	{
-		this.project = project;
-		this.mainWindow = mainWindow;
-		this.viewManager = viewManager;
+		this.project = ProjectManager.getInstance().getProject();
+		this.mainWindow = ProjectManager.getInstance().getMainWindow();
+		this.viewManager = ProjectManager.getInstance().getViewManager();
 	}
 
 	@Override

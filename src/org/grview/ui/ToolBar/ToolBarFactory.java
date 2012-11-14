@@ -17,9 +17,9 @@ public class ToolBarFactory
 	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
 	private JComponent defaultToolBar;
 
-	public ToolBarFactory(ProjectManager projectManager)
+	public ToolBarFactory()
 	{
-		this.projectManager = projectManager;
+		this.projectManager = ProjectManager.getInstance();
 	}
 
 	private ToolBarCanvas createToolBarCanvas(final Canvas canvas)
@@ -67,7 +67,7 @@ public class ToolBarFactory
 	@SuppressWarnings("rawtypes")
 	public JComponent createToolBar(final ActionContextHolder reference, boolean enableToolBarFile, boolean enableToolBarCanvas)
 	{
-		ToolBarFactory toolBarFactory = new ToolBarFactory(projectManager);
+		ToolBarFactory toolBarFactory = new ToolBarFactory();
 		if (reference == null)
 		{
 			if (defaultToolBar == null)

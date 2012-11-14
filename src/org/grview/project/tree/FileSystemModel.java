@@ -16,14 +16,14 @@ public class FileSystemModel implements TreeModel
 {
 	private Vector<TreeModelListener> listeners = new Vector<TreeModelListener>();
 	
-	private ProjectManager projectMediator;
+	private ProjectManager projectManager;
 
 	private File root;
 
 	public FileSystemModel(File rootDirectory)
 	{
 		root = rootDirectory;
-		this.projectMediator = ProjectManager.getInstance();
+		this.projectManager = ProjectManager.getInstance();
 	}
 
 	protected void fireTreeNodesChanged(TreePath parentPath, int[] indices, Object[] children)
@@ -130,9 +130,9 @@ public class FileSystemModel implements TreeModel
 		File oldFile = (File) path.getLastPathComponent();
 		String fileParentPath = oldFile.getParent();
 
-		if (projectMediator.isFileOpen(oldFile.getAbsolutePath()))
+		if (projectManager.isFileOpen(oldFile.getAbsolutePath()))
 		{
-			JOptionPane.showMessageDialog(projectMediator.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(projectManager.getMainWindow().getFrame(), "Could not rename an opened file! Please close " + oldFile.getName() + " and try again.", "Rename File", JOptionPane.ERROR_MESSAGE);
 			return;
 		}
 		String newFileName = (String) value;
@@ -144,7 +144,7 @@ public class FileSystemModel implements TreeModel
 		fireTreeNodesChanged(path.getParentPath(), changedChildrenIndices, changedChildren);
 		fireTreeStructureChanged(this, path.getParentPath());
 
-		projectMediator.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
+		projectManager.renameFile(((File) path.getLastPathComponent()).getAbsolutePath(), targetFile.getAbsolutePath());
 	}
 
 }

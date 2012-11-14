@@ -87,14 +87,14 @@ public class MainWindow implements ComponentListener
 	private ToolBarFactory toolBarFactory;
 	private DynamicViewRepository dynamicaViewRepository;
 
-	public MainWindow(String projectsPath)
+	public MainWindow(String projectPath)
 	{
 		init();
 		setLookAndFeel();
-		this.projectManager = new ProjectManager(this, projectsPath);
-		new WindowAdapter(this, projectManager);
-		this.menuBarFactory = new MenuBarFactory(projectManager, this);
-		this.toolBarFactory = new ToolBarFactory(projectManager);
+		ProjectManager.initGrView(this, projectPath);
+		this.projectManager = ProjectManager.getInstance();
+		this.menuBarFactory = new MenuBarFactory();
+		this.toolBarFactory = new ToolBarFactory();
 		this.rootWindowProperties = new RootWindowProperties();
 
 		createRootWindow();
@@ -205,7 +205,7 @@ public class MainWindow implements ComponentListener
 		rootWindow = DockingUtil.createRootWindow(perspectiveMap, handler, true);
 		rootWindow.getRootWindowProperties().addSuperObject(rootWindowProperties);
 		rootWindow.getWindowBar(Direction.DOWN).setEnabled(true);
-		rootWindow.addListener(new WindowAdapter(this, projectManager));
+		rootWindow.addListener(new WindowAdapter());
 		rootWindow.addTabMouseButtonListener(DockingWindowActionMouseButtonListener.MIDDLE_BUTTON_CLOSE_LISTENER);
 	}
 

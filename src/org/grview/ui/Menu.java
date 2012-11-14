@@ -63,13 +63,13 @@ public class Menu extends JMenuBar
 
 	MainWindow window;
 
-	public Menu(String[] menus, MainWindow window, ActionContextHolder context, MenuModel model, ProjectManager projectManager)
+	public Menu(String[] menus, MainWindow window, ActionContextHolder context, MenuModel model)
 	{
+		this.projectMediator = ProjectManager.getInstance();
 		this.window = window;
 		this.menus = new ArrayList<String>();
 		this.context = context;
 		this.model = model;
-		this.projectMediator = projectManager;
 		if (context instanceof Canvas)
 		{
 			contextDesc = CANVAS_CONTEXT;
