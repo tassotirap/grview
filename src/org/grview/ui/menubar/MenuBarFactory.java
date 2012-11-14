@@ -5,21 +5,21 @@ import java.util.HashMap;
 import javax.swing.JMenuBar;
 
 import org.grview.actions.ActionContextHolder;
-import org.grview.project.ProjectManager;
-import org.grview.ui.MainWindow;
+import org.grview.project.GrviewManager;
 import org.grview.ui.Menu;
 import org.grview.ui.Menu.MenuModel;
+import org.grview.ui.interfaces.IMainWindow;
 
 public class MenuBarFactory
 {
 	private JMenuBar defaultMenuBar;
 	private HashMap<Object, JMenuBar> menuBars = new HashMap<Object, JMenuBar>();
-	private ProjectManager projectManager;
-	private MainWindow window;
+	private GrviewManager projectManager;
+	private IMainWindow window;
 
 	public MenuBarFactory()
 	{
-		this.projectManager = ProjectManager.getInstance();	
+		this.projectManager = GrviewManager.getInstance();	
 		this.window = projectManager.getMainWindow();
 	}
 	

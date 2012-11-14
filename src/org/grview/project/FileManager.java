@@ -39,9 +39,9 @@ public class FileManager implements IFileManager
 
 	public FileManager()
 	{
-		this.project = ProjectManager.getInstance().getProject();
-		this.mainWindow = ProjectManager.getInstance().getMainWindow();
-		this.viewManager = ProjectManager.getInstance().getViewManager();
+		this.project = GrviewManager.getInstance().getProject();
+		this.mainWindow = GrviewManager.getInstance().getMainWindow();
+		this.viewManager = GrviewManager.getInstance().getUnsavedViewManager();
 	}
 
 	@Override

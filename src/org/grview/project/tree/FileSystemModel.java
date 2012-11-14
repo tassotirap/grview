@@ -10,20 +10,20 @@ import javax.swing.event.TreeModelListener;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 
 public class FileSystemModel implements TreeModel
 {
 	private Vector<TreeModelListener> listeners = new Vector<TreeModelListener>();
 	
-	private ProjectManager projectManager;
+	private GrviewManager projectManager;
 
 	private File root;
 
 	public FileSystemModel(File rootDirectory)
 	{
 		root = rootDirectory;
-		this.projectManager = ProjectManager.getInstance();
+		this.projectManager = GrviewManager.getInstance();
 	}
 
 	protected void fireTreeNodesChanged(TreePath parentPath, int[] indices, Object[] children)

@@ -8,18 +8,18 @@ import javax.swing.JPanel;
 
 import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.ui.component.AdapterComponent;
 
 public class ToolBarFactory
 {
-	private ProjectManager projectManager;
+	private GrviewManager projectManager;
 	private HashMap<Object, JComponent> toolBars = new HashMap<Object, JComponent>();
 	private JComponent defaultToolBar;
 
 	public ToolBarFactory()
 	{
-		this.projectManager = ProjectManager.getInstance();
+		this.projectManager = GrviewManager.getInstance();
 	}
 
 	private ToolBarCanvas createToolBarCanvas(final Canvas canvas)

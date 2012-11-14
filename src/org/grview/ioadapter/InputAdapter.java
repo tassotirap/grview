@@ -14,11 +14,11 @@ import javax.swing.JFrame;
 import org.grview.editor.TextArea;
 import org.grview.parser.ParserProxy;
 import org.grview.parser.ParserProxyFactory;
-import org.grview.ui.MainWindow;
 import org.grview.ui.component.AdvancedTextAreaComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.InputAdapterComponent;
 import org.grview.ui.component.TextAreaRepo;
+import org.grview.ui.interfaces.IMainWindow;
 import org.grview.util.JarFileLoader;
 import org.grview.util.Log;
 import org.grview.util.dynacode.DynaCode;
@@ -325,7 +325,7 @@ public class InputAdapter extends IOAdapter
 						}
 					}
 				}
-				else if (w instanceof JFrame && !w.getName().equals(MainWindow.DEFAULT_NAME))
+				else if (w instanceof JFrame && !w.getName().equals(IMainWindow.DEFAULT_NAME))
 				{
 					w.setVisible(false);
 					// RISKY...Could get dialogs and other stuff

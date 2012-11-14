@@ -14,8 +14,9 @@ import javax.swing.KeyStroke;
 import org.grview.actions.ActionContextHolder;
 import org.grview.canvas.Canvas;
 import org.grview.editor.TextArea;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.ui.ThemeManager.Theme;
+import org.grview.ui.interfaces.IMainWindow;
 import org.grview.ui.wizard.NewFileWizard;
 import org.grview.util.LangHelper;
 
@@ -50,7 +51,7 @@ public class Menu extends JMenuBar
 	public final static String OPTIONS = "Options";
 	public final static String PROJECT = "Project";
 	
-	private ProjectManager projectMediator;
+	private GrviewManager projectMediator;
 
 	public final static int TEXTAREA_CONTEXT = 2;
 
@@ -59,13 +60,13 @@ public class Menu extends JMenuBar
 	int contextDesc;
 	ArrayList<String> menus;
 	MenuModel model;
-	ProjectManager projectManager;
+	GrviewManager projectManager;
 
-	MainWindow window;
+	IMainWindow window;
 
-	public Menu(String[] menus, MainWindow window, ActionContextHolder context, MenuModel model)
+	public Menu(String[] menus, IMainWindow window, ActionContextHolder context, MenuModel model)
 	{
-		this.projectMediator = ProjectManager.getInstance();
+		this.projectMediator = GrviewManager.getInstance();
 		this.window = window;
 		this.menus = new ArrayList<String>();
 		this.context = context;

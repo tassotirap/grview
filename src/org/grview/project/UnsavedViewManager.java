@@ -6,11 +6,11 @@ import java.util.HashMap;
 import org.grview.project.interfaces.IViewManager;
 import org.grview.ui.dynamicview.DynamicView;
 
-public class ViewManager implements IViewManager
+public class UnsavedViewManager implements IViewManager
 {
 	private HashMap<String, DynamicView> unsavedViews;
 	
-	public ViewManager()
+	public UnsavedViewManager()
 	{
 		unsavedViews = new HashMap<String, DynamicView>();		
 	}

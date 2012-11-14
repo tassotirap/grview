@@ -7,23 +7,24 @@ import net.infonode.docking.DockingWindowAdapter;
 import net.infonode.docking.OperationAbortedException;
 import net.infonode.docking.View;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.ui.component.AbstractComponent;
 import org.grview.ui.component.BadParameterException;
 import org.grview.ui.component.EmptyComponent;
 import org.grview.ui.component.FileComponent;
 import org.grview.ui.dynamicview.DynamicView;
+import org.grview.ui.interfaces.IMainWindow;
 
 /** An adapter to control how a window should react when changed **/
 public class WindowAdapter extends DockingWindowAdapter
 {
 
-	private MainWindow window;
-	private ProjectManager projectManager;
+	private IMainWindow window;
+	private GrviewManager projectManager;
 
 	public WindowAdapter()
 	{
-		this.projectManager = ProjectManager.getInstance();
+		this.projectManager = GrviewManager.getInstance();
 		this.window = projectManager.getMainWindow();		
 	}
 	
@@ -78,7 +79,7 @@ public class WindowAdapter extends DockingWindowAdapter
 			DynamicView dynamicView = (DynamicView) dWindow;
 			if (projectManager.hasUnsavedView(dynamicView))
 			{
-				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(MainWindow.UNSAVED_PREFIX, "") + "' before closing?");
+				int option = JOptionPane.showConfirmDialog(window.getFrame(), "Would you like to save '" + dWindow.getTitle().replace(IMainWindow.UNSAVED_PREFIX, "") + "' before closing?");
 				if (option == JOptionPane.CANCEL_OPTION)
 					throw new OperationAbortedException("Window close was aborted!");
 				if (option == JOptionPane.YES_OPTION)

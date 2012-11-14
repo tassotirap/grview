@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.StringReader;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.project.interfaces.IProject;
 import org.grview.syntax.SyntacticLoader;
 import org.grview.util.IOUtilities;
@@ -80,7 +80,7 @@ public class Exporter
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/lib/asm-2.2.3.jar"), new File(rootPath, "export_code/lib/asm-2.2.3.jar"));
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/lib/antlr-2.7.6.jar"), new File(rootPath, "export_code/lib/antlr-2.7.6.jar"));
 		IOUtilities.copyFileFromInputSteam(getClass().getResourceAsStream("/org/grview/syntax/analyzer/gsll1/exportable/lib/license.txt"), new File(rootPath, "export_code/lib/license.txt"));
-		IProject p = ProjectManager.getInstance().getProject();
+		IProject p = GrviewManager.getInstance().getProject();
 		File semFile = p.getSemanticFile();
 		FileReader fr;
 		BufferedReader br;

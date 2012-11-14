@@ -38,9 +38,8 @@ import org.grview.editor.TextArea;
 import org.grview.model.FileNames;
 import org.grview.model.ui.IconFactory;
 import org.grview.model.ui.IconFactory.IconType;
-import org.grview.model.ui.IconView;
 import org.grview.parser.ParsingEditor;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.ui.Menu.MenuModel;
 import org.grview.ui.TabWindowList.TabPlace;
 import org.grview.ui.ThemeManager.Theme;
@@ -61,18 +60,14 @@ import org.grview.ui.component.SyntaxStackComponent;
 import org.grview.ui.component.TextAreaRepo;
 import org.grview.ui.dynamicview.DynamicView;
 import org.grview.ui.dynamicview.DynamicViewRepository;
+import org.grview.ui.interfaces.IMainWindow;
 import org.grview.ui.menubar.MenuBarFactory;
 import org.grview.ui.toolbar.ToolBarFactory;
 
-public class MainWindow implements ComponentListener
+public class MainWindow implements ComponentListener, IMainWindow
 {
 	private ViewMap perspectiveMap = new ViewMap();
 	private RootWindowProperties rootWindowProperties;
-
-	public final static String DEFAULT_NAME = "GrView Window";
-	public final static String DEFAULT_TITLE = "GrView";
-	public final static String UNSAVED_PREFIX = "* ";
-	public final static Icon VIEW_ICON = new IconView();
 
 	private DynamicView emptyDynamicView = null;
 	private JMenuBar currentMenuBar;
@@ -82,7 +77,7 @@ public class MainWindow implements ComponentListener
 	private JFrame frame;
 	
 	private RootWindow rootWindow;
-	private ProjectManager projectManager;
+	private GrviewManager projectManager;
 	private MenuBarFactory menuBarFactory;
 	private ToolBarFactory toolBarFactory;
 	private DynamicViewRepository dynamicaViewRepository;
@@ -91,8 +86,8 @@ public class MainWindow implements ComponentListener
 	{
 		init();
 		setLookAndFeel();
-		ProjectManager.initGrView(this, projectPath);
-		this.projectManager = ProjectManager.getInstance();
+		GrviewManager.initGrView(this, projectPath);
+		this.projectManager = GrviewManager.getInstance();
 		this.menuBarFactory = new MenuBarFactory();
 		this.toolBarFactory = new ToolBarFactory();
 		this.rootWindowProperties = new RootWindowProperties();
@@ -336,12 +331,14 @@ public class MainWindow implements ComponentListener
 		return null;
 	}
 
+	@Override
 	public void addEmptyDynamicView() throws BadParameterException
 	{
 		EmptyComponent emptyComponent = new EmptyComponent();
 		emptyDynamicView = addComponent(emptyComponent.create(null), emptyComponent, "Empty Page", null, VIEW_ICON, TabPlace.CENTER_TABS);
 	}
 
+	@Override
 	public void changeTheme(Theme theme)
 	{
 		ThemeManager.changeTheme(rootWindowProperties, theme);
@@ -360,21 +357,25 @@ public class MainWindow implements ComponentListener
 
 	}
 
+	@Override
 	public JFrame getFrame()
 	{
 		return frame;
 	}
 
+	@Override
 	public TabWindowList getTabs()
 	{
 		return tabWindow;
 	}
 
+	@Override
 	public TabWindowList getTabWindowList()
 	{
 		return tabWindow;
 	}
 
+	@Override
 	public void removeEmptyDynamicView()
 	{
 		if (emptyDynamicView != null)
@@ -384,6 +385,7 @@ public class MainWindow implements ComponentListener
 		}
 	}
 
+	@Override
 	public void setSaved(String path)
 	{
 		if (dynamicaViewRepository.containsDynamicView(path))
@@ -405,6 +407,7 @@ public class MainWindow implements ComponentListener
 		}
 	}
 
+	@Override
 	public void updateFocusedComponent(AbstractComponent component)
 	{
 		if (component == null)
@@ -454,6 +457,7 @@ public class MainWindow implements ComponentListener
 		}
 	}
 
+	@Override
 	public void updateWindow(DockingWindow window, boolean added)
 	{
 		dynamicaViewRepository.updateViews(window, added);

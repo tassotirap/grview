@@ -8,7 +8,7 @@ import java.util.HashMap;
 import javax.swing.JOptionPane;
 
 import org.grview.model.FileNames;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.util.LangHelper;
 import org.grview.util.Log;
 
@@ -24,13 +24,13 @@ public class NewFileWizard
 	private final static String newSem = img_path + "new-file-sem.png";
 	private final static String newTxt = img_path + "new-file-txt.png";
 
-	private final ProjectManager projectMediator;
+	private final GrviewManager projectMediator;
 
 	private FileEntry[] entrys = new FileEntry[]{ new FileEntry(LangHelper.new_gram, newGram, new FileNames(FileNames.GRAM_EXTENSION)), new FileEntry(LangHelper.new_sem, newSem, new FileNames(FileNames.SEM_EXTENSION)), new FileEntry(LangHelper.new_lex, newLex, new FileNames(FileNames.LEX_EXTENSION)), new FileEntry(LangHelper.new_txt, newTxt, new FileNames(FileNames.TXT_EXTENSION)), new FileEntry(LangHelper.new_in, newIn, new FileNames(FileNames.IN_EXTENSION)), new FileEntry(LangHelper.new_out, newOut, new FileNames(FileNames.OUT_EXTENSION)) };
 
 	public HashMap<String, String> descByName = new HashMap<String, String>();
 
-	public NewFileWizard(ProjectManager projectMediator)
+	public NewFileWizard(GrviewManager projectMediator)
 	{
 		this.projectMediator = projectMediator;
 		descByName.put(LangHelper.new_gram, LangHelper.new_gram_desc);

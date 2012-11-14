@@ -8,7 +8,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.border.EmptyBorder;
 
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.ui.wizard.NewFileWizard;
 
 import com.jidesoft.icons.ColorFilter;
@@ -16,11 +16,11 @@ import com.jidesoft.icons.ColorFilter;
 public class ToolBarFile extends BaseToolBar
 {
 	private static final long serialVersionUID = 1L;
-	private ProjectManager projectMediator;
+	private GrviewManager projectMediator;
 
 	JButton btnNewFile;
 
-	public ToolBarFile(ProjectManager projectMediator)
+	public ToolBarFile(GrviewManager projectMediator)
 	{
 		super(null);
 		this.add(btnNewFile);

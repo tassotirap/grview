@@ -16,7 +16,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.grview.lexical.Yytoken;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
 import org.grview.syntax.model.ParseStack;
 import org.grview.syntax.model.TableNode;
@@ -85,7 +85,7 @@ public class SemanticRoutinesRepo
 		HashMap<String, String> routineCode = new HashMap<String, String>();
 		try
 		{
-			FileInputStream fileInputStream = new FileInputStream(ProjectManager.getInstance().getProject().getSemanticFile());
+			FileInputStream fileInputStream = new FileInputStream(GrviewManager.getInstance().getProject().getSemanticFile());
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(fileInputStream));
 			String line = bufferedReader.readLine();
 			while (line != null)

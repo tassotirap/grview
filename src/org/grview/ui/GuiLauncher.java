@@ -2,6 +2,7 @@ package org.grview.ui;
 
 import javax.swing.JFrame;
 
+import org.grview.ui.interfaces.IMainWindow;
 import org.grview.ui.lib.SplashWindow;
 
 /**
@@ -51,7 +52,7 @@ public class GuiLauncher
 		}
 	}
 
-	private MainWindow startMainWindow(WorkspaceChooser workspaceChooser)
+	private IMainWindow startMainWindow(WorkspaceChooser workspaceChooser)
 	{	
 		MainWindow mainWindow = new MainWindow(workspaceChooser.getWorkspaceDir());
 		showFrame(mainWindow);

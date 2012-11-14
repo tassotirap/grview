@@ -8,7 +8,7 @@ import org.grview.canvas.CanvasData;
 import org.grview.canvas.CanvasPopupMenu;
 import org.grview.canvas.strategy.MoveStrategy;
 import org.grview.canvas.widget.GridWidget;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.netbeans.api.visual.action.WidgetAction;
 import org.netbeans.modules.visual.action.SingleLayerAlignWithWidgetCollector;
 
@@ -20,13 +20,13 @@ public class WidgetActionRepositoryFactory
 
 		HashMap<String, WidgetAction> actions = new HashMap<String, WidgetAction>();
 
-		ProjectManager projectMediator;
+		GrviewManager projectMediator;
 
 		private String activeMoveAction = null;
 
 		public WAR()
 		{
-			this.projectMediator = ProjectManager.getInstance();
+			this.projectMediator = GrviewManager.getInstance();
 
 			actions.put(CREATE, null);
 			actions.put(SELECT, null);

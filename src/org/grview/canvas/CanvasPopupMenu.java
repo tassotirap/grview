@@ -22,7 +22,7 @@ import org.grview.canvas.action.WidgetCopyPasteProvider;
 import org.grview.canvas.action.WidgetDeleteProvider;
 import org.grview.canvas.state.VolatileStateManager;
 import org.grview.canvas.widget.MarkedWidget;
-import org.grview.project.ProjectManager;
+import org.grview.project.GrviewManager;
 import org.grview.project.interfaces.IProject;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.command.CommandFactory;
@@ -41,11 +41,11 @@ public class CanvasPopupMenu extends WidgetAction.Adapter implements PopupMenuPr
 	private LineProvider lineProvider;
 	private PropertyChangeSupport monitor;
 	
-	ProjectManager projectMediator;
+	GrviewManager projectMediator;
 
 	private Widget widget;
 
-	public CanvasPopupMenu(Canvas canvas, ProjectManager projectMediator)
+	public CanvasPopupMenu(Canvas canvas, GrviewManager projectMediator)
 	{
 		this.canvas = canvas;
 		gridProvider = GridProvider.getInstance(canvas);

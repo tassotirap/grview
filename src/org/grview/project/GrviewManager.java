@@ -17,21 +17,21 @@ import org.grview.project.interfaces.IViewManager;
 import org.grview.ui.MainWindow;
 import org.grview.ui.component.GrammarComponent;
 import org.grview.ui.dynamicview.DynamicView;
+import org.grview.ui.interfaces.IMainWindow;
 import org.grview.util.ComponentPrinter;
 import org.grview.util.Log;
 import org.grview.util.TextPrinter;
 
-public final class ProjectManager
+public final class GrviewManager
 {
 	private MainWindow mainWindow;
 	private IProject project;
 	private IFileManager fileManager;
-	private IViewManager viewManager;
+	private IViewManager unViewManager;
 	private Canvas activeScene;
 
-	private static ProjectManager instance = null;
-
-	public static ProjectManager getInstance()
+	private static GrviewManager instance = null;
+	public static GrviewManager getInstance()
 	{
 		if (instance == null)
 		{
@@ -42,7 +42,7 @@ public final class ProjectManager
 
 	public static void initGrView(MainWindow window, String projectPath)
 	{
-		new ProjectManager(window, projectPath);
+		new GrviewManager(window, projectPath);
 	}
 
 	public List<File> getOpenedFiles()
@@ -61,7 +61,7 @@ public final class ProjectManager
 
 		for (DynamicView dynamicView : unsavedViews)
 		{
-			int option = JOptionPane.showConfirmDialog(getMainWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(MainWindow.UNSAVED_PREFIX, "") + "' before exiting?");
+			int option = JOptionPane.showConfirmDialog(getMainWindow().getFrame(), "Would you like to save '" + dynamicView.getTitle().replace(IMainWindow.UNSAVED_PREFIX, "") + "' before exiting?");
 			if (option == JOptionPane.CANCEL_OPTION)
 				return;
 			if (option == JOptionPane.YES_OPTION && dynamicView.getComponentModel() instanceof GrammarComponent)
@@ -89,7 +89,7 @@ public final class ProjectManager
 
 	public ArrayList<DynamicView> getUnsavedViews()
 	{
-		return viewManager.getUnsavedViews();
+		return unViewManager.getUnsavedViews();
 	}
 
 	public MainWindow getMainWindow()
@@ -102,12 +102,12 @@ public final class ProjectManager
 		return project;
 	}
 
-	private ProjectManager(MainWindow window, String projectPath)
+	private GrviewManager(MainWindow window, String projectPath)
 	{
-		ProjectManager.instance = this;
+		GrviewManager.instance = this;
 		this.mainWindow = window;
 		this.project = ProjectHelper.openProject(projectPath);
-		this.viewManager = new ViewManager();
+		this.unViewManager = new UnsavedViewManager();
 		this.fileManager = new FileManager();
 	}
 
@@ -165,22 +165,22 @@ public final class ProjectManager
 
 	public boolean hasUnsavedView(DynamicView dynamicView)
 	{
-		return viewManager.hasUnsavedView(dynamicView);
+		return unViewManager.hasUnsavedView(dynamicView);
 	}
 
 	public void removeUnsavedView(String path)
 	{
-		viewManager.removeUnsavedView(path);
+		unViewManager.removeUnsavedView(path);
 	}
 
 	public boolean hasUnsavedView(String file)
 	{
-		return viewManager.hasUnsavedView(file);
+		return unViewManager.hasUnsavedView(file);
 	}
 
 	public void setUnsavedView(String path, DynamicView view)
 	{
-		viewManager.setUnsavedView(path, view);
+		unViewManager.setUnsavedView(path, view);
 	}
 
 	public Canvas getActiveScene()
@@ -193,8 +193,8 @@ public final class ProjectManager
 		this.activeScene = activeScene;
 	}
 
-	public IViewManager getViewManager()
+	public IViewManager getUnsavedViewManager()
 	{
-		return viewManager;
+		return unViewManager;
 	}
 }
