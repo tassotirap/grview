@@ -19,18 +19,18 @@ public class AnalyzerErrorFacede
 	private File fileIn;
 	private AnalyzerTableRepository analyzerTable;
 
-	private AnalyzerToken syntaxToken;	
+	private AnalyzerToken syntaxToken;
 
 	public AnalyzerErrorFacede(File fileIn)
 	{
 		this.fileIn = fileIn;
 		this.analyzerTable = AnalyzerTableRepository.getInstance();
 		this.syntaxToken = AnalyzerToken.getInstance();
-	}	
+	}
 
-	public boolean dealWithError(int indexNode, int toppsIU, int column, int line)
+	public int dealWithError(int UI, int TOP, int column, int line)
 	{
-		int lastIndexNode = indexNode;
+		int lastIndexNode = UI;
 
 		try
 		{
@@ -55,94 +55,62 @@ public class AnalyzerErrorFacede
 				AppOutput.displayText("File not found...", TOPIC.Output);
 			}
 		}
-		AppOutput.displayText("<font color='red'>Error found at the symbol "+ syntaxToken.getCurrentToken().text +" of line: " + line + ", column: " + column + ". </font>", TOPIC.Output);
+		AppOutput.displayText("<font color='red'>Error found at the symbol " + syntaxToken.getCurrentToken().text + " of line: " + line + ", column: " + column + ". </font>", TOPIC.Output);
+
+		int IX = UI;
 
 		Stack<TableGraphNode> nTerminalStack = new Stack<TableGraphNode>();
 
-		while (indexNode != 0)
+		while (IX != 0)
 		{
-			if (analyzerTable.getGraphNode(indexNode).IsTerminal())
+			if (analyzerTable.getGraphNode(IX).IsTerminal())
 			{
-				AppOutput.displayText(analyzerTable.getTermial(analyzerTable.getGraphNode(indexNode).getNodeReference()).getName() + " expected.", TOPIC.Output);
+				AppOutput.displayText("<font color='red'>" + analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference()).getName() + " expected.</font>", TOPIC.Output);
 
-				indexNode = analyzerTable.getGraphNode(indexNode).getAlternativeIndex();
+				IX = analyzerTable.getGraphNode(IX).getAlternativeIndex();
 
-				if (indexNode == 0 && nTerminalStack.size() > 0)
+				if (IX == 0 && nTerminalStack.size() > 0)
 				{
-					indexNode = nTerminalStack.pop().getAlternativeIndex();
+					IX = nTerminalStack.pop().getAlternativeIndex();
 				}
 
 			}
 			else
 			{
-				nTerminalStack.push(analyzerTable.getGraphNode(indexNode));
-				indexNode = analyzerTable.getNTerminal(analyzerTable.getGraphNode(indexNode).getNodeReference()).getFirstNode();
+				nTerminalStack.push(analyzerTable.getGraphNode(IX));
+				IX = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getFirstNode();
 			}
 		}
-		
+
 		ArrayList<IErroStrategy> strategyList = new ArrayList<IErroStrategy>();
+		strategyList.add(new InsertStrategy());
+		// strategyList.add(new DelimiterSearchStrategy());
+		// strategyList.add(new ChangeStrategy());
 		strategyList.add(new DeleteStrategy());
-		//strategyList.add(new InsertStrategy());
-		//strategyList.add(new ChangeStrategy());
-		//strategyList.add(new DelimiterSearchStrategy());
-		
-		boolean fix = false;
-		
-		for(IErroStrategy errorStrategy : strategyList)
+
+		int I = UI;
+
+		for (IErroStrategy errorStrategy : strategyList)
 		{
-			fix = errorStrategy.tryFix(lastIndexNode, toppsIU, column, line);
-			
-			if(fix)
-				break;			
+			I = errorStrategy.tryFix(lastIndexNode, TOP, column, line);
+			if (I >= 0)
+			{
+				return I;
+			}
 		}
-		
-		if(!fix)
+
+		if (I < 0)
 		{
 			syntaxToken.readNext();
 			if (syntaxToken.getCurrentToken().text.equals("$"))
 			{
-				return false;
+				return I;
 			}
 			else
 			{
-				dealWithError(lastIndexNode, toppsIU, syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
-			}					
+				I = dealWithError(lastIndexNode, TOP, syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
+			}
 		}
-			
-			/* Tenta corrigir o erro utilizando a estratégia de inserção */
-			//if (!estrategiaInsercao(lastIndexNode, toppsIU, column, line))
-			//{
-				//
-				/* Tenta corrigir o erro utilizando a estratégia da troca */
-				//if (!estrategiaTroca(lastIndexNode, toppsIU, column, line))
-				//{
-					//AppOutput.errorRecoveryStatus("Replacing a symbol stategy has not succeeded\n");
-					/*
-					 * Tenta corrigir o erro utilizando a estratégia da busca de
-					 * Delimitador
-					 */
-					//if (!estrategiaBuscaDelimitador(lastIndexNode, toppsIU, column, line))
-					//{
-						//AppOutput.errorRecoveryStatus("Searching delimiters strategy has not succeeded\n");
-						/*
-						 * Até esse ponto nenhuma das estratégias tiveram
-						 * sucesso ao corrigir o erro, então o próximo simbolo
-						 * da entrada é lido a rotina de tratamento de erros é
-						 * chamada novamente. Dessa vez para esse novo simbolo
-						 * lido.
-						 */
-						//syntaxToken.readNext();
-						//if (syntaxToken.getCurrentToken().text.equals("$"))
-						//{
-						//	return false;
-						//}
-						//else
-						//{
-						//	dealWithError(lastIndexNode, toppsIU, syntaxToken.getCurrentToken().charBegin, syntaxToken.getCurrentToken().line);
-						//}
-					//}
-				//}
-			//}
-		return true;
+		return I;
 	}
 }

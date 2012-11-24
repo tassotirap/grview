@@ -2,7 +2,6 @@ package org.grview.syntax.analyzer.gsll1.error;
 
 import org.grview.output.AppOutput;
 import org.grview.syntax.analyzer.gsll1.AnalyzerAlternative;
-import org.grview.syntax.analyzer.gsll1.AnalyzerIndex;
 import org.grview.syntax.analyzer.gsll1.AnalyzerStackRepository;
 import org.grview.syntax.analyzer.gsll1.AnalyzerTableRepository;
 import org.grview.syntax.analyzer.gsll1.AnalyzerToken;
@@ -16,7 +15,6 @@ public class DelimiterSearchStrategy implements IErroStrategy
 	private AnalyzerTableRepository analyzerTable;
 	private AnalyzerStackRepository analyzerStack;
 	private AnalyzerAlternative analyzerAlternative;
-	private AnalyzerIndex analyzerIndex;
 	private AnalyzerToken analyzerToken;
 
 	public DelimiterSearchStrategy()
@@ -24,50 +22,51 @@ public class DelimiterSearchStrategy implements IErroStrategy
 		this.analyzerTable = AnalyzerTableRepository.getInstance();
 		this.analyzerStack = AnalyzerStackRepository.getInstance();
 		this.analyzerAlternative = AnalyzerAlternative.getInstance();
-		this.analyzerIndex = AnalyzerIndex.getInstance();
 		this.analyzerToken = AnalyzerToken.getInstance();
 	}
 
 	@Override
-	public boolean tryFix(int topIndexNode, int topParseStackSize, int column, int line)
+	public int tryFix(int UI, int TOP, int column, int line)
 	{
-		boolean achou = false;
+		int I = -1;
 		GrViewStack pilhaAnalisadorBackup;
 		GrViewStack pilhaAuxAnalisador = new GrViewStack();
 		NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
 		GrViewNode temp;
 		pilhaAnalisadorBackup = analyzerStack.getGrViewStack().clone();
 		int toppsAux;
+		int TOPO_AUX = analyzerStack.getGrViewStack().size();
 		int IY;
+		int IX = UI;
 		/* percorre a pilha do analisador */
-		while (!analyzerStack.getGrViewStack().empty() && !achou)
+		while (TOPO_AUX != 0 && I < 0)
 		{
 			/*
 			 * Ainda existem alternativas a seguir ou é necessario desempilhar
 			 * um nó na pilha do analisador
 			 */
 			toppsAux = analyzerStack.getParseStack().size();
-			if (topIndexNode != 0)
+			if (IX != 0)
 			{
 				/* Procurando por um não terminal */
-				while (topIndexNode != 0 && analyzerTable.getGraphNode(topIndexNode).IsTerminal())
-					topIndexNode = analyzerTable.getGraphNode(topIndexNode).getAlternativeIndex();
+				while (IX != 0 && analyzerTable.getGraphNode(IX).IsTerminal())
+					IX = analyzerTable.getGraphNode(IX).getAlternativeIndex();
 			}
 			/* Preciso desempilhar um nó da pilha do analisador */
-			if (topIndexNode == 0)
+			if (IX == 0)
 			{
 				/* desempilha e vai para o percurso */
 				temp = analyzerStack.getGrViewStack().pop();
-				topIndexNode = temp.indexNode;
+				IX = temp.indexNode;
 				toppsAux = temp.size;
 			}
 			/* inicio do percurso */
-			IY = analyzerTable.getGraphNode(topIndexNode).getSucessorIndex();
+			IY = analyzerTable.getGraphNode(IX).getSucessorIndex();
 			/* inicializando as duas pilhas auxiliares... */
 			pilhaNaoTerminalY.clear();
 			pilhaAuxAnalisador.clear();
 			/* percurso */
-			while (IY != 0 && !achou)
+			while (IY != 0 && I < 0)
 			{
 				if (analyzerTable.getGraphNode(IY).IsTerminal())
 				{
@@ -84,9 +83,8 @@ public class DelimiterSearchStrategy implements IErroStrategy
 							{
 								analyzerStack.getParseStack().pop();
 							}
-							analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getNTerminal(analyzerTable.getGraphNode(topIndexNode).getNodeReference()).getFlag(), analyzerTable.getNTerminal(analyzerTable.getGraphNode(topIndexNode).getNodeReference()).getName()));
-							achou = true;
-							analyzerIndex.setIndexNode(IY);
+							analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getFlag(), analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getName()));
+						    I = IY;
 						}
 						else
 							IY = analyzerAlternative.findAlternative(IY, pilhaNaoTerminalY, pilhaAuxAnalisador);
@@ -100,10 +98,10 @@ public class DelimiterSearchStrategy implements IErroStrategy
 
 				}
 			}
-			if (!achou)
-				topIndexNode = analyzerTable.getGraphNode(topIndexNode).getAlternativeIndex();
+			if (I < 0)
+				IX = analyzerTable.getGraphNode(IX).getAlternativeIndex();
 		}
-		if (achou)
+		if (I >= 0)
 		{
 			while (!pilhaAuxAnalisador.empty())
 			/* copia a pilha auxiliar do analisador na pilha do analisador... */
@@ -116,7 +114,7 @@ public class DelimiterSearchStrategy implements IErroStrategy
 		{
 			analyzerStack.setGrViewStack(pilhaAnalisadorBackup.clone());
 		}
-		return achou;
+		return I;
 	}
 	
 

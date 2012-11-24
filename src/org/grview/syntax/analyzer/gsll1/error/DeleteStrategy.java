@@ -4,7 +4,6 @@ import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.analyzer.gsll1.AnalyzerAlternative;
-import org.grview.syntax.analyzer.gsll1.AnalyzerIndex;
 import org.grview.syntax.analyzer.gsll1.AnalyzerStackRepository;
 import org.grview.syntax.analyzer.gsll1.AnalyzerTableRepository;
 import org.grview.syntax.analyzer.gsll1.AnalyzerToken;
@@ -18,7 +17,6 @@ public class DeleteStrategy implements IErroStrategy
 	private AnalyzerTableRepository analyzerTable;
 	private AnalyzerStackRepository analyzerStack;
 	private AnalyzerAlternative analyzerAlternative;
-	private AnalyzerIndex analyzerIndex;
 	private AnalyzerToken analyzerToken;
 
 	private SemanticRoutinesRepo semanticRoutinesRepo;
@@ -28,30 +26,30 @@ public class DeleteStrategy implements IErroStrategy
 		this.analyzerTable = AnalyzerTableRepository.getInstance();
 		this.analyzerStack = AnalyzerStackRepository.getInstance();
 		this.analyzerAlternative = AnalyzerAlternative.getInstance();
-		this.analyzerIndex = AnalyzerIndex.getInstance();
 		this.analyzerToken = AnalyzerToken.getInstance();
 		this.semanticRoutinesRepo = SemanticRoutinesRepo.getInstance();
 	}
 
 	@Override
-	public boolean tryFix(int topIndexNode, int topParseStackSize, int column, int line)
+	public int tryFix(int UI, int TOP, int column, int line)
 	{
-		boolean success = false;
+		int I = -1;
+		int IX = UI;
 
 		analyzerToken.readNext();
 
-		while (topIndexNode != 0)
+		while (IX != 0)
 		{
-			TableGraphNode graphNode = analyzerTable.getGraphNode(topIndexNode);
+			TableGraphNode graphNode = analyzerTable.getGraphNode(IX);
 
-			if (analyzerTable.getGraphNode(topIndexNode).IsTerminal())
+			if (analyzerTable.getGraphNode(IX).IsTerminal())
 			{
 				TableNode terminalNode = analyzerTable.getTermial(graphNode.getNodeReference());
 
 				if (terminalNode.getName().equals(analyzerToken.getCurrentSymbol()))
 				{
-					AppOutput.displayText("Action: symbol \"" + analyzerToken.getLastToken().text +"\" was skipped.\n", TOPIC.Output);
-					
+					AppOutput.displayText("<font color='red'>Symbol \"" + analyzerToken.getLastToken().text + "\" was ignored.\n</font>", TOPIC.Output);
+
 					analyzerStack.getParseStack().push(new ParseNode(terminalNode.getFlag(), analyzerToken.getCurrentSymbol(), analyzerToken.getCurrentSemanticSymbol()));
 
 					semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
@@ -60,41 +58,37 @@ public class DeleteStrategy implements IErroStrategy
 					analyzerToken.readNext();
 
 					analyzerStack.getNTerminalStack().clear();
-					analyzerIndex.setIndexNode(graphNode.getSucessorIndex());
-
-					success = true;
+					I = graphNode.getSucessorIndex();
 
 					break;
 				}
 				else
 				{
 					int alternative = 0;
-					alternative = analyzerAlternative.findAlternative(topIndexNode, analyzerStack.getNTerminalStack(), analyzerStack.getGrViewStack());
-					topIndexNode = alternative;
+					alternative = analyzerAlternative.findAlternative(IX, analyzerStack.getNTerminalStack(), analyzerStack.getGrViewStack());
+					IX = alternative;
 				}
 			}
 			else
 			{
 				TableNode nTerminalNode = analyzerTable.getNTerminal(graphNode.getNodeReference());
 
-				analyzerStack.getGrViewStack().push(new GrViewNode(topIndexNode, analyzerStack.getParseStack().size() + 1));
-				analyzerStack.getNTerminalStack().push(topIndexNode);
-				topIndexNode = nTerminalNode.getFirstNode();
+				analyzerStack.getGrViewStack().push(new GrViewNode(IX, analyzerStack.getParseStack().size() + 1));
+				analyzerStack.getNTerminalStack().push(IX);
+				IX = nTerminalNode.getFirstNode();
 			}
 		}
-		
-		if(!success)
+
+		if (I < 0)
 		{
 			analyzerToken.setCurrentSymbol(analyzerToken.getLastSymbol());
 			analyzerToken.getYylex().pushback(analyzerToken.getYylex().yylength());
-			while (analyzerStack.getGrViewStack().size() > topParseStackSize)
+			while (analyzerStack.getGrViewStack().size() > TOP)
 			{
 				analyzerStack.getGrViewStack().pop();
 			}
-
-			AppOutput.errorRecoveryStatus("\nDeleting a symbol strategy has not succeeded\n");
 		}
-		return success;
+		return I;
 	}
 
 }
