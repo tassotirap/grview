@@ -66,7 +66,7 @@ public class Analyzer extends Thread
 		analyzerTabs.getGraphNode(0).setAlternativeIndex(0);
 		analyzerTabs.getGraphNode(0).setSucessorIndex(0);
 
-		analyzerStacks.getGrViewStack().push(new GrViewNode(0, 1));
+		analyzerStacks.getGrViewStack().push(new GrViewNode(0, 0));
 
 		analyzerToken.readNext();
 
@@ -158,15 +158,20 @@ public class Analyzer extends Thread
 				if (!analyzerStacks.getGrViewStack().empty())
 				{
 					grViewStackNode = analyzerStacks.getGrViewStack().pop();
-					TableNode currentNTerminal = analyzerTabs.getNTerminal(analyzerTabs.getGraphNode(grViewStackNode.indexNode).getNodeReference());
+					
 
-					while (analyzerStacks.getParseStack().size() >= grViewStackNode.size)
+					while (analyzerStacks.getParseStack().size() > grViewStackNode.size)
 					{
 						auxParseSNode = analyzerStacks.getParseStack().pop();
 					}
 
-					analyzerStacks.getParseStack().push(new ParseNode(currentNTerminal.getFlag(), currentNTerminal.getName(), auxParseSNode.getSemanticSymbol()));
-					analyzerPrint.printStack(analyzerStacks.getParseStack());
+					if (!analyzerStacks.getParseStack().empty())
+					{
+						TableNode currentNTerminal = analyzerTabs.getNTerminal(analyzerTabs.getGraphNode(grViewStackNode.indexNode).getNodeReference());
+						auxParseSNode = analyzerStacks.getParseStack().pop();
+						analyzerStacks.getParseStack().push(new ParseNode(currentNTerminal.getFlag(), currentNTerminal.getName(), auxParseSNode.getSemanticSymbol()));
+						analyzerPrint.printStack(analyzerStacks.getParseStack());
+					}
 
 					I = grViewStackNode.indexNode;
 
