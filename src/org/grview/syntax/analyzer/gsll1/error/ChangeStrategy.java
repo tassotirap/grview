@@ -1,6 +1,7 @@
 package org.grview.syntax.analyzer.gsll1.error;
 
 import org.grview.output.AppOutput;
+import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.syntax.analyzer.gsll1.AnalyzerAlternative;
 import org.grview.syntax.analyzer.gsll1.AnalyzerPrint;
 import org.grview.syntax.analyzer.gsll1.AnalyzerStackRepository;
@@ -75,8 +76,17 @@ public class ChangeStrategy implements IErroStrategy
 						IY = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IY).getNodeReference()).getFirstNode();
 					}
 				}
-				if (I < 0)
+				if(IY == 0 && analyzerToken.getCurrentSymbol().equals("$"))
+				{
+					analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getFlag(), analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getName()));
+					analyzerPrint.printStack(analyzerStack.getParseStack());
+					topps++;
+					I = IY;
+				}					
+				else if (I < 0)
+				{
 					UI = analyzerAlternative.findAlternative(UI, analyzerStack.getNTerminalStack(), analyzerStack.getGrViewStack());
+				}
 			}
 			else
 			{
@@ -87,7 +97,7 @@ public class ChangeStrategy implements IErroStrategy
 		}
 		if (I >= 0)
 		{
-			AppOutput.errorRecoveryStatus("Action: This symbol has been replaced by " + analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getName() + "\n");
+			AppOutput.displayText("Action: This symbol has been replaced by " + analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getName() + "\n", TOPIC.Output);
 		}
 		else
 		{
