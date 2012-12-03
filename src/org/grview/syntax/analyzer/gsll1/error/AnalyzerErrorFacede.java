@@ -84,7 +84,7 @@ public class AnalyzerErrorFacede
 
 		ArrayList<IErroStrategy> strategyList = new ArrayList<IErroStrategy>();
 		strategyList.add(new InsertStrategy());
-		// strategyList.add(new ChangeStrategy());
+		strategyList.add(new ChangeStrategy());
 		// strategyList.add(new DelimiterSearchStrategy());
 		// 
 		strategyList.add(new DeleteStrategy());
