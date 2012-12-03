@@ -55,10 +55,8 @@ public class DeleteStrategy implements IErroStrategy
 					semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
 					semanticRoutinesRepo.execFunction(graphNode.getSemanticRoutine());
 
-					analyzerToken.readNext();
-
 					analyzerStack.getNTerminalStack().clear();
-					I = graphNode.getSucessorIndex();
+					I = IX;
 
 					break;
 				}
@@ -81,7 +79,7 @@ public class DeleteStrategy implements IErroStrategy
 
 		if (I < 0)
 		{
-			analyzerToken.setCurrentSymbol(analyzerToken.getLastSymbol());
+			analyzerToken.setCurrentToken(analyzerToken.getLastToken());
 			analyzerToken.getYylex().pushback(analyzerToken.getYylex().yylength());
 			while (analyzerStack.getGrViewStack().size() > TOP)
 			{

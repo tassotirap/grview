@@ -36,7 +36,6 @@ public class ChangeStrategy implements IErroStrategy
 		int I = -1;
 		NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
 		
-
 		while (analyzerStack.getGrViewStack().size() > TOP)
 			analyzerStack.getGrViewStack().pop();
 		analyzerToken.readNext();
@@ -101,7 +100,7 @@ public class ChangeStrategy implements IErroStrategy
 		}
 		else
 		{
-			analyzerToken.setCurrentSymbol(analyzerToken.getLastSymbol());
+			analyzerToken.setCurrentToken(analyzerToken.getLastToken());
 			
 			analyzerToken.getYylex().pushback(analyzerToken.getYylex().yylength());
 

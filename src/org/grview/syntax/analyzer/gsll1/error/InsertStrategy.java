@@ -2,6 +2,7 @@ package org.grview.syntax.analyzer.gsll1.error;
 
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
+import org.grview.semantics.SemanticRoutinesRepo;
 import org.grview.syntax.analyzer.gsll1.AnalyzerAlternative;
 import org.grview.syntax.analyzer.gsll1.AnalyzerStackRepository;
 import org.grview.syntax.analyzer.gsll1.AnalyzerTableRepository;
@@ -9,6 +10,8 @@ import org.grview.syntax.analyzer.gsll1.AnalyzerToken;
 import org.grview.syntax.model.GrViewNode;
 import org.grview.syntax.model.NTerminalStack;
 import org.grview.syntax.model.ParseNode;
+import org.grview.syntax.model.TableGraphNode;
+import org.grview.syntax.model.TableNode;
 
 public class InsertStrategy implements IErroStrategy
 {
@@ -16,6 +19,7 @@ public class InsertStrategy implements IErroStrategy
 	private AnalyzerStackRepository analyzerStack;
 	private AnalyzerAlternative analyzerAlternative;
 	private AnalyzerToken analyzerToken;
+	private SemanticRoutinesRepo semanticRoutinesRepo;
 
 	public InsertStrategy()
 	{
@@ -23,6 +27,7 @@ public class InsertStrategy implements IErroStrategy
 		this.analyzerStack = AnalyzerStackRepository.getInstance();
 		this.analyzerAlternative = AnalyzerAlternative.getInstance();
 		this.analyzerToken = AnalyzerToken.getInstance();
+		this.semanticRoutinesRepo = SemanticRoutinesRepo.getInstance();
 	}
 
 	@Override
@@ -33,14 +38,14 @@ public class InsertStrategy implements IErroStrategy
 		int I = -1;
 		NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
 
-		int TOP_AUX1 = analyzerStack.getParseStack().size();
-		int TOP_AUX2;
 		while (IX != 0 && I < 0)
 		{
-			if (analyzerTable.getGraphNode(IX).IsTerminal())
-			{
-				TOP_AUX2 = TOP_AUX1;
-				IY = analyzerTable.getGraphNode(IX).getSucessorIndex();
+			TableGraphNode graphNode = analyzerTable.getGraphNode(IX);
+			
+			if (graphNode.IsTerminal())
+			{				
+				TableNode terminalNode = analyzerTable.getTermial(graphNode.getNodeReference());				
+				IY = graphNode.getSucessorIndex();
 				while (IY != 0 && I < 0)
 				{
 					if (analyzerTable.getGraphNode(IY).IsTerminal())
@@ -54,8 +59,14 @@ public class InsertStrategy implements IErroStrategy
 							String temp = analyzerTable.getTermial(analyzerTable.getGraphNode(IY).getNodeReference()).getName();
 							if (temp.equals(analyzerToken.getCurrentSymbol()))
 							{
-								analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference()).getFlag(), analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference()).getName()));
-								TOP = TOP_AUX1 + 1;
+								AppOutput.displayText("<font color='red'>Symbol \"" + terminalNode.getName() + "\" inserted before column " + column + "\n</font>", TOPIC.Output);
+								analyzerStack.getParseStack().push(new ParseNode(terminalNode.getFlag(), terminalNode.getName()));
+
+								semanticRoutinesRepo.setCurrentToken(analyzerToken.getLastToken());
+								semanticRoutinesRepo.execFunction(graphNode.getSemanticRoutine());
+
+								analyzerStack.getNTerminalStack().clear();
+								
 								I = IY;
 							}
 							else
@@ -64,7 +75,6 @@ public class InsertStrategy implements IErroStrategy
 					}
 					else
 					{
-						TOP_AUX2 = TOP_AUX2 + 1;
 						analyzerStack.getGrViewStack().push(new GrViewNode(IY, TOP + 2));
 						pilhaNaoTerminalY.push(IY);
 						IY = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IY).getNodeReference()).getFirstNode();
@@ -75,22 +85,13 @@ public class InsertStrategy implements IErroStrategy
 			}
 			else
 			{
-				TOP_AUX1 = TOP_AUX1 + 1;
 				analyzerStack.getGrViewStack().push(new GrViewNode(IX, TOP + 1));
 				analyzerStack.getNTerminalStack().push(IX);
 				IX = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getFirstNode();
 			}
 		}
-		if (I >= 0)
-		{
-			/* novo topo... */
-			// topo = topoaux2;
-			// syntaxToken.getCurrentSymbol() = pastSymbol;
-			/* volta um token na cabeça de leitura do analisador léxico. */
-			// lex.yypushback(lex.yylength());
-			AppOutput.displayText("<font color='red'>" + analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getName() + " inserted before column " + column + "\n</font>", TOPIC.Output);
-		}
-		else
+		
+		if (I < 0)
 		{
 			while (analyzerStack.getGrViewStack().size() > TOP)
 			{
