@@ -87,11 +87,7 @@ public class AnalyzerErrorFacede
 		strategyList.add(new DeleteStrategy());
 		strategyList.add(new InsertStrategy());		
 		strategyList.add(new ChangeStrategy());
-		
-		
-		// strategyList.add(new DelimiterSearchStrategy());
-		//
-		
+		strategyList.add(new DelimiterSearchStrategy());
 
 		int I = UI;
 
