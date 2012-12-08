@@ -9,6 +9,7 @@ public class AnalyzerStackRepository
 	private ParseStack parseStack;
 	private GrViewStack grViewStack;
 	private NTerminalStack nTerminalStack;
+	private int top;
 	
 	private static AnalyzerStackRepository instance;
 	
@@ -53,5 +54,20 @@ public class AnalyzerStackRepository
 	public void setGrViewStack(GrViewStack grViewStack)
 	{
 		this.grViewStack = grViewStack;
+	}
+
+	public void setNTerminalStack(NTerminalStack nTerminalStack)
+	{
+		this.nTerminalStack = nTerminalStack;		
+	}
+
+	public int getTop()
+	{
+		return top;
+	}
+
+	public void setTop(int top)
+	{
+		this.top = top;
 	}
 }

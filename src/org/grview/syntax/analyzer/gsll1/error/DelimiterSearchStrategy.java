@@ -10,7 +10,7 @@ import org.grview.syntax.model.GrViewStack;
 import org.grview.syntax.model.NTerminalStack;
 import org.grview.syntax.model.ParseNode;
 
-public class DelimiterSearchStrategy implements IErroStrategy
+public class DelimiterSearchStrategy extends IErroStrategy
 {
 	private AnalyzerTableRepository analyzerTable;
 	private AnalyzerStackRepository analyzerStack;
@@ -26,7 +26,7 @@ public class DelimiterSearchStrategy implements IErroStrategy
 	}
 
 	@Override
-	public int tryFix(int UI, int TOP, int column, int line)
+	public int tryFix(int UI, int column, int line)
 	{
 		int I = -1;
 		GrViewStack pilhaAnalisadorBackup;

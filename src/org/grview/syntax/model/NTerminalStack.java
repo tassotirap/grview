@@ -29,7 +29,9 @@ public class NTerminalStack
 	@Override
 	public NTerminalStack clone()
 	{
-		return (NTerminalStack)this.clone();
+		NTerminalStack newInstance = new NTerminalStack();
+		newInstance.nTerminalStack = (Stack<Integer>) this.nTerminalStack.clone();
+		return newInstance;
 	}
 	
 	public boolean empty()

@@ -50,7 +50,6 @@ public class Analyzer extends Thread
 	{
 		int I;
 		int UI;
-		int parseStackSize;
 
 		analyzerToken.setCurrentSemanticSymbol(null);
 		analyzerStacks.init();
@@ -72,7 +71,7 @@ public class Analyzer extends Thread
 
 		I = analyzerTabs.getNTerminal(1).getFirstNode();
 		UI = I;
-		parseStackSize = 0;
+		analyzerStacks.setTop(0);
 
 		continueSentinel = true;
 		while (continueSentinel)
@@ -87,10 +86,9 @@ public class Analyzer extends Thread
 					{
 						semanticRoutinesRepo.setCurrentToken(null);
 						semanticRoutinesRepo.execFunction(currentGraphNode.getSemanticRoutine());
-
+						
 						I = currentGraphNode.getSucessorIndex();
 						UI = I;
-						parseStackSize = analyzerStacks.getParseStack().size();
 					}
 					else
 					{
@@ -98,7 +96,7 @@ public class Analyzer extends Thread
 						{
 							analyzerStacks.getParseStack().push(new ParseNode(currentTerminal.getFlag(), analyzerToken.getCurrentSymbol(), analyzerToken.getCurrentSemanticSymbol()));
 							analyzerPrint.printStack(analyzerStacks.getParseStack());
-							
+
 							semanticRoutinesRepo.setCurrentToken(analyzerToken.getCurrentToken());
 							semanticRoutinesRepo.execFunction(currentGraphNode.getSemanticRoutine());
 
@@ -106,7 +104,7 @@ public class Analyzer extends Thread
 
 							I = currentGraphNode.getSucessorIndex();
 							UI = I;
-							parseStackSize = analyzerStacks.getParseStack().size();
+							analyzerStacks.setTop(analyzerStacks.getTop() + 1);
 
 							analyzerStacks.getNTerminalStack().clear();
 						}
@@ -120,8 +118,8 @@ public class Analyzer extends Thread
 							{
 								if (analyzerStacks.getNTerminalStack().empty())
 								{
-									I = analyzerError.dealWithError(UI, parseStackSize, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
-									continueSentinel = I > 0;
+									I = analyzerError.dealWithError(UI, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
+									continueSentinel = I >= 0;
 
 									sucess = false;
 								}
@@ -134,8 +132,8 @@ public class Analyzer extends Thread
 									}
 									else
 									{
-										I = analyzerError.dealWithError(UI, parseStackSize, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
-										continueSentinel = I > 0;
+										I = analyzerError.dealWithError(UI, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
+										continueSentinel = I >= 0;
 										sucess = false;
 									}
 								}
@@ -147,9 +145,7 @@ public class Analyzer extends Thread
 				{
 					TableNode currentNTerminal = analyzerTabs.getNTerminal(analyzerTabs.getGraphNode(I).getNodeReference());
 					analyzerStacks.getNTerminalStack().push(I);
-
-					analyzerStacks.getGrViewStack().push(new GrViewNode(I, analyzerStacks.getParseStack().size() + 1));
-
+					analyzerStacks.getGrViewStack().push(new GrViewNode(I, analyzerStacks.getTop() + 1));
 					I = currentNTerminal.getFirstNode();
 				}
 			}
@@ -179,13 +175,12 @@ public class Analyzer extends Thread
 
 					I = analyzerTabs.getGraphNode(I).getSucessorIndex();// I
 					UI = I;
-					parseStackSize = this.analyzerStacks.getParseStack().size();
 				}
 				else
 				{
 					if (!analyzerToken.getCurrentSymbol().equals(new String("$")))
 					{
-						I = analyzerError.dealWithError(UI, parseStackSize, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
+						I = analyzerError.dealWithError(UI, analyzerToken.getCurrentToken().charBegin + 1, analyzerToken.getCurrentToken().line + 1);
 						sucess = false;
 					}
 					continueSentinel = I > 0;

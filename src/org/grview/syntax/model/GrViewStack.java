@@ -29,7 +29,9 @@ public class GrViewStack
 	@Override
 	public GrViewStack clone()
 	{
-		return (GrViewStack)this.clone();
+		GrViewStack newInstance = new GrViewStack();
+		newInstance.grViewStack = (Stack<GrViewNode>) this.grViewStack.clone();
+		return newInstance;
 	}
 	
 	public boolean empty()

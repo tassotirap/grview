@@ -11,6 +11,7 @@ public class AnalyzerToken
 	private Yytoken currentToken;
 	
 	private String currentSemanticSymbol;
+	private String lastSemanticSymbol;
 	private String currentSymbol;
 	private String lastSymbol;	
 	private Yylex yylex;
@@ -65,9 +66,11 @@ public class AnalyzerToken
 		try
 		{
 			setLastToken(getCurrentToken());
-			setCurrentToken(getYylex().yylex());
-			setLastSymbol(getCurrentSymbol());
 			
+			setLastSymbol(getCurrentSymbol());
+			setLastSemanticSymbol(getCurrentSemanticSymbol());
+			
+			setCurrentToken(getYylex().yylex());
 			
 			if (getCurrentToken().type.equals("Res") || getCurrentToken().type.equals("Esp") || getCurrentToken().type.equals("EOF"))
 			{
@@ -115,6 +118,16 @@ public class AnalyzerToken
 	public Yytoken getLastToken()
 	{
 		return lastToken;
+	}
+
+	public String getLastSemanticSymbol()
+	{
+		return lastSemanticSymbol;
+	}
+	
+	public void setLastSemanticSymbol(String lastSemanticSymbol)
+	{
+		this.lastSemanticSymbol = lastSemanticSymbol;
 	}
 
 }

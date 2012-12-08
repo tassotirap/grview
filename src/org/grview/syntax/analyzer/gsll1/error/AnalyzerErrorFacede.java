@@ -28,7 +28,7 @@ public class AnalyzerErrorFacede
 		this.syntaxToken = AnalyzerToken.getInstance();
 	}
 
-	public int dealWithError(int UI, int TOP, int column, int line)
+	public int dealWithError(int UI, int column, int line)
 	{
 		int lastIndexNode = UI;
 
@@ -83,17 +83,21 @@ public class AnalyzerErrorFacede
 		}
 
 		ArrayList<IErroStrategy> strategyList = new ArrayList<IErroStrategy>();
-		strategyList.add(new InsertStrategy());
-		strategyList.add(new ChangeStrategy());
-		// strategyList.add(new DelimiterSearchStrategy());
-		// 
+		
 		strategyList.add(new DeleteStrategy());
+		strategyList.add(new InsertStrategy());		
+		strategyList.add(new ChangeStrategy());
+		
+		
+		// strategyList.add(new DelimiterSearchStrategy());
+		//
+		
 
 		int I = UI;
 
 		for (IErroStrategy errorStrategy : strategyList)
 		{
-			I = errorStrategy.tryFix(lastIndexNode, TOP, column, line);
+			I = errorStrategy.tryFix(lastIndexNode,  column, line);
 			if (I >= 0)
 			{
 				return I;
@@ -109,7 +113,7 @@ public class AnalyzerErrorFacede
 			}
 			else
 			{
-				I = dealWithError(lastIndexNode, TOP, syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
+				I = dealWithError(lastIndexNode, syntaxToken.getCurrentToken().charBegin + 1, syntaxToken.getCurrentToken().line + 1);
 			}
 		}
 		return I;
