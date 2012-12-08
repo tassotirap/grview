@@ -2,33 +2,40 @@ package org.grview.syntax.analyzer.gsll1.error;
 
 import org.grview.output.AppOutput;
 import org.grview.output.HtmlViewer.TOPIC;
+import org.grview.syntax.analyzer.gsll1.AnalyzerPrint;
 import org.grview.syntax.model.GrViewNode;
 import org.grview.syntax.model.NTerminalStack;
 import org.grview.syntax.model.ParseNode;
-import org.grview.syntax.model.TableGraphNode;
 import org.grview.syntax.model.TableNode;
 
 public class InsertStrategy extends IErroStrategy
 {
 
+	private AnalyzerPrint analyzerPrint;
+
+	public InsertStrategy()
+	{
+		this.analyzerPrint = AnalyzerPrint.getInstance();
+	}
+	
 	public int tryFix(int UI, int column, int line)
 	{
-		int IX = UI;
-		int IY;
+		int IX, IY;
 		int I = -1;
+		
+		IX = UI;
 
-		init();
-
-		NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
+		init();		
 
 		while (IX != 0 && I < 0)
 		{
-			TableGraphNode graphNode = analyzerTable.getGraphNode(IX);
-
-			if (graphNode.IsTerminal())
+			if (analyzerTable.getGraphNode(IX).IsTerminal())
 			{
-				TableNode terminalNode = analyzerTable.getTermial(graphNode.getNodeReference());
-				IY = graphNode.getSucessorIndex();
+				NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
+				
+				TableNode terminalNode = analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference());				
+				IY = analyzerTable.getGraphNode(IX).getSucessorIndex();	
+				
 				while (IY != 0 && I < 0)
 				{
 					if (analyzerTable.getGraphNode(IY).IsTerminal())
@@ -47,10 +54,10 @@ public class InsertStrategy extends IErroStrategy
 								analyzerStack.setTop(analyzerStack.getTop() + 1);
 
 								semanticRoutinesRepo.setCurrentToken(analyzerToken.getLastToken());
-								semanticRoutinesRepo.execFunction(graphNode.getSemanticRoutine());
+								semanticRoutinesRepo.execFunction(analyzerTable.getGraphNode(IX).getSemanticRoutine());
 
+								analyzerPrint.printStack(analyzerStack.getParseStack());
 								analyzerStack.getNTerminalStack().clear();
-
 								I = IY;
 							}
 							else
@@ -59,8 +66,7 @@ public class InsertStrategy extends IErroStrategy
 					}
 					else
 					{
-
-						analyzerStack.getGrViewStack().push(new GrViewNode(IY, analyzerStack.getTop() + 1));
+						analyzerStack.getGrViewStack().push(new GrViewNode(IY, analyzerStack.getTop() + 2));
 						pilhaNaoTerminalY.push(IY);
 						IY = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IY).getNodeReference()).getFirstNode();
 					}
@@ -72,14 +78,12 @@ public class InsertStrategy extends IErroStrategy
 			}
 			else
 			{
-				analyzerStack.setTop(analyzerStack.getTop() + 1);
-
-				analyzerStack.getGrViewStack().push(new GrViewNode(IX, analyzerStack.getTop()));
+				analyzerStack.getGrViewStack().push(new GrViewNode(IX, analyzerStack.getTop() + 1));
 				analyzerStack.getNTerminalStack().push(IX);
 				IX = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getFirstNode();
 			}
 		}
-
+		
 		if (I < 0)
 		{
 			restore(false);

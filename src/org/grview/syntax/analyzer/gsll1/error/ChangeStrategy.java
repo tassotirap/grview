@@ -6,7 +6,6 @@ import org.grview.syntax.analyzer.gsll1.AnalyzerPrint;
 import org.grview.syntax.model.GrViewNode;
 import org.grview.syntax.model.NTerminalStack;
 import org.grview.syntax.model.ParseNode;
-import org.grview.syntax.model.TableGraphNode;
 import org.grview.syntax.model.TableNode;
 
 public class ChangeStrategy extends IErroStrategy
@@ -19,23 +18,25 @@ public class ChangeStrategy extends IErroStrategy
 		this.analyzerPrint = AnalyzerPrint.getInstance();
 	}
 
-	@Override
 	public int tryFix(int UI, int column, int line)
 	{
-		int IY;
+		int IX, IY;
 		int I = -1;
-		NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
+		
+		IX = UI;
 
 		init();
 
 		analyzerToken.readNext();
-		while (UI != 0 && I < 0)
+		while (IX != 0 && I < 0)
 		{
-			TableGraphNode graphNode = analyzerTable.getGraphNode(UI);
-			if (graphNode.IsTerminal())
+			if (analyzerTable.getGraphNode(IX).IsTerminal())
 			{
-				TableNode terminalNode = analyzerTable.getTermial(graphNode.getNodeReference());
-				IY = graphNode.getSucessorIndex();
+				NTerminalStack pilhaNaoTerminalY = new NTerminalStack();
+				
+				TableNode terminalNode = analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference());
+				IY = analyzerTable.getGraphNode(IX).getSucessorIndex();
+				
 				while (IY != 0 && I < 0)
 				{
 					if (analyzerTable.getGraphNode(IY).IsTerminal())
@@ -50,10 +51,14 @@ public class ChangeStrategy extends IErroStrategy
 							if (temp.equals(analyzerToken.getCurrentSymbol()))
 							{
 								AppOutput.displayText("<font color='red'>Symbol \"" + analyzerToken.getLastToken().text + "\" has been replaced by \"" + terminalNode.getName() + "\"\n", TOPIC.Output);
-								analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getTermial(analyzerTable.getGraphNode(UI).getNodeReference()).getFlag(), terminalNode.getName(), terminalNode.getName()));
+								analyzerStack.getParseStack().push(new ParseNode(analyzerTable.getTermial(analyzerTable.getGraphNode(IX).getNodeReference()).getFlag(), terminalNode.getName(), terminalNode.getName()));
 								analyzerStack.setTop(analyzerStack.getTop() + 1);
+								
+								semanticRoutinesRepo.setCurrentToken(analyzerToken.getLastToken());
+								semanticRoutinesRepo.execFunction(analyzerTable.getGraphNode(IX).getSemanticRoutine());
 
 								analyzerPrint.printStack(analyzerStack.getParseStack());
+								analyzerStack.getNTerminalStack().clear();
 								I = IY;
 							}
 							else
@@ -63,30 +68,25 @@ public class ChangeStrategy extends IErroStrategy
 					else
 					{
 						analyzerStack.getGrViewStack().push(new GrViewNode(IY, analyzerStack.getTop() + 2));
-
 						pilhaNaoTerminalY.push(IY);
 						IY = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IY).getNodeReference()).getFirstNode();
 					}
 				}
 				if (I < 0)
 				{
-					UI = analyzerAlternative.findAlternative(UI, analyzerStack.getNTerminalStack(), analyzerStack.getGrViewStack());
+					IX = analyzerAlternative.findAlternative(IX, analyzerStack.getNTerminalStack(), analyzerStack.getGrViewStack());
 				}
 			}
 			else
 			{
-
-				analyzerStack.getGrViewStack().push(new GrViewNode(UI, analyzerStack.getTop() + 1));
-				analyzerStack.getNTerminalStack().push(UI);
-				UI = analyzerTable.getNTerminal(analyzerTable.getGraphNode(UI).getNodeReference()).getFirstNode();
+				analyzerStack.getGrViewStack().push(new GrViewNode(IX, analyzerStack.getTop() + 1));
+				analyzerStack.getNTerminalStack().push(IX);
+				IX = analyzerTable.getNTerminal(analyzerTable.getGraphNode(IX).getNodeReference()).getFirstNode();
 			}
 		}
+		
 		if (I < 0)
 		{
-			analyzerToken.setCurrentToken(analyzerToken.getLastToken());
-
-			analyzerToken.getYylex().pushback(analyzerToken.getYylex().yylength());
-
 			restore(true);
 		}
 		return I;
