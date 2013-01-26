@@ -17,9 +17,7 @@ import java.util.Set;
 
 import org.grview.lexical.Yytoken;
 import org.grview.project.GrviewManager;
-import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
-import org.grview.syntax.model.ParseStack;
-import org.grview.syntax.model.TableNode;
+import org.grview.syntax.analyzer.gsll1.AnalyzerSemanticStack;
 
 public class SemanticRoutinesRepo
 {
@@ -44,15 +42,15 @@ public class SemanticRoutinesRepo
 		return instance;
 	}
 	
-	public static SemanticRoutinesRepo setInstance(ParseStack parseStack, TableNode tableNode[], AnalyzerGlobalVariavel globalVariable)
+	public static SemanticRoutinesRepo setInstance(AnalyzerSemanticStack globalVariable)
 	{
-		instance = new SemanticRoutinesRepo(parseStack, tableNode, globalVariable);
+		instance = new SemanticRoutinesRepo(globalVariable);
 		return instance;
 	}
 	
-	private SemanticRoutinesRepo(ParseStack parseStack, TableNode tableNode[], AnalyzerGlobalVariavel globalVariable)
+	private SemanticRoutinesRepo(AnalyzerSemanticStack globalVariable)
 	{
-		srIvoker = SemanticRoutinesIvoker.getLastInstance(parseStack, tableNode, this, globalVariable);
+		srIvoker = SemanticRoutinesIvoker.getLastInstance(this, globalVariable);
 		srIvoker.setCurrentToken(currentToken);
 		listeners.add(srIvoker);
 	}
@@ -161,7 +159,7 @@ public class SemanticRoutinesRepo
 		}
 		else if (srIvoker != null)
 		{
-			srIvoker.ivokeMethodFromClass(function);
+			//srIvoker.ivokeMethodFromClass(function);
 		}
 	}
 

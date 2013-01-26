@@ -8,17 +8,12 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 
 import org.grview.lexical.Yytoken;
-import org.grview.output.AppOutput;
-import org.grview.output.HtmlViewer.TOPIC;
 import org.grview.output.SemanticRoutinesOutput;
-import org.grview.syntax.analyzer.gsll1.AnalyzerGlobalVariavel;
-import org.grview.syntax.model.ParseStack;
-import org.grview.syntax.model.TableNode;
+import org.grview.syntax.analyzer.gsll1.AnalyzerSemanticStack;
 import org.grview.util.Log;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
@@ -39,13 +34,12 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 
 	private GroovyObject goo;
 	private boolean loaded = false;
-	private ParseStack parseStack;
-	private AnalyzerGlobalVariavel globalVariable;
+	//private ParseStack parseStack;
+	private AnalyzerSemanticStack semanticStack;
 
 	private SemanticRoutinesRepo repository;
 	private Object scriptlet;
 
-	private TableNode[] tabT;
 	private File semFile;
 
 	public SemanticRoutinesIvoker(File semFile) throws MalformedURLException
@@ -59,14 +53,12 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return lastInstance;
 	}
 
-	public static SemanticRoutinesIvoker getLastInstance(ParseStack parseStack, TableNode[] tabT, SemanticRoutinesRepo repository, AnalyzerGlobalVariavel globalVariable)
+	public static SemanticRoutinesIvoker getLastInstance(SemanticRoutinesRepo repository, AnalyzerSemanticStack semanticStack)
 	{
 
 		SemanticRoutinesIvoker instance = lastInstance;
-		instance.parseStack = parseStack;
-		instance.tabT = tabT;
 		instance.repository = repository;
-		instance.globalVariable = globalVariable;
+		instance.semanticStack = semanticStack;
 		if (!instance.loaded)
 			instance.configureAndLoad();
 		return instance;
@@ -111,11 +103,6 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		loaded = true;
 	}
 
-	public Yytoken getCurrentToken()
-	{
-		return currentToken;
-	}
-
 	public String getExtenalSemanticRoutinesClass()
 	{
 		return DEFAULT_SR_CLASS;
@@ -126,22 +113,12 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		return goo;
 	}
 
-	public ParseStack getParseStack()
-	{
-		return parseStack;
-	}
-
 	public SemanticRoutinesRepo getRepository()
 	{
 		return repository;
 	}
 
-	public TableNode[] getTabT()
-	{
-		return tabT;
-	}
-
-	public void ivokeMethodFromClass(String function)
+/*	public void ivokeMethodFromClass(String function)
 	{
 		try
 		{
@@ -173,7 +150,7 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 				try
 				{
 					m.setAccessible(true);
-					Object o = m.invoke(t, parseStack, tabT);
+					Object o = m.invoke(t, tabT);
 					if (m.getGenericReturnType() == boolean.class)
 					{
 						AppOutput.displayText(String.format("%s() returned %b%n", mname, o), TOPIC.Output);
@@ -210,12 +187,11 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		{
 			Log.log(Log.ERROR, this, String.format("Could not execute semantic routine: %s", function), x);
 		}
-	}
+	}*/
 
 	public void ivokeMethodFromFile(String function)
 	{
-		goo.setProperty("parseStack", parseStack);
-		goo.setProperty("globalVariavel", globalVariable);
+		goo.setProperty("semanticStack", semanticStack);
 		goo.setProperty("currentToken", currentToken);
 		goo.setProperty("output", SemanticRoutinesOutput.getInstance());
 
@@ -241,19 +217,9 @@ public class SemanticRoutinesIvoker implements Cloneable, TokenListener
 		this.goo = goo;
 	}
 
-	public void setParseStack(ParseStack parseStack)
-	{
-		this.parseStack = parseStack;
-	}
-
 	public void setRepository(SemanticRoutinesRepo repository)
 	{
 		this.repository = repository;
-	}
-
-	public void setTabT(TableNode[] tabT)
-	{
-		this.tabT = tabT;
 	}
 
 }
